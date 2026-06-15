@@ -2,6 +2,7 @@ import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars, Chevron } from "../layout/Chevron";
 import { formatDate } from "../../lib/format";
+import { slugify } from "../../lib/slug";
 
 interface Props {
   limit?: number;
@@ -24,11 +25,12 @@ export function FeaturedNews({ limit, bare }: Props) {
           <div className="sw-card-body">
             <span className="sw-card-date">
               {formatDate(post.date)}
+              {post.author && ` · ${post.author}`}
               {post.placeholder && <span className="sw-flag" style={{ marginLeft: 8 }}>Placeholder</span>}
             </span>
             <h3>{post.title}</h3>
             <p>{post.excerpt}</p>
-            <SmartLink href={post.href ?? "/news"} className="sw-link-arrow">
+            <SmartLink href={post.href ?? `/news/${post.slug ?? slugify(post.title)}`} className="sw-link-arrow">
               Read more →
             </SmartLink>
           </div>

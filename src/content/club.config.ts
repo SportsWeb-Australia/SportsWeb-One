@@ -360,6 +360,14 @@ export const club: ClubConfig = {
     joinCta: true,
   },
 
+  // Demo: "learn" is switched on so the enabled state is visible; the rest show
+  // the upgrade / free-trial state. Per-club entitlement will come from the DB.
+  enabledModules: ["learn"],
+  platform: {
+    salesEmail: "carson@clicksportsmedia.com",
+    trialDays: 14,
+  },
+
   footer: {
     acknowledgement:
       "Dookie United Football & Netball Club acknowledges the Traditional Owners of Country throughout Australia and recognises the continuing connection to lands, waters and communities. We pay our respect to Aboriginal and Torres Strait Islander cultures and to Elders past and present.",

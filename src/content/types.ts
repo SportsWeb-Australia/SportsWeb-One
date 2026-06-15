@@ -52,28 +52,42 @@ export interface Sponsor {
   tier: "platinum" | "gold" | "silver";
   /** Optional logo path under /public. Falls back to a styled name plate. */
   logo?: string;
+  blurb?: string;
+  /** When false, hidden from the home-page logo strip (still on /sponsors). */
+  inCarousel?: boolean;
   placeholder?: boolean;
 }
 
 export interface NewsPost {
   id: string;
   title: string;
+  slug?: string;
   date: string; // ISO yyyy-mm-dd
   category: string;
   excerpt: string;
+  content?: string; // full HTML body
   href?: string;
   image?: string;
+  video?: string;
+  author?: string;
   placeholder?: boolean;
 }
 
 export interface ClubEvent {
   id: string;
   title: string;
+  slug?: string;
   date: string; // ISO
+  startsAt?: string; // full ISO for countdowns
   time?: string;
   location?: string;
   description?: string;
   ticketHref?: string;
+  mapUrl?: string;
+  image?: string;
+  video?: string;
+  featured?: boolean;
+  tag?: string;
   placeholder?: boolean;
 }
 
@@ -87,6 +101,8 @@ export interface TeamGroup {
     ages?: string;
     slug?: string;
     grades?: string[];
+    image?: string;
+    video?: string;
   }[];
 }
 
@@ -110,12 +126,14 @@ export interface Fixture {
   round: string;
   date: string;
   opponent: string;
+  opponentLogo?: string;
   venue: "Home" | "Away";
   grade: string;
 }
 export interface Result {
   round: string;
   opponent: string;
+  opponentLogo?: string;
   scoreFor: string;
   scoreAgainst: string;
   outcome: "W" | "L" | "D";
@@ -123,6 +141,7 @@ export interface Result {
 }
 export interface LadderRow {
   team: string;
+  logo?: string;
   played: number;
   won: number;
   lost: number;
@@ -284,6 +303,14 @@ export interface ClubConfig {
   };
 
   blocks: BlockToggles;
+
+  /** Module keys this club has switched on (from lib/modules.ts catalog). */
+  enabledModules?: string[];
+  /** Platform/sales settings used by the module upgrade pages. */
+  platform?: {
+    salesEmail?: string;
+    trialDays?: number;
+  };
 
   footer: {
     acknowledgement: string;

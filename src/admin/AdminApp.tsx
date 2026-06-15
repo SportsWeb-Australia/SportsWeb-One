@@ -7,7 +7,7 @@ import { ResourceManager } from "./ResourceManager";
 import { Login } from "./Login";
 
 function AdminInner() {
-  const { ready, email, membership, signOut } = useAuth();
+  const { ready, resolving, email, membership, signOut } = useAuth();
   const [active, setActive] = useState(RESOURCES[0].key);
 
   if (!supabase) {
@@ -24,6 +24,7 @@ function AdminInner() {
 
   if (!ready) return <div className="sw-admin-loading">Loading…</div>;
   if (!email) return <Login />;
+  if (resolving) return <div className="sw-admin-loading">Loading…</div>;
 
   if (!membership) {
     return (

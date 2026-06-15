@@ -91,7 +91,12 @@ export function MatchCentre({ bare }: Props) {
                     <tr key={i}>
                       <td>{f.round}</td>
                       <td>{f.date}</td>
-                      <td>{f.opponent}</td>
+                      <td>
+                        <span className="sw-mc-team">
+                          {f.opponentLogo && <img className="sw-mc-logo" src={f.opponentLogo} alt="" loading="lazy" />}
+                          {f.opponent}
+                        </span>
+                      </td>
                       <td>
                         <span className="sw-venue">{f.venue}</span>
                       </td>
@@ -115,7 +120,12 @@ export function MatchCentre({ bare }: Props) {
                   {data.results.map((r, i) => (
                     <tr key={i}>
                       <td>{r.round}</td>
-                      <td>{r.opponent}</td>
+                      <td>
+                        <span className="sw-mc-team">
+                          {r.opponentLogo && <img className="sw-mc-logo" src={r.opponentLogo} alt="" loading="lazy" />}
+                          {r.opponent}
+                        </span>
+                      </td>
                       <td style={{ fontFamily: "var(--font-mono)" }}>
                         {r.scoreFor} – {r.scoreAgainst}
                       </td>
@@ -143,7 +153,12 @@ export function MatchCentre({ bare }: Props) {
                 <tbody>
                   {data.ladder.map((row, i) => (
                     <tr key={i} className={row.isClub ? "is-club" : undefined}>
-                      <td>{row.team}</td>
+                      <td>
+                        <span className="sw-mc-team">
+                          {row.logo && <img className="sw-mc-logo" src={row.logo} alt="" loading="lazy" />}
+                          {row.team}
+                        </span>
+                      </td>
                       <td>{row.played}</td>
                       <td>{row.won}</td>
                       <td>{row.lost}</td>

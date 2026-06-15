@@ -23,7 +23,7 @@ export function Home() {
       {b.featuredNews && <FeaturedNews limit={3} />}
       {b.matchCentre && <MatchCentre />}
       {b.joinCta && <JoinCTA />}
-      {b.sponsors && <SponsorStrip />}
+      {b.sponsors && <SponsorStrip onlyCarousel />}
     </>
   );
 }

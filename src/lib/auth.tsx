@@ -9,6 +9,7 @@ export interface ClubMembership {
 
 interface AuthState {
   ready: boolean;
+  resolving: boolean;
   email: string | null;
   membership: ClubMembership | null;
   signIn: (email: string, password: string) => Promise<string | null>;
@@ -39,6 +40,7 @@ async function resolveMembership(userId: string): Promise<ClubMembership | null>
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [membership, setMembership] = useState<ClubMembership | null>(null);
 
@@ -50,13 +52,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data }) => {
       const user = data.session?.user;
       setEmail(user?.email ?? null);
-      if (user) setMembership(await resolveMembership(user.id));
+      if (user) {
+        setResolving(true);
+        setMembership(await resolveMembership(user.id));
+        setResolving(false);
+      }
       setReady(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const user = session?.user;
       setEmail(user?.email ?? null);
-      setMembership(user ? await resolveMembership(user.id) : null);
+      if (user) {
+        setResolving(true);
+        setMembership(await resolveMembership(user.id));
+        setResolving(false);
+      } else {
+        setMembership(null);
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -72,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ ready, email, membership, signIn, signOut }}>
+    <Ctx.Provider value={{ ready, resolving, email, membership, signIn, signOut }}>
       {children}
     </Ctx.Provider>
   );

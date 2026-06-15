@@ -20,8 +20,12 @@ import { Sport } from "./pages/Sport";
 import { Program } from "./pages/Program";
 import { Fixtures } from "./pages/Fixtures";
 import { News } from "./pages/News";
+import { NewsArticle } from "./pages/NewsArticle";
 import { Events } from "./pages/Events";
+import { EventDetail } from "./pages/EventDetail";
 import { Sponsors } from "./pages/Sponsors";
+import { Modules } from "./pages/Modules";
+import { ModulePage } from "./pages/ModulePage";
 import { Documents } from "./pages/Documents";
 import { Contact } from "./pages/Contact";
 import { Register } from "./pages/Register";
@@ -105,8 +109,12 @@ export default function App() {
           <Route path="/program/:slug" element={<Program />} />
           <Route path="/fixtures" element={<Fixtures />} />
           <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<NewsArticle />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:slug" element={<EventDetail />} />
           <Route path="/sponsors" element={<Sponsors />} />
+          <Route path="/modules" element={<Modules />} />
+          <Route path="/modules/:key" element={<ModulePage />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />

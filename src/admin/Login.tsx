@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../lib/auth";
+import { useClub } from "../components/ClubContext";
 
 export function Login() {
   const { signIn } = useAuth();
+  const { club } = useClub();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +26,8 @@ export function Login() {
           <i />
           <i />
         </div>
-        <h1>Club Admin</h1>
-        <p>Sign in to manage your club's content.</p>
+        <h1>{club.identity.shortName} Admin</h1>
+        <p>Sign in to manage {club.identity.name}.</p>
         {error && <p className="sw-admin-error">{error}</p>}
         <label className="sw-admin-field">
           <span>Email</span>

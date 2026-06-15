@@ -1,6 +1,7 @@
 import { supabase, CLUB_SLUG } from "./supabase";
+import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
-import type { ClubConfig, DesignVariant, Sponsor, NewsPost, ClubEvent, TeamGroup, Person, BrandColours } from "../content/types";
+import type { ClubConfig, DesignVariant, Sponsor, NewsPost, ClubEvent, TeamGroup, Person, BrandColours, Fixture, Result, LadderRow } from "../content/types";
 
 /** SportsWeb One template_key -> this template's design variant. */
 const TEMPLATE_VARIANT: Record<string, DesignVariant> = {
@@ -24,6 +25,15 @@ function toTime(value: string | null): string | undefined {
   if (Number.isNaN(d.getTime())) return undefined;
   return d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" });
 }
+/** "Sat 4 Apr, 2:00 PM" for the fixtures table. */
+function formatMatchDate(value: string | null): string {
+  if (!value) return "TBC";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "TBC";
+  const day = d.toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
+  const hasTime = d.getHours() !== 0 || d.getMinutes() !== 0;
+  return hasTime ? `${day}, ${d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" })}` : day;
+}
 
 /**
  * Returns the club config for this site.
@@ -45,12 +55,14 @@ export async function getClubConfig(): Promise<ClubConfig> {
     if (!clubRow) return staticClub;
     const clubId = clubRow.id;
 
-    const [newsRes, eventsRes, sponsorsRes, teamsRes, peopleRes, templateRes] = await Promise.all([
+    const [newsRes, eventsRes, sponsorsRes, teamsRes, peopleRes, matchesRes, ladderRes, templateRes] = await Promise.all([
       supabase.from("news").select("*").eq("club_id", clubId).eq("status", "published").order("published_at", { ascending: false }).limit(12),
       supabase.from("events").select("*").eq("club_id", clubId).eq("status", "published").gte("event_date", new Date().toISOString()).order("event_date", { ascending: true }).limit(12),
       supabase.from("sponsors").select("*").eq("club_id", clubId).eq("status", "published").order("display_order", { ascending: true }),
       supabase.from("teams").select("*").eq("club_id", clubId).eq("status", "published").order("display_order", { ascending: true }),
       supabase.from("people").select("*").eq("club_id", clubId).eq("status", "published"),
+      supabase.from("matches").select("*").eq("club_id", clubId).order("match_date", { ascending: true }),
+      supabase.from("ladder").select("*").eq("club_id", clubId).order("position", { ascending: true }),
       clubRow.selected_template_id
         ? supabase.from("templates").select("template_key").eq("id", clubRow.selected_template_id).maybeSingle()
         : Promise.resolve({ data: null }),
@@ -86,16 +98,22 @@ export async function getClubConfig(): Promise<ClubConfig> {
     if (key && TEMPLATE_VARIANT[key]) cfg.variant = TEMPLATE_VARIANT[key];
 
     // News
-    const news = (newsRes.data ?? []).map(
-      (r): NewsPost => ({
+    const news = (newsRes.data ?? []).map((r): NewsPost => {
+      const slug = r.slug || slugify(r.title ?? "");
+      return {
         id: r.id,
         title: r.title,
+        slug,
         date: toISODate(r.published_at),
         category: "News",
         excerpt: r.summary ?? "",
-        href: "/news",
-      })
-    );
+        content: r.content ?? undefined,
+        href: `/news/${slug}`,
+        author: r.author ?? undefined,
+        image: r.image_url ?? undefined,
+        video: r.video_url ?? undefined,
+      };
+    });
     if (news.length) cfg.news = news;
 
     // Events
@@ -103,10 +121,18 @@ export async function getClubConfig(): Promise<ClubConfig> {
       (r): ClubEvent => ({
         id: r.id,
         title: r.title,
+        slug: r.slug || slugify(r.title ?? ""),
         date: toISODate(r.event_date),
+        startsAt: r.event_date ?? undefined,
         time: toTime(r.event_date),
         location: r.location ?? undefined,
         description: r.description ?? undefined,
+        featured: r.featured === true,
+        tag: r.tag ?? undefined,
+        ticketHref: r.tickets_url ?? undefined,
+        mapUrl: r.map_url ?? undefined,
+        image: r.image_url ?? undefined,
+        video: r.video_url ?? undefined,
       })
     );
     if (events.length) cfg.events = events;
@@ -117,6 +143,9 @@ export async function getClubConfig(): Promise<ClubConfig> {
         name: r.name,
         href: r.website_url ?? undefined,
         tier: (r.sponsor_level as Sponsor["tier"]) ?? "silver",
+        logo: r.logo_url ?? undefined,
+        blurb: r.blurb ?? undefined,
+        inCarousel: r.in_carousel !== false,
       })
     );
     if (sponsors.length) cfg.sponsors = sponsors;
@@ -139,6 +168,8 @@ export async function getClubConfig(): Promise<ClubConfig> {
           blurb: r.description ?? [r.grade, r.coach_name && `Coach: ${r.coach_name}`].filter(Boolean).join(" · "),
           ages: r.age_group ?? undefined,
           href: "/teams",
+          image: r.image_url ?? undefined,
+          video: r.video_url ?? undefined,
         });
       }
       cfg.teams = [...groups.values()];
@@ -162,6 +193,65 @@ export async function getClubConfig(): Promise<ClubConfig> {
         })
       );
     if (committee.length) cfg.committee = committee;
+
+    // Match centre — admin-managed fixtures, results, ladder.
+    // When the club has entered any matches or ladder rows, switch the Match
+    // Centre to live (manual) data; otherwise the static sample stays.
+    const matchRows = matchesRes.data ?? [];
+    const ladderRows = ladderRes.data ?? [];
+    if (matchRows.length || ladderRows.length) {
+      const fixtures = matchRows
+        .filter((r) => r.status !== "completed")
+        .map(
+          (r): Fixture => ({
+            round: r.round ?? "",
+            date: formatMatchDate(r.match_date),
+            opponent: r.opponent ?? "",
+            opponentLogo: r.opponent_logo ?? undefined,
+            venue: r.home_away === "Away" ? "Away" : "Home",
+            grade: r.grade ?? "",
+          })
+        );
+      const results = matchRows
+        .filter((r) => r.status === "completed")
+        .sort((a, b) => new Date(b.match_date ?? 0).getTime() - new Date(a.match_date ?? 0).getTime())
+        .map((r): Result => {
+          const sf = r.our_score;
+          const sa = r.opponent_score;
+          const outcome: Result["outcome"] =
+            sf == null || sa == null ? "D" : sf > sa ? "W" : sf < sa ? "L" : "D";
+          return {
+            round: r.round ?? "",
+            opponent: r.opponent ?? "",
+            opponentLogo: r.opponent_logo ?? undefined,
+            scoreFor: sf != null ? String(sf) : "",
+            scoreAgainst: sa != null ? String(sa) : "",
+            outcome,
+            grade: r.grade ?? "",
+          };
+        });
+      const ladder = ladderRows.map(
+        (r): LadderRow => ({
+          team: r.team ?? "",
+          logo: r.logo ?? undefined,
+          played: Number(r.played ?? 0),
+          won: Number(r.won ?? 0),
+          lost: Number(r.lost ?? 0),
+          drawn: Number(r.drawn ?? 0),
+          pct: Number(r.percentage ?? 0),
+          points: Number(r.points ?? 0),
+          isClub: r.is_own === true,
+        })
+      );
+      cfg.matchCentre = {
+        ...staticClub.matchCentre,
+        mode: "manual",
+        placeholder: false,
+        fixtures,
+        results,
+        ladder,
+      };
+    }
 
     return cfg;
   } catch {
