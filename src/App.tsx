@@ -3,12 +3,15 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { club as staticClub } from "./content/club.config";
 import { getClubConfig } from "./lib/loadClub";
 import { ClubContext } from "./components/ClubContext";
+import { registerServiceWorker } from "./lib/pwa";
 import type { ClubConfig, DesignVariant } from "./content/types";
 
 import { Header } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
 import { VariantSwitcher } from "./components/layout/VariantSwitcher";
+import { MobileTabBar } from "./components/layout/MobileTabBar";
 import { AnnouncementBar } from "./components/blocks/AnnouncementBar";
+import { AppPrompts } from "./components/pwa/AppPrompts";
 
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
@@ -21,6 +24,7 @@ import { Documents } from "./pages/Documents";
 import { Contact } from "./pages/Contact";
 import { Register } from "./pages/Register";
 import { NotFound } from "./pages/NotFound";
+import { AdminApp } from "./admin/AdminApp";
 
 /** Scroll to top on every route change. */
 function ScrollToTop() {
@@ -35,6 +39,12 @@ export default function App() {
   // Static config renders instantly; live Supabase content swaps in when ready.
   const [club, setClub] = useState<ClubConfig>(staticClub);
   const [variant, setVariant] = useState<DesignVariant>(staticClub.variant);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -62,6 +72,17 @@ export default function App() {
     document.documentElement.setAttribute("data-variant", variant);
   }, [variant]);
 
+  // Admin runs as its own full-screen app, without the public site chrome.
+  if (isAdmin) {
+    return (
+      <ClubContext.Provider value={{ club, variant, setVariant }}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </ClubContext.Provider>
+    );
+  }
+
   return (
     <ClubContext.Provider value={{ club, variant, setVariant }}>
       <a href="#main" className="sw-skip">
@@ -86,6 +107,8 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <MobileTabBar />
+      <AppPrompts />
       {club.showVariantSwitcher && <VariantSwitcher />}
     </ClubContext.Provider>
   );

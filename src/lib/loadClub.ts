@@ -117,6 +117,12 @@ export async function getClubConfig(): Promise<ClubConfig> {
     );
     if (sponsors.length) cfg.sponsors = sponsors;
 
+    // Optional per-club sponsor layout (add clubs.sponsor_display to use this).
+    const display = clubRow.sponsor_display as string | undefined;
+    if (display === "tiered" || display === "flat" || display === "featured") {
+      cfg.sponsorDisplay = display;
+    }
+
     // Teams — grouped by sport when present, else one group from the club sport.
     const teamRows = teamsRes.data ?? [];
     if (teamRows.length) {

@@ -227,6 +227,13 @@ export interface ClubConfig {
 
   nav: NavItem[];
   sponsors: Sponsor[];
+  /**
+   * How sponsors are presented:
+   *  - "tiered"   grouped by tier (platinum / gold / silver)
+   *  - "flat"     one equal logo wall, no tiers
+   *  - "featured" top tier shown large, the rest in a wall
+   */
+  sponsorDisplay?: "tiered" | "flat" | "featured";
   news: NewsPost[];
   events: ClubEvent[];
   teams: TeamGroup[];

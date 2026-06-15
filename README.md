@@ -118,6 +118,50 @@ service-role key must never go in front-end code.
 Editing still happens in the SportsWeb One admin (which writes to these tables);
 this site reflects those edits live.
 
+## Club admin (self-serve editing)
+
+A built-in admin lets club staff edit their own content. Visit **`/admin`**.
+
+- Sign in with Supabase Auth (email + password).
+- The signed-in user is matched to a club via `club_users(user_id, club_id, role)`.
+- CRUD for **news, events, sponsors and teams**, scoped to that club.
+- Security is enforced by **row-level security**, not the UI. Run
+  `supabase/admin-policies.sql` (adjust table names if needed) so members can only
+  read/write their own club's rows, and the public can read published rows.
+
+Setup per club: create the user in Supabase Auth, add a `club_users` row linking
+them to their `club_id`. The admin shares the site's env vars; no extra config.
+
+This admin lives in the template for now. Longer term it can move into the central
+SportsWeb One app so auth/roles live in one place and club sites stay read-only —
+the table contract is identical either way.
+
+## PWA (installable + push)
+
+- `public/manifest.webmanifest` + icons + `public/sw.js` make the site installable
+  and offline-capable (content stays network-first so it's never stale).
+- An **install prompt** appears on supported devices (with iOS "Add to Home Screen"
+  instructions); a **push opt-in** prompt requests notification permission.
+- Push delivery is provider-agnostic. Set `VITE_VAPID_PUBLIC_KEY` and
+  `VITE_PUSH_SUBSCRIBE_URL` (e.g. a Supabase Edge Function) to store subscriptions;
+  the SW's `push` handler shows the notification. Without those, the prompt still
+  captures permission. (If SportsWeb One sends via WebPushr, point the subscribe
+  step there instead.)
+- Manifest name/colours are Dookie's; generate per club for production.
+
+## Sponsor layouts
+
+Not every club ranks sponsors. `sponsorDisplay` controls presentation:
+`"tiered"` (platinum/gold/silver, default), `"flat"` (one equal logo wall), or
+`"featured"` (top tier large, the rest in a wall). Map it from an optional
+`clubs.sponsor_display` column.
+
+## Mobile
+
+An app-style bottom tab bar (Home / Fixtures / News / Join / Club) appears on
+phones; the desktop header hides on mobile. Everything is responsive across phone,
+tablet and desktop.
+
 ## Match Centre
 
 Three modes, set by `matchCentre.mode` in the config:
