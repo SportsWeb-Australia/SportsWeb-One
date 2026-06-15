@@ -1,6 +1,7 @@
 import { useClub } from "../components/ClubContext";
 import { PageHero } from "../components/layout/PageHero";
 import { AccentBars } from "../components/layout/Chevron";
+import { MediaPlaceholder } from "../components/blocks/MediaPlaceholder";
 import { PresidentWelcome } from "../components/blocks/PresidentWelcome";
 import { Committee } from "../components/blocks/Committee";
 
@@ -17,6 +18,12 @@ export function About() {
       />
 
       <PresidentWelcome />
+
+      <section className="sw-section">
+        <div className="sw-container">
+          <MediaPlaceholder label="Club / clubrooms photo" className="sw-media-band" />
+        </div>
+      </section>
 
       <section className="sw-section">
         <div className="sw-container">

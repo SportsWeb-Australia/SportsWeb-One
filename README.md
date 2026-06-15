@@ -28,17 +28,36 @@ npm run preview  # preview the production build
 
 ## Design variants
 
-The same content renders in four visual templates, chosen by `variant` in the config:
+The same content renders in eight visual templates, chosen by `variant` in the config.
+
+**Text/motif-led** (the club's diagonal-stripe signature; no photography needed):
 
 - **`heritage`** — light, clean, community/sponsor-friendly (default).
 - **`broadcast`** — dark, bold, match-day broadcast energy.
 - **`arena`** — sharp-edged, flat, high-contrast sporting look with a black hero.
 - **`classic`** — silver-toned, rounded, soft premium-heritage feel.
 
-All four share identical content and structure; only the design tokens (colours,
-surfaces, corner radius, shadow) change. While `showVariantSwitcher: true`, a
-floating **Design** toggle (bottom-right) lets a club preview all four live before
-choosing. **Set `showVariantSwitcher: false` for production** once a design is locked.
+**Media-led** (image or video hero, distinct layouts — see `hero.backgroundImage`,
+`hero.video`, `hero.poster`):
+
+- **`stadium`** — full-bleed photo/video hero, dark gradient, text bottom-left, a
+  scoreboard-style stats strip; light content pages (Oswald).
+- **`editorial`** — magazine layout: image to one side with the headline in an
+  overlapping card, serif headlines (Playfair Display).
+- **`momentum`** — diagonal split hero (solid block + clipped image), energetic
+  condensed type (Saira Condensed), sharp edges.
+- **`coastal`** — airy and minimal, a calm light-washed image band, centred type
+  with lots of whitespace (Space Grotesk).
+
+The media heroes use the bundled placeholder images (`/public/hero-dark.jpg`,
+`/hero-light.jpg`) by default — set `hero.backgroundImage` (or `hero.video` +
+`hero.poster`) to use a real photo/clip. Video autoplays muted/looping with the
+poster as fallback.
+
+While `showVariantSwitcher: true`, a floating **Design** toggle (bottom-right) lets a
+club preview all eight live. **Set `showVariantSwitcher: false` for production** once a
+design is locked. For production, also trim `index.html` to just the chosen design's
+fonts.
 
 ## Make a new club from this template
 
@@ -161,6 +180,38 @@ Not every club ranks sponsors. `sponsorDisplay` controls presentation:
 An app-style bottom tab bar (Home / Fixtures / News / Join / Club) appears on
 phones; the desktop header hides on mobile. Everything is responsive across phone,
 tablet and desktop.
+
+## Teams: sport & program pages
+
+Teams are structured so each program has its own page:
+
+- `/football`, `/netball` — per-sport landing pages listing only that sport's programs.
+- `/program/:slug` — a single program (e.g. Seniors & Reserves) with its grades and
+  details, plus links to sibling programs and the other sport.
+- `/teams` — a combined overview linking into both.
+
+Programs live in `club.config.ts` under `teams[]` (each with a `slug`, `grades`,
+and `href`). The nav dropdowns point at these routes.
+
+## SEO
+
+- Per-page `<title>` + meta description + canonical + Open Graph are set by
+  `SeoManager` (static routes) and `useSeo` (sport/program pages) in `src/lib/seo.ts`.
+- `index.html` carries default meta + `SportsOrganization` JSON-LD.
+- `public/robots.txt`, `public/sitemap.xml` (update the domain on go-live), and icons.
+- Note: this is a client-rendered SPA, so JS-aware crawlers (Google) see per-page tags,
+  but some social scrapers only read `index.html`'s defaults. For per-page social cards,
+  add a prerender/SSG step — happy to wire that when the domain is set.
+
+## Redirects (go-live)
+
+`vercel.json` has the SPA rewrite (so deep links like `/football` work on refresh) and
+a `redirects` array for 301s. On go-live, add the canonical host redirect (apex↔www)
+and any old→new URL maps there, e.g.:
+
+```json
+{ "source": "/old-news/:slug", "destination": "/news", "permanent": true }
+```
 
 ## Match Centre
 

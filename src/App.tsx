@@ -16,6 +16,8 @@ import { AppPrompts } from "./components/pwa/AppPrompts";
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
 import { Teams } from "./pages/Teams";
+import { Sport } from "./pages/Sport";
+import { Program } from "./pages/Program";
 import { Fixtures } from "./pages/Fixtures";
 import { News } from "./pages/News";
 import { Events } from "./pages/Events";
@@ -25,6 +27,7 @@ import { Contact } from "./pages/Contact";
 import { Register } from "./pages/Register";
 import { NotFound } from "./pages/NotFound";
 import { AdminApp } from "./admin/AdminApp";
+import { SeoManager } from "./lib/seo";
 
 /** Scroll to top on every route change. */
 function ScrollToTop() {
@@ -89,6 +92,7 @@ export default function App() {
         Skip to content
       </a>
       <ScrollToTop />
+      <SeoManager />
       <AnnouncementBar />
       <Header />
       <main id="main">
@@ -96,6 +100,9 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/teams" element={<Teams />} />
+          <Route path="/football" element={<Sport sport="Football" />} />
+          <Route path="/netball" element={<Sport sport="Netball" />} />
+          <Route path="/program/:slug" element={<Program />} />
           <Route path="/fixtures" element={<Fixtures />} />
           <Route path="/news" element={<News />} />
           <Route path="/events" element={<Events />} />

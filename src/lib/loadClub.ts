@@ -8,6 +8,10 @@ const TEMPLATE_VARIANT: Record<string, DesignVariant> = {
   "afl-classic": "arena",
   "club-modern": "broadcast",
   "club-classic-serif": "classic",
+  stadium: "stadium",
+  editorial: "editorial",
+  momentum: "momentum",
+  coastal: "coastal",
 };
 
 function toISODate(value: string | null): string {

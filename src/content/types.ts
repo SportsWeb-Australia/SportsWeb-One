@@ -10,7 +10,15 @@
  *   - Layout, tokens logic, and component structure = locked/global (see styles + components).
  */
 
-export type DesignVariant = "heritage" | "broadcast" | "arena" | "classic";
+export type DesignVariant =
+  | "heritage"
+  | "broadcast"
+  | "arena"
+  | "classic"
+  | "stadium"
+  | "editorial"
+  | "momentum"
+  | "coastal";
 
 export interface BrandColours {
   /** Primary ink / dominant colour (Dookie: black). */
@@ -77,6 +85,8 @@ export interface TeamGroup {
     blurb: string;
     href?: string;
     ages?: string;
+    slug?: string;
+    grades?: string[];
   }[];
 }
 
@@ -212,6 +222,9 @@ export interface ClubConfig {
     secondaryCta?: LinkRef;
     /** Optional background image under /public. Motif renders if absent. */
     backgroundImage?: string;
+    /** Optional hero video (mp4/webm) for media-led designs; poster shown first. */
+    video?: string;
+    poster?: string;
   };
 
   quickLinks: LinkRef[];
