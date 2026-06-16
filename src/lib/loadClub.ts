@@ -264,8 +264,7 @@ export async function getClubConfig(): Promise<ClubConfig> {
       .from("club_modules")
       .select("module_key,status")
       .eq("club_id", clubId);
-    if (!cmErr && cmRows && cmRows.length) {
-      enabledKeys.clear();
+    if (!cmErr && cmRows) {
       for (const m of cmRows) {
         if (m.status === "enabled" || m.status === "trial") enabledKeys.add(m.module_key);
       }

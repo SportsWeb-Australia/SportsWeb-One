@@ -390,6 +390,60 @@ function RailLadder({ ladder }: { ladder: ReturnType<typeof useData>["ladder"] }
   );
 }
 
+/* --------------------------------------------------------------------- Poster */
+function Poster() {
+  const { id, news, fixtures } = useData();
+  const next = fixtures[0];
+  const lead = news[0];
+  return (
+    <>
+      <section className="sw-po-hero">
+        <div className="sw-container">
+          <p className="sw-po-kicker">{id.league ?? id.shortName}</p>
+          <h1>{id.name}</h1>
+          <SmartLink href="/register" className="sw-po-btn">Register now →</SmartLink>
+        </div>
+      </section>
+      <section className="sw-po-block sw-po-block--ink">
+        <div className="sw-container">
+          <span className="sw-po-label">Next match</span>
+          {next ? (
+            <h2>{id.shortName} v {next.opponent}</h2>
+          ) : (
+            <h2>Fixtures coming soon</h2>
+          )}
+          {next && <p className="sw-po-meta">{next.date} · {next.venue}</p>}
+          <SmartLink href="/fixtures" className="sw-po-link">Match centre →</SmartLink>
+        </div>
+      </section>
+      {lead && (
+        <section className="sw-po-block sw-po-block--accent">
+          <div className="sw-container">
+            <span className="sw-po-label">Latest</span>
+            <h2>
+              <SmartLink href={newsHref(lead)}>{lead.title}</SmartLink>
+            </h2>
+            <p className="sw-po-meta">{lead.excerpt}</p>
+            <SmartLink href="/news" className="sw-po-link">All news →</SmartLink>
+          </div>
+        </section>
+      )}
+      <section className="sw-po-block sw-po-block--paper">
+        <div className="sw-container">
+          <span className="sw-po-label">Join the club</span>
+          <h2>Play. Volunteer. Sponsor.</h2>
+          <div className="sw-po-ctas">
+            <SmartLink href="/register" className="sw-po-link">Register →</SmartLink>
+            <SmartLink href="/teams" className="sw-po-link">Our teams →</SmartLink>
+            <SmartLink href="/sponsors" className="sw-po-link">Partner with us →</SmartLink>
+          </div>
+        </div>
+      </section>
+      <SponsorStrip onlyCarousel />
+    </>
+  );
+}
+
 /** Default home layout (the original block stack) for the existing variants. */
 function Classic({ club }: { club: ClubConfig }) {
   const b = club.blocks;
@@ -412,6 +466,7 @@ const LAYOUTS: Partial<Record<DesignVariant, () => ReactNode>> = {
   bento: Bento,
   sponsorforward: SponsorForward,
   portal: Portal,
+  poster: Poster,
 };
 
 export function HomeLayout() {

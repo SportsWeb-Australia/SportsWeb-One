@@ -341,3 +341,12 @@
   --radius: 10px;
   --radius-lg: 14px;
 }
+[data-variant="poster"] {
+  --font-display: "Anton", Impact, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --heading-transform: uppercase;
+  --heading-tracking: -0.01em;
+  --heading-weight: 400;
+  --radius: 0px;
+  --radius-lg: 0px;
+}

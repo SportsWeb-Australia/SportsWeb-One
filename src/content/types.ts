@@ -24,7 +24,8 @@ export type DesignVariant =
   | "appshell"
   | "bento"
   | "sponsorforward"
-  | "portal";
+  | "portal"
+  | "poster";
 
 export interface BrandColours {
   /** Primary ink / dominant colour (Dookie: black). */

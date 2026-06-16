@@ -362,7 +362,7 @@ export const club: ClubConfig = {
 
   // Demo: "learn" is switched on so the enabled state is visible; the rest show
   // the upgrade / free-trial state. Per-club entitlement will come from the DB.
-  enabledModules: ["learn"],
+  enabledModules: ["learn", "volunteers"],
   platform: {
     salesEmail: "carson@clicksportsmedia.com",
     trialDays: 14,

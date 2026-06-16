@@ -1745,3 +1745,85 @@
 .sw-portal-list li { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
 .sw-portal-list a { color: inherit; }
 .sw-portal-list span { font-size: 0.8rem; color: var(--text-soft); white-space: nowrap; }
+
+/* Variant-aware interior page header */
+.sw-pagehero--dark {
+  background: var(--bg-invert); color: var(--text-invert);
+}
+.sw-pagehero--dark .sw-breadcrumb { color: var(--text-invert); opacity: 0.7; }
+.sw-pagehero--dark h1 { text-transform: var(--heading-transform); }
+.sw-pagehero--dark p { color: var(--text-invert); opacity: 0.85; }
+.sw-pagehero--dark .sw-hero-motif { opacity: 0.18; }
+
+.sw-pagehero--serif { text-align: center; border-bottom: 3px double var(--border); }
+.sw-pagehero--serif .sw-accent-bars { justify-content: center; }
+.sw-pagehero--serif h1 { font-family: var(--font-display); font-weight: 800; }
+.sw-pagehero--serif .sw-hero-motif { display: none; }
+
+.sw-pagehero--soft { background: var(--surface-2); }
+.sw-pagehero--soft h1 { letter-spacing: -0.02em; }
+.sw-pagehero--soft .sw-hero-motif { display: none; }
+
+.sw-pagehero--bold { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.sw-pagehero--bold h1 { text-transform: var(--heading-transform); }
+
+.sw-pagehero--rule {
+  padding-top: 1.75rem; padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border); text-align: left;
+}
+.sw-pagehero--rule .sw-hero-motif { display: none; }
+.sw-pagehero--rule h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+
+/* ---- Poster (brutalist) ---- */
+.sw-po-hero {
+  background: var(--accent); color: var(--club-on-primary, #fff);
+  padding: clamp(3rem, 10vw, 7rem) 0 clamp(2.5rem, 8vw, 5rem);
+}
+.sw-po-kicker { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.8rem; opacity: 0.85; }
+.sw-po-hero h1 {
+  font-family: var(--font-display); text-transform: uppercase;
+  font-size: clamp(3rem, 14vw, 9rem); line-height: 0.86; letter-spacing: -0.02em;
+  margin: 0.5rem 0 1.5rem; word-break: break-word;
+}
+.sw-po-btn, .sw-po-link {
+  display: inline-block; font-family: var(--font-mono); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; color: inherit;
+  border-bottom: 3px solid currentColor; padding-bottom: 2px;
+}
+.sw-po-block { padding: clamp(2.5rem, 8vw, 5rem) 0; border-top: 4px solid var(--club-ink); }
+.sw-po-block h2 {
+  font-family: var(--font-display); text-transform: uppercase;
+  font-size: clamp(2rem, 8vw, 5rem); line-height: 0.9; margin: 0.5rem 0;
+}
+.sw-po-block h2 a { color: inherit; text-decoration: none; }
+.sw-po-label { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.8rem; }
+.sw-po-meta { font-size: 1.05rem; margin: 0.5rem 0 1.25rem; max-width: 60ch; }
+.sw-po-block--ink { background: var(--club-ink); color: var(--club-paper); }
+.sw-po-block--accent { background: var(--accent); color: var(--club-on-primary, #fff); }
+.sw-po-block--paper { background: var(--club-paper); color: var(--club-ink); }
+.sw-po-ctas { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 0.5rem; }
+
+/* Admin — rich text editor */
+.sw-rt { border: 1px solid #e4e4e7; border-radius: 10px; overflow: hidden; background: #fff; }
+.sw-rt-toolbar {
+  display: flex; flex-wrap: wrap; gap: 2px; padding: 6px;
+  background: #fafafa; border-bottom: 1px solid #e4e4e7;
+}
+.sw-rt-toolbar button {
+  min-width: 32px; height: 30px; padding: 0 8px; border: 1px solid transparent;
+  border-radius: 6px; background: transparent; cursor: pointer;
+  font-size: 0.82rem; color: #3f3f46; font-family: var(--font-mono);
+}
+.sw-rt-toolbar button:hover { background: #eef0f2; border-color: #e4e4e7; }
+.sw-rt-area {
+  min-height: 220px; padding: 1rem 1.1rem; outline: none;
+  font-size: 1rem; line-height: 1.6;
+}
+.sw-rt-area:empty:before { content: attr(data-placeholder); color: #a1a1aa; }
+.sw-rt-area:focus { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* Prose blockquote (article + editor) */
+.sw-prose blockquote {
+  margin: 1rem 0; padding: 0.5rem 1.1rem; border-left: 3px solid var(--accent);
+  color: var(--text-soft); font-style: italic;
+}

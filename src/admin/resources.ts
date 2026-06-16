@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "date" | "datetime" | "select" | "url" | "number" | "boolean" | "image" | "video";
+export type FieldType = "text" | "textarea" | "date" | "datetime" | "select" | "url" | "number" | "boolean" | "image" | "video" | "richtext";
 
 export interface Field {
   name: string;
@@ -51,7 +51,7 @@ export const RESOURCES: ResourceDef[] = [
       { name: "slug", label: "Slug", type: "text", help: "Leave blank to auto-generate." },
       { name: "author", label: "Author", type: "text", help: "Shown as the byline." },
       { name: "summary", label: "Summary", type: "textarea", help: "Shown on cards." },
-      { name: "content", label: "Content", type: "textarea", help: "Full article (HTML allowed)." },
+      { name: "content", label: "Content", type: "richtext", help: "The full article. Use the toolbar to format." },
       { name: "image_url", label: "Cover image", type: "image" },
       { name: "video_url", label: "Video", type: "video", help: "Optional highlight or interview clip." },
       { name: "published_at", label: "Publish date", type: "datetime" },

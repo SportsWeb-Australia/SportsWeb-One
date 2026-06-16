@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { uploadToStorage } from "../lib/upload";
+import { RichText } from "./RichText";
 import { useAuth } from "../lib/auth";
 import { slugify, type Field, type ResourceDef } from "./resources";
 
@@ -210,7 +211,7 @@ export function ResourceManager({ resource }: { resource: ResourceDef }) {
         {error && <p className="sw-admin-error">{error}</p>}
         <div className="sw-admin-form">
           {resource.fields.map((f) => (
-            <FieldInput key={f.name} field={f} value={values[f.name] ?? ""} onChange={(v) => setValues((s) => ({ ...s, [f.name]: v }))} clubId={clubId} folder={resource.table} />
+            <FieldInput key={f.name} field={f} value={values[f.name] ?? ""} onChange={(v) => setValues((s) => ({ ...s, [f.name]: v }))} clubId={clubId} folder={resource.table} recordKey={editing === "new" ? "new" : (editing as Row).id} />
           ))}
         </div>
         <button className="sw-btn" onClick={save} disabled={busy}>
@@ -356,9 +357,18 @@ function csvTemplate(resource: ResourceDef): string {
   return [header, example].join("\n");
 }
 
-function FieldInput({ field, value, onChange, clubId, folder }: { field: Field; value: string; onChange: (v: string) => void; clubId?: string; folder?: string }) {
+function FieldInput({ field, value, onChange, clubId, folder, recordKey }: { field: Field; value: string; onChange: (v: string) => void; clubId?: string; folder?: string; recordKey?: string }) {
   if (field.type === "image" || field.type === "video") {
     return <UploadField field={field} value={value} onChange={onChange} clubId={clubId} folder={folder ?? "media"} />;
+  }
+  if (field.type === "richtext") {
+    return (
+      <label className="sw-admin-field">
+        <span>{field.label}</span>
+        <RichText key={recordKey} value={value} onChange={onChange} />
+        {field.help && <small>{field.help}</small>}
+      </label>
+    );
   }
   const common = { id: field.name, value, onChange: (e: { target: { value: string } }) => onChange(e.target.value) };
   return (

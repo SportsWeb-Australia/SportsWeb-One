@@ -16,6 +16,7 @@ const STYLES: { id: DesignVariant; label: string; note: string }[] = [
   { id: "bento", label: "Bento", note: "Asymmetric magazine grid." },
   { id: "sponsorforward", label: "Sponsor-forward", note: "Partners front and centre." },
   { id: "portal", label: "Portal", note: "Sidebar nav + dashboard." },
+  { id: "poster", label: "Poster", note: "Brutalist — huge type, colour blocks." },
 ];
 
 export function AdminWebsite() {
