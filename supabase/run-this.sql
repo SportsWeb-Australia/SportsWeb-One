@@ -203,6 +203,92 @@ create policy club_content_member_write on public.club_content
   with check (club_id in (select public.my_club_ids()));
 
 -- ============================================================
--- 7. Tell PostgREST to refresh its schema cache
+-- 7. Communications — sent-message history
+-- ============================================================
+create table if not exists public.club_messages (
+  id              uuid primary key default gen_random_uuid(),
+  club_id         uuid not null references public.clubs(id) on delete cascade,
+  channels        text[] not null default '{}',
+  subject         text,
+  body            text not null,
+  audience        text,
+  recipient_count int not null default 0,
+  status          text not null default 'sent',
+  created_by      uuid default auth.uid(),
+  created_at      timestamptz not null default now()
+);
+
+alter table public.club_messages enable row level security;
+
+drop policy if exists club_messages_member_read on public.club_messages;
+create policy club_messages_member_read on public.club_messages
+  for select using (club_id in (select public.my_club_ids()));
+
+drop policy if exists club_messages_member_write on public.club_messages;
+create policy club_messages_member_write on public.club_messages
+  for all
+  using (club_id in (select public.my_club_ids()))
+  with check (club_id in (select public.my_club_ids()));
+
+-- ============================================================
+-- 8. Platform (super) admin — the SportsWeb operator layer
+-- ============================================================
+-- Global operators who can manage every club. This is separate from
+-- club_users.role: a club_admin runs one club; a platform admin runs the platform.
+create table if not exists public.platform_admins (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.platform_admins enable row level security;
+
+drop policy if exists platform_admins_self_read on public.platform_admins;
+create policy platform_admins_self_read on public.platform_admins
+  for select using (user_id = auth.uid());
+
+create or replace function public.is_platform_admin()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.platform_admins where user_id = auth.uid())
+$$;
+
+-- Cross-club operations. SECURITY DEFINER so they can see every club, but each
+-- one refuses unless the caller is a platform admin.
+create or replace function public.admin_list_clubs()
+returns table (id uuid, name text, slug text)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_platform_admin() then raise exception 'not authorised'; end if;
+  return query select c.id, c.name, c.slug from public.clubs c order by c.name;
+end $$;
+
+create or replace function public.admin_list_modules()
+returns table (club_id uuid, module_key text, status text)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_platform_admin() then raise exception 'not authorised'; end if;
+  return query select m.club_id, m.module_key, m.status from public.club_modules m;
+end $$;
+
+create or replace function public.admin_set_module(p_club uuid, p_key text, p_status text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_platform_admin() then raise exception 'not authorised'; end if;
+  insert into public.club_modules (club_id, module_key, status)
+  values (p_club, p_key, p_status)
+  on conflict (club_id, module_key) do update set status = excluded.status;
+end $$;
+
+grant execute on function public.is_platform_admin() to authenticated;
+grant execute on function public.admin_list_clubs() to authenticated;
+grant execute on function public.admin_list_modules() to authenticated;
+grant execute on function public.admin_set_module(uuid, text, text) to authenticated;
+
+-- >>> RUN ONCE to make yourself the platform admin (replace the email): <<<
+-- insert into public.platform_admins (user_id)
+-- select id from auth.users where email = 'carson@clicksportsmedia.com'
+-- on conflict do nothing;
+
+-- ============================================================
+-- 9. Tell PostgREST to refresh its schema cache
 -- ============================================================
 notify pgrst, 'reload schema';

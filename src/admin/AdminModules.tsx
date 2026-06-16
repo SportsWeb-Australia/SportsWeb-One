@@ -1,14 +1,32 @@
 import { useState } from "react";
 import { useClub } from "../components/ClubContext";
+import { useAuth } from "../lib/auth";
+import { supabase } from "../lib/supabase";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
 import { MODULE_CATALOG, getModule } from "../lib/modules";
 
 export function AdminModules() {
   const { club } = useClub();
+  const { membership, isPlatformAdmin } = useAuth();
+  const clubId = membership?.clubId;
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
+  const [busy, setBusy] = useState<string | null>(null);
   const enabled = new Set(club.enabledModules ?? []);
   const salesEmail = club.platform?.salesEmail ?? club.contact.email;
   const trialDays = club.platform?.trialDays ?? 14;
+
+  const isEnabled = (key: string) => (key in overrides ? overrides[key] : enabled.has(key));
+
+  const setModule = async (key: string, on: boolean) => {
+    if (!clubId || !supabase) return;
+    setBusy(key);
+    setOverrides((o) => ({ ...o, [key]: on }));
+    await supabase
+      .from("club_modules")
+      .upsert({ club_id: clubId, module_key: key, status: on ? "enabled" : "locked" }, { onConflict: "club_id,module_key" });
+    setBusy(null);
+  };
 
   const mailto = (subject: string, modName: string) =>
     `mailto:${salesEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
@@ -18,7 +36,7 @@ export function AdminModules() {
   const mod = getModule(activeKey);
 
   if (mod) {
-    const on = enabled.has(mod.key);
+    const on = isEnabled(mod.key);
     const appUrl = mod.key === "volunteers" ? club.platform?.volunteerAppUrl || "" : mod.appUrl ?? "";
     const canEmbed = mod.key === "volunteers" && !!appUrl;
     return (
@@ -29,6 +47,24 @@ export function AdminModules() {
             ← All modules
           </button>
         </div>
+
+        {isPlatformAdmin && (
+          <div className="sw-module-toggle">
+            <div>
+              <strong>Module access (platform)</strong>
+              <span>{on ? "Enabled for this club" : "Locked"}</span>
+            </div>
+            <button
+              type="button"
+              className={`sw-switch${on ? " on" : ""}`}
+              aria-pressed={on}
+              disabled={busy === mod.key}
+              onClick={() => setModule(mod.key, !on)}
+            >
+              <i />
+            </button>
+          </div>
+        )}
 
         {on ? (
           <div className="sw-module-banner on">
@@ -123,7 +159,7 @@ export function AdminModules() {
       </p>
       <div className="sw-module-grid">
         {MODULE_CATALOG.map((m) => {
-          const isOn = enabled.has(m.key);
+          const isOn = isEnabled(m.key);
           return (
             <button key={m.key} type="button" className="sw-module-card" onClick={() => setActiveKey(m.key)}>
               <div className="sw-module-top">

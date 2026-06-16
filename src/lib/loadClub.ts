@@ -260,6 +260,16 @@ export async function getClubConfig(): Promise<ClubConfig> {
     //                  first-party modules (module_name + enabled).
     // Both are read defensively so a missing table never breaks the load.
     const enabledKeys = new Set<string>(cfg.enabledModules ?? []);
+    // First-party modules table (Volunteer Manager and other core modules).
+    const { data: modRows, error: modErr } = await supabase
+      .from("modules")
+      .select("module_name,enabled")
+      .eq("club_id", clubId);
+    if (!modErr && modRows) {
+      for (const m of modRows) if (m.enabled) enabledKeys.add(m.module_name as string);
+    }
+    // Per-club add-on table is authoritative: enabled/trial add a module, locked
+    // removes it even if config lists it by default. A missing row = keep default.
     const { data: cmRows, error: cmErr } = await supabase
       .from("club_modules")
       .select("module_key,status")
@@ -267,14 +277,8 @@ export async function getClubConfig(): Promise<ClubConfig> {
     if (!cmErr && cmRows) {
       for (const m of cmRows) {
         if (m.status === "enabled" || m.status === "trial") enabledKeys.add(m.module_key);
+        else if (m.status === "locked") enabledKeys.delete(m.module_key);
       }
-    }
-    const { data: modRows, error: modErr } = await supabase
-      .from("modules")
-      .select("module_name,enabled")
-      .eq("club_id", clubId);
-    if (!modErr && modRows) {
-      for (const m of modRows) if (m.enabled) enabledKeys.add(m.module_name as string);
     }
     cfg.enabledModules = [...enabledKeys];
 
