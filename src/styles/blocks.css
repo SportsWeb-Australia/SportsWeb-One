@@ -2001,3 +2001,29 @@
 .sw-create-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem 1rem; }
 @media (max-width: 640px) { .sw-create-grid { grid-template-columns: 1fr; } }
 .sw-create-grid input[type="color"] { height: 38px; padding: 2px; cursor: pointer; }
+
+/* Super admin — Template Studio placeholder */
+.sw-dev-pill {
+  display: inline-block; vertical-align: middle; margin-left: 0.5rem;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: #fde68a; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 999px;
+}
+.sw-studio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.sw-studio-tile { border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; background: #fff; opacity: 0.85; }
+.sw-studio-wire { height: 120px; padding: 10px; display: flex; flex-direction: column; gap: 6px; background: color-mix(in srgb, var(--tile) 8%, #fff); }
+.sw-studio-bar { height: 14px; border-radius: 4px; background: var(--tile); }
+.sw-studio-block { border-radius: 4px; background: #d4d4d8; }
+.sw-studio-wire--stack .sw-studio-block { height: 16px; }
+.sw-studio-wire--split { flex-direction: row; flex-wrap: wrap; }
+.sw-studio-wire--split .sw-studio-bar { width: 100%; }
+.sw-studio-wire--split .sw-studio-block { width: 47%; height: 40px; flex: 1 1 45%; }
+.sw-studio-wire--wide .sw-studio-block { height: 12px; }
+.sw-studio-wire--wide .sw-studio-block:first-of-type { height: 40px; }
+.sw-studio-wire--grid { flex-direction: row; flex-wrap: wrap; }
+.sw-studio-wire--grid .sw-studio-bar { width: 100%; }
+.sw-studio-wire--grid .sw-studio-block { width: 30%; height: 30px; flex: 1 1 28%; }
+.sw-studio-tilefoot { display: flex; justify-content: space-between; align-items: baseline; padding: 0.6rem 0.8rem; }
+.sw-studio-tilefoot span { color: var(--text-soft); font-size: 0.74rem; }
+.sw-studio-note { border-top: 1px solid #e4e4e7; padding-top: 1.2rem; max-width: 680px; }
+.sw-studio-note ul { padding-left: 1.1rem; color: var(--text-soft); }
+.sw-studio-note li { margin: 0.3rem 0; }

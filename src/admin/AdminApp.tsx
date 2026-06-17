@@ -11,6 +11,7 @@ import { AdminModules } from "./AdminModules";
 import { Communications } from "./Communications";
 import { SuperClubs } from "./SuperClubs";
 import { SuperIntegrations } from "./SuperIntegrations";
+import { SuperStudio } from "./SuperStudio";
 import { Login } from "./Login";
 
 function AdminInner() {
@@ -110,6 +111,11 @@ function AdminInner() {
                   Integrations
                 </button>
               )}
+              {can("platform.clubs") && (
+                <button data-active={active === "__super_studio"} onClick={() => setActive("__super_studio")}>
+                  Template Studio
+                </button>
+              )}
             </>
           )}
         </nav>
@@ -143,6 +149,8 @@ function AdminInner() {
           <SuperClubs />
         ) : effectiveActive === "__super_integrations" && can("platform.integrations") ? (
           <SuperIntegrations />
+        ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (
+          <SuperStudio />
         ) : membership && can("club.content") ? (
           <ResourceManager resource={resource} />
         ) : (
