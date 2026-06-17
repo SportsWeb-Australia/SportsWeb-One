@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { BRAND } from './brand';
 import type { TkEvent, TkTicketType, TkQuote, CartItem, BuyerDetails } from './types';
 
 interface Props {
@@ -188,8 +189,8 @@ export default function EventSalesPage({ eventId, slug, clubId, embed = false }:
           cancel_url: window.location.href,
         }),
       });
-      if (!res.ok) throw new Error('Checkout is not available yet.');
-      const out = await res.json();
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(out.error || 'Checkout is not available right now.');
       if (out.checkout_url) window.location.href = out.checkout_url;
       else if (out.order_id) window.location.href = `/tickets/confirm?order=${out.order_id}`;
       else throw new Error('Unexpected checkout response.');
@@ -393,6 +394,11 @@ export default function EventSalesPage({ eventId, slug, clubId, embed = false }:
             {Summary}
           </div>
         )}
+
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+          <img src={BRAND.icon} alt="" className="h-3.5 w-3.5 object-contain" />
+          Powered by {BRAND.name}
+        </p>
       </main>
     </div>
   );
