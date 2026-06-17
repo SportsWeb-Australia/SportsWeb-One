@@ -1,4 +1,4 @@
-import { supabase, CLUB_SLUG } from "./supabase";
+import { supabase, resolveClubSlug } from "./supabase";
 import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
 import type { ClubConfig, DesignVariant, Sponsor, NewsPost, ClubEvent, TeamGroup, Person, BrandColours, Fixture, Result, LadderRow } from "../content/types";
@@ -46,10 +46,11 @@ export async function getClubConfig(): Promise<ClubConfig> {
   if (!supabase) return staticClub;
 
   try {
+    const slug = await resolveClubSlug();
     const { data: clubRow } = await supabase
       .from("clubs")
       .select("*")
-      .eq("slug", CLUB_SLUG)
+      .eq("slug", slug)
       .maybeSingle();
 
     if (!clubRow) return staticClub;

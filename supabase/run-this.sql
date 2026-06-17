@@ -471,6 +471,85 @@ create policy ucr_senior_write on public.user_club_roles
 -- ------------------------------------------------------------
 
 -- ============================================================
--- 11. Tell PostgREST to refresh its schema cache
+-- 11. Multi-tenant — host → club mapping (club-by-domain)
+-- ============================================================
+-- Optional. The app already maps {slug}.sportsweb.com.au automatically. Add a
+-- row here only when the web address doesn't equal the club slug — e.g. a short
+-- subdomain (dookie -> dookie-united) or a club's own custom domain.
+create table if not exists public.club_domains (
+  host       text primary key,            -- e.g. 'dookie.sportsweb.com.au'
+  slug       text not null,               -- e.g. 'dookie-united'
+  created_at timestamptz not null default now()
+);
+
+alter table public.club_domains enable row level security;
+
+drop policy if exists club_domains_public_read on public.club_domains;
+create policy club_domains_public_read on public.club_domains
+  for select using (true);
+
+drop policy if exists club_domains_platform_write on public.club_domains;
+create policy club_domains_platform_write on public.club_domains
+  for all to authenticated
+  using (public.is_platform_admin()) with check (public.is_platform_admin());
+
+-- Example (only if you want a short subdomain for Dookie):
+-- insert into public.club_domains (host, slug)
+-- values ('dookie.sportsweb.com.au', 'dookie-united')
+-- on conflict (host) do update set slug = excluded.slug;
+
+-- ============================================================
+-- ============================================================
+-- 12. Club provisioning (platform creates a club in one call)
+-- ============================================================
+create or replace function public.admin_create_club(
+  p_name      text,
+  p_slug      text,
+  p_primary   text default '#1F8CA7',
+  p_secondary text default '#111111',
+  p_contact   text default null,
+  p_sport     text default 'football',
+  p_admin_email text default null
+) returns json language plpgsql security definer set search_path = public as $$
+declare
+  v_club  uuid;
+  v_user  uuid;
+  v_admin text := 'none';
+begin
+  if not public.is_platform_admin() then raise exception 'not authorised'; end if;
+  if p_slug is null or length(trim(p_slug)) = 0 then raise exception 'A slug is required'; end if;
+  if exists (select 1 from public.clubs where slug = p_slug) then
+    raise exception 'A club with the address "%" already exists', p_slug;
+  end if;
+
+  insert into public.clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
+  values (p_name, p_slug, p_sport, p_primary, p_secondary, p_contact)
+  returning id into v_club;
+
+  -- New clubs start with Volunteer Manager on trial; other paid modules off.
+  insert into public.club_modules (club_id, module_key, status)
+  values (v_club, 'volunteers', 'trial')
+  on conflict (club_id, module_key) do update set status = excluded.status;
+
+  -- If the first senior admin already has an account, link them now.
+  if p_admin_email is not null and length(trim(p_admin_email)) > 0 then
+    select id into v_user from auth.users where lower(email) = lower(trim(p_admin_email)) limit 1;
+    if v_user is not null then
+      insert into public.user_club_roles (user_id, club_id, role)
+      values (v_user, v_club, 'club_senior_admin')
+      on conflict (user_id, club_id) do update set role = excluded.role;
+      v_admin := 'linked';
+    else
+      v_admin := 'no_account';
+    end if;
+  end if;
+
+  return json_build_object('club_id', v_club, 'slug', p_slug, 'admin', v_admin);
+end $$;
+
+grant execute on function public.admin_create_club(text, text, text, text, text, text, text) to authenticated;
+
+-- ============================================================
+-- 13. Tell PostgREST to refresh its schema cache
 -- ============================================================
 notify pgrst, 'reload schema';
