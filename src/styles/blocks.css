@@ -2596,3 +2596,33 @@
   .sw-ru-grades, .sw-rl-news, .sw-oz-news, .sw-to-news, .sw-oz-nights, .sw-to-steps, .sw-oz-divs { grid-template-columns: 1fr; }
   .sw-rl-gradegrid { grid-template-columns: 1fr; }
 }
+
+/* ---------------------------------------------------- News mode: social embed */
+.sw-social-embed { min-width: 0; }
+.sw-fb-embed {
+  width: 100%;
+  min-height: 640px;
+  border: none;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.sw-social-embed-empty {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-soft);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+/* admin news-mode picker reuses the style-picker grid */
+.sw-admin-newsmode {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}

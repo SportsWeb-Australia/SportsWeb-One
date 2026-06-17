@@ -8,6 +8,7 @@ import { Hero } from "../blocks/Hero";
 import { MatchCentre } from "../blocks/MatchCentre";
 import { SponsorStrip } from "../blocks/SponsorStrip";
 import { FeaturedNews } from "../blocks/FeaturedNews";
+import { NewsSlot } from "../blocks/NewsSlot";
 import { QuickLinks } from "../blocks/QuickLinks";
 import { JoinCTA } from "../blocks/JoinCTA";
 import type { ClubConfig, DesignVariant, NewsPost } from "../../content/types";
@@ -127,7 +128,9 @@ function Matchday() {
         </div>
       </section>
       <MatchCentre />
-      <FeaturedNews limit={3} />
+      <NewsSlot>
+        <FeaturedNews limit={3} />
+      </NewsSlot>
       <SponsorStrip onlyCarousel />
     </>
   );
@@ -286,7 +289,9 @@ function SponsorForward() {
           </div>
         </div>
       </section>
-      <FeaturedNews limit={3} />
+      <NewsSlot>
+        <FeaturedNews limit={3} />
+      </NewsSlot>
       <MatchCentre />
       <SponsorStrip />
     </>
@@ -1468,7 +1473,9 @@ function Classic({ club }: { club: ClubConfig }) {
     <>
       <Hero />
       {b.quickLinks && <QuickLinks />}
-      {b.featuredNews && <FeaturedNews limit={3} />}
+      {b.featuredNews && <NewsSlot>
+        <FeaturedNews limit={3} />
+      </NewsSlot>}
       {b.matchCentre && <MatchCentre />}
       {b.joinCta && <JoinCTA />}
       {b.sponsors && <SponsorStrip onlyCarousel />}

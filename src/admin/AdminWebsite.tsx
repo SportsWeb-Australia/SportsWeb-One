@@ -1,4 +1,8 @@
+import { useState } from "react";
 import { useClub } from "../components/ClubContext";
+import { useAuth } from "../lib/auth";
+import { supabase } from "../lib/supabase";
+import { getNewsMode, NEWS_MODE_OPTIONS, type NewsMode } from "../lib/newsMode";
 import type { DesignVariant } from "../content/types";
 
 const STYLES: { id: DesignVariant; label: string; note: string }[] = [
@@ -34,6 +38,23 @@ const STYLES: { id: DesignVariant; label: string; note: string }[] = [
 
 export function AdminWebsite() {
   const { club, variant, setVariant } = useClub();
+  const { membership } = useAuth();
+  const clubId = membership?.clubId;
+  const [mode, setMode] = useState<NewsMode>(getNewsMode(club.content));
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const chooseMode = async (m: NewsMode) => {
+    setMode(m);
+    setSaved(false);
+    if (!clubId || !supabase) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("club_content")
+      .upsert({ club_id: clubId, content_key: "news.mode", value: m }, { onConflict: "club_id,content_key" });
+    setSaving(false);
+    if (!error) setSaved(true);
+  };
 
   return (
     <div className="sw-admin-panel">
@@ -58,6 +79,36 @@ export function AdminWebsite() {
           </button>
         ))}
       </div>
+
+      <div className="sw-admin-formhead" style={{ marginTop: "2.5rem" }}>
+        <h2>News &amp; social</h2>
+      </div>
+      <p className="sw-admin-note">
+        Choose how {club.identity.shortName} handles news and social. This saves for your club.
+      </p>
+      <div className="sw-admin-newsmode">
+        {NEWS_MODE_OPTIONS.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            className="sw-admin-style"
+            data-active={o.id === mode}
+            onClick={() => chooseMode(o.id)}
+          >
+            <strong>{o.label}</strong>
+            <span>{o.note}</span>
+          </button>
+        ))}
+      </div>
+      <p className="sw-admin-note" aria-live="polite">
+        {!clubId
+          ? "Sign in as a club admin to change this."
+          : saving
+            ? "Saving…"
+            : saved
+              ? "Saved. Reload the site to see it."
+              : ""}
+      </p>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 Applies to ALL clubs / all templates. Each club chooses how news and social work.
 This is a per-club setting (proposed key: `news.mode`, stored in `club_content`,
-default `both`). The home page and the News page read it and render accordingly.
+default `news`). The home page and the News page read it and render accordingly.
 
 ## The three modes
 
@@ -11,11 +11,11 @@ default `both`). The home page and the News page read it and render accordingly.
      live social feed embed instead.
    - For clubs that already run everything through Facebook and don't want a CMS.
 
-2. **both** (default) — news articles AND a social feed.
+2. **both** — news articles AND a social feed.
    - Club posts proper articles; a social feed/embed also appears (home strip and/or
      a panel on the News page). Best of both.
 
-3. **news** — news is the single source of truth, shared to socials in 1 click.
+3. **news** (DEFAULT) — news is the single source of truth, shared to socials in 1 click.
    - Club writes the article here; a "Share" action pushes it out to their connected
      socials (Facebook page post, optionally Instagram/X) without leaving the admin.
    - Positions the website as the canonical record (fits the "AI prepares, humans

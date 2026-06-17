@@ -47,8 +47,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='northside-lions')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Northside Toyota','Major','Proud major partner of the Lions.',1,true),
-  ('published','The Commercial Hotel','Gold','Post-match home of the Lions faithful.',2,true)
+  ('published','Northside Toyota','platinum','Proud major partner of the Lions.',1,true),
+  ('published','The Commercial Hotel','gold','Post-match home of the Lions faithful.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='northside-lions')
@@ -56,8 +56,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Seniors','Open','Men','Men''s',1),
   ('published','Women''s','Open','Women','Women''s',2),
-  ('published','Under 18 Boys','U18','Junior Boys','Junior Boys',3),
-  ('published','Under 16 Girls','U16','Junior Girls','Junior Girls',4)
+  ('published','Under 18 Boys','U18','Men','Junior Boys',3),
+  ('published','Under 16 Girls','U16','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='northside-lions')
@@ -100,8 +100,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='eastside-united')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Eastside Sports Physio','Major','Keeping United on the park.',1,true),
-  ('published','Corner Flag Cafe','Gold','Match-day coffee partner.',2,true)
+  ('published','Eastside Sports Physio','platinum','Keeping United on the park.',1,true),
+  ('published','Corner Flag Cafe','gold','Match-day coffee partner.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='eastside-united')
@@ -109,8 +109,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Men''s First XI','Open','Men','Men''s',1),
   ('published','Women''s First XI','Open','Women','Women''s',2),
-  ('published','Junior Boys','U13','Junior Boys','Junior Boys',3),
-  ('published','Junior Girls','U13','Junior Girls','Junior Girls',4)
+  ('published','Junior Boys','U13','Men','Junior Boys',3),
+  ('published','Junior Girls','U13','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='eastside-united')
@@ -153,8 +153,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='riverside-cricket')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Riverside Hardware','Major','Proudly backing local cricket.',1,true),
-  ('published','The Boundary Bakehouse','Gold','Fuelling the long days in the field.',2,true)
+  ('published','Riverside Hardware','platinum','Proudly backing local cricket.',1,true),
+  ('published','The Boundary Bakehouse','gold','Fuelling the long days in the field.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='riverside-cricket')
@@ -162,8 +162,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','First XI','Open','Men','Men''s',1),
   ('published','Women''s XI','Open','Women','Women''s',2),
-  ('published','Under 16 Boys','U16','Junior Boys','Junior Boys',3),
-  ('published','Under 14 Girls','U14','Junior Girls','Junior Girls',4)
+  ('published','Under 16 Boys','U16','Men','Junior Boys',3),
+  ('published','Under 14 Girls','U14','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='riverside-cricket')

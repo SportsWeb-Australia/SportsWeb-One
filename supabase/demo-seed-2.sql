@@ -1,6 +1,7 @@
 -- ============================================================================
 -- SportsWeb One — DEMO CLUBS (batch 2): one populated club per remaining template.
 -- Creates the club (if missing) + seeds content. Safe to re-run.
+-- sport_type is an ENUM: we look up a valid label and fall back to 'football'.
 -- View each with:  /?club=<slug>&variant=<variant>   (?club=reset to exit)
 --
 --   Parkville Netball Club         /?club=parkville-netball&variant=courtside
@@ -15,7 +16,7 @@
 --   Lakes United FNC               /?club=lakes-united-fnc&variant=fieldcourt
 -- ============================================================================
 
--- Clear prior demo content for these clubs (safe re-run) ---------------------
+-- Clear prior demo content (safe re-run) -------------------------------------
 delete from news where club_id in (select id from clubs where slug in ('parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
 delete from events where club_id in (select id from clubs where slug in ('parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
 delete from sponsors where club_id in (select id from clubs where slug in ('parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
@@ -23,36 +24,66 @@ delete from teams where club_id in (select id from clubs where slug in ('parkvil
 delete from matches where club_id in (select id from clubs where slug in ('parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
 delete from ladder where club_id in (select id from clubs where slug in ('parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
 
--- Create the demo clubs if they don't already exist --------------------------
+-- Create the demo clubs if missing (sport_type resolved against the enum) ----
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Parkville Netball Club','parkville-netball','Netball','#0e7c7b','#ff6f61','info+parkville-netball@sportsweb.com.au'
+select 'Parkville Netball Club','parkville-netball',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['netball']) limit 1), 'football'::sport_type),
+  '#0e7c7b','#ff6f61','info+parkville-netball@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='parkville-netball');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Metro City Basketball','metro-city-basketball','Basketball','#ff6b1a','#0d0d10','info+metro-city-basketball@sportsweb.com.au'
+select 'Metro City Basketball','metro-city-basketball',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['basketball']) limit 1), 'football'::sport_type),
+  '#ff6b1a','#0d0d10','info+metro-city-basketball@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='metro-city-basketball');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Bayside Lacrosse Club','bayside-lacrosse','Lacrosse','#00c2b3','#2b1a55','info+bayside-lacrosse@sportsweb.com.au'
+select 'Bayside Lacrosse Club','bayside-lacrosse',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['lacrosse']) limit 1), 'football'::sport_type),
+  '#00c2b3','#2b1a55','info+bayside-lacrosse@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='bayside-lacrosse');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Brighton Rugby Union','brighton-rugby','Rugby Union','#0b3d2e','#c9a227','info+brighton-rugby@sportsweb.com.au'
+select 'Brighton Rugby Union','brighton-rugby',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['rugby_union','rugbyunion','rugby union','union']) limit 1), 'football'::sport_type),
+  '#0b3d2e','#c9a227','info+brighton-rugby@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='brighton-rugby');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Riverstone Rugby League','riverstone-rugby-league','Rugby League','#d62828','#14110f','info+riverstone-rugby-league@sportsweb.com.au'
+select 'Riverstone Rugby League','riverstone-rugby-league',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['rugby_league','rugbyleague','rugby league','league']) limit 1), 'football'::sport_type),
+  '#d62828','#14110f','info+riverstone-rugby-league@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='riverstone-rugby-league');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Sunset Oztag','sunset-oztag','Oztag','#b5179e','#4cc9f0','info+sunset-oztag@sportsweb.com.au'
+select 'Sunset Oztag','sunset-oztag',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['oztag','oz_tag','oz tag']) limit 1), 'football'::sport_type),
+  '#b5179e','#4cc9f0','info+sunset-oztag@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='sunset-oztag');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Coastal Touch','coastal-touch','Touch Football','#2ec4b6','#ff9f1c','info+coastal-touch@sportsweb.com.au'
+select 'Coastal Touch','coastal-touch',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['touch','touch_football','touch football']) limit 1), 'football'::sport_type),
+  '#2ec4b6','#ff9f1c','info+coastal-touch@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='coastal-touch');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Westvale Junior Football Club','westvale-juniors','Junior Football','#2aa7ff','#ffc83d','info+westvale-juniors@sportsweb.com.au'
+select 'Westvale Junior Football Club','westvale-juniors',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['football','afl','australian_football']) limit 1), 'football'::sport_type),
+  '#2aa7ff','#ffc83d','info+westvale-juniors@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='westvale-juniors');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Vintage Reds Masters','vintage-masters','AFL Masters','#6e1f2a','#c79a3a','info+vintage-masters@sportsweb.com.au'
+select 'Vintage Reds Masters','vintage-masters',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['football','afl']) limit 1), 'football'::sport_type),
+  '#6e1f2a','#c79a3a','info+vintage-masters@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='vintage-masters');
 insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, contact_email)
-select 'Lakes United FNC','lakes-united-fnc','AFL/Netball','#16284a','#e0533d','info+lakes-united-fnc@sportsweb.com.au'
+select 'Lakes United FNC','lakes-united-fnc',
+  coalesce((select e.enumlabel::sport_type from pg_enum e join pg_type t on t.oid=e.enumtypid
+            where t.typname='sport_type' and e.enumlabel = any(array['football','afl_netball','football_netball']) limit 1), 'football'::sport_type),
+  '#16284a','#e0533d','info+lakes-united-fnc@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='lakes-united-fnc');
 
 with c as (select id from clubs where slug='parkville-netball')
@@ -73,8 +104,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='parkville-netball')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Parkville Physio','Major','Keeping our players on court.',1,true),
-  ('published','Court Side Cafe','Gold','Match-day coffee partner.',2,true)
+  ('published','Parkville Physio','platinum','Keeping our players on court.',1,true),
+  ('published','Court Side Cafe','gold','Match-day coffee partner.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='parkville-netball')
@@ -82,7 +113,7 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','A Grade','Open','Women','A Grade',1),
   ('published','B Grade','Open','Women','B Grade',2),
-  ('published','Under 17','U17','Junior Girls','Junior Girls',3),
+  ('published','Under 17','U17','Women','Junior Girls',3),
   ('published','Mixed Social','Open','Mixed','Mixed',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
@@ -123,8 +154,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='metro-city-basketball')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Metro Sports Store','Major','Proudly outfitting the club.',1,true),
-  ('published','The Free Throw Cafe','Gold','Courtside coffee.',2,true)
+  ('published','Metro Sports Store','platinum','Proudly outfitting the club.',1,true),
+  ('published','The Free Throw Cafe','gold','Courtside coffee.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='metro-city-basketball')
@@ -132,8 +163,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Men''s Div 1','Open','Men','Men''s',1),
   ('published','Women''s Div 1','Open','Women','Women''s',2),
-  ('published','Under 16 Boys','U16','Junior Boys','Junior Boys',3),
-  ('published','Under 16 Girls','U16','Junior Girls','Junior Girls',4)
+  ('published','Under 16 Boys','U16','Men','Junior Boys',3),
+  ('published','Under 16 Girls','U16','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='metro-city-basketball')
@@ -173,8 +204,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='bayside-lacrosse')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Bayside Health','Major','Backing local lacrosse.',1,true),
-  ('published','The Crease Cafe','Gold','Game-day eats.',2,true)
+  ('published','Bayside Health','platinum','Backing local lacrosse.',1,true),
+  ('published','The Crease Cafe','gold','Game-day eats.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='bayside-lacrosse')
@@ -182,8 +213,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Men''s Seniors','Open','Men','Men''s',1),
   ('published','Women''s Seniors','Open','Women','Women''s',2),
-  ('published','Junior Boys','U15','Junior Boys','Junior Boys',3),
-  ('published','Junior Girls','U15','Junior Girls','Junior Girls',4)
+  ('published','Junior Boys','U15','Men','Junior Boys',3),
+  ('published','Junior Girls','U15','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='bayside-lacrosse')
@@ -223,8 +254,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='brighton-rugby')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Brighton Cellars','Major','Proud club partner.',1,true),
-  ('published','The Lineout Bar','Gold','Post-match home of the club.',2,true)
+  ('published','Brighton Cellars','platinum','Proud club partner.',1,true),
+  ('published','The Lineout Bar','gold','Post-match home of the club.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='brighton-rugby')
@@ -232,8 +263,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','1st XV','Open','Men','Men''s',1),
   ('published','Women''s XV','Open','Women','Women''s',2),
-  ('published','Colts','U18','Junior Boys','Junior Boys',3),
-  ('published','Junior Girls','U16','Junior Girls','Junior Girls',4)
+  ('published','Colts','U18','Men','Junior Boys',3),
+  ('published','Junior Girls','U16','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='brighton-rugby')
@@ -273,8 +304,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='riverstone-rugby-league')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Riverstone Leagues Club','Major','The heart of the club.',1,true),
-  ('published','Westside Tyres','Gold','Keeping us rolling.',2,true)
+  ('published','Riverstone Leagues Club','platinum','The heart of the club.',1,true),
+  ('published','Westside Tyres','gold','Keeping us rolling.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='riverstone-rugby-league')
@@ -282,8 +313,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','First Grade','Open','Men','Men''s',1),
   ('published','Women''s','Open','Women','Women''s',2),
-  ('published','Under 18 Boys','U18','Junior Boys','Junior Boys',3),
-  ('published','Under 16 Girls','U16','Junior Girls','Junior Girls',4)
+  ('published','Under 18 Boys','U18','Men','Junior Boys',3),
+  ('published','Under 16 Girls','U16','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='riverstone-rugby-league')
@@ -323,8 +354,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='sunset-oztag')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Sunset Sports','Major','Backing social sport.',1,true),
-  ('published','The Halftime Bar','Gold','Post-game refreshments.',2,true)
+  ('published','Sunset Sports','platinum','Backing social sport.',1,true),
+  ('published','The Halftime Bar','gold','Post-game refreshments.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='sunset-oztag')
@@ -333,7 +364,7 @@ select c.id, v.* from c cross join (values
   ('published','Mixed Open','Open','Mixed','Mixed',1),
   ('published','Men''s Open','Open','Men','Men''s',2),
   ('published','Women''s Open','Open','Women','Women''s',3),
-  ('published','Juniors','U14','Junior Boys','Junior Boys',4)
+  ('published','Juniors','U14','Men','Junior Boys',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='sunset-oztag')
@@ -373,8 +404,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='coastal-touch')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Coastal Surf Co','Major','Riding with the club.',1,true),
-  ('published','The Try Line Kiosk','Gold','Game-night feeds.',2,true)
+  ('published','Coastal Surf Co','platinum','Riding with the club.',1,true),
+  ('published','The Try Line Kiosk','gold','Game-night feeds.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='coastal-touch')
@@ -383,7 +414,7 @@ select c.id, v.* from c cross join (values
   ('published','Mixed Open','Open','Mixed','Mixed',1),
   ('published','Men''s Open','Open','Men','Men''s',2),
   ('published','Women''s Open','Open','Women','Women''s',3),
-  ('published','Junior Mixed','U12','Junior Boys','Junior Boys',4)
+  ('published','Junior Mixed','U12','Mixed','Junior Mixed',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='coastal-touch')
@@ -423,17 +454,17 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='westvale-juniors')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Westvale IGA','Major','Feeding the future stars.',1,true),
-  ('published','Kids Kicks Sports','Gold','Boots and gear partner.',2,true)
+  ('published','Westvale IGA','platinum','Feeding the future stars.',1,true),
+  ('published','Kids Kicks Sports','gold','Boots and gear partner.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='westvale-juniors')
 insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Auskick','5-8','Mixed','Auskick',1),
-  ('published','Under 12 Boys','U12','Junior Boys','Junior Boys',2),
-  ('published','Under 12 Girls','U12','Junior Girls','Junior Girls',3),
-  ('published','Youth Girls','U16','Junior Girls','Youth',4)
+  ('published','Under 12 Boys','U12','Men','Junior Boys',2),
+  ('published','Under 12 Girls','U12','Women','Junior Girls',3),
+  ('published','Youth Girls','U16','Women','Youth',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='westvale-juniors')
@@ -473,8 +504,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='vintage-masters')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','The Vintage Cellar','Major','Refreshing the Reds since forever.',1,true),
-  ('published','Reds Bistro','Gold','Post-match feeds.',2,true)
+  ('published','The Vintage Cellar','platinum','Refreshing the Reds since forever.',1,true),
+  ('published','Reds Bistro','gold','Post-match feeds.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='vintage-masters')
@@ -523,8 +554,8 @@ select c.id, v.* from c cross join (values
 with c as (select id from clubs where slug='lakes-united-fnc')
 insert into sponsors (club_id,status,name,sponsor_level,blurb,display_order,in_carousel)
 select c.id, v.* from c cross join (values
-  ('published','Lakes Real Estate','Major','Proud major partner of the Lakes.',1,true),
-  ('published','United Bakehouse','Gold','Game-day pies and coffee.',2,true)
+  ('published','Lakes Real Estate','platinum','Proud major partner of the Lakes.',1,true),
+  ('published','United Bakehouse','gold','Game-day pies and coffee.',2,true)
 ) as v(status,name,sponsor_level,blurb,display_order,in_carousel);
 
 with c as (select id from clubs where slug='lakes-united-fnc')
@@ -532,8 +563,8 @@ insert into teams (club_id,status,name,age_group,gender,grade,display_order)
 select c.id, v.* from c cross join (values
   ('published','Seniors (Football)','Open','Men','Men''s',1),
   ('published','Netball A Grade','Open','Women','Women''s',2),
-  ('published','Junior Boys Football','U16','Junior Boys','Junior Boys',3),
-  ('published','Junior Girls Netball','U16','Junior Girls','Junior Girls',4)
+  ('published','Junior Boys Football','U16','Men','Junior Boys',3),
+  ('published','Junior Girls Netball','U16','Women','Junior Girls',4)
 ) as v(status,name,age_group,gender,grade,display_order);
 
 with c as (select id from clubs where slug='lakes-united-fnc')
