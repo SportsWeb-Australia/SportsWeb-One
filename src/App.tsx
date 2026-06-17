@@ -58,7 +58,15 @@ export default function App() {
     getClubConfig().then((c) => {
       if (!active) return;
       setClub(c);
-      setVariant(c.variant);
+      // Preview override: ?variant=<key> forces a template for screenshots/demos.
+      let v = c.variant;
+      try {
+        const q = new URLSearchParams(window.location.search).get("variant");
+        if (q) v = q as DesignVariant;
+      } catch {
+        /* ignore */
+      }
+      setVariant(v);
     });
     return () => {
       active = false;

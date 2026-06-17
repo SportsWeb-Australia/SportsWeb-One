@@ -926,6 +926,254 @@ function Fastbreak() {
   );
 }
 
+/* ---------------------------------------------------------------- Leaguefooty */
+/* AFL-only club: guernsey-striped hero, 4-grade strip, match + ladder duo. */
+function LeagueFooty() {
+  const { id, news, fixtures, ladder } = useData();
+  const next = fixtures[0];
+  const grades = [
+    { label: "Men's", note: "Seniors & Reserves" },
+    { label: "Women's", note: "AFLW pathway" },
+    { label: "Junior Boys", note: "Under 9s – 18s" },
+    { label: "Junior Girls", note: "Under 10s – 18s" },
+  ];
+  const row = news.slice(0, 3);
+  return (
+    <>
+      <section className="sw-lf-hero">
+        <div className="sw-lf-stripes" aria-hidden="true" />
+        <div className="sw-container">
+          <p className="sw-lf-eyebrow">{id.league ?? "Australian Football"}</p>
+          <h1>{id.name}</h1>
+          <p className="sw-lf-sub">Proud, fierce and all about the contest — football for every age and grade.</p>
+          <div className="sw-lf-herocta">
+            <SmartLink href="/register" className="sw-btn">Register to play</SmartLink>
+            <SmartLink href="/fixtures" className="sw-btn sw-btn-ghost">Fixtures &amp; ladder</SmartLink>
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-lf-gradewrap">
+        <div className="sw-container">
+          <div className="sw-lf-gradehead"><h2>Where you fit</h2></div>
+          <div className="sw-lf-grades">
+            {grades.map((g) => (
+              <SmartLink key={g.label} href="/teams" className="sw-lf-grade">
+                <span className="sw-lf-gradelabel">{g.label}</span>
+                <span className="sw-lf-gradenote">{g.note}</span>
+                <span className="sw-link-arrow">View teams →</span>
+              </SmartLink>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-lf-matchwrap">
+        <div className="sw-container sw-lf-matchgrid">
+          <div className="sw-lf-matchcard">
+            <span className="sw-lf-cardtag">Next match</span>
+            {next ? (
+              <>
+                <h3>{id.shortName} <span>v</span> {next.opponent}</h3>
+                <p>{next.round && `${next.round} · `}{next.date} · {next.venue}</p>
+              </>
+            ) : <h3>Fixtures coming soon</h3>}
+            <SmartLink href="/fixtures" className="sw-link-arrow">Match centre →</SmartLink>
+          </div>
+          <div className="sw-lf-ladcard">
+            <span className="sw-lf-cardtag">Ladder</span>
+            <ol className="sw-lf-ladder">
+              {ladder.length ? ladder.slice(0, 5).map((r, i) => (
+                <li key={i} className={r.isClub ? "is-club" : undefined}>
+                  <span>{i + 1}</span><span>{r.team}</span><span>{r.points}</span>
+                </li>
+              )) : <li className="sw-lf-empty">Ladder updates in-season</li>}
+            </ol>
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-lf-newswrap">
+        <div className="sw-container">
+          <div className="sw-lf-newshead"><h2>Club news</h2><SmartLink href="/news" className="sw-link-arrow">All news →</SmartLink></div>
+          <div className="sw-lf-news">
+            {row.map((p) => (
+              <SmartLink key={p.id} href={newsHref(p)} className="sw-lf-card">
+                {p.image && <img src={p.image} alt="" />}
+                <div className="sw-lf-cardbody">
+                  <span className="sw-lf-cat">{p.category}</span>
+                  <h3>{p.title}</h3>
+                  <p>{p.excerpt}</p>
+                </div>
+              </SmartLink>
+            ))}
+          </div>
+        </div>
+      </section>
+      <SponsorStrip onlyCarousel />
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ Courtside */
+/* Netball-only club: airy, with bib-style grade chips (incl. Mixed). */
+function Courtside() {
+  const { id, news, fixtures } = useData();
+  const rail = fixtures.slice(0, 5);
+  const grid = news.slice(0, 4);
+  const grades = [
+    { label: "Men's", bib: "M" },
+    { label: "Women's", bib: "W" },
+    { label: "Junior Boys", bib: "JB" },
+    { label: "Junior Girls", bib: "JG" },
+    { label: "Mixed", bib: "MX" },
+  ];
+  return (
+    <>
+      <section className="sw-cs-hero">
+        <div className="sw-container">
+          <p className="sw-cs-eyebrow">{id.league ?? "Netball club"}</p>
+          <h1>{id.name}</h1>
+          <p className="sw-cs-sub">Fast hands, sharp passing and a spot on court for everyone — from NetSetGo to open grade.</p>
+          <div className="sw-cs-herocta">
+            <SmartLink href="/register" className="sw-btn">Find your grade</SmartLink>
+            <SmartLink href="/fixtures" className="sw-btn sw-btn-ghost">This week</SmartLink>
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-cs-gradewrap">
+        <div className="sw-container">
+          <div className="sw-cs-gradehead"><h2>Grades on court</h2><p>A place for every player.</p></div>
+          <div className="sw-cs-grades">
+            {grades.map((g) => (
+              <SmartLink key={g.label} href="/teams" className="sw-cs-chip">
+                <span className="sw-cs-bib">{g.bib}</span>
+                <span className="sw-cs-chiplabel">{g.label}</span>
+              </SmartLink>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="sw-cs-railwrap">
+        <div className="sw-container">
+          <div className="sw-cs-railhead"><h2>This round</h2><SmartLink href="/fixtures" className="sw-link-arrow">All fixtures →</SmartLink></div>
+          <div className="sw-cs-rail">
+            {rail.length ? rail.map((f, i) => (
+              <div key={i} className="sw-cs-fix">
+                <span className="sw-cs-round">{f.round || "Round"}</span>
+                <strong>{id.shortName} v {f.opponent}</strong>
+                <span className="sw-cs-when">{f.date}</span>
+                <span className="sw-cs-where">{f.venue}</span>
+              </div>
+            )) : <div className="sw-cs-fix sw-cs-empty">Draw released soon</div>}
+          </div>
+        </div>
+      </section>
+      <section className="sw-section">
+        <div className="sw-container">
+          <div className="sw-cs-newshead"><h2>Off the court</h2><SmartLink href="/news" className="sw-link-arrow">All news →</SmartLink></div>
+          <div className="sw-cs-grid">
+            {grid.map((p) => (
+              <SmartLink key={p.id} href={newsHref(p)} className="sw-cs-card">
+                {p.image && <img src={p.image} alt="" />}
+                <div className="sw-cs-cardbody">
+                  <span className="sw-cs-cat">{p.category}</span>
+                  <h3>{p.title}</h3>
+                  <p>{p.excerpt}</p>
+                </div>
+              </SmartLink>
+            ))}
+          </div>
+        </div>
+      </section>
+      <SponsorStrip onlyCarousel />
+    </>
+  );
+}
+
+/* -------------------------------------------------------------------- Juniors */
+/* Junior Football club: friendly, family-focused, with a parent info panel. */
+function Juniors() {
+  const { id, news, events } = useData();
+  const lead = news[0];
+  const evs = events.slice(0, 2);
+  const grades = [
+    { label: "Auskick", note: "Ages 5–8 · first footy" },
+    { label: "Junior Boys", note: "Under 9s – Under 14s" },
+    { label: "Junior Girls", note: "Under 10s – Under 14s" },
+    { label: "Youth", note: "Under 16s & 18s" },
+  ];
+  const info = [
+    { h: "Training", t: "Tuesday & Thursday, 5–6pm at the main oval." },
+    { h: "What to bring", t: "Boots, mouthguard, a drink bottle and a smile." },
+    { h: "Season fees", t: "All-inclusive — uniform, insurance and a footy." },
+    { h: "Family run", t: "Volunteer coaches, a canteen and a great community." },
+  ];
+  return (
+    <>
+      <section className="sw-jr-hero">
+        <div className="sw-container">
+          <p className="sw-jr-eyebrow">{id.league ?? "Junior football"}</p>
+          <h1>{id.name}</h1>
+          <p className="sw-jr-sub">Where kids fall in love with footy — safe, fun and welcoming for every family.</p>
+          <SmartLink href="/register" className="sw-btn sw-jr-bigbtn">Register for the season →</SmartLink>
+        </div>
+      </section>
+      <section className="sw-section sw-jr-gradewrap">
+        <div className="sw-container">
+          <div className="sw-jr-gradehead"><h2>Age groups</h2><p>Find the right team for your child.</p></div>
+          <div className="sw-jr-grades">
+            {grades.map((g) => (
+              <SmartLink key={g.label} href="/teams" className="sw-jr-grade">
+                <span className="sw-jr-gradelabel">{g.label}</span>
+                <span className="sw-jr-gradenote">{g.note}</span>
+              </SmartLink>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-jr-infowrap">
+        <div className="sw-container">
+          <div className="sw-jr-infohead"><h2>For parents</h2></div>
+          <div className="sw-jr-info">
+            {info.map((c) => (
+              <div key={c.h} className="sw-jr-infocard">
+                <h3>{c.h}</h3>
+                <p>{c.t}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="sw-section sw-jr-bottomwrap">
+        <div className="sw-container sw-jr-bottom">
+          <div className="sw-jr-news">
+            <div className="sw-jr-newshead"><h2>Club news</h2><SmartLink href="/news" className="sw-link-arrow">All news →</SmartLink></div>
+            {lead ? (
+              <SmartLink href={newsHref(lead)} className="sw-jr-lead">
+                {lead.image && <img src={lead.image} alt="" />}
+                <div>
+                  <span className="sw-jr-cat">{lead.category}</span>
+                  <h3>{lead.title}</h3>
+                  <p>{lead.excerpt}</p>
+                </div>
+              </SmartLink>
+            ) : <p>News and match reports through the season.</p>}
+          </div>
+          <aside className="sw-jr-events">
+            <h2>Dates for the diary</h2>
+            {evs.length ? evs.map((e) => (
+              <SmartLink key={e.id} href="/events" className="sw-jr-event">
+                <span className="sw-jr-evdate">{formatDate(e.date)}</span>
+                <strong>{e.title}</strong>
+                {e.location && <span>{e.location}</span>}
+              </SmartLink>
+            )) : <p className="sw-jr-empty">Season dates announced soon.</p>}
+          </aside>
+        </div>
+      </section>
+      <SponsorStrip onlyCarousel />
+    </>
+  );
+}
+
 /** Default home layout (the original block stack) for the existing variants. */
 function Classic({ club }: { club: ClubConfig }) {
   const b = club.blocks;
@@ -955,6 +1203,9 @@ const LAYOUTS: Partial<Record<DesignVariant, () => ReactNode>> = {
   scorecard: Scorecard,
   hardcourt: Hardcourt,
   fastbreak: Fastbreak,
+  leaguefooty: LeagueFooty,
+  courtside: Courtside,
+  juniors: Juniors,
 };
 
 export function HomeLayout() {

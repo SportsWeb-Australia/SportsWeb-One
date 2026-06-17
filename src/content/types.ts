@@ -31,7 +31,10 @@ export type DesignVariant =
   | "pitch"
   | "scorecard"
   | "hardcourt"
-  | "fastbreak";
+  | "fastbreak"
+  | "leaguefooty"
+  | "courtside"
+  | "juniors";
 
 export interface BrandColours {
   /** Primary ink / dominant colour (Dookie: black). */

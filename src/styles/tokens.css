@@ -547,3 +547,99 @@
   --radius: 12px;
   --radius-lg: 24px;
 }
+
+/* ---------- LEAGUEFOOTY (AFL-only club — bold navy/red, guernsey energy) ---------- */
+[data-variant="leaguefooty"] {
+  --accent: #c8102e;
+  --accent-deep: #9d0c24;
+  --accent-soft: #fbe2e6;
+  --lf-navy: #0a1a3f;
+  --lf-navy-2: #122a5e;
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --bg: #ffffff;
+  --bg-alt: #eef1f6;
+  --bg-invert: var(--lf-navy);
+  --surface: #ffffff;
+  --surface-2: #eef1f6;
+  --text: #0a1a3f;
+  --text-soft: #57617a;
+  --text-invert: #ffffff;
+  --border: #d6dce6;
+  --hero-bg: var(--lf-navy);
+  --hero-text: #ffffff;
+  --header-bg: color-mix(in srgb, #ffffff 90%, transparent);
+  --header-text: #0a1a3f;
+  --shadow: 0 1px 2px rgba(10, 26, 63, 0.1), 0 14px 34px rgba(10, 26, 63, 0.14);
+  --accent-on-bg: #9d0c24;
+  --heading-transform: uppercase;
+  --heading-tracking: 0.01em;
+  --heading-weight: 800;
+  --heading-leading: 0.92;
+  --radius: 5px;
+  --radius-lg: 12px;
+}
+
+/* ---------- COURTSIDE (Netball-only club — fresh teal/coral, airy, bibs) ---------- */
+[data-variant="courtside"] {
+  --accent: #ff6f61;
+  --accent-deep: #e2513f;
+  --accent-soft: #ffe6e1;
+  --cs-teal: #0e7c7b;
+  --cs-teal-2: #0a605f;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --bg: #fbfaf7;
+  --bg-alt: #eef3f2;
+  --bg-invert: var(--cs-teal);
+  --surface: #ffffff;
+  --surface-2: #eef3f2;
+  --text: #16302f;
+  --text-soft: #5a716f;
+  --text-invert: #ffffff;
+  --border: #d8e4e2;
+  --hero-bg: var(--cs-teal);
+  --hero-text: #ffffff;
+  --header-bg: color-mix(in srgb, #fbfaf7 90%, transparent);
+  --header-text: #0e7c7b;
+  --shadow: 0 1px 2px rgba(14, 124, 123, 0.1), 0 16px 36px rgba(14, 124, 123, 0.16);
+  --accent-on-bg: #e2513f;
+  --heading-transform: none;
+  --heading-tracking: -0.015em;
+  --heading-weight: 700;
+  --heading-leading: 0.98;
+  --radius: 14px;
+  --radius-lg: 28px;
+}
+
+/* ---------- JUNIORS (Junior Football — bright, friendly, family/parent) ---------- */
+[data-variant="juniors"] {
+  --accent: #2aa7ff;
+  --accent-deep: #1683d6;
+  --accent-soft: #dff0ff;
+  --jr-sun: #ffc83d;
+  --jr-ink: #163a52;
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-body: "Outfit", system-ui, sans-serif;
+  --bg: #ffffff;
+  --bg-alt: #eaf6ff;
+  --bg-invert: var(--jr-ink);
+  --surface: #ffffff;
+  --surface-2: #eaf6ff;
+  --text: #163a52;
+  --text-soft: #5d7385;
+  --text-invert: #ffffff;
+  --border: #d4e8f5;
+  --hero-bg: var(--jr-ink);
+  --hero-text: #ffffff;
+  --header-bg: color-mix(in srgb, #ffffff 90%, transparent);
+  --header-text: #163a52;
+  --shadow: 0 2px 4px rgba(22, 58, 82, 0.08), 0 18px 40px rgba(22, 58, 82, 0.14);
+  --accent-on-bg: #1683d6;
+  --heading-transform: none;
+  --heading-tracking: -0.01em;
+  --heading-weight: 800;
+  --heading-leading: 0.96;
+  --radius: 18px;
+  --radius-lg: 32px;
+}

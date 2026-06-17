@@ -32,6 +32,24 @@ export const CLUB_SLUG = DEFAULT_CLUB_SLUG;
  * Always resolves to *something*, so the site is never blank.
  */
 export async function resolveClubSlug(): Promise<string> {
+  // Preview override: ?club=<slug> lets the operator view any club on any URL
+  // (e.g. for demo sites + screenshots). Persists for the tab; ?club=reset clears.
+  if (typeof window !== "undefined") {
+    try {
+      const q = new URLSearchParams(window.location.search).get("club");
+      if (q === "reset") {
+        sessionStorage.removeItem("sw_preview_club");
+      } else if (q) {
+        sessionStorage.setItem("sw_preview_club", q);
+        return q;
+      } else {
+        const saved = sessionStorage.getItem("sw_preview_club");
+        if (saved) return saved;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
   if (import.meta.env.VITE_CLUB_SLUG) return import.meta.env.VITE_CLUB_SLUG;
   if (typeof window === "undefined") return DEFAULT_CLUB_SLUG;
 

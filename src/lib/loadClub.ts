@@ -13,6 +13,16 @@ const TEMPLATE_VARIANT: Record<string, DesignVariant> = {
   editorial: "editorial",
   momentum: "momentum",
   coastal: "coastal",
+  // Sport templates (EOFYS batch) — template_key matches the variant key.
+  fieldcourt: "fieldcourt",
+  masters: "masters",
+  pitch: "pitch",
+  scorecard: "scorecard",
+  hardcourt: "hardcourt",
+  fastbreak: "fastbreak",
+  leaguefooty: "leaguefooty",
+  courtside: "courtside",
+  juniors: "juniors",
 };
 
 function toISODate(value: string | null): string {

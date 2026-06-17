@@ -51,7 +51,8 @@ function AdminInner() {
   }
 
   const resource = RESOURCES.find((r) => r.key === active) ?? RESOURCES[0];
-  const isSuperView = active === "__super_clubs" || active === "__super_integrations";
+  const isSuperView =
+    active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio";
   // A platform operator with no club of their own lands on the platform views.
   const effectiveActive = !membership && !isSuperView ? "__super_clubs" : active;
   // The dedicated operator console (platform admin, no club) wears SportsWeb colours;

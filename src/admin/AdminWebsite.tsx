@@ -23,6 +23,9 @@ const STYLES: { id: DesignVariant; label: string; note: string }[] = [
   { id: "scorecard", label: "Scorecard (Cricket)", note: "Scoreboard strip + fixtures | ladder split." },
   { id: "hardcourt", label: "Hardcourt (Basketball)", note: "Dark stat bento, broadcast energy." },
   { id: "fastbreak", label: "Fastbreak (Lacrosse)", note: "Energetic zig-zag feature rows." },
+  { id: "leaguefooty", label: "Leaguefooty (AFL)", note: "Guernsey hero, grade strip, match + ladder." },
+  { id: "courtside", label: "Courtside (Netball)", note: "Airy, bib-style grade chips incl. Mixed." },
+  { id: "juniors", label: "Juniors (Junior Football)", note: "Friendly, family-focused, parent info panel." },
 ];
 
 export function AdminWebsite() {
