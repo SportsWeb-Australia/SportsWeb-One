@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useClub } from "../components/ClubContext";
-import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import { usePermissions } from "../lib/permissions";
 import { supabase } from "../lib/supabase";
 
@@ -11,9 +11,8 @@ import { supabase } from "../lib/supabase";
  */
 export function AdminDashboard({ go }: { go: (key: string) => void }) {
   const { club } = useClub();
-  const { membership } = useAuth();
   const { can } = usePermissions();
-  const clubId = membership?.clubId ?? "";
+  const { clubId } = useActiveClub();
 
   const [counts, setCounts] = useState<Record<string, number | null>>({
     news: null,

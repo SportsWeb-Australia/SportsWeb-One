@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { useClub } from "../components/ClubContext";
+import { useActiveClub, ActiveClubProvider } from "./ActiveClub";
 import { ROLE_LABELS } from "../lib/roles";
 import { usePermissions } from "../lib/permissions";
 import { supabase } from "../lib/supabase";
@@ -20,11 +21,48 @@ import { SuperStudio } from "./SuperStudio";
 import { Login } from "./Login";
 
 function AdminInner() {
-  const { ready, resolving, email, membership, platformRole, isPlatformAdmin, signOut } = useAuth();
+  const { ready, resolving, email, platformRole, isPlatformAdmin, signOut } = useAuth();
+  const {
+    clubId,
+    clubName,
+    role: activeRole,
+    clubs,
+    ready: clubReady,
+    loading: clubLoading,
+    isActingAs,
+    setActiveClub,
+    exitActingAs,
+  } = useActiveClub();
   const { club } = useClub();
   const { can } = usePermissions();
   const [active, setActive] = useState("__dashboard");
   const [webOpen, setWebOpen] = useState(true);
+  const hasClub = !!clubId;
+
+  // When the active club changes (login, switch, or superadmin "open"), land on
+  // that club's dashboard rather than whatever screen was open before.
+  useEffect(() => {
+    if (clubId) setActive("__dashboard");
+  }, [clubId]);
+
+  // The club switcher lists the user's clubs; when acting-as a club they don't
+  // belong to, include it as the current option so the dropdown still shows it.
+  const switchOptions = useMemo<{ id: string; name: string }[]>(() => {
+    const opts: { id: string; name: string }[] = clubs.map((c) => ({ id: c.id, name: c.name }));
+    if (clubId && !opts.some((o) => o.id === clubId)) opts.unshift({ id: clubId, name: clubName || "This club" });
+    return opts;
+  }, [clubs, clubId, clubName]);
+  const showSwitcher = switchOptions.length > 1 || isActingAs;
+
+  // Scope the active club's colours to the admin chrome (no :root pollution, so
+  // leaving the admin never leaks one club's palette onto another's public site).
+  const bc = club.identity.colours;
+  const brandStyle = {
+    "--club-ink": bc.ink,
+    "--club-paper": bc.paper,
+    "--club-accent": bc.accent,
+    "--club-silver": bc.silver,
+  } as CSSProperties;
 
   // Modules group: the club's switched-on modules, plus the ones we haven't
   // wired into this dashboard yet (shown as "Coming soon").
@@ -52,9 +90,9 @@ function AdminInner() {
 
   if (!ready) return <div className="sw-admin-loading">Loading…</div>;
   if (!email) return <Login />;
-  if (resolving) return <div className="sw-admin-loading">Loading…</div>;
+  if (resolving || !clubReady) return <div className="sw-admin-loading">Loading…</div>;
 
-  if (!membership && !isPlatformAdmin) {
+  if (!hasClub && !isPlatformAdmin) {
     return (
       <div className="sw-admin-login">
         <div className="sw-admin-login-card">
@@ -73,25 +111,25 @@ function AdminInner() {
   const isSuperView =
     active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio";
   // A platform operator with no club of their own lands on the platform views.
-  const effectiveActive = !membership && !isSuperView ? "__super_clubs" : active;
+  const effectiveActive = !hasClub && !isSuperView ? "__super_clubs" : active;
   // The dedicated operator console (platform admin, no club) wears SportsWeb colours;
   // a club admin keeps their own club colours.
-  const operatorConsole = isPlatformAdmin && !membership;
+  const operatorConsole = isPlatformAdmin && !hasClub;
 
   return (
-    <div className={`sw-admin${operatorConsole ? " sw-brandwrap" : ""}`}>
+    <div className={`sw-admin${operatorConsole ? " sw-brandwrap" : ""}`} style={operatorConsole ? undefined : brandStyle}>
       <aside className="sw-admin-side">
         <div className="sw-admin-brand">
-          <strong>{membership ? "Club Admin" : "Platform Admin"}</strong>
-          <span>{membership?.clubName ?? "SportsWeb"}</span>
+          <strong>{hasClub ? "Club Admin" : "Platform Admin"}</strong>
+          <span>{hasClub ? clubName : "SportsWeb"}</span>
         </div>
         <nav className="sw-admin-nav">
-          {membership && (
+          {hasClub && (
             <button data-active={active === "__dashboard"} onClick={() => setActive("__dashboard")}>
               Dashboard
             </button>
           )}
-          {membership && (can("club.website") || can("club.content")) && (
+          {hasClub && (can("club.website") || can("club.content")) && (
             <>
               <div className="sw-admin-navgroup">Your website</div>
               {can("club.website") ? (
@@ -135,7 +173,7 @@ function AdminInner() {
               )}
             </>
           )}
-          {membership && moduleNav.length > 0 && (
+          {hasClub && moduleNav.length > 0 && (
             <>
               <div className="sw-admin-navgroup">Modules</div>
               {moduleNav.map(({ def }) => (
@@ -149,7 +187,7 @@ function AdminInner() {
               ))}
             </>
           )}
-          {membership && can("club.comms") && (
+          {hasClub && can("club.comms") && (
             <>
               <div className="sw-admin-navgroup">Communicate</div>
               <button data-active={active === "__comms"} onClick={() => setActive("__comms")}>
@@ -157,7 +195,7 @@ function AdminInner() {
               </button>
             </>
           )}
-          {membership && (can("club.settings") || can("club.modules")) && (
+          {hasClub && (can("club.settings") || can("club.modules")) && (
             <>
               <div className="sw-admin-navgroup">Setup</div>
               {can("club.settings") && (
@@ -199,23 +237,45 @@ function AdminInner() {
         </div>
       </aside>
       <main className="sw-admin-main">
+        {isActingAs && (
+          <div className="sw-actas">
+            <span>
+              Viewing <strong>{clubName}</strong> as platform admin{clubLoading ? " · loading…" : ""}
+            </span>
+            <button className="sw-actas-exit" onClick={exitActingAs}>
+              Exit to platform →
+            </button>
+          </div>
+        )}
         <div className="sw-admin-userbar">
           <span>
             {email}
             {platformRole
               ? ` · ${ROLE_LABELS[platformRole]}`
-              : membership?.role === "super_admin"
+              : activeRole === "super_admin"
                 ? " · Exec Admin"
-                : membership?.role === "club_admin"
+                : activeRole === "club_admin"
                   ? " · Club Admin"
-                  : membership?.role
-                    ? ` · ${membership.role}`
+                  : activeRole
+                    ? ` · ${activeRole}`
                     : ""}
           </span>
+          {showSwitcher && (
+            <label className="sw-clubswitch">
+              <span>Club</span>
+              <select value={clubId} onChange={(e) => setActiveClub(e.target.value)}>
+                {switchOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
-        {effectiveActive === "__dashboard" && membership ? (
+        {effectiveActive === "__dashboard" && hasClub ? (
           <AdminDashboard go={setActive} />
-        ) : effectiveActive.startsWith("__mod_") && membership ? (
+        ) : effectiveActive.startsWith("__mod_") && hasClub ? (
           (() => {
             const key = effectiveActive.slice("__mod_".length);
             const item = moduleNav.find((m) => m.def.key === key);
@@ -239,7 +299,7 @@ function AdminInner() {
           <SuperIntegrations />
         ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (
           <SuperStudio />
-        ) : membership && can("club.content") ? (
+        ) : hasClub && can("club.content") ? (
           <ResourceManager resource={resource} />
         ) : (
           <div className="sw-admin-loading">You don't have access to this area.</div>
@@ -250,5 +310,9 @@ function AdminInner() {
 }
 
 export function AdminApp() {
-  return <AdminInner />;
+  return (
+    <ActiveClubProvider>
+      <AdminInner />
+    </ActiveClubProvider>
+  );
 }

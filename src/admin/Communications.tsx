@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import {
   loadPeople,
   rolesOf,
@@ -22,8 +22,7 @@ const CHANNELS: { key: Channel; label: string; needs: "email" | "mobile" | null;
 const SMS_LIMIT = 160;
 
 export function Communications() {
-  const { membership } = useAuth();
-  const clubId = membership?.clubId;
+  const { clubId } = useActiveClub();
 
   const [people, setPeople] = useState<Recipient[]>([]);
   const [loading, setLoading] = useState(true);

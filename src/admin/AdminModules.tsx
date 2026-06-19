@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useClub } from "../components/ClubContext";
 import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
 import { MODULE_CATALOG, getModule } from "../lib/modules";
 
 export function AdminModules() {
   const { club } = useClub();
-  const { membership, isPlatformAdmin } = useAuth();
-  const clubId = membership?.clubId;
+  const { isPlatformAdmin } = useAuth();
+  const { clubId } = useActiveClub();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState<string | null>(null);

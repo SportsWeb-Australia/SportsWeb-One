@@ -2906,3 +2906,30 @@
 .sw-entry-actions .sw-btn { width: 100%; }
 .sw-entry-link { color: #2563EB; font-size: 0.9rem; text-decoration: none; }
 .sw-entry-link:hover { text-decoration: underline; }
+
+/* ===== Club switcher + superadmin act-as (club-switching layer) ===== */
+.sw-admin-userbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.sw-clubswitch { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-soft); }
+.sw-clubswitch select {
+  font: inherit; font-size: 0.85rem; padding: 0.3rem 0.5rem; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink, var(--club-ink));
+  max-width: 220px;
+}
+.sw-actas {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.55rem 1rem; background: var(--accent-soft, #fde7e7);
+  border-bottom: 1px solid var(--border); font-size: 0.9rem;
+}
+.sw-actas strong { font-weight: 700; }
+.sw-actas-exit {
+  font: inherit; font-size: 0.85rem; cursor: pointer; padding: 0.3rem 0.7rem;
+  border-radius: var(--radius); border: 1px solid var(--accent); background: transparent;
+  color: var(--accent-on-bg); white-space: nowrap;
+}
+.sw-actas-exit:hover { background: var(--accent); color: #fff; }
+.sw-openadmin {
+  display: inline-block; margin-top: 0.35rem; font: inherit; font-size: 0.78rem; cursor: pointer;
+  padding: 0.2rem 0.55rem; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--accent-on-bg);
+}
+.sw-openadmin:hover { border-color: var(--accent); background: var(--surface-2); }

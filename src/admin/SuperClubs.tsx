@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MODULE_CATALOG } from "../lib/modules";
 import { slugify } from "../lib/slug";
+import { useActiveClub } from "./ActiveClub";
 import {
   listClubs,
   listModuleStatuses,
@@ -12,6 +13,7 @@ import {
 
 /** Platform operator view: every club, with per-module enable/disable. */
 export function SuperClubs() {
+  const { setActiveClub } = useActiveClub();
   const [clubs, setClubs] = useState<AdminClub[]>([]);
   const [rows, setRows] = useState<AdminModuleRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -190,6 +192,9 @@ export function SuperClubs() {
                   <td className="sw-super-clubcell">
                     <strong>{club.name}</strong>
                     <small>{club.slug}</small>
+                    <button className="sw-openadmin" onClick={() => setActiveClub(club.id)}>
+                      Open admin →
+                    </button>
                   </td>
                   {MODULE_CATALOG.map((m) => {
                     const st = statusFor(club.id, m.key);

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useClub } from "../components/ClubContext";
-import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { ImageField } from "./ImageCropper";
 import { SectionHelp } from "./SectionHelp";
@@ -43,8 +43,7 @@ function EdCard({
  */
 export function AdminSiteEditor() {
   const { club } = useClub();
-  const { membership } = useAuth();
-  const clubId = membership?.clubId ?? "";
+  const { clubId } = useActiveClub();
 
   const [hero, setHero] = useState({
     eyebrow: club.hero.eyebrow ?? "",

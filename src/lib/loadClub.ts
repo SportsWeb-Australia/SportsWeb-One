@@ -58,7 +58,6 @@ function formatMatchDate(value: string | null): string {
  */
 export async function getClubConfig(): Promise<ClubConfig> {
   if (!supabase) return staticClub;
-
   try {
     const slug = await resolveClubSlug();
     const { data: clubRow } = await supabase
@@ -66,9 +65,37 @@ export async function getClubConfig(): Promise<ClubConfig> {
       .select("*")
       .eq("slug", slug)
       .maybeSingle();
-
     if (!clubRow) return staticClub;
-    const clubId = clubRow.id;
+    return await buildClubConfig(clubRow);
+  } catch {
+    return staticClub;
+  }
+}
+
+/**
+ * Load a club's full config by its id. Powers the admin club switcher and the
+ * superadmin "open any club in the same layout" act-as flow, where the club is
+ * chosen by the operator rather than resolved from the host.
+ */
+export async function getClubConfigById(clubId: string): Promise<ClubConfig> {
+  if (!supabase || !clubId) return staticClub;
+  try {
+    const { data: clubRow } = await supabase
+      .from("clubs")
+      .select("*")
+      .eq("id", clubId)
+      .maybeSingle();
+    if (!clubRow) return staticClub;
+    return await buildClubConfig(clubRow);
+  } catch {
+    return staticClub;
+  }
+}
+
+/** Build a complete ClubConfig from a clubs row (shared by both loaders). */
+async function buildClubConfig(clubRow: Record<string, any>): Promise<ClubConfig> {
+  if (!supabase) return staticClub;
+  const clubId = clubRow.id;
 
     const [newsRes, eventsRes, sponsorsRes, teamsRes, peopleRes, matchesRes, ladderRes, templateRes] = await Promise.all([
       supabase.from("news").select("*").eq("club_id", clubId).eq("status", "published").order("published_at", { ascending: false }).limit(12),
@@ -324,10 +351,6 @@ export async function getClubConfig(): Promise<ClubConfig> {
     }
 
     return cfg;
-  } catch {
-    // Any failure → safe, complete static config.
-    return staticClub;
-  }
 }
 
 function sentenceCase(s: string | null): string | null {

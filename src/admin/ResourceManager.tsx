@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { uploadToStorage } from "../lib/upload";
 import { RichText } from "./RichText";
-import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import { slugify, type Field, type ResourceDef } from "./resources";
 import { SectionHelp } from "./SectionHelp";
 
@@ -22,8 +22,7 @@ function fromInputDateTime(value: string): string | null {
 }
 
 export function ResourceManager({ resource }: { resource: ResourceDef }) {
-  const { membership } = useAuth();
-  const clubId = membership?.clubId;
+  const { clubId } = useActiveClub();
 
   const [rows, setRows] = useState<Row[]>([]);
   const [editing, setEditing] = useState<Row | "new" | null>(null);

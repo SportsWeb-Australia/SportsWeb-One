@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useClub } from "../components/ClubContext";
-import { useAuth } from "../lib/auth";
+import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { getNewsMode, NEWS_MODE_OPTIONS, type NewsMode } from "../lib/newsMode";
 import type { DesignVariant } from "../content/types";
@@ -38,8 +38,7 @@ const STYLES: { id: DesignVariant; label: string; note: string }[] = [
 
 export function AdminWebsite() {
   const { club, variant, setVariant } = useClub();
-  const { membership } = useAuth();
-  const clubId = membership?.clubId;
+  const { clubId } = useActiveClub();
   const [mode, setMode] = useState<NewsMode>(getNewsMode(club.content));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
