@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
 import { useClub } from "../components/ClubContext";
 import { useActiveClub } from "./ActiveClub";
-import { usePermissions } from "../lib/permissions";
+import { useAuth } from "../lib/auth";
+import { usePermissions, toModelRole } from "../lib/permissions";
+import { roleLabel } from "../lib/roles";
 import { supabase } from "../lib/supabase";
+import {
+  COMMITTEE_TITLES,
+  loadCommitteeProfile,
+  saveCommitteeProfile,
+  firstNameFrom,
+  type CommitteeProfile,
+} from "../lib/committee";
 
 /**
  * Admin landing dashboard. Shows a friendly snapshot of the club plus quick
@@ -12,7 +21,42 @@ import { supabase } from "../lib/supabase";
 export function AdminDashboard({ go }: { go: (key: string) => void }) {
   const { club } = useClub();
   const { can } = usePermissions();
-  const { clubId } = useActiveClub();
+  const { clubId, role: activeRole, isActingAs } = useActiveClub();
+  const { userId, email, platformRole } = useAuth();
+
+  const [profile, setProfile] = useState<CommitteeProfile>({ displayName: "", committeeTitle: "" });
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ name: "", title: "" });
+  const [saveMsg, setSaveMsg] = useState("");
+
+  useEffect(() => {
+    if (!clubId || !userId) return;
+    let alive = true;
+    loadCommitteeProfile(clubId, userId).then((p) => {
+      if (!alive) return;
+      setProfile(p);
+      setForm({ name: p.displayName, title: p.committeeTitle });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [clubId, userId]);
+
+  const firstName = firstNameFrom(profile.displayName, email);
+  const roleFallback = roleLabel(platformRole ?? toModelRole(activeRole));
+  const greetingRole = profile.committeeTitle || (roleFallback !== "—" ? roleFallback : "");
+
+  const saveProfile = async () => {
+    setSaveMsg("Saving…");
+    const err = await saveCommitteeProfile(clubId, form.name, form.title);
+    if (err) {
+      setSaveMsg("Couldn't save — has the committee-roles migration been run?");
+      return;
+    }
+    setProfile({ displayName: form.name.trim(), committeeTitle: form.title.trim() });
+    setSaveMsg("Saved.");
+    setEditing(false);
+  };
 
   const [counts, setCounts] = useState<Record<string, number | null>>({
     news: null,
@@ -74,8 +118,65 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
   return (
     <div className="sw-admin-panel sw-dash">
       <div className="sw-dash-head">
-        <h2>Welcome back</h2>
+        <h2>
+          Welcome {firstName}
+          {greetingRole && (
+            <>
+              {" — "}
+              <span className="sw-dash-role">{greetingRole}</span>
+            </>
+          )}
+        </h2>
         <p className="sw-admin-note">Here's {clubName} at a glance. Jump straight into whatever you need.</p>
+        {!isActingAs && (
+          <div className="sw-dash-rolebar">
+            <button
+              className="sw-dash-roleedit"
+              onClick={() => {
+                setEditing((v) => !v);
+                setSaveMsg("");
+              }}
+            >
+              {editing ? "Close" : profile.committeeTitle ? "Edit your name & role" : "Set your name & committee role"}
+            </button>
+            {editing && (
+              <div className="sw-dash-roleform">
+                <label className="sw-ed-l">
+                  Your name
+                  <input
+                    className="sw-input"
+                    value={form.name}
+                    placeholder="e.g. Carson"
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  />
+                </label>
+                <label className="sw-ed-l">
+                  Committee role
+                  <select
+                    className="sw-input"
+                    value={form.title}
+                    onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  >
+                    <option value="">— none —</option>
+                    {COMMITTEE_TITLES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="sw-ed-foot">
+                  <button className="sw-btn" onClick={saveProfile}>
+                    Save
+                  </button>
+                  <span className="sw-ed-status" aria-live="polite">
+                    {saveMsg}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="sw-dash-stats">

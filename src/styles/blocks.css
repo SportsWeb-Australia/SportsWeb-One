@@ -3007,3 +3007,16 @@
 /* Neutralise the Login's full-screen wrapper so it sits cleanly inside the modal */
 .sw-land-modal .sw-entry { min-height: auto; background: none; padding: 0; }
 .sw-land-modal .sw-entry-card { box-shadow: 0 24px 70px rgba(0,0,0,0.5); }
+
+/* ===== Dashboard: role-aware greeting + committee profile editor ===== */
+.sw-dash-role { color: var(--accent-on-bg); }
+.sw-dash-rolebar { margin-top: 0.6rem; }
+.sw-dash-roleedit {
+  font: inherit; font-size: 0.85rem; cursor: pointer; background: none; border: none; padding: 0;
+  color: var(--accent-on-bg); text-decoration: underline; text-underline-offset: 2px;
+}
+.sw-dash-roleform {
+  margin-top: 0.85rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-2); display: grid; gap: 0.85rem; max-width: 460px;
+}
+.sw-dash-roleform .sw-ed-l { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; }
