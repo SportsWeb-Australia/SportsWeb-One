@@ -124,7 +124,7 @@ export function SectionHelp({ section }: { section: string }) {
   return (
     <div className={`sw-help${open ? " sw-help--open" : ""}`}>
       <button className="sw-help-toggle" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span>How this works · quick start</span>
+        <span>How this works · quick start guide</span>
         <span className="sw-help-chev" aria-hidden="true">{open ? "▾" : "▸"}</span>
       </button>
       {open && (

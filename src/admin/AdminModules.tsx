@@ -103,10 +103,10 @@ export function AdminModules() {
           <div className="sw-module-section">
             <h2>Live preview</h2>
             <p className="sw-admin-note">
-              The Volunteer Manager running inside your admin. You may need to sign in to it the first time.
+              Volunteer One running inside your admin. You may need to sign in to it the first time.
             </p>
             <div className="sw-module-embed">
-              <iframe src={appUrl} title="Volunteer Manager" loading="lazy" />
+              <iframe src={appUrl} title="Volunteer One" loading="lazy" />
             </div>
           </div>
         )}
@@ -123,7 +123,7 @@ export function AdminModules() {
         </div>
 
         <div className="sw-module-section">
-          <h2>Quick start</h2>
+          <h2>Quick start guide</h2>
           <ol className="sw-msteps">
             {mod.quickstart.map((s) => (
               <li key={s.title}>

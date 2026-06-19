@@ -31,7 +31,7 @@ export interface ModuleDef {
 export const MODULE_CATALOG: ModuleDef[] = [
   {
     key: "volunteers",
-    name: "Volunteer Manager",
+    name: "Volunteer One",
     badge: "VM",
     tagline: "Rosters, reminders and thank-yous — sorted.",
     summary:

@@ -24,6 +24,7 @@ function AdminInner() {
   const { club } = useClub();
   const { can } = usePermissions();
   const [active, setActive] = useState("__dashboard");
+  const [webOpen, setWebOpen] = useState(true);
 
   // Modules group: the club's switched-on modules, plus the ones we haven't
   // wired into this dashboard yet (shown as "Coming soon").
@@ -93,17 +94,45 @@ function AdminInner() {
           {membership && (can("club.website") || can("club.content")) && (
             <>
               <div className="sw-admin-navgroup">Your website</div>
-              {can("club.website") && (
-                <button data-active={active === "__site"} onClick={() => setActive("__site")}>
-                  Edit website
-                </button>
-              )}
-              {can("club.content") &&
+              {can("club.website") ? (
+                <>
+                  <div className="sw-admin-parentrow">
+                    <button
+                      className="sw-admin-parent"
+                      data-active={active === "__site"}
+                      onClick={() => { setActive("__site"); setWebOpen(true); }}
+                    >
+                      Edit website
+                    </button>
+                    {can("club.content") && (
+                      <button
+                        className="sw-admin-caret"
+                        aria-label={webOpen ? "Collapse pages" : "Expand pages"}
+                        aria-expanded={webOpen}
+                        onClick={() => setWebOpen((o) => !o)}
+                      >
+                        {webOpen ? "▾" : "▸"}
+                      </button>
+                    )}
+                  </div>
+                  {can("club.content") && webOpen && (
+                    <div className="sw-admin-subnav">
+                      {RESOURCES.map((r) => (
+                        <button key={r.key} data-active={r.key === active} onClick={() => setActive(r.key)}>
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                can("club.content") &&
                 RESOURCES.map((r) => (
                   <button key={r.key} data-active={r.key === active} onClick={() => setActive(r.key)}>
                     {r.label}
                   </button>
-                ))}
+                ))
+              )}
             </>
           )}
           {membership && moduleNav.length > 0 && (

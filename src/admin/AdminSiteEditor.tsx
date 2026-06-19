@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useClub } from "../components/ClubContext";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
@@ -6,17 +6,46 @@ import { ImageField } from "./ImageCropper";
 import { SectionHelp } from "./SectionHelp";
 
 /**
+ * A titled, collapsible editor card. Title is prominent; an optional subtitle
+ * explains what the section controls. Collapsed by default unless `defaultOpen`.
+ */
+function EdCard({
+  title,
+  subtitle,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section className={`sw-ed-card${open ? " sw-ed-card--open" : ""}`}>
+      <button className="sw-ed-cardhead" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <span className="sw-ed-cardtitles">
+          <span className="sw-ed-cardtitle">{title}</span>
+          {subtitle && <span className="sw-ed-cardsub">{subtitle}</span>}
+        </span>
+        <span className="sw-ed-cardchev" aria-hidden="true">{open ? "▾" : "▸"}</span>
+      </button>
+      {open && <div className="sw-ed-cardbody">{children}</div>}
+    </section>
+  );
+}
+
+/**
  * Website editor — lives in the admin panel (Club Admin level and up).
  * Edits the same content keys the public site reads (club_content), plus the
- * club logo (clubs.logo_url). Images upload to the club-media bucket via the
- * crop tool. No inline editing happens on the public site.
+ * club logo. Images upload to the club-media bucket via the crop tool. No
+ * inline editing happens on the public site.
  */
 export function AdminSiteEditor() {
   const { club } = useClub();
   const { membership } = useAuth();
   const clubId = membership?.clubId ?? "";
 
-  // text state, seeded from the live (override-merged) config
   const [hero, setHero] = useState({
     eyebrow: club.hero.eyebrow ?? "",
     title: club.hero.title ?? "",
@@ -40,12 +69,14 @@ export function AdminSiteEditor() {
     acknowledgement: club.footer?.acknowledgement ?? "",
   });
 
-  // image urls (kept in local state so the thumbnail updates instantly)
   const [img, setImg] = useState({
     heroImage: club.hero.backgroundImage ?? "",
     logo: club.identity.logo ?? "",
     portrait: club.president?.portrait ?? "",
     aboutPhoto: club.content?.["about.photo"] ?? "",
+    footerLogo0: club.content?.["footer.logo.0"] ?? "",
+    footerLogo1: club.content?.["footer.logo.1"] ?? "",
+    footerLogo2: club.content?.["footer.logo.2"] ?? "",
   });
 
   const [status, setStatus] = useState<Record<string, string>>({});
@@ -80,17 +111,15 @@ export function AdminSiteEditor() {
   return (
     <div className="sw-admin-panel sw-site-editor">
       <div className="sw-admin-formhead">
-        <h2>Website</h2>
+        <h2>Edit website</h2>
       </div>
       <p className="sw-admin-note">
-        Edit your homepage and key pages here. Images open a framing tool so they always sit nicely.
-        Changes save to your site — reload the public site to see them live.
+        Edit your homepage and key pages here. Each section opens up so you can work through them one at a time.
+        Images open a framing tool so they always sit nicely. Changes save to your site — reload the public site to see them live.
       </p>
       <SectionHelp section="website" />
 
-      {/* HERO */}
-      <section className="sw-ed-card">
-        <h3>Homepage hero</h3>
+      <EdCard title="Homepage hero" subtitle="The big banner at the very top of your homepage" defaultOpen>
         <label className="sw-ed-l">Eyebrow (small line above the title)</label>
         <input className="sw-input" value={hero.eyebrow} onChange={(e) => setHero({ ...hero, eyebrow: e.target.value })} />
         <label className="sw-ed-l">Title</label>
@@ -124,11 +153,9 @@ export function AdminSiteEditor() {
           </button>
           <span className="sw-ed-status" aria-live="polite">{status.hero}</span>
         </div>
-      </section>
+      </EdCard>
 
-      {/* BRANDING */}
-      <section className="sw-ed-card">
-        <h3>Club logo</h3>
+      <EdCard title="Club logo & branding" subtitle="Your club crest, shown in the header and around the site">
         <ImageField
           label="Logo"
           hint="Square works best. Recommended 512 × 512, transparent PNG."
@@ -141,11 +168,9 @@ export function AdminSiteEditor() {
           onUploaded={saveLogo}
         />
         <span className="sw-ed-status" aria-live="polite">{status.brand}</span>
-      </section>
+      </EdCard>
 
-      {/* PRESIDENT */}
-      <section className="sw-ed-card">
-        <h3>President’s welcome</h3>
+      <EdCard title="President's welcome" subtitle="The welcome message and portrait on your homepage">
         <div className="sw-ed-2col">
           <div>
             <label className="sw-ed-l">Name</label>
@@ -179,11 +204,9 @@ export function AdminSiteEditor() {
           </button>
           <span className="sw-ed-status" aria-live="polite">{status.pres}</span>
         </div>
-      </section>
+      </EdCard>
 
-      {/* JOIN CTA */}
-      <section className="sw-ed-card">
-        <h3>“Join the club” call-to-action</h3>
+      <EdCard title="Join / membership call-to-action" subtitle="The prompt that invites people to join your club">
         <label className="sw-ed-l">Heading</label>
         <input className="sw-input" value={join.heading} onChange={(e) => setJoin({ ...join, heading: e.target.value })} />
         <label className="sw-ed-l">Blurb</label>
@@ -194,11 +217,9 @@ export function AdminSiteEditor() {
           </button>
           <span className="sw-ed-status" aria-live="polite">{status.join}</span>
         </div>
-      </section>
+      </EdCard>
 
-      {/* ABOUT */}
-      <section className="sw-ed-card">
-        <h3>About page</h3>
+      <EdCard title="About your club" subtitle="The opening of your About page">
         <label className="sw-ed-l">Opening paragraph</label>
         <textarea className="sw-input" rows={4} value={about.body} onChange={(e) => setAbout({ ...about, body: e.target.value })} />
         <ImageField
@@ -220,19 +241,70 @@ export function AdminSiteEditor() {
           </button>
           <span className="sw-ed-status" aria-live="polite">{status.about}</span>
         </div>
-      </section>
+      </EdCard>
 
-      {/* FOOTER */}
-      <section className="sw-ed-card">
-        <h3>Footer acknowledgement</h3>
-        <textarea className="sw-input" rows={2} value={footer.acknowledgement} onChange={(e) => setFooter({ acknowledgement: e.target.value })} />
+      <EdCard title="Footer" subtitle="Acknowledgement of Country and footer logos or flags">
+        <label className="sw-ed-l">Acknowledgement of Country</label>
+        <textarea className="sw-input" rows={3} value={footer.acknowledgement} onChange={(e) => setFooter({ acknowledgement: e.target.value })} />
         <div className="sw-ed-foot">
           <button className="sw-btn" onClick={() => saveContent("footer", { "footer.acknowledgement": footer.acknowledgement })}>
-            Save footer
+            Save acknowledgement
           </button>
           <span className="sw-ed-status" aria-live="polite">{status.footer}</span>
         </div>
-      </section>
+
+        <hr className="sw-ed-rule" />
+        <label className="sw-ed-l">Footer logos &amp; flags</label>
+        <p className="sw-ed-hint">
+          Add up to three images for the footer — your league or council logo, a major partner, or the
+          Aboriginal and Torres Strait Islander flags for your Acknowledgement of Country. Transparent PNGs look best.
+        </p>
+        <div className="sw-ed-logos">
+          <ImageField
+            label="Logo or flag 1"
+            hint="Transparent PNG recommended."
+            aspect={1}
+            targetW={400}
+            value={img.footerLogo0}
+            folder="footer"
+            clubId={clubId}
+            transparent
+            onUploaded={async (url) => {
+              setImg((s) => ({ ...s, footerLogo0: url }));
+              await saveContent("footerlogos", { "footer.logo.0": url });
+            }}
+          />
+          <ImageField
+            label="Logo or flag 2"
+            hint="Transparent PNG recommended."
+            aspect={1}
+            targetW={400}
+            value={img.footerLogo1}
+            folder="footer"
+            clubId={clubId}
+            transparent
+            onUploaded={async (url) => {
+              setImg((s) => ({ ...s, footerLogo1: url }));
+              await saveContent("footerlogos", { "footer.logo.1": url });
+            }}
+          />
+          <ImageField
+            label="Logo or flag 3"
+            hint="Transparent PNG recommended."
+            aspect={1}
+            targetW={400}
+            value={img.footerLogo2}
+            folder="footer"
+            clubId={clubId}
+            transparent
+            onUploaded={async (url) => {
+              setImg((s) => ({ ...s, footerLogo2: url }));
+              await saveContent("footerlogos", { "footer.logo.2": url });
+            }}
+          />
+        </div>
+        <span className="sw-ed-status" aria-live="polite">{status.footerlogos}</span>
+      </EdCard>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export function ModulePrePage({ mod, status }: { mod: ModulePre; status: "open" 
           </ul>
         </section>
         <section>
-          <h3>Quick start</h3>
+          <h3>Quick start guide</h3>
           <ol className="sw-mod-steps">
             {mod.quickstart.map((s, i) => (
               <li key={i}>
