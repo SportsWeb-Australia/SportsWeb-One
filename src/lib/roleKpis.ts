@@ -46,10 +46,17 @@ export async function getSportswebMetrics(clubId: string | null): Promise<Partia
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const nowIso = now.toISOString();
 
-  // Members — people on file + how many joined this month.
-  const total = await countOf(() => sb.from("people").select("id", { count: "exact", head: true }).eq("club_id", clubId));
+  // Members — active people + how many active joined this month.
+  const total = await countOf(() =>
+    sb.from("people").select("id", { count: "exact", head: true }).eq("club_id", clubId).eq("status", "active")
+  );
   const newThis = await countOf(() =>
-    sb.from("people").select("id", { count: "exact", head: true }).eq("club_id", clubId).gte("created_at", monthStart)
+    sb
+      .from("people")
+      .select("id", { count: "exact", head: true })
+      .eq("club_id", clubId)
+      .eq("status", "active")
+      .gte("created_at", monthStart)
   );
   if (total != null) out.members = { active: total, newThisMonth: newThis ?? 0 };
 
@@ -67,6 +74,24 @@ export async function getSportswebMetrics(clubId: string | null): Promise<Partia
     sb.from("events").select("id", { count: "exact", head: true }).eq("club_id", clubId).gte("event_date", nowIso)
   );
   if (upcoming != null) out.events = { upcoming, ticketsSold: 0 };
+
+  // Volunteers — active on the books.
+  const vols = await countOf(() =>
+    sb.from("volunteers").select("id", { count: "exact", head: true }).eq("club_id", clubId).eq("status", "active")
+  );
+  if (vols != null) out.volunteers = { active: vols, openTasks: 0 };
+
+  // Compliance — checks expiring within 30 days (or already lapsed).
+  const soon = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const risks = await countOf(() =>
+    sb
+      .from("volunteer_compliance_records")
+      .select("id", { count: "exact", head: true })
+      .eq("club_id", clubId)
+      .not("expires_on", "is", null)
+      .lte("expires_on", soon)
+  );
+  if (risks != null) out.compliance = { risks };
 
   return out;
 }
