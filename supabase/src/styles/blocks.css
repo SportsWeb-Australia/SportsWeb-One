@@ -3524,13 +3524,7 @@
   background: #fff;
   border-color: color-mix(in srgb, var(--club-accent, #2563eb) 16%, #e6e8ec);
 }
-.sw-collapse-head {
-  border-left: 4px solid var(--club-accent, #2563eb);
-  background: color-mix(in srgb, var(--club-accent, #2563eb) 4%, #fff);
-}
-.sw-collapse-head:hover { background: color-mix(in srgb, var(--club-accent, #2563eb) 8%, #fff); }
-.sw-collapse-title { color: var(--club-ink, #1e293b); }
-/* slightly tint the inner area/kpi cards so they sit on the section, not float */
+/* (collapse header styling is consolidated in the club-colour band block below) */
 .sw-cc-area, .sw-kpi-card, .sw-chart-card { background: #fff; }
 
 /* ── Workspace sub-page hero (elevated, left-aligned) ── */
@@ -3575,19 +3569,21 @@
 .sw-collapse-head {
   background: var(--club-accent, #2563eb);
   border-left: none;
-  padding: 1.15rem 1.6rem;
+  padding: 1.3rem 1.7rem;
 }
-.sw-collapse-head:hover { background: color-mix(in srgb, var(--club-accent, #2563eb) 88%, #000); }
-.sw-collapse-title { color: #fff; font-size: 1.25rem; flex: 1; }
+.sw-collapse-head:hover { background: color-mix(in srgb, var(--club-accent, #2563eb) 90%, #000); }
+.sw-collapse-title { color: #fff; font-size: 1.3rem; flex: 1; }
 .sw-collapse-title .sw-sample-badge { color: #92400e; }
 .sw-collapse-chev {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
-  width: 30px; height: 30px; border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.75); color: #fff;
-  font-size: 1.35rem; font-weight: 700; line-height: 1;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #fff; color: var(--club-accent, #2563eb);
+  font-size: 1.55rem; font-weight: 800; line-height: 1;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
 }
 /* generous space between the header band and the content below */
-.sw-collapse-body { padding: 1.7rem 1.6rem 1.8rem; }
+.sw-collapse-body { padding: 2rem 1.7rem 1.9rem; }
+.sw-collapse-body > *:first-child { margin-top: 0; }
 .sw-cc-health { margin-top: 0; }
 
 /* better vertical rhythm platform-wide */
