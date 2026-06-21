@@ -322,9 +322,9 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
 
       {persona === "president" ? (
         <>
+          <SampleCharts />
           <HealthScore metrics={metrics} local={presLocal} go={go} />
           {kpiBlock}
-          <SampleCharts />
           <RedFlags metrics={metrics} local={presLocal} go={go} />
           <TodoCentre metrics={metrics} local={presLocal} go={go} />
           <CommsSummary memberCount={metrics.members?.active ?? 0} go={go} />

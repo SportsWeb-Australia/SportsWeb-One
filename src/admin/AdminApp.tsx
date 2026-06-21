@@ -21,7 +21,8 @@ import { AdminImport } from "./AdminImport";
 import { SuperIntegrations } from "./SuperIntegrations";
 import { SuperStudio } from "./SuperStudio";
 import { Login } from "./Login";
-import { ZohoWorkspace } from "./ZohoWorkspace";
+import { ZohoWorkspace, WS_ICON } from "./ZohoWorkspace";
+import { SportsWebAccount } from "./SportsWebAccount";
 import { loadCommitteeProfile } from "../lib/committee";
 import { personaFromTitle } from "../lib/roleKpis";
 
@@ -180,17 +181,17 @@ function AdminInner() {
           )}
           {hasClub && (
             <>
-              <div className="sw-admin-navgroup">Workspace</div>
-              <button data-active={active === "__ws_email"} onClick={() => setActive("__ws_email")}>Email</button>
-              <button data-active={active === "__ws_workdrive"} onClick={() => setActive("__ws_workdrive")}>WorkDrive</button>
-              <button data-active={active === "__ws_intranet"} onClick={() => setActive("__ws_intranet")}>Intranet</button>
+              <div className="sw-admin-navgroup">Club Workspace</div>
+              <button data-active={active === "__ws_email"} onClick={() => setActive("__ws_email")}><span className="sw-nav-ic">{WS_ICON.email}</span>Email</button>
+              <button data-active={active === "__ws_workdrive"} onClick={() => setActive("__ws_workdrive")}><span className="sw-nav-ic">{WS_ICON.workdrive}</span>WorkDrive</button>
+              <button data-active={active === "__ws_intranet"} onClick={() => setActive("__ws_intranet")}><span className="sw-nav-ic">{WS_ICON.intranet}</span>Intranet</button>
               <div className="sw-admin-parentrow">
                 <button
                   className="sw-admin-parent"
                   data-active={active === "__ws_office"}
                   onClick={() => { setActive("__ws_office"); setOfficeOpen(true); }}
                 >
-                  Office
+                  <span className="sw-nav-ic">{WS_ICON.office}</span>Club Office
                 </button>
                 <button
                   className="sw-admin-caret"
@@ -203,18 +204,18 @@ function AdminInner() {
               </div>
               {officeOpen && (
                 <div className="sw-admin-subnav">
-                  <button data-active={active === "__ws_writer"} onClick={() => setActive("__ws_writer")}>Writer</button>
-                  <button data-active={active === "__ws_sheets"} onClick={() => setActive("__ws_sheets")}>Sheets</button>
-                  <button data-active={active === "__ws_show"} onClick={() => setActive("__ws_show")}>Show</button>
+                  <button data-active={active === "__ws_writer"} onClick={() => setActive("__ws_writer")}><span className="sw-nav-ic">{WS_ICON.writer}</span>Writer</button>
+                  <button data-active={active === "__ws_sheets"} onClick={() => setActive("__ws_sheets")}><span className="sw-nav-ic">{WS_ICON.sheets}</span>Sheets</button>
+                  <button data-active={active === "__ws_show"} onClick={() => setActive("__ws_show")}><span className="sw-nav-ic">{WS_ICON.show}</span>Show</button>
                 </div>
               )}
-              <button data-active={active === "__ws_meeting"} onClick={() => setActive("__ws_meeting")}>Meeting</button>
-              <button data-active={active === "__ws_calendar"} onClick={() => setActive("__ws_calendar")}>Calendar</button>
+              <button data-active={active === "__ws_meeting"} onClick={() => setActive("__ws_meeting")}><span className="sw-nav-ic">{WS_ICON.meeting}</span>Meeting</button>
+              <button data-active={active === "__ws_calendar"} onClick={() => setActive("__ws_calendar")}><span className="sw-nav-ic">{WS_ICON.calendar}</span>Calendar</button>
               {(persona === "president" || persona === "secretary" || isPlatformAdmin) && (
-                <button data-active={active === "__ws_vault"} onClick={() => setActive("__ws_vault")}>Vault</button>
+                <button data-active={active === "__ws_vault"} onClick={() => setActive("__ws_vault")}><span className="sw-nav-ic">{WS_ICON.vault}</span>Vault</button>
               )}
-              <button data-active={active === "__ws_todo"} onClick={() => setActive("__ws_todo")}>To-Do</button>
-              <button data-active={active === "__ws_committee"} onClick={() => setActive("__ws_committee")}>Committee Room</button>
+              <button data-active={active === "__ws_todo"} onClick={() => setActive("__ws_todo")}><span className="sw-nav-ic">{WS_ICON.todo}</span>To-Do</button>
+              <button data-active={active === "__ws_committee"} onClick={() => setActive("__ws_committee")}><span className="sw-nav-ic">{WS_ICON.committee}</span>Committee Room</button>
             </>
           )}
           {hasClub && (
@@ -286,6 +287,20 @@ function AdminInner() {
                   Website style
                 </button>
               )}
+            </>
+          )}
+          {hasClub && (persona === "president" || persona === "secretary" || persona === "treasurer" || isPlatformAdmin) && (
+            <>
+              <div className="sw-admin-navgroup">Account</div>
+              <button data-active={active === "__account"} onClick={() => setActive("__account")}>
+                <span className="sw-nav-ic">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="M3 10h18M7 15h4" />
+                  </svg>
+                </span>
+                SportsWeb One account
+              </button>
             </>
           )}
           {(can("platform.clubs") || can("platform.integrations")) && (
@@ -360,6 +375,8 @@ function AdminInner() {
           <AdminDashboard go={setActive} />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
+        ) : effectiveActive === "__account" && hasClub ? (
+          <SportsWebAccount />
         ) : effectiveActive.startsWith("__mod_") && hasClub ? (
           (() => {
             const key = effectiveActive.slice("__mod_".length);

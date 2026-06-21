@@ -50,8 +50,9 @@ export function AdminPeople() {
         <h2>People &amp; committee</h2>
       </div>
       <p className="sw-admin-note">
-        Assign each admin at {clubName || "your club"} a name and committee role. These appear on their dashboard and
-        across the club. Committee roles are assigned here — people can&apos;t set their own.
+        This is where you add the committee members who get access to SportsWeb One. Give each person a name and
+        committee role — these appear on their dashboard and across the club. Committee roles are assigned here; people
+        can&apos;t set their own.
       </p>
 
       {loading ? (

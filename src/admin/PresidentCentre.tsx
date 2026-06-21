@@ -18,6 +18,28 @@ function dot(status: Status): ReactNode {
   return <span className={`sw-cc-dot sw-cc-dot--${status}`} aria-hidden="true" />;
 }
 
+const ai = (inner: ReactNode): ReactNode => (
+  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+    {inner}
+  </svg>
+);
+const AREA_ICON: Record<string, ReactNode> = {
+  financial: ai(<path d="M12 2v20M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H7" />),
+  membership: ai(<><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></>),
+  volunteers: ai(<><circle cx="9" cy="8" r="3" /><path d="M3 20c0-3 3-5 6-5s6 2 6 5" /><circle cx="17" cy="9" r="2" /></>),
+  compliance: ai(<path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z" />),
+  sponsorship: ai(<><path d="M3 12l9-9 9 9-9 9z" /><circle cx="9" cy="9" r="1.5" /></>),
+  events: ai(<><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M4 9h16M9 3v4M15 3v4" /></>),
+  team: ai(<><path d="M6 4l3 1 3-1 3 1 3-1v4l-3 1v9H9v-9L6 8z" /></>),
+  engagement: ai(<path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" />),
+  governance: ai(<><path d="M3 21h18M5 21V10M19 21V10M4 10l8-6 8 6" /></>),
+};
+function areaIcon(key: string, status: Status): ReactNode {
+  const inner = AREA_ICON[key];
+  if (!inner) return dot(status);
+  return <span className={`sw-cc-area-ic sw-cc-area-ic--${status}`}>{inner}</span>;
+}
+
 type CentreProps = { metrics: Metrics; local: CentreLocal; go: (key: string) => void };
 
 /* ── Club Health Score ─────────────────────────────── */
@@ -42,7 +64,7 @@ export function HealthScore({ metrics, local, go }: CentreProps) {
         {health.areas.map((a) => (
           <div key={a.key} className={`sw-cc-area sw-cc-area--${a.status}`}>
             <div className="sw-cc-area-top">
-              {dot(a.status)}
+              {areaIcon(a.key, a.status)}
               <span className="sw-cc-area-label">{a.label}</span>
               <span className="sw-cc-area-score">{a.score == null ? "—" : `${a.score}`}</span>
             </div>
@@ -169,30 +191,31 @@ export function SportsWebFooter({
     <section className="sw-swf">
       <div className="sw-swf-head">
         <h3>SportsWeb One</h3>
-        <button className="sw-dash-panellink" onClick={() => go("__modules")}>
-          Manage modules →
+        <button className="sw-dash-panellink" onClick={() => go("__account")}>
+          View your account →
         </button>
       </div>
-      <div className="sw-swf-grid">
-        <div className="sw-swf-card">
-          <span className="sw-swf-cap">Active modules ({activeCount})</span>
-          <div className="sw-swf-mods">
-            {activeModules.length ? (
-              activeModules.map((m) => <span key={m} className="sw-swf-chip">{m}</span>)
-            ) : (
-              <span className="sw-cc-area-reason">No modules active yet.</span>
-            )}
-          </div>
-          {lockedCount > 0 && <span className="sw-swf-locked">{lockedCount} more available to add</span>}
+      <div className="sw-swf-card">
+        <span className="sw-swf-cap">Active modules ({activeCount})</span>
+        <div className="sw-swf-mods">
+          {activeModules.length ? (
+            activeModules.map((m) => (
+              <span key={m} className="sw-swf-chip">
+                {m}
+              </span>
+            ))
+          ) : (
+            <span className="sw-cc-area-reason">No modules active yet.</span>
+          )}
         </div>
-        <div className="sw-swf-card">
-          <span className="sw-swf-cap">Your support team</span>
-          <div className="sw-swf-support">
-            <p><strong>Account manager</strong><br />Carson Brooks · carson@sportsweb.com.au</p>
-            <p><strong>Support</strong><br />support@sportsweb.com.au · Mon–Fri</p>
-            <p><strong>Plan</strong><br />SportsWeb One · Club</p>
-          </div>
-        </div>
+        {lockedCount > 0 && (
+          <span className="sw-swf-locked">
+            {lockedCount} more available ·{" "}
+            <button className="sw-linklike" onClick={() => go("__modules")}>
+              manage modules
+            </button>
+          </span>
+        )}
       </div>
     </section>
   );

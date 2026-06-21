@@ -1,9 +1,32 @@
+import type { ReactNode } from "react";
+
 /**
- * Workspace screens — the club's operational tools, powered by Zoho. These are
- * built and ready; until a club is on a plan that includes them (and SportsWeb
- * connects them), each shows a friendly "contact SportsWeb" state. When
- * connected, the same screen opens straight into the club's tool.
+ * Workspace screens — the club's operational tools, powered by Zoho. Built and
+ * ready; until a club is on a plan that includes them (and SportsWeb connects
+ * them), each shows a friendly "contact SportsWeb" state. When connected, the
+ * same screen opens straight into the club's tool.
  */
+
+const ic = (inner: ReactNode): ReactNode => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+    {inner}
+  </svg>
+);
+
+export const WS_ICON: Record<string, ReactNode> = {
+  email: ic(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>),
+  workdrive: ic(<><path d="M6 19a4 4 0 0 1-.9-7.9 5 5 0 0 1 9.7-1.6A4.5 4.5 0 0 1 18 19z" /></>),
+  intranet: ic(<><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" /></>),
+  office: ic(<><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>),
+  writer: ic(<><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5M10 13h6M10 17h6" /></>),
+  sheets: ic(<><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M4 10h16M4 15h16M10 4v16" /></>),
+  show: ic(<><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M12 16v4M8 20h8" /></>),
+  meeting: ic(<><rect x="3" y="6" width="13" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3z" /></>),
+  calendar: ic(<><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M4 9h16M9 3v4M15 3v4" /></>),
+  vault: ic(<><rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 15v2" /></>),
+  todo: ic(<><rect x="4" y="4" width="16" height="16" rx="2" /><path d="m8 12 3 3 5-5" /></>),
+  committee: ic(<><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z" /></>),
+};
 
 export type WorkspaceApp = { label: string; title: string; blurb: string; zoho: string };
 
@@ -30,28 +53,31 @@ export const WORKSPACE: Record<string, WorkspaceApp> = {
     zoho: "Zoho Connect",
   },
   office: {
-    label: "Office",
-    title: "Office (like Microsoft 365 & Google Workspace)",
+    label: "Club Office",
+    title: "Club Office",
     blurb:
-      "A full office suite for the club — documents, spreadsheets and presentations, the same idea as Microsoft Office or Google Workspace. Open Writer, Sheets or Show from the menu.",
+      "A full office suite for the club — documents, spreadsheets and presentations. It works just like Microsoft Office and Google Workspace, and it's actually compatible with them too: open, edit and save .docx, .xlsx and .pptx files without converting anything. Open Writer, Sheets or Show from the menu.",
     zoho: "Zoho Office Suite",
   },
   writer: {
     label: "Writer",
     title: "Writer",
-    blurb: "Word processor for letters, policies, reports and newsletters — like Microsoft Word or Google Docs.",
+    blurb:
+      "Word processor for letters, policies, reports and newsletters. Works like — and is compatible with — Microsoft Word and Google Docs (.docx in and out).",
     zoho: "Zoho Writer",
   },
   sheets: {
     label: "Sheets",
     title: "Sheets",
-    blurb: "Spreadsheets for budgets, rosters, ladders and lists — like Microsoft Excel or Google Sheets.",
+    blurb:
+      "Spreadsheets for budgets, rosters, ladders and lists. Works like — and is compatible with — Microsoft Excel and Google Sheets (.xlsx in and out).",
     zoho: "Zoho Sheet",
   },
   show: {
     label: "Show",
     title: "Show",
-    blurb: "Slides for presentations, AGM decks and sponsor pitches — like PowerPoint or Google Slides.",
+    blurb:
+      "Slides for presentations, AGM decks and sponsor pitches. Works like — and is compatible with — PowerPoint and Google Slides (.pptx in and out).",
     zoho: "Zoho Show",
   },
   meeting: {
@@ -96,7 +122,8 @@ export function ZohoWorkspace({ appKey }: { appKey: string }) {
   if (!a) return null;
   return (
     <div className="sw-admin-panel sw-ws">
-      <div className="sw-admin-formhead">
+      <div className="sw-admin-formhead sw-ws-head">
+        <span className="sw-ws-headic">{WS_ICON[appKey]}</span>
         <h2>{a.title}</h2>
       </div>
       <p className="sw-admin-note">{a.blurb}</p>
