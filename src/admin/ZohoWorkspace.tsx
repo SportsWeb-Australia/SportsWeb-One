@@ -122,11 +122,13 @@ export function ZohoWorkspace({ appKey }: { appKey: string }) {
   if (!a) return null;
   return (
     <div className="sw-admin-panel sw-ws">
-      <div className="sw-admin-formhead sw-ws-head">
-        <span className="sw-ws-headic">{WS_ICON[appKey]}</span>
-        <h2>{a.title}</h2>
+      <div className="sw-ws-hero">
+        <span className="sw-ws-hero-ic">{WS_ICON[appKey]}</span>
+        <div className="sw-ws-hero-copy">
+          <h2>{a.title}</h2>
+          <p>{a.blurb}</p>
+        </div>
       </div>
-      <p className="sw-admin-note">{a.blurb}</p>
 
       <div className="sw-ws-connect">
         <span className="sw-ws-badge">Not connected yet</span>

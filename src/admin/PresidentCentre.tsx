@@ -117,7 +117,7 @@ export function HealthScore({ metrics, local, go }: CentreProps) {
 export function RedFlags({ metrics, local, go }: CentreProps) {
   const flags = buildRedFlags(metrics, local);
   return (
-    <Collapsible title="Red flag alerts">
+    <Collapsible title="Red flag alerts" defaultOpen={false}>
       <div className="sw-cc-flags">
         {flags.map((f) => (
           <div key={f.id} className={`sw-cc-flag sw-cc-flag--${f.severity}`}>
@@ -152,7 +152,7 @@ const BUCKETS: { key: "urgent" | "week" | "month" | "season"; label: string }[] 
 export function TodoCentre({ metrics, local, go }: CentreProps) {
   const todos = buildTodos(metrics, local);
   return (
-    <Collapsible title="President to-do centre">
+    <Collapsible title="President to-do centre" defaultOpen={false}>
       <div className="sw-cc-todos">
         {BUCKETS.map((b) => {
           const items = todos.filter((t) => t.bucket === b.key);

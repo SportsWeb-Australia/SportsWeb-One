@@ -60,6 +60,14 @@ async function resolveMembership(userId: string): Promise<ClubMembership | null>
  * trial club created with their email (self-signup), then resolve again.
  */
 async function resolveMembershipWithClaim(userId: string): Promise<ClubMembership | null> {
+  if (supabase) {
+    // Claim any committee invites addressed to this user's email (best-effort).
+    try {
+      await supabase.rpc("claim_member_invites");
+    } catch {
+      /* best-effort */
+    }
+  }
   let m = await resolveMembership(userId);
   if (!m && supabase) {
     try {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { useClub } from "../components/ClubContext";
@@ -56,24 +56,15 @@ function AdminInner() {
   const [persona, setPersona] = useState<string>("general");
   const hasClub = !!clubId;
 
-  // Lightweight in-app history so a "Back" button can return to the previous screen.
-  const histRef = useRef<string[]>([]);
-  const prevActiveRef = useRef(active);
-  const backRef = useRef(false);
+  // Back always returns to the dashboard home.
+  const goBack = () => setActive("__dashboard");
+
+  // Whenever the screen changes, jump the content back to the top.
   useEffect(() => {
-    if (prevActiveRef.current === active) return;
-    if (backRef.current) backRef.current = false;
-    else histRef.current.push(prevActiveRef.current);
-    prevActiveRef.current = active;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const main = document.querySelector(".sw-admin-main");
+    if (main) main.scrollTop = 0;
   }, [active]);
-  const goBack = () => {
-    if (!histRef.current.length) {
-      setActive("__dashboard");
-      return;
-    }
-    backRef.current = true;
-    setActive(histRef.current.pop()!);
-  };
 
   // When the active club changes (login, switch, or superadmin "open"), land on
   // that club's dashboard rather than whatever screen was open before.
@@ -356,7 +347,7 @@ function AdminInner() {
       <main className="sw-admin-main">
         {hasClub && effectiveActive !== "__dashboard" && (
           <button className="sw-admin-back" onClick={goBack}>
-            ← Back
+            ← Dashboard
           </button>
         )}
         {isActingAs && (

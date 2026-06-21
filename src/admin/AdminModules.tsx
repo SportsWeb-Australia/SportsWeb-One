@@ -7,6 +7,25 @@ import { MediaEmbed } from "../components/blocks/MediaEmbed";
 import { MODULE_CATALOG, getModule } from "../lib/modules";
 import { COMING_SOON_MODULES } from "./ModulePrePage";
 
+/** Drop real logo files here (PNG/SVG) and they replace the initials badge. */
+const MODULE_LOGOS: Record<string, string> = {
+  volunteers: "/module-logos/volunteer-one.png",
+  ticketing: "/module-logos/ticket-one.png",
+};
+
+function ModuleBadge({ moduleKey, badge }: { moduleKey: string; badge: string }) {
+  const logo = MODULE_LOGOS[moduleKey];
+  const [failed, setFailed] = useState(false);
+  if (logo && !failed) {
+    return (
+      <span className="sw-module-badge sw-module-badge--logo">
+        <img src={logo} alt="" onError={() => setFailed(true)} />
+      </span>
+    );
+  }
+  return <span className="sw-module-badge">{badge}</span>;
+}
+
 export function AdminModules() {
   const { club } = useClub();
   const { isPlatformAdmin } = useAuth();
@@ -200,7 +219,7 @@ export function AdminModules() {
               onClick={() => setActiveKey(m.key)}
             >
               <div className="sw-module-top">
-                <span className="sw-module-badge">{m.badge}</span>
+                <ModuleBadge moduleKey={m.key} badge={m.badge} />
                 <span className={`sw-module-state ${isOn ? "on" : "off"}`}>
                   {isOn ? "Active" : "🔒 Locked"}
                 </span>
@@ -219,7 +238,7 @@ export function AdminModules() {
             onClick={() => setActiveKey(m.key)}
           >
             <div className="sw-module-top">
-              <span className="sw-module-badge">{m.badge}</span>
+              <ModuleBadge moduleKey={m.key} badge={m.badge} />
               <span className="sw-module-state off">🔒 Locked</span>
             </div>
             <h3>{m.name}</h3>

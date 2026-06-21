@@ -269,7 +269,7 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
   };
 
   const kpiBlock = (
-    <Collapsible title={kpi.heading}>
+    <Collapsible title={kpi.heading} defaultOpen={false}>
       <div className="sw-kpi-grid">
         {kpi.cards.map((c, i) => {
           const clickable = !!c.go;

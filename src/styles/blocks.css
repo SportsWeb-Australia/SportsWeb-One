@@ -3261,7 +3261,7 @@
 .sw-cc-h { font-family: var(--font-display, inherit); font-size: 1.15rem; margin: 0; }
 
 /* Health score */
-.sw-cc-health { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+.sw-cc-health { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.75rem; }
 .sw-cc-score {
   flex: 0 0 auto; width: 132px; height: 132px; border-radius: 18px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -3517,3 +3517,55 @@
 
 /* account page: a touch more room on wide screens */
 @media (min-width: 1080px) { .sw-acc-grid { gap: 1.25rem; } }
+
+/* ── Admin page background + club-coloured containers ── */
+.sw-admin-main { background: var(--surface-soft, #f5f6f8); }
+.sw-collapse {
+  background: #fff;
+  border-color: color-mix(in srgb, var(--club-accent, #2563eb) 16%, #e6e8ec);
+}
+.sw-collapse-head {
+  border-left: 4px solid var(--club-accent, #2563eb);
+  background: color-mix(in srgb, var(--club-accent, #2563eb) 4%, #fff);
+}
+.sw-collapse-head:hover { background: color-mix(in srgb, var(--club-accent, #2563eb) 8%, #fff); }
+.sw-collapse-title { color: var(--club-ink, #1e293b); }
+/* slightly tint the inner area/kpi cards so they sit on the section, not float */
+.sw-cc-area, .sw-kpi-card, .sw-chart-card { background: #fff; }
+
+/* ── Workspace sub-page hero (elevated, left-aligned) ── */
+.sw-ws-hero {
+  display: flex; align-items: flex-start; gap: 1.1rem; padding: 1.6rem 1.7rem; margin-bottom: 1.5rem;
+  border-radius: 18px; border: 1px solid color-mix(in srgb, var(--club-accent, #2563eb) 18%, #e6e8ec);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--club-accent, #2563eb) 10%, #fff), #fff 70%);
+}
+.sw-ws-hero-ic {
+  display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; flex: none;
+  border-radius: 14px; background: var(--club-accent, #2563eb); color: #fff;
+}
+.sw-ws-hero-ic svg { width: 26px; height: 26px; }
+.sw-ws-hero-copy h2 { margin: 0 0 0.4rem; text-align: left; font-size: 1.6rem; line-height: 1.05; }
+.sw-ws-hero-copy p { margin: 0; color: var(--text-soft, #475467); font-size: 0.95rem; line-height: 1.55; max-width: 60ch; }
+
+/* ── Module logo badge ── */
+.sw-module-badge--logo { background: #fff; padding: 0; overflow: hidden; }
+.sw-module-card--locked .sw-module-badge--logo { background: #fff; }
+.sw-module-badge--logo img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block; }
+
+/* ── People: add committee member + pending invites ── */
+.sw-people-add {
+  margin: 0 0 1.6rem; padding: 1.4rem 1.5rem; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--club-accent, #2563eb) 18%, #e6e8ec);
+  background: color-mix(in srgb, var(--club-accent, #2563eb) 4%, #fff);
+}
+.sw-people-add-h { margin: 0 0 0.35rem; font-family: var(--font-display, inherit); font-size: 1.2rem; }
+.sw-people-add-sub { margin: 0 0 1.1rem; color: var(--text-soft, #475467); font-size: 0.9rem; line-height: 1.5; max-width: 70ch; }
+.sw-people-add-grid { display: grid; gap: 0.9rem; grid-template-columns: 1fr; margin-bottom: 1rem; }
+@media (min-width: 640px) { .sw-people-add-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .sw-people-add-grid { grid-template-columns: repeat(4, 1fr); } }
+.sw-people-invites { margin: 0 0 1.6rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.sw-people-invite {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.85rem 1.1rem; border: 1px dashed var(--border, #cbd5e1); border-radius: 12px; background: var(--surface, #fff);
+}
+.sw-people-invite .sw-people-id span { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
