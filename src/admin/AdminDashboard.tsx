@@ -15,6 +15,7 @@ import {
   type CommitteeProfile,
 } from "../lib/committee";
 import { getDashboardMetrics, buildKpis, personaFromTitle, type Metrics } from "../lib/roleKpis";
+import { PresidentCentre } from "./PresidentCentre";
 
 /* ---- tiny dependency-free charts -------------------------------------- */
 
@@ -352,6 +353,14 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
           })}
         </div>
       </section>
+
+      {persona === "president" && (
+        <PresidentCentre
+          metrics={metrics}
+          local={{ events: n("events"), sponsors: n("sponsors"), teams: n("teams"), news: n("news") }}
+          go={go}
+        />
+      )}
 
       {persona === "general" && (
         <div className="sw-dash-charts">

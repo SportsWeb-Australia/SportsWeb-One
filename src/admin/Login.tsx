@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../lib/auth";
+import { supabase } from "../lib/supabase";
 
 /**
  * SportsWeb One platform entry page. SportsWeb-branded (not club-branded) —
@@ -16,6 +17,8 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const submit = async () => {
     setBusy(true);
@@ -23,6 +26,24 @@ export function Login() {
     const err = await signIn(email.trim(), password);
     setBusy(false);
     if (err) setError(err);
+  };
+
+  const sendMagicLink = async () => {
+    const addr = email.trim();
+    if (!addr) {
+      setError("Enter your email first, then request a link.");
+      return;
+    }
+    if (!supabase) return;
+    setLinkBusy(true);
+    setError(null);
+    const { error: err } = await supabase.auth.signInWithOtp({
+      email: addr,
+      options: { emailRedirectTo: window.location.origin, shouldCreateUser: false },
+    });
+    setLinkBusy(false);
+    if (err) setError(err.message);
+    else setSent(true);
   };
 
   return (
@@ -63,6 +84,17 @@ export function Login() {
         <button className="sw-btn" onClick={submit} disabled={busy}>
           {busy ? "Logging in…" : "Log in"}
         </button>
+
+        {sent ? (
+          <p className="sw-login-magic-sent">
+            Check your inbox — we've emailed a one-tap login link to <strong>{email.trim()}</strong>. It signs you in
+            securely, no password needed.
+          </p>
+        ) : (
+          <button className="sw-login-magic" onClick={sendMagicLink} disabled={linkBusy}>
+            {linkBusy ? "Sending…" : "Email me a magic link instead"}
+          </button>
+        )}
 
         <div className="sw-entry-divider"><span>New to SportsWeb One?</span></div>
 
