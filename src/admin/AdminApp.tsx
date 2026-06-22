@@ -510,7 +510,7 @@ function AdminInner() {
           )}
         </div>
         {effectiveActive === "__dashboard" && hasClub ? (
-          <AdminDashboard go={setActive} />
+          <AdminDashboard go={setActive} canSwitchView={isPlatformAdmin || activeRole === "club_senior_admin"} />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
         ) : effectiveActive === "__account" && hasClub ? (

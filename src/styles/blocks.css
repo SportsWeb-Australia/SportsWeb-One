@@ -4033,3 +4033,27 @@
 .sw-mfa-codeactions { display: flex; gap: 0.5rem; }
 
 .sw-entry-card--wide { max-width: 560px; }
+
+/* ---- Dashboard "view as" role switcher ---- */
+.sw-dash-viewas {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.7rem;
+  background: #fff; border: 1px solid var(--border, #e6e8ec); border-radius: 12px;
+  padding: 0.6rem 0.8rem; margin-bottom: 1rem;
+}
+.sw-dash-viewas-cap {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-soft, #64748b);
+}
+.sw-dash-viewas-pills { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.sw-dash-viewas-pill {
+  border: 1px solid var(--border, #d5d9e0); background: #f7f8fa; color: var(--text, #1f2430);
+  border-radius: 999px; padding: 0.32rem 0.8rem; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.sw-dash-viewas-pill:hover { background: #eef0f4; }
+.sw-dash-viewas-pill[data-active="true"] {
+  background: var(--club-primary, var(--accent, #1F8CA7)); border-color: var(--club-primary, var(--accent, #1F8CA7)); color: #fff;
+}
+.sw-dash-viewas-note {
+  width: 100%; font-size: 0.78rem; color: var(--text-soft, #64748b); font-style: italic;
+}

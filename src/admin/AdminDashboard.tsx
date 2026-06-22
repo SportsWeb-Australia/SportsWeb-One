@@ -14,7 +14,7 @@ import {
   firstNameFrom,
   type CommitteeProfile,
 } from "../lib/committee";
-import { getDashboardMetrics, buildKpis, personaFromTitle, type Metrics } from "../lib/roleKpis";
+import { getDashboardMetrics, buildKpis, personaFromTitle, type Metrics, type Persona } from "../lib/roleKpis";
 import { HealthScore, RedFlags, TodoCentre, SampleCharts, Collapsible } from "./PresidentCentre";
 
 /* ---- tiny dependency-free charts -------------------------------------- */
@@ -115,11 +115,22 @@ const ICONS: Record<string, ReactNode> = {
   ),
 };
 
+/* Personas a privileged user can preview from the dashboard. */
+const PERSONA_TABS: { key: Persona; label: string }[] = [
+  { key: "president", label: "President" },
+  { key: "treasurer", label: "Treasurer" },
+  { key: "secretary", label: "Secretary" },
+  { key: "coach", label: "Coach" },
+  { key: "volunteer", label: "Volunteer" },
+  { key: "general", label: "General" },
+];
+const personaLabel = (p: Persona) => PERSONA_TABS.find((t) => t.key === p)?.label ?? "General";
+
 /**
  * Admin landing dashboard — a personalised, role-aware snapshot of the club
  * with quick shortcuts to the jobs people do most.
  */
-export function AdminDashboard({ go }: { go: (key: string) => void }) {
+export function AdminDashboard({ go, canSwitchView = false }: { go: (key: string) => void; canSwitchView?: boolean }) {
   const { club } = useClub();
   const { can } = usePermissions();
   const { clubId, role: activeRole, isActingAs } = useActiveClub();
@@ -138,6 +149,7 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "", title: "" });
   const [saveMsg, setSaveMsg] = useState("");
+  const [viewAs, setViewAs] = useState<Persona | null>(null);
 
   // Only a SportsWeb admin or the club's senior (signup) admin assigns committee
   // titles. A regular club admin can correct their display name, not their title.
@@ -217,7 +229,8 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
 
   const n = (k: string) => counts[k] ?? 0;
 
-  const persona = personaFromTitle(profile.committeeTitle);
+  const resolvedPersona = personaFromTitle(profile.committeeTitle);
+  const persona = canSwitchView && viewAs ? viewAs : resolvedPersona;
   const kpi = buildKpis(
     persona,
     { events: n("events"), sponsors: n("sponsors"), teams: n("teams"), news: n("news") },
@@ -316,6 +329,29 @@ export function AdminDashboard({ go }: { go: (key: string) => void }) {
           <p className="sw-dash-strap">Here's {clubName} at a glance. Jump straight into whatever you need.</p>
         </div>
       </div>
+
+      {canSwitchView && (
+        <div className="sw-dash-viewas">
+          <span className="sw-dash-viewas-cap">View dashboard as</span>
+          <div className="sw-dash-viewas-pills">
+            {PERSONA_TABS.map((t) => (
+              <button
+                key={t.key}
+                className="sw-dash-viewas-pill"
+                data-active={persona === t.key}
+                onClick={() => setViewAs(t.key === resolvedPersona ? null : t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {viewAs && viewAs !== resolvedPersona && (
+            <span className="sw-dash-viewas-note">
+              Previewing the {personaLabel(viewAs)} view — your own role is {personaLabel(resolvedPersona)}.
+            </span>
+          )}
+        </div>
+      )}
 
       {persona === "president" ? (
         <>

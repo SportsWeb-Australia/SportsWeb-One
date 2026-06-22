@@ -205,7 +205,30 @@ export function buildKpis(persona: Persona, local: LocalCounts, m: Metrics): { h
     };
   }
 
-  // general / coach / volunteer (full sets land next)
+  if (persona === "coach") {
+    return {
+      heading: "Coach — key indicators",
+      cards: [
+        { label: "Teams", value: local.teams, source: "sportsweb", tone: "info" },
+        upcomingEvents(),
+        { label: "Players on file", value: m.members?.active ?? null, source: "sportsweb", tone: "info", hint: "Across the club" },
+        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "WWCC / accreditation" },
+      ],
+    };
+  }
+
+  if (persona === "volunteer") {
+    return {
+      heading: "Volunteer — key indicators",
+      cards: [
+        { label: "Active volunteers", value: m.volunteers?.active ?? null, source: "sportsweb", tone: "info" },
+        { label: "Open volunteer tasks", value: m.volunteers?.openTasks ?? null, source: "sportsweb", tone: m.volunteers && m.volunteers.openTasks > 0 ? "warn" : "good" },
+        upcomingEvents(),
+      ],
+    };
+  }
+
+  // general
   return {
     heading: "Club — key indicators",
     cards: [
