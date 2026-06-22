@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useActiveClub } from "./ActiveClub";
+import { useAuth } from "../lib/auth";
 import { useClub } from "../components/ClubContext";
 import { MODULE_CATALOG } from "../lib/modules";
 import { getSportswebMetrics, type Metrics } from "../lib/roleKpis";
 import { MfaSettings } from "./MfaSettings";
+import { MFA_ENFORCED } from "../lib/mfaPolicy";
 
 /** Illustrative standalone pricing ($/month) for the jobs SportsWeb One covers. */
 const SAVINGS = [
@@ -18,8 +20,12 @@ const SAVINGS = [
 const SPORTSWEB_MONTHLY = 99; // illustrative club plan
 
 export function SportsWebAccount() {
-  const { clubId, clubName } = useActiveClub();
+  const { clubId, clubName, role: activeRole } = useActiveClub();
+  const { isPlatformAdmin } = useAuth();
   const { club } = useClub();
+  // 2FA is locked-on for accounts that can administer a club or the platform.
+  const mfaAdminTier =
+    isPlatformAdmin || activeRole === "club_senior_admin" || activeRole === "club_admin";
   const [m, setM] = useState<Partial<Metrics>>({});
 
   useEffect(() => {
@@ -127,7 +133,7 @@ export function SportsWebAccount() {
         {/* Security */}
         <section className="sw-acc-card">
           <span className="sw-acc-cap">Security</span>
-          <MfaSettings />
+          <MfaSettings enforced={MFA_ENFORCED && mfaAdminTier} />
         </section>
 
         {/* Support team */}

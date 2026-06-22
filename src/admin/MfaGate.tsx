@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { getMfaStatus, verifyCode, type MfaStatus } from "../lib/mfa";
+import { MFA_ENFORCED } from "../lib/mfaPolicy";
 import { MfaSettings } from "./MfaSettings";
 
 /**
@@ -8,12 +9,11 @@ import { MfaSettings } from "./MfaSettings";
  * - If the user has 2FA on but this session isn't elevated yet → ask for a code
  *   (hard — but Sign out is always available, and an admin can reset 2FA).
  * - If 2FA is REQUIRED for their role but they haven't set it up → prompt them.
- *   While HARD_ENFORCE_SETUP is false this is SKIPPABLE, so nobody can be locked
- *   out during rollout. Flip it to true once you've confirmed 2FA works on your
- *   own account and you want it mandatory for admins.
+ *   While MFA_ENFORCED (src/lib/mfaPolicy.ts) is false this is SKIPPABLE, so
+ *   nobody can be locked out during rollout. Set it true once 2FA is confirmed
+ *   working and you want it mandatory for admin accounts.
  * - Any error checking status → fail open (render the app). Never lock out.
  */
-const HARD_ENFORCE_SETUP = false;
 
 type GateState = "checking" | "ok" | "challenge" | "setup";
 
@@ -127,7 +127,7 @@ export function MfaGate({
         {!setupOpen ? (
           <div className="sw-entry-actions">
             <button className="sw-btn" onClick={() => setSetupOpen(true)}>Set up two-factor now</button>
-            {!HARD_ENFORCE_SETUP && (
+            {!MFA_ENFORCED && (
               <button className="sw-login-magic" onClick={() => setState("ok")}>Remind me later</button>
             )}
           </div>
@@ -136,7 +136,7 @@ export function MfaGate({
             <MfaSettings />
             <div className="sw-entry-actions">
               <button className="sw-btn" onClick={evaluate}>I&apos;ve set it up — continue</button>
-              {!HARD_ENFORCE_SETUP && (
+              {!MFA_ENFORCED && (
                 <button className="sw-login-magic" onClick={() => setState("ok")}>Skip for now</button>
               )}
             </div>
