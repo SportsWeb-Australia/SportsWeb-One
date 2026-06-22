@@ -343,3 +343,140 @@ export async function updatePersonRole(
     return e instanceof Error ? e.message : "Could not update role.";
   }
 }
+
+// ---------------------------------------------------------------------
+// Teams & Seasons admin (manage the structural data roles/site read from)
+// ---------------------------------------------------------------------
+
+export interface AdminSeason {
+  id: string;
+  name: string;
+  sport: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  isCurrent: boolean;
+}
+
+export interface AdminTeam {
+  id: string;
+  name: string;
+  sport: string | null;
+  ageGroup: string | null;
+  gender: string | null;
+  grade: string | null;
+  coachName: string | null;
+  status: string | null;
+  displayOrder: number | null;
+}
+
+export async function adminListSeasons(clubId: string): Promise<AdminSeason[]> {
+  if (!supabase || !clubId) return [];
+  try {
+    const { data, error } = await supabase.rpc("admin_list_seasons", { p_club: clubId });
+    if (error || !data) return [];
+    return (data as Record<string, any>[]).map((s) => ({
+      id: s.id,
+      name: s.name,
+      sport: s.sport ?? null,
+      startDate: s.start_date ?? null,
+      endDate: s.end_date ?? null,
+      isCurrent: Boolean(s.is_current),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function upsertSeason(
+  clubId: string,
+  s: { id?: string | null; name: string; sport?: string | null; startDate?: string | null; endDate?: string | null; isCurrent?: boolean },
+): Promise<string | null> {
+  if (!supabase) return "Not connected.";
+  try {
+    const { error } = await supabase.rpc("upsert_season", {
+      p_club: clubId,
+      p_id: s.id ?? null,
+      p_name: s.name,
+      p_sport: s.sport ?? null,
+      p_start: s.startDate || null,
+      p_end: s.endDate || null,
+      p_is_current: !!s.isCurrent,
+    });
+    return error ? error.message : null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "Could not save season.";
+  }
+}
+
+export async function deleteSeason(clubId: string, id: string): Promise<string | null> {
+  if (!supabase) return "Not connected.";
+  try {
+    const { error } = await supabase.rpc("delete_season", { p_club: clubId, p_id: id });
+    return error ? error.message : null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "Could not delete season.";
+  }
+}
+
+export async function adminListTeams(clubId: string): Promise<AdminTeam[]> {
+  if (!supabase || !clubId) return [];
+  try {
+    const { data, error } = await supabase.rpc("admin_list_teams", { p_club: clubId });
+    if (error || !data) return [];
+    return (data as Record<string, any>[]).map((t) => ({
+      id: t.id,
+      name: t.name,
+      sport: t.sport ?? null,
+      ageGroup: t.age_group ?? null,
+      gender: t.gender ?? null,
+      grade: t.grade ?? null,
+      coachName: t.coach_name ?? null,
+      status: t.status ?? null,
+      displayOrder: typeof t.display_order === "number" ? t.display_order : null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function upsertTeam(
+  clubId: string,
+  t: {
+    id?: string | null;
+    name: string;
+    sport?: string | null;
+    ageGroup?: string | null;
+    gender?: string | null;
+    grade?: string | null;
+    coachName?: string | null;
+    status?: string | null;
+  },
+): Promise<string | null> {
+  if (!supabase) return "Not connected.";
+  try {
+    const { error } = await supabase.rpc("upsert_team", {
+      p_club: clubId,
+      p_id: t.id ?? null,
+      p_name: t.name,
+      p_sport: t.sport ?? null,
+      p_age_group: t.ageGroup ?? null,
+      p_gender: t.gender ?? null,
+      p_grade: t.grade ?? null,
+      p_coach: t.coachName ?? null,
+      p_status: t.status ?? null,
+    });
+    return error ? error.message : null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "Could not save team.";
+  }
+}
+
+export async function deleteTeam(clubId: string, id: string): Promise<string | null> {
+  if (!supabase) return "Not connected.";
+  try {
+    const { error } = await supabase.rpc("delete_team", { p_club: clubId, p_id: id });
+    return error ? error.message : null;
+  } catch (e) {
+    return e instanceof Error ? e.message : "Could not delete team.";
+  }
+}

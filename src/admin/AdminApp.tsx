@@ -11,6 +11,7 @@ import { ResourceManager } from "./ResourceManager";
 import { AdminPeople } from "./AdminPeople";
 import { MembersList } from "./MembersList";
 import { MemberDetail } from "./MemberDetail";
+import { TeamsSeasons } from "./TeamsSeasons";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor } from "./AdminSiteEditor";
 import { AdminDashboard } from "./AdminDashboard";
@@ -323,6 +324,9 @@ function AdminInner() {
               <button data-active={active === "__people"} onClick={() => setActive("__people")}>
                 People &amp; committee
               </button>
+              <button data-active={active === "__teams_seasons"} onClick={() => setActive("__teams_seasons")}>
+                Teams &amp; seasons
+              </button>
               </div>
             </>
           )}
@@ -524,6 +528,8 @@ function AdminInner() {
           })()
         ) : effectiveActive === "__people" && can("club.users") ? (
           <AdminPeople />
+        ) : effectiveActive === "__teams_seasons" && can("club.users") ? (
+          <TeamsSeasons />
         ) : effectiveActive === "__comms" && can("club.comms") ? (
           <Communications />
         ) : effectiveActive === "__super_clubs" && can("platform.clubs") ? (
