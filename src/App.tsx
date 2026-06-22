@@ -78,6 +78,42 @@ export default function App() {
     registerServiceWorker();
   }, []);
 
+  // The admin is its own SportsWeb One-branded installable app: when inside
+  // /admin we swap the manifest, theme colour and app icon to SportsWeb One,
+  // and restore the club's branding for the public site.
+  useEffect(() => {
+    const head = document.head;
+    const setMeta = (name: string, content: string) => {
+      let m = head.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!m) {
+        m = document.createElement("meta");
+        m.setAttribute("name", name);
+        head.appendChild(m);
+      }
+      m.setAttribute("content", content);
+    };
+    const setLink = (rel: string, href: string) => {
+      let l = head.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
+      if (!l) {
+        l = document.createElement("link");
+        l.setAttribute("rel", rel);
+        head.appendChild(l);
+      }
+      l.setAttribute("href", href);
+    };
+    if (isAdmin) {
+      setLink("manifest", "/admin.webmanifest");
+      setLink("apple-touch-icon", "/sw1-apple-touch.png");
+      setMeta("theme-color", "#2563eb");
+      setMeta("apple-mobile-web-app-title", "SportsWeb One");
+    } else {
+      setLink("manifest", "/manifest.webmanifest");
+      setLink("apple-touch-icon", "/icon-192.png");
+      setMeta("theme-color", "#000000");
+      setMeta("apple-mobile-web-app-title", club.identity?.shortName ?? "SportsWeb");
+    }
+  }, [isAdmin, club]);
+
   useEffect(() => {
     let active = true;
     getClubConfig().then((c) => {

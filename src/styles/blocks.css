@@ -3769,9 +3769,19 @@
 }
 .sw-md-tabs button[data-on="true"] { background: #fff; color: var(--club-accent, #2563eb); z-index: 2; padding-top: 0.74rem; font-weight: 700; }
 @media (max-width: 560px) {
-  .sw-md-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0.35rem; margin: 0 -0.2rem; padding: 0 0.2rem 1px; }
-  .sw-md-tabs::-webkit-scrollbar { height: 0; }
-  .sw-md-tabs button { flex: 0 0 auto; padding: 0.55rem 0.95rem 0.6rem; }
+  /* Member file: render the folder tabs as a tidy pill row on phones — the
+     desktop folder-tab "merge into the sheet" look breaks once it has to scroll. */
+  .sw-md-tabs { flex-wrap: wrap; gap: 0.4rem; row-gap: 0.4rem; align-items: stretch; margin: 0 0 0.9rem; }
+  .sw-md-tabs button {
+    border: 1px solid color-mix(in srgb, var(--club-accent, #2563eb) 28%, #fff);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--club-accent, #2563eb) 10%, #fff);
+    padding: 0.5rem 0.95rem; margin-bottom: 0; font-size: 0.85rem;
+  }
+  .sw-md-tabs button[data-on="true"] {
+    background: var(--club-accent, #2563eb); color: #fff;
+    border-color: var(--club-accent, #2563eb); padding-top: 0.5rem;
+  }
 }
 .sw-md-tabpanel {
   background: #fff;
@@ -3959,3 +3969,32 @@
 
 /* ---- Website style: platform-admin show-all toggle ---- */
 .sw-admin-showall { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; font-size: 0.88rem; color: var(--text-soft, #475569); }
+
+/* ---- Member file: roomier, cleaner folder on phones ---- */
+@media (max-width: 560px) {
+  .sw-md-tabpanel { border-radius: 14px; padding: 1.15rem 1.1rem 1.25rem; }
+  .sw-folder--member .sw-folder-body { padding: 1rem 1rem 1.25rem; border-radius: 2px 14px 14px 14px; }
+  .sw-folder--member .sw-md-head { padding-right: 50px; }
+  .sw-folder-logo { width: 42px; height: 42px; top: 0.85rem; right: 0.85rem; }
+}
+
+/* ---- SportsWeb One login: install affordance ---- */
+.sw-login-install { margin-top: 1.1rem; text-align: center; }
+.sw-login-installbtn {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, #2563eb 35%, #fff);
+  background: color-mix(in srgb, #2563eb 8%, #fff);
+  color: #1d4ed8;
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sw-login-installbtn:hover { background: color-mix(in srgb, #2563eb 14%, #fff); }
+.sw-login-iostip {
+  margin: 0.7rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft, #475569);
+  line-height: 1.5;
+}

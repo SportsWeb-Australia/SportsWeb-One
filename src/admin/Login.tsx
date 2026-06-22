@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../lib/auth";
 import { supabase } from "../lib/supabase";
+import { watchInstallPrompt, triggerInstall, isStandalone, isIos } from "../lib/pwa";
 
 /**
  * SportsWeb One platform entry page. SportsWeb-branded (not club-branded) —
@@ -19,6 +20,20 @@ export function Login() {
   const [busy, setBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [canInstall, setCanInstall] = useState(false);
+  const [iosTip, setIosTip] = useState(false);
+  const standalone = isStandalone();
+  const ios = isIos();
+
+  useEffect(() => {
+    if (standalone) return;
+    watchInstallPrompt(() => setCanInstall(true));
+  }, [standalone]);
+
+  const install = async () => {
+    const ok = await triggerInstall();
+    if (ok) setCanInstall(false);
+  };
 
   const submit = async () => {
     setBusy(true);
@@ -102,6 +117,26 @@ export function Login() {
           <a className="sw-btn sw-btn--ghost" href={SIGNUP_URL}>Sign up &amp; choose a plan</a>
           <a className="sw-entry-link" href={MARKETING_URL}>Learn more about SportsWeb One →</a>
         </div>
+
+        {!standalone && (canInstall || ios) && (
+          <div className="sw-login-install">
+            {canInstall ? (
+              <button className="sw-login-installbtn" onClick={install}>
+                ⬇️ Install the SportsWeb One app
+              </button>
+            ) : (
+              <button className="sw-login-installbtn" onClick={() => setIosTip((v) => !v)}>
+                📲 Add SportsWeb One to your Home Screen
+              </button>
+            )}
+            {ios && iosTip && (
+              <p className="sw-login-iostip">
+                In Safari, tap the <strong>Share</strong> button, then choose <strong>Add to Home Screen</strong>.
+                SportsWeb One then opens like a normal app.
+              </p>
+            )}
+          </div>
+        )}
 
         <p className="sw-login-sub">SportsWeb One · the operating system for community sport</p>
       </div>

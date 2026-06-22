@@ -1,0 +1,17 @@
+{
+  "name": "SportsWeb One",
+  "short_name": "SportsWeb One",
+  "description": "SportsWeb One — the operating system for community sport. Sign in to manage your club.",
+  "id": "/admin",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "/sw1-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/sw1-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/sw1-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
