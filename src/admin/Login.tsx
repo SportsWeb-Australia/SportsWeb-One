@@ -54,7 +54,7 @@ export function Login() {
     setError(null);
     const { error: err } = await supabase.auth.signInWithOtp({
       email: addr,
-      options: { emailRedirectTo: window.location.origin, shouldCreateUser: false },
+      options: { emailRedirectTo: `${window.location.origin}/admin`, shouldCreateUser: false },
     });
     setLinkBusy(false);
     if (err) setError(err.message);
