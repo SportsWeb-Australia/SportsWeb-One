@@ -37,6 +37,7 @@ export interface CreateClubInput {
   slug: string;
   primary: string;
   secondary: string;
+  tertiary?: string;
   contact?: string;
   adminEmail?: string;
 }
@@ -53,6 +54,7 @@ export async function createClub(input: CreateClubInput): Promise<{ result?: Cre
     p_slug: input.slug.trim(),
     p_primary: input.primary,
     p_secondary: input.secondary,
+    p_tertiary: input.tertiary?.trim() || null,
     p_contact: input.contact?.trim() || null,
     p_sport: "football",
     p_admin_email: input.adminEmail?.trim() || null,

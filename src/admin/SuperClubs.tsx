@@ -23,12 +23,12 @@ export function SuperClubs() {
   // Create-club form
   const [creating, setCreating] = useState(false);
   const [slugDirty, setSlugDirty] = useState(false);
-  const [form, setForm] = useState({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", contact: "", adminEmail: "" });
+  const [form, setForm] = useState({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
   const [createBusy, setCreateBusy] = useState(false);
   const [createMsg, setCreateMsg] = useState<string | null>(null);
 
   const resetForm = () => {
-    setForm({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", contact: "", adminEmail: "" });
+    setForm({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
     setSlugDirty(false);
   };
 
@@ -146,6 +146,10 @@ export function SuperClubs() {
             <label className="sw-admin-field">
               <span>Secondary colour</span>
               <input type="color" value={form.secondary} onChange={(e) => setForm((f) => ({ ...f, secondary: e.target.value }))} />
+            </label>
+            <label className="sw-admin-field">
+              <span>Tertiary colour</span>
+              <input type="color" value={form.tertiary} onChange={(e) => setForm((f) => ({ ...f, tertiary: e.target.value }))} />
             </label>
             <label className="sw-admin-field">
               <span>Contact email</span>
