@@ -1115,7 +1115,7 @@
 .sw-admin-nav button[data-active="true"] { background: var(--accent); color: #fff; }
 .sw-admin-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; }
 .sw-admin-side-foot button { color: color-mix(in srgb, var(--text-invert) 70%, transparent); text-align: left; }
-.sw-admin-main { padding: 1.5rem; }
+.sw-admin-main { padding: 1.5rem; min-width: 0; overflow-x: clip; }
 .sw-admin-userbar { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-soft); margin-bottom: 1.25rem; }
 .sw-admin-panel { max-width: 1200px; }
 .sw-admin-formhead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
@@ -1693,11 +1693,20 @@
 .sw-admin-login-card .sw-btn { margin-top: 1.5rem; }
 
 /* Admin — nav group label + setup views */
-.sw-admin-navgroup {
-  margin: 1.5rem 0 0.5rem; padding: 0 0.25rem;
-  font-size: 0.82rem; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase; color: rgba(255, 255, 255, 0.78);
+.sw-admin-nav .sw-admin-navgroup {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  width: 100%; text-align: left;
+  margin: 1rem 0 0.1rem; padding: 0.5rem 0.6rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.6);
+  background: transparent; border: none; border-radius: var(--radius); cursor: pointer;
 }
+.sw-admin-nav .sw-admin-navgroup:hover { background: rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.92); }
+.sw-admin-nav .sw-admin-navgroup[data-open="true"] { color: #fff; }
+.sw-admin-groupcaret { font-size: 0.7rem; opacity: 0.7; flex: 0 0 auto; }
+.sw-admin-groupitems { display: flex; flex-direction: column; gap: 0.25rem; }
+.sw-admin-groupitems[data-open="false"] { display: none; }
 .sw-admin-parentrow { display: flex; align-items: stretch; gap: 0; }
 .sw-admin-parentrow .sw-admin-parent { flex: 1; }
 .sw-admin-caret {
@@ -3748,16 +3757,22 @@
 .sw-md-headmain h2 { margin: 0 0 0.3rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
 .sw-md-headmeta { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.85rem; color: var(--text-soft, #64748b); }
 
-.sw-md-tabs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0; align-items: flex-end; }
+.sw-md-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; row-gap: 0.3rem; margin-bottom: 0; align-items: flex-end; }
 .sw-md-tabs button {
   border: 1px solid color-mix(in srgb, var(--club-accent, #2563eb) 30%, #fff);
   border-bottom: none;
   background: color-mix(in srgb, var(--club-accent, #2563eb) 16%, #fff);
   color: color-mix(in srgb, var(--club-accent, #2563eb) 68%, #1e293b);
-  padding: 0.55rem 1.05rem 0.6rem; font: inherit; font-weight: 600; font-size: 0.87rem;
-  border-radius: 11px 13px 0 0; cursor: pointer; position: relative; margin-bottom: -1px;
+  padding: 0.64rem 1.25rem 0.7rem; font: inherit; font-weight: 600; font-size: 0.9rem;
+  border-radius: 13px 15px 0 0; cursor: pointer; position: relative; margin-bottom: -1px;
+  white-space: nowrap;
 }
-.sw-md-tabs button[data-on="true"] { background: #fff; color: var(--club-accent, #2563eb); z-index: 2; padding-top: 0.65rem; font-weight: 700; }
+.sw-md-tabs button[data-on="true"] { background: #fff; color: var(--club-accent, #2563eb); z-index: 2; padding-top: 0.74rem; font-weight: 700; }
+@media (max-width: 560px) {
+  .sw-md-tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0.35rem; margin: 0 -0.2rem; padding: 0 0.2rem 1px; }
+  .sw-md-tabs::-webkit-scrollbar { height: 0; }
+  .sw-md-tabs button { flex: 0 0 auto; padding: 0.55rem 0.95rem 0.6rem; }
+}
 .sw-md-tabpanel {
   background: #fff;
   border: 1px solid color-mix(in srgb, var(--club-accent, #2563eb) 30%, #fff);

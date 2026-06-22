@@ -53,10 +53,13 @@ function AdminInner() {
   const { club } = useClub();
   const { can } = usePermissions();
   const [active, setActive] = useState("__dashboard");
-  const [webOpen, setWebOpen] = useState(true);
+  const [webOpen, setWebOpen] = useState(false);
   const [officeOpen, setOfficeOpen] = useState(false);
   const [modulesOpen, setModulesOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false); // mobile drawer
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const groupOpen = (k: string) => !!openGroups[k];
+  const toggleGroup = (k: string) => setOpenGroups((g) => ({ ...g, [k]: !g[k] }));
   const [persona, setPersona] = useState<string>("general");
   const hasClub = !!clubId;
 
@@ -225,7 +228,11 @@ function AdminInner() {
           )}
           {hasClub && (
             <>
-              <div className="sw-admin-navgroup">Club Workspace</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("workspace")} onClick={() => toggleGroup("workspace")}>
+                <span>Club Workspace</span>
+                <span className="sw-admin-groupcaret">{groupOpen("workspace") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("workspace")}>
               <button data-active={active === "__ws_email"} onClick={() => setActive("__ws_email")}><span className="sw-nav-ic">{WS_ICON.email}</span>Email</button>
               <button data-active={active === "__ws_workdrive"} onClick={() => setActive("__ws_workdrive")}><span className="sw-nav-ic">{WS_ICON.workdrive}</span>WorkDrive</button>
               <button data-active={active === "__ws_intranet"} onClick={() => setActive("__ws_intranet")}><span className="sw-nav-ic">{WS_ICON.intranet}</span>Intranet</button>
@@ -260,11 +267,16 @@ function AdminInner() {
               )}
               <button data-active={active === "__ws_todo"} onClick={() => setActive("__ws_todo")}><span className="sw-nav-ic">{WS_ICON.todo}</span>To-Do</button>
               <button data-active={active === "__ws_committee"} onClick={() => setActive("__ws_committee")}><span className="sw-nav-ic">{WS_ICON.committee}</span>Committee Room</button>
+              </div>
             </>
           )}
           {hasClub && (
             <>
-              <div className="sw-admin-navgroup">Modules</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("modules")} onClick={() => toggleGroup("modules")}>
+                <span>Modules</span>
+                <span className="sw-admin-groupcaret">{groupOpen("modules") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("modules")}>
               <div className="sw-admin-parentrow">
                 <button
                   className="sw-admin-parent"
@@ -295,30 +307,45 @@ function AdminInner() {
                   ))}
                 </div>
               )}
+              </div>
             </>
           )}
           {hasClub && can("club.users") && (
             <>
-              <div className="sw-admin-navgroup">Club</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("club")} onClick={() => toggleGroup("club")}>
+                <span>Club</span>
+                <span className="sw-admin-groupcaret">{groupOpen("club") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("club")}>
               <button data-active={active === "__members"} onClick={() => setActive("__members")}>
                 Members
               </button>
               <button data-active={active === "__people"} onClick={() => setActive("__people")}>
                 People &amp; committee
               </button>
+              </div>
             </>
           )}
           {hasClub && can("club.comms") && (
             <>
-              <div className="sw-admin-navgroup">Communications</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("comms")} onClick={() => toggleGroup("comms")}>
+                <span>Communications</span>
+                <span className="sw-admin-groupcaret">{groupOpen("comms") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("comms")}>
               <button data-active={active === "__comms"} onClick={() => setActive("__comms")}>
                 Send a message
               </button>
+              </div>
             </>
           )}
           {hasClub && (can("club.website") || can("club.content")) && (
             <>
-              <div className="sw-admin-navgroup">Your website</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("website")} onClick={() => toggleGroup("website")}>
+                <span>Your website</span>
+                <span className="sw-admin-groupcaret">{groupOpen("website") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("website")}>
               <div className="sw-admin-parentrow">
                 <button
                   className="sw-admin-parent"
@@ -361,11 +388,16 @@ function AdminInner() {
                   Website style
                 </button>
               )}
+              </div>
             </>
           )}
           {hasClub && (persona === "president" || persona === "secretary" || persona === "treasurer" || isPlatformAdmin) && (
             <>
-              <div className="sw-admin-navgroup">Account</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("account")} onClick={() => toggleGroup("account")}>
+                <span>Account</span>
+                <span className="sw-admin-groupcaret">{groupOpen("account") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("account")}>
               <button data-active={active === "__account"} onClick={() => setActive("__account")}>
                 <span className="sw-nav-ic">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
@@ -375,11 +407,16 @@ function AdminInner() {
                 </span>
                 SportsWeb One account
               </button>
+              </div>
             </>
           )}
           {(can("platform.clubs") || can("platform.integrations")) && (
             <>
-              <div className="sw-admin-navgroup">Platform · SportsWeb</div>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("platform")} onClick={() => toggleGroup("platform")}>
+                <span>Platform · SportsWeb</span>
+                <span className="sw-admin-groupcaret">{groupOpen("platform") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("platform")}>
               {can("platform.clubs") && (
                 <button data-active={active === "__super_clubs"} onClick={() => setActive("__super_clubs")}>
                   Clubs &amp; modules
@@ -400,6 +437,7 @@ function AdminInner() {
                   Import a club
                 </button>
               )}
+              </div>
             </>
           )}
         </nav>
