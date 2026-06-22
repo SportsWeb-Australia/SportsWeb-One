@@ -271,6 +271,7 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
 
             {msg && <p className="sw-admin-note sw-md-msg">{msg}</p>}
 
+            <div className="sw-md-tabpanel">
             {/* OVERVIEW */}
             {tab === "overview" && (
               editing ? (
@@ -459,6 +460,7 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
                 </p>
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
