@@ -36,6 +36,31 @@ const card: CSSProperties = { background: PAPER, border: `1px solid ${LINE}`, bo
 const label: CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: INK, margin: "14px 0 5px" };
 const input: CSSProperties = { width: "100%", padding: "10px 12px", fontSize: 15, border: `1px solid ${LINE}`, borderRadius: 8, background: "#fff", boxSizing: "border-box" };
 
+/**
+ * supabase-js throws FunctionsHttpError on a non-2xx response, whose `.message`
+ * is a generic "non-2xx status code". The function's real `{ error }` body lives
+ * on `.context` (the Response). Pull it out so the form shows the actual reason.
+ */
+async function readFunctionError(error: unknown): Promise<string> {
+  const e = error as { message?: string; context?: unknown };
+  const fallback = e?.message ?? "Request failed.";
+  const ctx = e?.context as { json?: () => Promise<any>; error?: string; message?: string } | string | undefined;
+  if (!ctx) return fallback;
+  try {
+    if (typeof (ctx as Response).json === "function") {
+      const j = await (ctx as Response).json();
+      return j?.error ?? j?.message ?? fallback;
+    }
+    if (typeof ctx === "string") {
+      try { return JSON.parse(ctx).error ?? fallback; } catch { return ctx || fallback; }
+    }
+    if (typeof ctx === "object") return (ctx as any).error ?? (ctx as any).message ?? fallback;
+  } catch {
+    /* fall through */
+  }
+  return fallback;
+}
+
 export function AddPerson() {
   const { isSuperadmin, isPlatformAdmin } = useAuth();
 
@@ -58,7 +83,7 @@ export function AddPerson() {
   const [result, setResult] = useState<Result | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const isClubRole = kind === "club_admin" || kind === "club_senior_admin";
+const isClubRole = kind === "club_admin" || kind === "club_senior_admin";
 
   useEffect(() => {
     if (!kinds.includes(kind)) setKind(kinds[0] ?? "club_admin");
@@ -96,7 +121,7 @@ export function AddPerson() {
 
     const { data, error } = await supabase.functions.invoke("invite-user", { body });
     setBusy(false);
-    if (error) return setResult({ error: error.message ?? "Request failed." });
+    if (error) return setResult({ error: await readFunctionError(error) });
     const r = data as Result;
     setResult(r);
     if (r.ok && !r.error) {
