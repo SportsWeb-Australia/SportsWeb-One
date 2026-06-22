@@ -38,6 +38,7 @@ export interface CreateClubInput {
   primary: string;
   secondary: string;
   tertiary?: string;
+  sport?: string;
   contact?: string;
   adminEmail?: string;
 }
@@ -56,7 +57,7 @@ export async function createClub(input: CreateClubInput): Promise<{ result?: Cre
     p_secondary: input.secondary,
     p_tertiary: input.tertiary?.trim() || null,
     p_contact: input.contact?.trim() || null,
-    p_sport: "football",
+    p_sport: input.sport?.trim() || "other",
     p_admin_email: input.adminEmail?.trim() || null,
   });
   if (error) return { error: error.message };

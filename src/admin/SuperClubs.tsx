@@ -23,12 +23,12 @@ export function SuperClubs() {
   // Create-club form
   const [creating, setCreating] = useState(false);
   const [slugDirty, setSlugDirty] = useState(false);
-  const [form, setForm] = useState({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
+  const [form, setForm] = useState({ name: "", slug: "", sport: "afl", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
   const [createBusy, setCreateBusy] = useState(false);
   const [createMsg, setCreateMsg] = useState<string | null>(null);
 
   const resetForm = () => {
-    setForm({ name: "", slug: "", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
+    setForm({ name: "", slug: "", sport: "afl", primary: "#1F8CA7", secondary: "#111111", tertiary: "#FFFFFF", contact: "", adminEmail: "" });
     setSlugDirty(false);
   };
 
@@ -138,6 +138,20 @@ export function SuperClubs() {
                 placeholder="eastside-united"
               />
               <small>{form.slug || "your-club"}.sportsweb.com.au</small>
+            </label>
+            <label className="sw-admin-field">
+              <span>Sport</span>
+              <select value={form.sport} onChange={(e) => setForm((f) => ({ ...f, sport: e.target.value }))}>
+                <option value="afl">Australian Rules (AFL)</option>
+                <option value="afl_netball">AFL / Netball (FNC)</option>
+                <option value="soccer">Soccer / Football</option>
+                <option value="cricket">Cricket</option>
+                <option value="netball">Netball</option>
+                <option value="basketball">Basketball</option>
+                <option value="rugby_union">Rugby Union</option>
+                <option value="rugby_league">Rugby League</option>
+                <option value="other">Other (lacrosse, oztag, touch, etc.)</option>
+              </select>
             </label>
             <label className="sw-admin-field">
               <span>Primary colour</span>
