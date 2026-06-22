@@ -183,7 +183,9 @@ export function MfaSettings({ enforced = false }: { enforced?: boolean }) {
         <div className="sw-mfa-panel">
           <strong>Save your backup codes</strong>
           <p className="sw-mem-muted">
-            Each code works once if you ever lose your phone. Store them somewhere safe — they won&apos;t be
+            These are for emergencies only — normally you just use the 6-digit code from your
+            authenticator app. Each backup code works <strong>once</strong>, and only if you can&apos;t
+            use your app (lost, stolen or broken phone). Store them somewhere safe — they won&apos;t be
             shown again.
           </p>
           <CodesView codes={codes} />
@@ -265,6 +267,13 @@ export function MfaSettings({ enforced = false }: { enforced?: boolean }) {
           <div className="sw-mfa-on">
             <p className="sw-mfa-status sw-mfa-status--on">✓ Two-factor is on</p>
             <p className="sw-mem-muted">Backup codes remaining: <strong>{remaining}</strong></p>
+            {remaining <= 3 && (
+              <p className="sw-mfa-lowcodes">
+                ⚠ You&apos;re running low on backup codes ({remaining} left). Tap{" "}
+                <strong>Regenerate backup codes</strong> below to get a fresh set of 10 (this replaces
+                the old ones).
+              </p>
+            )}
             <div className="sw-mfa-actions">
               <button className="sw-btn sw-btn--ghost" disabled={busy} onClick={regenerate}>
                 Regenerate backup codes

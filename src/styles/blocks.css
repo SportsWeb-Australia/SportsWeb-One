@@ -4057,3 +4057,35 @@
 .sw-dash-viewas-note {
   width: 100%; font-size: 0.78rem; color: var(--text-soft, #64748b); font-style: italic;
 }
+
+/* ---- 2FA enrolment: numbered, phone-first steps ---- */
+.sw-mfa-step { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.4rem; }
+.sw-mfa-step > div { flex: 1; min-width: 0; }
+.sw-mfa-stepnum {
+  flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  background: var(--club-primary, var(--accent, #1F8CA7)); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; margin-top: 0.1rem;
+}
+.sw-mfa-step strong { display: block; margin-bottom: 0.2rem; }
+.sw-mfa-add { display: flex; flex-direction: column; gap: 0.55rem; align-items: flex-start; }
+.sw-mfa-open { align-self: stretch; text-align: center; }
+.sw-mfa-or { margin: 0.1rem 0; }
+.sw-mfa-key {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; align-self: stretch;
+}
+.sw-mfa-key code {
+  flex: 1; min-width: 0; word-break: break-all;
+  background: #f1f5f9; padding: 0.6rem 0.8rem; border-radius: 8px;
+  font-family: var(--font-mono, monospace); font-size: 1.05rem; letter-spacing: 0.08em;
+}
+.sw-mfa-qrwrap { align-self: stretch; }
+.sw-mfa-qrwrap summary {
+  cursor: pointer; font-size: 0.85rem; color: var(--text-soft, #64748b); padding: 0.3rem 0;
+}
+.sw-mfa-qrwrap[open] summary { margin-bottom: 0.5rem; }
+
+/* ---- 2FA low backup-codes warning ---- */
+.sw-mfa-lowcodes {
+  margin: 0; padding: 0.6rem 0.8rem; border-radius: 9px;
+  background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 0.9rem;
+}
