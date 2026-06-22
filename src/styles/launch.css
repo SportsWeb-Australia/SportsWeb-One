@@ -75,3 +75,11 @@
 .sw-launch-up { font-size:.8rem; color:var(--lx-red); cursor:pointer; }
 .sw-launch-up input { display:none; }
 .sw-launch-evi .lx-need { font-size:.78rem; color:var(--lx-amber); }
+
+/* employees panel */
+.sw-launch-emp { margin-top:2rem; padding-top:1.6rem; border-top:1px solid var(--lx-line); }
+.sw-launch-emp h3 { font-size:1.15rem; margin:0 0 .3rem; }
+.sw-launch-emplist { list-style:none; margin:0 0 .4rem; padding:0; }
+.sw-launch-emplist li { display:flex; align-items:center; gap:.6rem; padding:.4rem 0; border-top:1px solid var(--lx-line); font-size:.9rem; }
+.sw-launch-emplist li:first-child { border-top:none; }
+.sw-launch-input { padding:.5rem .7rem; border:1px solid var(--lx-line); border-radius:8px; font:inherit; min-width:200px; }

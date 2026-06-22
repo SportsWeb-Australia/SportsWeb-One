@@ -44,21 +44,26 @@ export function LaunchTracker() {
   const [selected, setSelected] = useState<string>("");
   const [progress, setProgress] = useState<Progress[]>([]);
   const [startClubId, setStartClubId] = useState("");
+  const [operators, setOperators] = useState<{ user_id: string; region: string; email: string | null }[]>([]);
+  const [empEmail, setEmpEmail] = useState("");
+  const [empRegion, setEmpRegion] = useState("national");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
   const loadAll = useCallback(async () => {
     if (!supabase) return;
-    const [ph, cat, lz, cl] = await Promise.all([
+    const [ph, cat, lz, cl, op] = await Promise.all([
       supabase.from("launch_phases").select("*").order("sort"),
       supabase.from("launch_step_catalog").select("*").eq("active", true).order("phase_no").order("sort"),
       supabase.from("v_club_launch_status").select("*"),
       supabase.from("clubs").select("id, name, slug").order("name"),
+      supabase.from("launch_operators").select("user_id, region, email").order("email"),
     ]);
     setPhases((ph.data as Phase[]) ?? []);
     setCatalog((cat.data as Step[]) ?? []);
     setLaunches((lz.data as LaunchRow[]) ?? []);
     setClubs((cl.data as ClubRow[]) ?? []);
+    setOperators((op.data as { user_id: string; region: string; email: string | null }[]) ?? []);
   }, []);
 
   const loadProgress = useCallback(async (launchId: string) => {
@@ -92,6 +97,23 @@ export function LaunchTracker() {
   async function openLaunch(l: LaunchRow) {
     if (supabase) await supabase.rpc("start_club_launch", { p_club_id: l.club_id, p_region: l.region });
     setSelected(l.launch_id);
+  }
+
+  async function addEmployee() {
+    if (!supabase || !empEmail.trim()) return;
+    setBusy(true); setMsg("");
+    const { data, error } = await supabase.functions.invoke("add-operator", {
+      body: { email: empEmail.trim(), region: empRegion.trim() || "national" },
+    });
+    setBusy(false);
+    const errText = error?.message || (data as { error?: string } | null)?.error;
+    if (errText) { setMsg(errText); return; }
+    const invited = (data as { invited?: boolean } | null)?.invited;
+    setMsg(invited
+      ? `Invite sent to ${empEmail.trim()} — they set a password, then see only Launches.`
+      : `${empEmail.trim()} added as an operator.`);
+    setEmpEmail("");
+    await loadAll();
   }
 
   async function toggleStep(step: Step, row: Progress | undefined) {
@@ -192,6 +214,35 @@ export function LaunchTracker() {
             {busy ? "Starting…" : "Start launch"}
           </button>
         </div>
+
+        {isPlatformAdmin && (
+          <div className="sw-launch-emp">
+            <h3>Employees</h3>
+            <p className="lx-sub" style={{ margin: "0 0 .8rem" }}>
+              Add a SportsWeb operator by email. They get a scoped login that shows only Launches —
+              never the database or other clubs' areas. Region limits which clubs they see; use
+              "national" for all.
+            </p>
+            <ul className="sw-launch-emplist">
+              {operators.map((o) => (
+                <li key={`${o.user_id}-${o.region}`}>
+                  <span>{o.email ?? o.user_id}</span>
+                  <span className="sw-launch-tag">{o.region}</span>
+                </li>
+              ))}
+              {operators.length === 0 && <li className="lx-sub">No operators yet.</li>}
+            </ul>
+            <div className="sw-launch-start" style={{ marginTop: ".6rem", paddingTop: 0, borderTop: "none" }}>
+              <input className="sw-launch-input" type="email" placeholder="employee@sportsweb.com.au"
+                value={empEmail} onChange={(e) => setEmpEmail(e.target.value)} />
+              <input className="sw-launch-input" type="text" placeholder="region (national)"
+                value={empRegion} onChange={(e) => setEmpRegion(e.target.value)} style={{ maxWidth: 160, minWidth: 120 }} />
+              <button className="sw-launch-btn" disabled={!empEmail.trim() || busy} onClick={addEmployee}>
+                {busy ? "Adding…" : "Add employee"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
