@@ -23,6 +23,7 @@ import { AdminModules } from "./AdminModules";
 import { Communications } from "./Communications";
 import { SuperClubs } from "./SuperClubs";
 import { AdminImport } from "./AdminImport";
+import { ClubSetup } from "./ClubSetup";
 import { SuperIntegrations } from "./SuperIntegrations";
 import { SuperStudio } from "./SuperStudio";
 import { LaunchTracker } from "./LaunchTracker";
@@ -41,6 +42,16 @@ const SITE_PAGES: { key: string; label: string }[] = [
   { key: "__page_register", label: "Register" },
   { key: "__page_footer", label: "Footer & site-wide" },
 ];
+
+/** Maps a Getting-started step's cta_route to the admin screen it opens. */
+const SETUP_ROUTES: Record<string, string> = {
+  import: "__super_import",
+  branding: "__site",
+  style: "__website",
+  website: "__site",
+  teams: "__teams_seasons",
+  invite: "__members",
+};
 
 function AdminInner() {
   const { ready, resolving, email, platformRole, isPlatformAdmin, signOut, userId } = useAuth();
@@ -258,6 +269,11 @@ function AdminInner() {
           {hasClub && (
             <button data-active={active === "__dashboard"} onClick={() => setActive("__dashboard")}>
               Dashboard
+            </button>
+          )}
+          {hasClub && (
+            <button data-active={active === "__setup"} onClick={() => setActive("__setup")}>
+              Get started
             </button>
           )}
           {hasClub && (
@@ -543,6 +559,12 @@ function AdminInner() {
         </div>
         {effectiveActive === "__dashboard" && hasClub ? (
           <AdminDashboard go={setActive} canSwitchView={isPlatformAdmin || activeRole === "club_senior_admin"} />
+        ) : effectiveActive === "__setup" && hasClub ? (
+          <ClubSetup
+            clubId={clubId!}
+            clubName={clubName}
+            onGo={(route) => setActive(SETUP_ROUTES[route] ?? "__dashboard")}
+          />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
         ) : effectiveActive === "__account" && hasClub ? (
