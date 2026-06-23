@@ -109,6 +109,12 @@ function AdminInner() {
     if (clubId) setActive("__dashboard");
   }, [clubId]);
 
+  // Keep the browser tab title right for the admin: the platform/super-admin
+  // view reads "SportsWeb One"; inside a club it's "{club} · SportsWeb One".
+  useEffect(() => {
+    document.title = hasClub && clubName ? `${clubName} · SportsWeb One` : "SportsWeb One";
+  }, [hasClub, clubName]);
+
   // Resolve the committee persona (President / Secretary / …) so the sidebar can
   // gate role-specific items like Vault.
   useEffect(() => {
