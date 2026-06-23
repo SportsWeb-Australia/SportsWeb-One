@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { recentMessages, messagingBalance, type RecentMessage, type SmsBalance } from "../lib/superAdmin";
 import { checkProviders, type ProviderStatus } from "../lib/comms";
+import { platformRetention, type PlatformRetention } from "../lib/retention";
 
 const MSG_PROVIDERS: { key: keyof ProviderStatus; name: string; manage: string; manageLabel: string; report: string }[] = [
   { key: "sms", name: "SMS · ClickSend", manage: "https://dashboard.clicksend.com/account/billing", manageLabel: "Add credit ↗", report: "https://dashboard.clicksend.com/reports/sms" },
@@ -166,16 +167,18 @@ export function PlatformDashboard({
   const [providers, setProviders] = useState<ProviderStatus | null>(null);
   const [balance, setBalance] = useState<SmsBalance | null>(null);
   const [recent, setRecent] = useState<RecentMessage[]>([]);
+  const [retention, setRetention] = useState<PlatformRetention | null>(null);
 
   useEffect(() => {
     if (scope === "mine") return;
     let live = true;
     (async () => {
-      const [p, b, r] = await Promise.all([checkProviders(), messagingBalance(), recentMessages(8)]);
+      const [p, b, r, ret] = await Promise.all([checkProviders(), messagingBalance(), recentMessages(8), platformRetention()]);
       if (!live) return;
       setProviders(p);
       setBalance(b);
       setRecent(r);
+      setRetention(ret);
     })();
     return () => {
       live = false;
@@ -389,6 +392,7 @@ export function PlatformDashboard({
                 <Stat label="New members" value={d.members_new_month ?? 0} tone="#1f9d57" />
                 <Stat label="Avg members / club" value={d.avg_members_per_club ?? 0} tone="#11161f" />
                 <Stat label="Messages sent" value={d.messages_month ?? 0} tone="#2F6BFF" />
+                <Stat label="Returning players %" value={retention?.retention_rate ?? 0} tone="#7a3df5" />
               </div>
             </div>
           </div>
@@ -466,7 +470,7 @@ export function PlatformDashboard({
               {AI_TOOLS.map((t) => (
                 <div key={t.name} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                   <img src={favicon(t.domain)} alt={t.name} width={36} height={36} style={{ borderRadius: 8 }} />
-                  <a href={t.url} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent, #2F6BFF)", textDecoration: "none", padding: "5px 14px", border: "1px solid #e3e8ef", borderRadius: 999 }}>{t.name} ↗</a>
+                  <a href={t.url} target={`sw1ext-${t.domain}`} rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent, #2F6BFF)", textDecoration: "none", padding: "5px 14px", border: "1px solid #e3e8ef", borderRadius: 999 }}>{t.name} ↗</a>
                 </div>
               ))}
             </div>
@@ -477,7 +481,7 @@ export function PlatformDashboard({
           <div style={{ ...card, marginTop: "1rem", display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
             <span style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em", marginRight: 4 }}>Dev &amp; infrastructure</span>
             {INFRA_TOOLS.map((t) => (
-              <a key={t.name} href={t.url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 600, color: "#11161f", textDecoration: "none", padding: "5px 12px", border: "1px solid #e3e8ef", borderRadius: 999 }}>
+              <a key={t.name} href={t.url} target={`sw1ext-${t.domain}`} rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 600, color: "#11161f", textDecoration: "none", padding: "5px 12px", border: "1px solid #e3e8ef", borderRadius: 999 }}>
                 <img src={favicon(t.domain)} alt="" width={16} height={16} style={{ borderRadius: 4 }} />
                 {t.name} ↗
               </a>

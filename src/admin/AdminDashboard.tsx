@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useClub } from "../components/ClubContext";
 import { SetupCard } from "./SetupCard";
+import { RetentionCard } from "./RetentionCard";
 import { useActiveClub } from "./ActiveClub";
 import { useAuth } from "../lib/auth";
 import { usePermissions, toModelRole } from "../lib/permissions";
@@ -346,6 +347,8 @@ export function AdminDashboard({
       </div>
 
       {clubId && <SetupCard clubId={clubId} go={go} />}
+
+      {clubId && <RetentionCard clubId={clubId} />}
 
       {canSwitchView && (
         <div className="sw-dash-viewas">
