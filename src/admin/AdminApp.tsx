@@ -27,6 +27,7 @@ import { ClubSetup } from "./ClubSetup";
 import { SETUP_ROUTES } from "./setupRoutes";
 import { SuperIntegrations } from "./SuperIntegrations";
 import { SuperStudio } from "./SuperStudio";
+import { SalesFormula } from "./SalesFormula";
 import { LaunchTracker } from "./LaunchTracker";
 import { AddPerson } from "./AddPerson";
 import { StaffAccess } from "./StaffAccess";
@@ -233,7 +234,7 @@ function AdminInner() {
   // SportsWeb↔Zoho connection is a one-time thing handled in Integrations.
   const openZoho = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
   const isSuperView =
-    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff" || active.startsWith("__partner_");
+    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__sales" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff" || active.startsWith("__partner_");
   // A scoped launch operator only ever sees the Launches screen.
   const operatorOnly = isOperator && !isPlatformAdmin && !hasClub;
   // A platform operator with no club of their own lands on the platform views.
@@ -587,6 +588,11 @@ function AdminInner() {
                 </button>
               )}
               {can("platform.clubs") && (
+                <button data-active={active === "__sales"} onClick={() => setActive("__sales")}>
+                  Sales
+                </button>
+              )}
+              {can("platform.clubs") && (
                 <button data-active={active === "__super_import"} onClick={() => setActive("__super_import")}>
                   Import a club
                 </button>
@@ -605,7 +611,7 @@ function AdminInner() {
                 <button onClick={() => openZoho(WORKSPACE.workdrive.url)}><span className="sw-nav-ic">{WS_ICON.workdrive}</span>WorkDrive</button>
                 <button onClick={() => openZoho(WORKSPACE.intranet.url)}><span className="sw-nav-ic">{WS_ICON.intranet}</span>Intranet</button>
                 <div className="sw-admin-parentrow">
-                  <button className="sw-admin-parent" onClick={() => { openZoho(WORKSPACE.office.url); setSwOfficeOpen(true); }}>
+                  <button className="sw-admin-parent" onClick={() => setSwOfficeOpen((o) => !o)} aria-expanded={swOfficeOpen}>
                     <span className="sw-nav-ic">{WS_ICON.office}</span>SportsWeb Office
                   </button>
                   <button className="sw-admin-caret" aria-label={swOfficeOpen ? "Collapse office" : "Expand office"} aria-expanded={swOfficeOpen} onClick={() => setSwOfficeOpen((o) => !o)}>
@@ -790,6 +796,8 @@ function AdminInner() {
           <SuperIntegrations />
         ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (
           <SuperStudio />
+        ) : effectiveActive === "__sales" && can("platform.clubs") ? (
+          <SalesFormula />
         ) : effectiveActive === "__super_import" && can("platform.clubs") ? (
           <AdminImport />
         ) : hasClub && can("club.content") ? (
