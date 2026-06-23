@@ -1161,7 +1161,7 @@
 
 @media (min-width: 800px) {
   .sw-admin { grid-template-columns: 240px 1fr; }
-  .sw-admin-main { padding: 2.5rem; }
+  .sw-admin-main { padding: 3rem 3rem 4rem; }
   .sw-admin-topbar { display: none; }
   .sw-admin-backdrop { display: none; }
   .sw-admin-drawerclose { display: none; }
@@ -2001,6 +2001,12 @@
    Admin — Communications hub
    ============================================================ */
 .sw-admin-page { max-width: 1100px; }
+.sw-admin-head {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+  gap: 1rem 1.5rem; margin-bottom: 2.25rem;
+}
+.sw-admin-head h1 { margin: 0 0 0.4rem; }
+.sw-admin-head p { margin: 0; max-width: 64ch; }
 .sw-muted { color: var(--text-soft); }
 .sw-warn { color: #b45309; }
 
@@ -2070,7 +2076,7 @@
    Super admin (platform)
    ============================================================ */
 .sw-super-table-wrap {
-  margin-top: 1.75rem;
+  margin-top: 2rem;
   overflow-x: auto;
   background: #fff;
   border: 1px solid var(--border);
@@ -2084,13 +2090,13 @@
   font-family: var(--font-mono);
   font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-soft); font-weight: 600;
-  padding: 0.85rem 0.55rem; white-space: nowrap;
+  padding: 0.9rem 0.85rem; white-space: nowrap;
   border-bottom: 1px solid var(--border);
   text-align: center; vertical-align: middle;
 }
 .sw-super-table thead th:first-child { text-align: left; padding-left: 1.15rem; }
 .sw-super-table tbody td {
-  padding: 0.75rem 0.55rem; text-align: center; vertical-align: middle;
+  padding: 0.85rem 0.85rem; text-align: center; vertical-align: middle;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, #fff);
 }
 .sw-super-table tbody tr:last-child td { border-bottom: none; }
