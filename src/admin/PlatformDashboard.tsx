@@ -18,8 +18,41 @@ type Dash = {
   staff_platform: number | null;
   staff_club: number | null;
   modules_enabled: number;
+  clubs_by_plan?: Record<string, number> | null;
+  clubs_paying?: number | null;
+  clubs_trial?: number | null;
+  clubs_demo?: number | null;
+  avg_modules_per_club?: number | null;
   at_risk: AtRisk[];
 };
+
+function Stat({ label, value, tone }: { label: string; value: number; tone: string }) {
+  return (
+    <div style={{ textAlign: "center", flex: 1 }}>
+      <div style={{ fontSize: 26, fontWeight: 800, color: tone, fontFamily: "var(--font-display, inherit)" }}>{value}</div>
+      <div style={{ fontSize: 11.5, color: "#667085", marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+
+function PlanBars({ data }: { data: Record<string, number> }) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) return <div style={{ color: "#667085", fontSize: 13 }}>No clubs yet.</div>;
+  const max = Math.max(1, ...entries.map(([, n]) => n));
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {entries.map(([plan, n]) => (
+        <div key={plan} style={{ display: "grid", gridTemplateColumns: "96px 1fr 34px", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 13, textTransform: "capitalize", color: "#11161f" }}>{plan}</span>
+          <span style={{ height: 8, borderRadius: 999, background: "#eef1f6", overflow: "hidden" }}>
+            <span style={{ display: "block", height: "100%", width: `${Math.round((n / max) * 100)}%`, background: "var(--accent, #2F6BFF)" }} />
+          </span>
+          <span style={{ fontSize: 13, color: "#667085", textAlign: "right" }}>{n}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 type Persona = "super" | "manager" | "admin";
 type Tone = "plain" | "good" | "warn" | "bad" | "info";
@@ -251,6 +284,40 @@ export function PlatformDashboard({
           <Kpi key={i} value={t.value} label={t.label} tone={t.tone} onClick={t.onClick} />
         ))}
       </div>
+
+      {/* Accounts & upgrade opportunities — platform-wide view only */}
+      {d && d.scope !== "mine" && (
+        <div style={{ marginBottom: "1.9rem" }}>
+          <h2 style={{ fontFamily: "var(--font-display, inherit)", fontSize: "1.3rem", margin: "0 0 0.7rem" }}>
+            Accounts &amp; upgrade opportunities
+          </h2>
+          <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))" }}>
+            <div style={card}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <Stat label="Paying" value={d.clubs_paying ?? 0} tone="#1f9d57" />
+                <Stat label="On trial" value={d.clubs_trial ?? 0} tone="#2F6BFF" />
+                <Stat label="Demo" value={d.clubs_demo ?? 0} tone="#8a94a6" />
+              </div>
+              <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "#667085" }}>
+                {(d.clubs_trial ?? 0) + (d.clubs_demo ?? 0)} trial/demo{" "}
+                {(d.clubs_trial ?? 0) + (d.clubs_demo ?? 0) === 1 ? "club is a potential upgrade" : "clubs are potential upgrades"}.
+              </p>
+            </div>
+            <div style={card}>
+              <Stat label="Avg modules / club" value={d.avg_modules_per_club ?? 0} tone="#11161f" />
+              <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "#667085" }}>
+                {d.modules_enabled} enabled across {d.clubs_total} {d.clubs_total === 1 ? "club" : "clubs"}.
+              </p>
+            </div>
+            <div style={{ ...card, gridColumn: "1 / -1" }}>
+              <div style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 10 }}>
+                Clubs by plan
+              </div>
+              <PlanBars data={d.clubs_by_plan ?? {}} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Clubs needing attention */}
       <h2 style={{ fontFamily: "var(--font-display, inherit)", fontSize: "1.3rem", margin: "0 0 0.7rem" }}>

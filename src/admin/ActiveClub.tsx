@@ -26,6 +26,8 @@ interface ActiveClubState {
   clubId: string;
   /** The active club's display name. */
   clubName: string;
+  /** The active club's URL slug ("" when none resolved). */
+  clubSlug: string;
   /** The user's role in the active club (platform role still governs perms). */
   role: string | null;
   /** Clubs the user can switch between (their memberships). */
@@ -175,11 +177,13 @@ export function ActiveClubProvider({ children }: { children: ReactNode }) {
   const role =
     clubs.find((c) => c.id === activeId)?.role ?? (activeId === homeId ? membership?.role ?? null : null);
   const clubName = cfg.identity?.name ?? clubs.find((c) => c.id === activeId)?.name ?? "";
+  const clubSlug = cfg.identity?.slug ?? "";
 
   const value = useMemo<ActiveClubState>(
     () => ({
       clubId: activeId,
       clubName,
+      clubSlug,
       role,
       clubs,
       ready,
@@ -188,7 +192,7 @@ export function ActiveClubProvider({ children }: { children: ReactNode }) {
       setActiveClub,
       exitActingAs,
     }),
-    [activeId, clubName, role, clubs, ready, loading, isActingAs, setActiveClub, exitActingAs]
+    [activeId, clubName, clubSlug, role, clubs, ready, loading, isActingAs, setActiveClub, exitActingAs]
   );
 
   return (

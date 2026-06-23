@@ -1,8 +1,8 @@
 // SportsWeb One — dispatch-message Edge Function
-// Sends a club message across Email (Zoho ZeptoMail), SMS (Twilio) and Push (WebPushr).
+// Sends a club message across Email (Zoho ZeptoMail), SMS (ClickSend) and Push (WebPushr).
 //
 // Deploy:   supabase functions deploy dispatch-message --no-verify-jwt
-// Secrets:  supabase secrets set TWILIO_ACCOUNT_SID=... TWILIO_AUTH_TOKEN=... TWILIO_FROM=+61...
+// Secrets:  supabase secrets set CLICKSEND_USERNAME=... CLICKSEND_API_KEY=... CLICKSEND_FROM=SportsWeb
 //           supabase secrets set ZEPTOMAIL_TOKEN=... ZEPTOMAIL_FROM=club@yourdomain.com ZEPTOMAIL_FROM_NAME="Dookie United"
 //           supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_TOKEN=...
 //
@@ -59,27 +59,42 @@ async function sendEmail(to: Recipient[], subject: string, body: string) {
 }
 
 async function sendSms(to: Recipient[], body: string) {
-  const sid = Deno.env.get("TWILIO_ACCOUNT_SID");
-  const auth = Deno.env.get("TWILIO_AUTH_TOKEN");
-  const from = Deno.env.get("TWILIO_FROM");
+  const username = Deno.env.get("CLICKSEND_USERNAME");
+  const apiKey = Deno.env.get("CLICKSEND_API_KEY");
+  const from = Deno.env.get("CLICKSEND_FROM"); // optional sender id / number
+  const targets = to.filter((r) => r.mobile);
   let sent = 0,
     failed = 0;
-  if (!sid || !auth || !from) return { sent, failed: to.filter((r) => r.mobile).length };
-  const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
-  const basic = btoa(`${sid}:${auth}`);
-  for (const r of to) {
-    if (!r.mobile) continue;
+  if (!username || !apiKey) return { sent, failed: targets.length };
+  if (targets.length === 0) return { sent, failed };
+  const basic = btoa(`${username}:${apiKey}`);
+  const messages = targets.map((r) => ({
+    source: "sportsweb",
+    body,
+    to: toE164(r.mobile as string),
+    ...(from ? { from } : {}),
+  }));
+  try {
+    const res = await fetch("https://rest.clicksend.com/v3/sms/send", {
+      method: "POST",
+      headers: { Authorization: `Basic ${basic}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+    if (!res.ok) return { sent: 0, failed: targets.length };
+    // ClickSend returns a per-message status; count SUCCESS as sent.
     try {
-      const form = new URLSearchParams({ From: from, To: toE164(r.mobile), Body: body });
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { Authorization: `Basic ${basic}`, "Content-Type": "application/x-www-form-urlencoded" },
-        body: form.toString(),
-      });
-      res.ok ? sent++ : failed++;
+      const data = await res.json();
+      const msgs = data?.data?.messages;
+      if (Array.isArray(msgs) && msgs.length) {
+        for (const m of msgs) String(m.status).toUpperCase() === "SUCCESS" ? sent++ : failed++;
+      } else {
+        sent = targets.length;
+      }
     } catch {
-      failed++;
+      sent = targets.length;
     }
+  } catch {
+    failed = targets.length;
   }
   return { sent, failed };
 }
@@ -109,7 +124,7 @@ Deno.serve(async (req) => {
     if (payload?.action === "status") {
       const status = {
         email: !!(Deno.env.get("ZEPTOMAIL_TOKEN") && Deno.env.get("ZEPTOMAIL_FROM")),
-        sms: !!(Deno.env.get("TWILIO_ACCOUNT_SID") && Deno.env.get("TWILIO_AUTH_TOKEN") && Deno.env.get("TWILIO_FROM")),
+        sms: !!(Deno.env.get("CLICKSEND_USERNAME") && Deno.env.get("CLICKSEND_API_KEY")),
         push: !!(Deno.env.get("WEBPUSHR_KEY") && Deno.env.get("WEBPUSHR_TOKEN")),
       };
       return new Response(JSON.stringify({ ok: true, status }), {

@@ -6,10 +6,19 @@ import {
   listClubs,
   listModuleStatuses,
   setModuleStatus,
+  setClubAccount,
   createClub,
+  ACCOUNT_STATUSES,
+  PLAN_TIERS,
   type AdminClub,
   type AdminModuleRow,
 } from "../lib/superAdmin";
+
+const SPORT_LABELS: Record<string, string> = {
+  afl: "Australian Rules", afl_netball: "AFL / Netball", soccer: "Soccer", cricket: "Cricket",
+  netball: "Netball", basketball: "Basketball", rugby_union: "Rugby Union", rugby_league: "Rugby League", other: "Other",
+};
+const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "—");
 
 /** Platform operator view: every club, with per-module enable/disable. */
 export function SuperClubs() {
@@ -19,6 +28,12 @@ export function SuperClubs() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Search + grouping for the clubs list.
+  const [search, setSearch] = useState("");
+  const [groupBy, setGroupBy] = useState<"none" | "account_status" | "plan" | "sport">("none");
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [savingAccount, setSavingAccount] = useState<string | null>(null);
 
   // Create-club form
   const [creating, setCreating] = useState(false);
@@ -95,6 +110,112 @@ export function SuperClubs() {
     }
     setBusy(null);
   };
+
+  // Set a club's account_status / plan (optimistic).
+  const saveAccount = async (clubId: string, field: "account_status" | "plan", value: string) => {
+    const club = clubs.find((c) => c.id === clubId);
+    if (!club) return;
+    const next = {
+      account_status: field === "account_status" ? value : club.account_status ?? "demo",
+      plan: field === "plan" ? value : club.plan ?? "",
+    };
+    setSavingAccount(`${clubId}:${field}`);
+    setError(null);
+    const err = await setClubAccount(clubId, next.account_status, next.plan);
+    if (err) setError(err);
+    else setClubs((cs) => cs.map((c) => (c.id === clubId ? { ...c, account_status: next.account_status, plan: next.plan || null } : c)));
+    setSavingAccount(null);
+  };
+
+  // Search filter.
+  const q = search.trim().toLowerCase();
+  const filtered = useMemo(
+    () => (q ? clubs.filter((c) => `${c.name} ${c.slug}`.toLowerCase().includes(q)) : clubs),
+    [clubs, q]
+  );
+
+  // Grouping.
+  const groupKeyOf = (c: AdminClub): string => {
+    if (groupBy === "account_status") return c.account_status || "demo";
+    if (groupBy === "plan") return c.plan || "unset";
+    if (groupBy === "sport") return c.sport_type || "other";
+    return "all";
+  };
+  const groupLabelOf = (key: string): string => {
+    if (groupBy === "sport") return SPORT_LABELS[key] ?? titleCase(key);
+    return titleCase(key);
+  };
+  const groups = useMemo(() => {
+    const map: Record<string, AdminClub[]> = {};
+    for (const c of filtered) (map[groupKeyOf(c)] ??= []).push(c);
+    return Object.entries(map).sort((a, b) => b[1].length - a[1].length);
+  }, [filtered, groupBy]);
+
+  const clubRow = (club: AdminClub) => (
+    <tr key={club.id}>
+      <td className="sw-super-clubcell">
+        <strong>{club.name}</strong>
+        <small>{club.slug}</small>
+        <div style={{ display: "flex", gap: 6, margin: "6px 0 4px", flexWrap: "wrap" }}>
+          <select
+            value={club.account_status ?? "demo"}
+            disabled={savingAccount === `${club.id}:account_status`}
+            onChange={(e) => saveAccount(club.id, "account_status", e.target.value)}
+            title="Account status"
+            style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
+          >
+            {ACCOUNT_STATUSES.map((s) => <option key={s} value={s}>{titleCase(s)}</option>)}
+          </select>
+          <select
+            value={club.plan ?? ""}
+            disabled={savingAccount === `${club.id}:plan`}
+            onChange={(e) => saveAccount(club.id, "plan", e.target.value)}
+            title="Plan"
+            style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
+          >
+            <option value="">No plan</option>
+            {PLAN_TIERS.map((p) => <option key={p} value={p}>{titleCase(p)}</option>)}
+          </select>
+        </div>
+        <button className="sw-openadmin" onClick={() => setActiveClub(club.id)}>
+          Open admin →
+        </button>
+      </td>
+      {MODULE_CATALOG.map((m) => {
+        const st = statusFor(club.id, m.key);
+        const on = st === "enabled" || st === "trial";
+        const cell = `${club.id}:${m.key}`;
+        return (
+          <td key={m.key} className="sw-super-cell">
+            <button
+              type="button"
+              className={`sw-switch sw-switch--sm${on ? " on" : ""}`}
+              aria-pressed={on}
+              disabled={busy === cell}
+              title={st === "default" ? "Using site default" : st}
+              onClick={() => toggle(club.id, m.key, on)}
+            >
+              <i />
+            </button>
+          </td>
+        );
+      })}
+    </tr>
+  );
+
+  const tableFor = (list: AdminClub[]) => (
+    <div className="sw-super-table-wrap">
+      <table className="sw-admin-table sw-super-table">
+        <thead>
+          <tr>
+            <th>Club</th>
+            {MODULE_CATALOG.map((m) => <th key={m.key}>{m.name}</th>)}
+          </tr>
+        </thead>
+        <tbody>{list.map(clubRow)}</tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="sw-admin-page">
@@ -189,54 +310,58 @@ export function SuperClubs() {
 
       {error && <div className="sw-comms-result err">{error}</div>}
 
+      {/* Search + grouping controls */}
+      {!loading && clubs.length > 0 && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "0 0 1rem" }}>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search clubs…"
+            style={{ flex: "1 1 220px", minWidth: 180, padding: "8px 12px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }}
+          />
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#667085" }}>
+            Group by
+            <select
+              value={groupBy}
+              onChange={(e) => setGroupBy(e.target.value as typeof groupBy)}
+              style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }}
+            >
+              <option value="none">None</option>
+              <option value="account_status">Account status</option>
+              <option value="plan">Plan</option>
+              <option value="sport">Sport</option>
+            </select>
+          </label>
+        </div>
+      )}
+
       {loading ? (
         <p>Loading clubs…</p>
       ) : clubs.length === 0 ? (
         <p className="sw-muted">No clubs found, or you're not a platform admin.</p>
+      ) : filtered.length === 0 ? (
+        <p className="sw-muted">No clubs match “{search}”.</p>
+      ) : groupBy === "none" ? (
+        tableFor(filtered)
       ) : (
-        <div className="sw-super-table-wrap">
-          <table className="sw-admin-table sw-super-table">
-            <thead>
-              <tr>
-                <th>Club</th>
-                {MODULE_CATALOG.map((m) => (
-                  <th key={m.key}>{m.name}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {clubs.map((club) => (
-                <tr key={club.id}>
-                  <td className="sw-super-clubcell">
-                    <strong>{club.name}</strong>
-                    <small>{club.slug}</small>
-                    <button className="sw-openadmin" onClick={() => setActiveClub(club.id)}>
-                      Open admin →
-                    </button>
-                  </td>
-                  {MODULE_CATALOG.map((m) => {
-                    const st = statusFor(club.id, m.key);
-                    const on = st === "enabled" || st === "trial";
-                    const cell = `${club.id}:${m.key}`;
-                    return (
-                      <td key={m.key} className="sw-super-cell">
-                        <button
-                          type="button"
-                          className={`sw-switch sw-switch--sm${on ? " on" : ""}`}
-                          aria-pressed={on}
-                          disabled={busy === cell}
-                          title={st === "default" ? "Using site default" : st}
-                          onClick={() => toggle(club.id, m.key, on)}
-                        >
-                          <i />
-                        </button>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ display: "grid", gap: "1.1rem" }}>
+          {groups.map(([key, list]) => {
+            const isCollapsed = collapsed[key];
+            return (
+              <section key={key}>
+                <button
+                  type="button"
+                  onClick={() => setCollapsed((c) => ({ ...c, [key]: !c[key] }))}
+                  style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: "4px 0", fontFamily: "var(--font-display, inherit)", fontSize: "1.05rem", fontWeight: 700, color: "#11161f" }}
+                >
+                  <span style={{ display: "inline-block", transition: "transform .15s", transform: isCollapsed ? "rotate(-90deg)" : "none" }}>▾</span>
+                  {groupLabelOf(key)}
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "#8a94a6" }}>{list.length}</span>
+                </button>
+                {!isCollapsed && tableFor(list)}
+              </section>
+            );
+          })}
         </div>
       )}
       <p className="sw-comms-note" style={{ marginTop: "1rem" }}>

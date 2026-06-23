@@ -21,12 +21,12 @@ const PROVIDERS: Provider[] = [
   },
   {
     key: "sms",
-    name: "SMS — Twilio",
-    blurb: "Text messages to members. Billed per message by Twilio.",
+    name: "SMS — ClickSend",
+    blurb: "Text messages to members. Billed per message by ClickSend.",
     secrets: [
-      { name: "TWILIO_ACCOUNT_SID", note: "From your Twilio console dashboard." },
-      { name: "TWILIO_AUTH_TOKEN", note: "From your Twilio console dashboard." },
-      { name: "TWILIO_FROM", note: "Your Twilio sender number in +61 format." },
+      { name: "CLICKSEND_USERNAME", note: "Your ClickSend account username (Account → API credentials)." },
+      { name: "CLICKSEND_API_KEY", note: "Your ClickSend API key (Account → API credentials)." },
+      { name: "CLICKSEND_FROM", note: "Optional sender ID (e.g. SportsWeb) or a purchased number. Leave unset to use a shared number." },
     ],
   },
   {
@@ -118,7 +118,7 @@ supabase functions deploy dispatch-message
 
 # 2. Set the providers you want (examples)
 supabase secrets set ZEPTOMAIL_TOKEN=... ZEPTOMAIL_FROM=club@yourdomain.com.au ZEPTOMAIL_FROM_NAME="SportsWeb"
-supabase secrets set TWILIO_ACCOUNT_SID=... TWILIO_AUTH_TOKEN=... TWILIO_FROM=+61...
+supabase secrets set CLICKSEND_USERNAME=... CLICKSEND_API_KEY=... CLICKSEND_FROM=SportsWeb
 supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_TOKEN=...
 
 # 3. Come back here and press "Re-check"`}

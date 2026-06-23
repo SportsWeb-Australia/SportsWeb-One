@@ -32,7 +32,7 @@ import { AddPerson } from "./AddPerson";
 import { StaffAccess } from "./StaffAccess";
 import { PlatformDashboard } from "./PlatformDashboard";
 import { Login } from "./Login";
-import { ZohoWorkspace, WS_ICON } from "./ZohoWorkspace";
+import { ZohoWorkspace, WS_ICON, WORKSPACE } from "./ZohoWorkspace";
 import { SportsWebAccount } from "./SportsWebAccount";
 import { loadCommitteeProfile } from "../lib/committee";
 import { personaFromTitle } from "../lib/roleKpis";
@@ -49,11 +49,20 @@ const SITE_PAGES: { key: string; label: string }[] = [
 /** SETUP_ROUTES (cta_route → admin screen) now lives in ./setupRoutes,
  *  shared with SetupCard so the checklist and the dashboard card never drift. */
 
+/** Zoho Partner sub-screens (placeholders until Carson supplies the deep links). */
+const PARTNER_LABELS: Record<string, string> = {
+  dashboard: "Partner Dashboard",
+  topup: "Top up partner account",
+  connect: "Add new Zoho connection",
+  editclub: "Edit club Zoho account",
+};
+
 function AdminInner() {
   const { ready, resolving, email, platformRole, isPlatformAdmin, signOut, userId } = useAuth();
   const {
     clubId,
     clubName,
+    clubSlug,
     role: activeRole,
     clubs,
     ready: clubReady,
@@ -68,6 +77,7 @@ function AdminInner() {
   const [webOpen, setWebOpen] = useState(false);
   const [officeOpen, setOfficeOpen] = useState(false);
   const [staffOpen, setStaffOpen] = useState(false);
+  const [swOfficeOpen, setSwOfficeOpen] = useState(false);
   const [previewPersona, setPreviewPersona] = useState<string | null>(null);
   const [modulesOpen, setModulesOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false); // mobile drawer
@@ -155,11 +165,18 @@ function AdminInner() {
     "--club-tertiary": bc.tertiary ?? bc.paper,
   } as CSSProperties;
 
-  // "View site" must open the club's *public* site. On a platform host, the bare
-  // root redirects a logged-in admin back here, so we add the club preview param
-  // and open in a new tab — the admin never navigates away.
-  const siteSlug = club.identity.slug ?? "";
-  const siteHref = isPlatformHost() && siteSlug ? `/?club=${siteSlug}` : "/";
+  // "View site" target:
+  //  - platform / super context (no club) → the SportsWeb marketing site.
+  //  - viewing a club → THAT club's public site. We key off the active club
+  //    (clubSlug from useActiveClub), not the hostname-resolved club, which on
+  //    the platform host defaults to the demo club (Dookie).
+  const MARKETING_SITE = "https://sportsweb.com.au";
+  const siteHref =
+    hasClub && clubSlug
+      ? isPlatformHost()
+        ? `/?club=${clubSlug}`
+        : "/"
+      : MARKETING_SITE;
 
   // Modules group: the club's switched-on modules, plus the ones we haven't
   // wired into this dashboard yet (shown as "Coming soon").
@@ -212,8 +229,11 @@ function AdminInner() {
   // items gate on the previewed role, not the admin's real powers.
   const previewing = isPlatformAdmin && previewPersona != null;
   const effPersona = previewPersona ?? persona;
+  // Zoho apps open straight in a new tab — deep links are always live; the
+  // SportsWeb↔Zoho connection is a one-time thing handled in Integrations.
+  const openZoho = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
   const isSuperView =
-    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff";
+    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff" || active.startsWith("__partner_");
   // A scoped launch operator only ever sees the Launches screen.
   const operatorOnly = isOperator && !isPlatformAdmin && !hasClub;
   // A platform operator with no club of their own lands on the platform views.
@@ -272,6 +292,15 @@ function AdminInner() {
             <strong>{hasClub ? "Club Admin" : "Platform Admin"}</strong>
             <span>{hasClub ? clubName : "SportsWeb"}</span>
           </div>
+          <a
+            className="sw-admin-brand-sitelink"
+            href={siteHref}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {hasClub ? "View live site →" : "View marketing site →"}
+          </a>
         </div>
         <nav className="sw-admin-nav">
           {operatorOnly && (
@@ -499,7 +528,7 @@ function AdminInner() {
           {(can("platform.clubs") || can("platform.integrations")) && !previewing && (
             <>
               <button type="button" className="sw-admin-navgroup" data-open={groupOpen("platform")} onClick={() => toggleGroup("platform")}>
-                <span>SportsWeb Workspace</span>
+                <span>SportsWeb Admin</span>
                 <span className="sw-admin-groupcaret">{groupOpen("platform") ? "▾" : "▸"}</span>
               </button>
               <div className="sw-admin-groupitems" data-open={groupOpen("platform")}>
@@ -562,6 +591,71 @@ function AdminInner() {
                   Import a club
                 </button>
               )}
+              </div>
+            </>
+          )}
+          {can("platform.clubs") && !previewing && (
+            <>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("swworkspace")} onClick={() => toggleGroup("swworkspace")}>
+                <span>SportsWeb Workspace</span>
+                <span className="sw-admin-groupcaret">{groupOpen("swworkspace") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("swworkspace")}>
+                <button onClick={() => openZoho(WORKSPACE.email.url)}><span className="sw-nav-ic">{WS_ICON.email}</span>Email</button>
+                <button onClick={() => openZoho(WORKSPACE.workdrive.url)}><span className="sw-nav-ic">{WS_ICON.workdrive}</span>WorkDrive</button>
+                <button onClick={() => openZoho(WORKSPACE.intranet.url)}><span className="sw-nav-ic">{WS_ICON.intranet}</span>Intranet</button>
+                <div className="sw-admin-parentrow">
+                  <button className="sw-admin-parent" onClick={() => { openZoho(WORKSPACE.office.url); setSwOfficeOpen(true); }}>
+                    <span className="sw-nav-ic">{WS_ICON.office}</span>SportsWeb Office
+                  </button>
+                  <button className="sw-admin-caret" aria-label={swOfficeOpen ? "Collapse office" : "Expand office"} aria-expanded={swOfficeOpen} onClick={() => setSwOfficeOpen((o) => !o)}>
+                    {swOfficeOpen ? "▾" : "▸"}
+                  </button>
+                </div>
+                {swOfficeOpen && (
+                  <div className="sw-admin-subnav">
+                    <button onClick={() => openZoho(WORKSPACE.writer.url)}><span className="sw-nav-ic">{WS_ICON.writer}</span>Writer</button>
+                    <button onClick={() => openZoho(WORKSPACE.sheets.url)}><span className="sw-nav-ic">{WS_ICON.sheets}</span>Sheets</button>
+                    <button onClick={() => openZoho(WORKSPACE.show.url)}><span className="sw-nav-ic">{WS_ICON.show}</span>Show</button>
+                  </div>
+                )}
+                <button onClick={() => openZoho(WORKSPACE.meeting.url)}><span className="sw-nav-ic">{WS_ICON.meeting}</span>Meeting</button>
+                <button onClick={() => openZoho(WORKSPACE.calendar.url)}><span className="sw-nav-ic">{WS_ICON.calendar}</span>Calendar</button>
+                <button onClick={() => openZoho(WORKSPACE.vault.url)}><span className="sw-nav-ic">{WS_ICON.vault}</span>Vault</button>
+                <button onClick={() => openZoho(WORKSPACE.todo.url)}><span className="sw-nav-ic">{WS_ICON.todo}</span>To-Do</button>
+                <button onClick={() => openZoho(WORKSPACE.committee.url)}><span className="sw-nav-ic">{WS_ICON.committee}</span>Cliq</button>
+              </div>
+            </>
+          )}
+          {can("platform.clubs") && !previewing && (
+            <>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("bizapps")} onClick={() => toggleGroup("bizapps")}>
+                <span>Business Apps</span>
+                <span className="sw-admin-groupcaret">{groupOpen("bizapps") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("bizapps")}>
+                <button onClick={() => openZoho(WORKSPACE.crm.url)}><span className="sw-nav-ic">{WS_ICON.crm}</span>CRM</button>
+                <button onClick={() => openZoho(WORKSPACE.books.url)}><span className="sw-nav-ic">{WS_ICON.books}</span>Financial</button>
+                <button onClick={() => openZoho(WORKSPACE.analytics.url)}><span className="sw-nav-ic">{WS_ICON.analytics}</span>Analytics</button>
+                <button onClick={() => openZoho(WORKSPACE.campaigns.url)}><span className="sw-nav-ic">{WS_ICON.campaigns}</span>Campaigns</button>
+                <button onClick={() => openZoho(WORKSPACE.desk.url)}><span className="sw-nav-ic">{WS_ICON.desk}</span>Desk</button>
+                <button onClick={() => openZoho(WORKSPACE.projects.url)}><span className="sw-nav-ic">{WS_ICON.projects}</span>Projects</button>
+                <button onClick={() => openZoho(WORKSPACE.billing.url)}><span className="sw-nav-ic">{WS_ICON.billing}</span>Billing</button>
+                <button onClick={() => openZoho(WORKSPACE.bookmarks.url)}><span className="sw-nav-ic">{WS_ICON.bookmarks}</span>Bookmarks</button>
+              </div>
+            </>
+          )}
+          {can("platform.clubs") && !previewing && (
+            <>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("partner")} onClick={() => toggleGroup("partner")}>
+                <span>Zoho Partner</span>
+                <span className="sw-admin-groupcaret">{groupOpen("partner") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("partner")}>
+                <button data-active={active === "__partner_dashboard"} onClick={() => setActive("__partner_dashboard")}><span className="sw-nav-ic">{WS_ICON.analytics}</span>Partner Dashboard</button>
+                <button data-active={active === "__partner_topup"} onClick={() => setActive("__partner_topup")}><span className="sw-nav-ic">{WS_ICON.billing}</span>Top up partner account</button>
+                <button data-active={active === "__partner_connect"} onClick={() => setActive("__partner_connect")}><span className="sw-nav-ic">{WS_ICON.crm}</span>Add new Zoho connection</button>
+                <button data-active={active === "__partner_editclub"} onClick={() => setActive("__partner_editclub")}><span className="sw-nav-ic">{WS_ICON.office}</span>Edit club Zoho account</button>
               </div>
             </>
           )}
@@ -629,6 +723,15 @@ function AdminInner() {
           />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
+        ) : effectiveActive.startsWith("__partner_") ? (
+          <div className="sw-admin-panel">
+            <h2 className="sw-admin-title">Zoho Partner</h2>
+            <p style={{ color: "#5b6573", maxWidth: 560 }}>
+              <strong>{PARTNER_LABELS[effectiveActive.slice("__partner_".length)] ?? "Partner tools"}</strong> lives here.
+              This is the SportsWeb partner-account area (separate from the Zoho business apps). Send me the Zoho Partner
+              deep link or the detail for this action and I'll wire it up — and add more partner menu items as you list them.
+            </p>
+          </div>
         ) : effectiveActive === "__account" && hasClub ? (
           <SportsWebAccount />
         ) : effectiveActive.startsWith("__mod_") && hasClub ? (

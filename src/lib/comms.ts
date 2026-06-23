@@ -58,7 +58,7 @@ export interface SendPayload {
   test?: boolean;
 }
 
-/** Invoke the dispatch-message Edge Function (Twilio / Zoho / WebPushr). */
+/** Invoke the dispatch-message Edge Function (ClickSend / Zoho / WebPushr). */
 export async function sendMessage(payload: SendPayload): Promise<SendResult> {
   if (!supabase)
     return { ok: false, sent: zero(), failed: zero(), error: "Supabase not configured." };

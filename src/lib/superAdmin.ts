@@ -4,7 +4,15 @@ export interface AdminClub {
   id: string;
   name: string;
   slug: string;
+  sport_type?: string | null;
+  account_status?: string | null;
+  plan?: string | null;
 }
+
+/** Canonical option lists for the Clubs & Modules setters (free-form in the DB,
+ *  so add more here any time without a migration). */
+export const ACCOUNT_STATUSES = ["demo", "trial", "active", "paused", "churned"] as const;
+export const PLAN_TIERS = ["free", "starter", "growth", "pro", "association", "enterprise"] as const;
 
 export interface AdminModuleRow {
   club_id: string;
@@ -24,6 +32,17 @@ export async function listModuleStatuses(): Promise<AdminModuleRow[]> {
   const { data, error } = await supabase.rpc("admin_list_modules");
   if (error || !data) return [];
   return data as AdminModuleRow[];
+}
+
+/** Classify a club: set its plan + account status (platform admins only). */
+export async function setClubAccount(clubId: string, accountStatus: string, plan: string): Promise<string | null> {
+  if (!supabase) return "Supabase not configured.";
+  const { error } = await supabase.rpc("admin_set_club_account", {
+    p_club_id: clubId,
+    p_account_status: accountStatus,
+    p_plan: plan,
+  });
+  return error ? error.message : null;
 }
 
 export async function setModuleStatus(clubId: string, moduleKey: string, status: "enabled" | "locked" | "trial"): Promise<string | null> {
