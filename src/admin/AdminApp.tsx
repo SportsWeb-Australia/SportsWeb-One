@@ -28,6 +28,7 @@ import { SuperIntegrations } from "./SuperIntegrations";
 import { SuperStudio } from "./SuperStudio";
 import { LaunchTracker } from "./LaunchTracker";
 import { AddPerson } from "./AddPerson";
+import { StaffAccess } from "./StaffAccess";
 import { Login } from "./Login";
 import { ZohoWorkspace, WS_ICON } from "./ZohoWorkspace";
 import { SportsWebAccount } from "./SportsWebAccount";
@@ -146,11 +147,13 @@ function AdminInner() {
   const brandStyle = {
     "--club-ink": bc.ink,
     "--club-paper": bc.paper,
-    "--club-accent": bc.accent,
+    // Admin chrome is always SportsWeb Electric Blue — the club's own accent is
+    // NOT used to tint the admin UI. Club identity is carried by the logo.
+    // (Public site still uses the club's real colours; this is admin-only.)
+    "--club-accent": "#2F6BFF",
     "--club-silver": bc.silver,
     // Semantic aliases — how clubs think about their palette.
-    // Dookie: primary = turquoise (accent), secondary = black (ink), tertiary = white (paper).
-    "--club-primary": bc.accent,
+    "--club-primary": "#2F6BFF",
     "--club-secondary": bc.ink,
     "--club-tertiary": bc.tertiary ?? bc.paper,
   } as CSSProperties;
@@ -208,7 +211,7 @@ function AdminInner() {
 
   const resource = RESOURCES.find((r) => r.key === active) ?? RESOURCES[0];
   const isSuperView =
-    active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__super_import" || active === "__super_launches" || active === "__super_team";
+    active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff";
   // A scoped launch operator only ever sees the Launches screen.
   const operatorOnly = isOperator && !isPlatformAdmin && !hasClub;
   // A platform operator with no club of their own lands on the platform views.
@@ -497,6 +500,11 @@ function AdminInner() {
                   Add a person
                 </button>
               )}
+              {can("platform.clubs") && (
+                <button data-active={active === "__staff"} onClick={() => setActive("__staff")}>
+                  Staff &amp; access
+                </button>
+              )}
               {can("platform.integrations") && (
                 <button data-active={active === "__super_integrations"} onClick={() => setActive("__super_integrations")}>
                   Integrations
@@ -619,6 +627,12 @@ function AdminInner() {
           <LaunchTracker />
         ) : effectiveActive === "__super_team" && can("platform.clubs") ? (
           <AddPerson />
+        ) : effectiveActive === "__staff" && can("platform.clubs") ? (
+          <StaffAccess
+            onAddPerson={() => setActive("__super_team")}
+            canManageSuper={platformRole === "superadmin"}
+            currentUserId={userId}
+          />
         ) : effectiveActive === "__super_integrations" && can("platform.integrations") ? (
           <SuperIntegrations />
         ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (

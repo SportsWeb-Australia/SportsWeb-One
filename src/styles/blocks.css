@@ -2127,10 +2127,22 @@
    Overriding the two source tokens re-skins everything inside.
    ============================================================ */
 .sw-brandwrap {
-  --club-accent: #2563EB;   /* SportsWeb chrome blue */
+  --club-accent: #2F6BFF;   /* SportsWeb Electric Blue */
   --club-ink: #0E1320;      /* SportsWeb ink */
   --club-paper: #ffffff;
   --club-silver: #9AA3B2;
+}
+
+/* The admin chrome is ALWAYS SportsWeb Electric Blue, regardless of the club's
+   own colours. Chrome reads --accent (which the inline club brandStyle never
+   sets), so pinning the accent family here wins in every mode — operator
+   console and club-scoped alike. Club identity is carried by the logo, not by
+   tinting the UI. Public club sites are unaffected (they're outside .sw-admin). */
+.sw-admin {
+  --accent: #2F6BFF;
+  --accent-deep: color-mix(in srgb, #2F6BFF 72%, #000);
+  --accent-soft: color-mix(in srgb, #2F6BFF 14%, #fff);
+  --accent-on-bg: color-mix(in srgb, #2F6BFF 72%, #000);
 }
 
 /* Login — SportsWeb wordmark */
