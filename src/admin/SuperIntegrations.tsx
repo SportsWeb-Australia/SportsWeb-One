@@ -35,7 +35,7 @@ const PROVIDERS: Provider[] = [
     blurb: "Browser/app push notifications to everyone who installed the club app.",
     secrets: [
       { name: "WEBPUSHR_KEY", note: "REST API key from WebPushr." },
-      { name: "WEBPUSHR_TOKEN", note: "Auth token from WebPushr." },
+      { name: "WEBPUSHR_AUTH_TOKEN", note: "Auth token from WebPushr." },
     ],
   },
 ];
@@ -119,7 +119,7 @@ supabase functions deploy dispatch-message
 # 2. Set the providers you want (examples)
 supabase secrets set ZEPTOMAIL_TOKEN=... ZEPTOMAIL_FROM=club@yourdomain.com.au ZEPTOMAIL_FROM_NAME="SportsWeb"
 supabase secrets set CLICKSEND_USERNAME=... CLICKSEND_API_KEY=... CLICKSEND_FROM=SportsWeb
-supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_TOKEN=...
+supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_AUTH_TOKEN=...
 
 # 3. Come back here and press "Re-check"`}
         </pre>

@@ -37,6 +37,8 @@ type Dash = {
   clubs_trial?: number | null;
   clubs_demo?: number | null;
   avg_modules_per_club?: number | null;
+  total_members?: number | null;
+  total_teams?: number | null;
   at_risk: AtRisk[];
 };
 
@@ -211,6 +213,8 @@ export function PlatformDashboard({
           },
           { value: d?.clubs_new_month ?? null, label: "New this month" },
           { value: d?.modules_enabled ?? null, label: "Modules enabled" },
+          { value: d?.total_members ?? null, label: "Total members · all clubs" },
+          { value: d?.total_teams ?? null, label: "Total teams · all clubs" },
         ]
       : [
           { value: d?.clubs_total ?? null, label: "Clubs on the platform", onClick: () => go("__super_clubs") },
@@ -225,6 +229,8 @@ export function PlatformDashboard({
           { value: d?.modules_enabled ?? null, label: "Modules enabled" },
           { value: d?.staff_platform ?? null, label: "Platform staff", onClick: () => go("__staff") },
           { value: d?.staff_club ?? null, label: "Club staff" },
+          { value: d?.total_members ?? null, label: "Total members · all clubs" },
+          { value: d?.total_teams ?? null, label: "Total teams · all clubs" },
         ];
 
   const actions =
