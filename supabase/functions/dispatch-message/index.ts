@@ -4,7 +4,7 @@
 // Deploy:   supabase functions deploy dispatch-message --no-verify-jwt
 // Secrets:  supabase secrets set CLICKSEND_USERNAME=... CLICKSEND_API_KEY=... CLICKSEND_FROM=SportsWeb
 //           supabase secrets set ZEPTOMAIL_TOKEN=... ZEPTOMAIL_FROM=club@yourdomain.com ZEPTOMAIL_FROM_NAME="Dookie United"
-//           supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_TOKEN=...
+//           supabase secrets set WEBPUSHR_KEY=... WEBPUSHR_AUTH_TOKEN=...
 //
 // A channel with no secrets configured is skipped (counted as 0), so you can
 // turn providers on one at a time.
@@ -101,7 +101,7 @@ async function sendSms(to: Recipient[], body: string) {
 
 async function sendPush(title: string, body: string) {
   const key = Deno.env.get("WEBPUSHR_KEY");
-  const token = Deno.env.get("WEBPUSHR_TOKEN");
+  const token = Deno.env.get("WEBPUSHR_AUTH_TOKEN");
   if (!key || !token) return { sent: 0, failed: 0 };
   try {
     const res = await fetch("https://api.webpushr.com/v1/notification/send/all", {
@@ -125,11 +125,37 @@ Deno.serve(async (req) => {
       const status = {
         email: !!(Deno.env.get("ZEPTOMAIL_TOKEN") && Deno.env.get("ZEPTOMAIL_FROM")),
         sms: !!(Deno.env.get("CLICKSEND_USERNAME") && Deno.env.get("CLICKSEND_API_KEY")),
-        push: !!(Deno.env.get("WEBPUSHR_KEY") && Deno.env.get("WEBPUSHR_TOKEN")),
+        push: !!(Deno.env.get("WEBPUSHR_KEY") && Deno.env.get("WEBPUSHR_AUTH_TOKEN")),
       };
       return new Response(JSON.stringify({ ok: true, status }), {
         headers: { ...cors, "Content-Type": "application/json" },
       });
+    }
+
+    // ClickSend account balance — powers the "keep credit topped up" panel.
+    if (payload?.action === "balance") {
+      const username = Deno.env.get("CLICKSEND_USERNAME");
+      const apiKey = Deno.env.get("CLICKSEND_API_KEY");
+      if (!username || !apiKey) {
+        return new Response(JSON.stringify({ ok: false, connected: false }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+      try {
+        const res = await fetch("https://rest.clicksend.com/v3/account", {
+          headers: { Authorization: `Basic ${btoa(`${username}:${apiKey}`)}` },
+        });
+        const data = await res.json();
+        const acct = data?.data ?? {};
+        return new Response(
+          JSON.stringify({ ok: res.ok, connected: true, balance: acct.balance ?? null, currency: acct.currency ?? null }),
+          { headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, connected: true, error: String(e) }), {
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const { channels = [], subject = "", body = "", recipients = [] } = payload;

@@ -1,5 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { recentMessages, messagingBalance, type RecentMessage, type SmsBalance } from "../lib/superAdmin";
+import { checkProviders, type ProviderStatus } from "../lib/comms";
+
+const MSG_PROVIDERS: { key: keyof ProviderStatus; name: string; manage: string; manageLabel: string; report: string }[] = [
+  { key: "sms", name: "SMS · ClickSend", manage: "https://dashboard.clicksend.com/account/billing", manageLabel: "Add credit ↗", report: "https://dashboard.clicksend.com/reports/sms" },
+  { key: "email", name: "Email · ZeptoMail", manage: "https://zeptomail.zoho.com.au/", manageLabel: "Add credit ↗", report: "https://zeptomail.zoho.com.au/" },
+  { key: "push", name: "Push · WebPushr", manage: "https://dashboard.webpushr.com/", manageLabel: "Manage plan ↗", report: "https://dashboard.webpushr.com/" },
+];
+
+const AI_TOOLS = [
+  { name: "ChatGPT", url: "https://chatgpt.com/" },
+  { name: "Claude", url: "https://claude.ai/" },
+  { name: "Canva", url: "https://www.canva.com/" },
+];
 
 type AtRisk = {
   club_id: string;
@@ -129,6 +143,26 @@ export function PlatformDashboard({
 
   const [d, setD] = useState<Dash | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // Messaging oversight (platform view only).
+  const [providers, setProviders] = useState<ProviderStatus | null>(null);
+  const [balance, setBalance] = useState<SmsBalance | null>(null);
+  const [recent, setRecent] = useState<RecentMessage[]>([]);
+
+  useEffect(() => {
+    if (scope === "mine") return;
+    let live = true;
+    (async () => {
+      const [p, b, r] = await Promise.all([checkProviders(), messagingBalance(), recentMessages(8)]);
+      if (!live) return;
+      setProviders(p);
+      setBalance(b);
+      setRecent(r);
+    })();
+    return () => {
+      live = false;
+    };
+  }, [scope]);
 
   useEffect(() => {
     let live = true;
@@ -315,6 +349,81 @@ export function PlatformDashboard({
               </div>
               <PlanBars data={d.clubs_by_plan ?? {}} />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messaging & credits — platform-wide view only */}
+      {d && d.scope !== "mine" && (
+        <div style={{ marginBottom: "1.9rem" }}>
+          <h2 style={{ fontFamily: "var(--font-display, inherit)", fontSize: "1.3rem", margin: "0 0 0.7rem" }}>
+            Messaging &amp; credits
+          </h2>
+          <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
+            {MSG_PROVIDERS.map((p) => {
+              const on = providers ? providers[p.key] : null;
+              return (
+                <div key={p.key} style={card}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: 999, display: "inline-block", background: on == null ? "#cbd2dc" : on ? "#1f9d57" : "#d64545" }} />
+                    <strong style={{ fontSize: 14 }}>{p.name}</strong>
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "#667085", minHeight: 18 }}>
+                    {on == null ? "Checking…" : on ? "Connected" : "Not connected"}
+                    {p.key === "sms" && balance?.connected && balance.balance != null && (
+                      <> · Balance {balance.currency ?? ""} {Number(balance.balance).toFixed(2)}</>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 14, marginTop: 10 }}>
+                    <a href={p.manage} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: "var(--accent, #2F6BFF)", textDecoration: "none", fontWeight: 600 }}>{p.manageLabel}</a>
+                    <a href={p.report} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: "#667085", textDecoration: "none" }}>Reporting ↗</a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Recent sends across all clubs — failures highlighted */}
+          <div style={{ ...card, marginTop: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em" }}>Recent sends across all clubs</span>
+              <button onClick={() => go("__super_integrations")} style={{ fontSize: 12.5, background: "none", border: "none", color: "var(--accent, #2F6BFF)", cursor: "pointer", fontWeight: 600 }}>Integrations →</button>
+            </div>
+            {recent.length === 0 ? (
+              <div style={{ color: "#667085", fontSize: 13 }}>No sends logged yet.</div>
+            ) : (
+              <div style={{ display: "grid", gap: 6 }}>
+                {recent.map((m) => {
+                  const failed = m.status === "failed";
+                  return (
+                    <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, padding: "6px 8px", borderRadius: 8, background: failed ? "#fdecec" : "#f6f8fb" }}>
+                      <span style={{ fontWeight: 600, minWidth: 52, color: failed ? "#b42318" : "#1f9d57" }}>{failed ? "Failed" : "Sent"}</span>
+                      <span style={{ flex: 1, color: "#11161f", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {m.club_name ?? "—"} · {(m.channels ?? []).join("/")} · {m.recipient_count} {m.recipient_count === 1 ? "person" : "people"}
+                      </span>
+                      <span style={{ color: "#8a94a6", whiteSpace: "nowrap" }}>{new Date(m.created_at).toLocaleDateString()}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Zoho connection action folded in */}
+          <div style={{ ...card, marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 13, color: "#475467" }}>
+              <strong style={{ color: "#11161f" }}>Zoho connection</strong> — powers live data, billing top-ups and the Workspace deep links.
+            </div>
+            <button onClick={() => go("__super_integrations")} className="sw-btn sw-btn--ghost" style={{ fontSize: 13 }}>Manage / reconnect</button>
+          </div>
+
+          {/* Creative & AI deep links */}
+          <div style={{ ...card, marginTop: "1rem", display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em", marginRight: 4 }}>Creative &amp; AI</span>
+            {AI_TOOLS.map((t) => (
+              <a key={t.name} href={t.url} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600, color: "var(--accent, #2F6BFF)", textDecoration: "none", padding: "5px 12px", border: "1px solid #e3e8ef", borderRadius: 999 }}>{t.name} ↗</a>
+            ))}
+            <span style={{ fontSize: 12, color: "#8a94a6" }}>Opens your account in a new tab.</span>
           </div>
         </div>
       )}

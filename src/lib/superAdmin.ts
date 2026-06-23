@@ -82,3 +82,40 @@ export async function createClub(input: CreateClubInput): Promise<{ result?: Cre
   if (error) return { error: error.message };
   return { result: data as CreateClubResult };
 }
+
+// ── Messaging oversight (Super Admin dashboard) ────────────────────────────
+
+export interface RecentMessage {
+  id: string;
+  club_id: string;
+  club_name: string | null;
+  channels: string[];
+  subject: string | null;
+  audience: string | null;
+  recipient_count: number;
+  status: string;
+  created_at: string;
+}
+
+/** Latest sends across ALL clubs — flagged/failed runs surface centrally. */
+export async function recentMessages(limit = 12): Promise<RecentMessage[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("admin_recent_messages", { p_limit: limit });
+  if (error || !data) return [];
+  return data as RecentMessage[];
+}
+
+export interface SmsBalance {
+  connected: boolean;
+  balance: number | null;
+  currency: string | null;
+}
+
+/** Current ClickSend account balance (via the dispatch-message edge function). */
+export async function messagingBalance(): Promise<SmsBalance | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.functions.invoke("dispatch-message", { body: { action: "balance" } });
+  if (error || !data) return null;
+  const d = data as { connected?: boolean; balance?: number | null; currency?: string | null };
+  return { connected: !!d.connected, balance: d.balance ?? null, currency: d.currency ?? null };
+}
