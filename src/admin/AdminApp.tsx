@@ -58,6 +58,36 @@ const PARTNER_LABELS: Record<string, string> = {
   editclub: "Edit club Zoho account",
 };
 
+/** Sidebar expand/collapse state, persisted across reloads under one localStorage key. */
+const NAV_OPEN_KEY = "sw1.admin.nav.open";
+type NavOpenState = {
+  groups?: Record<string, boolean>;
+  web?: boolean;
+  office?: boolean;
+  modules?: boolean;
+  staff?: boolean;
+  swOffice?: boolean;
+};
+/** Read persisted nav state; bad or missing JSON falls back to defaults rather than throwing. */
+function readNavOpen(): NavOpenState {
+  try {
+    const raw = localStorage.getItem(NAV_OPEN_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? (parsed as NavOpenState) : {};
+  } catch {
+    return {};
+  }
+}
+/** Persist nav state; never throw on quota/availability errors. */
+function writeNavOpen(v: NavOpenState): void {
+  try {
+    localStorage.setItem(NAV_OPEN_KEY, JSON.stringify(v));
+  } catch {
+    /* ignore */
+  }
+}
+
 function AdminInner() {
   const { ready, resolving, email, platformRole, isPlatformAdmin, signOut, userId } = useAuth();
   const {
@@ -74,17 +104,32 @@ function AdminInner() {
   } = useActiveClub();
   const { club } = useClub();
   const { can } = usePermissions();
+  // Restore persisted sidebar expand/collapse state once on mount.
+  const [navPersist] = useState(readNavOpen);
+
   const [active, setActive] = useState("__dashboard");
-  const [webOpen, setWebOpen] = useState(false);
-  const [officeOpen, setOfficeOpen] = useState(false);
-  const [staffOpen, setStaffOpen] = useState(false);
-  const [swOfficeOpen, setSwOfficeOpen] = useState(false);
+  const [webOpen, setWebOpen] = useState(navPersist.web ?? false);
+  const [officeOpen, setOfficeOpen] = useState(navPersist.office ?? false);
+  const [staffOpen, setStaffOpen] = useState(navPersist.staff ?? false);
+  const [swOfficeOpen, setSwOfficeOpen] = useState(navPersist.swOffice ?? false);
   const [previewPersona, setPreviewPersona] = useState<string | null>(null);
-  const [modulesOpen, setModulesOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false); // mobile drawer
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [modulesOpen, setModulesOpen] = useState(navPersist.modules ?? false);
+  const [navOpen, setNavOpen] = useState(false); // mobile drawer (not persisted)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(navPersist.groups ?? {});
   const groupOpen = (k: string) => !!openGroups[k];
   const toggleGroup = (k: string) => setOpenGroups((g) => ({ ...g, [k]: !g[k] }));
+
+  // Persist whenever any group or parent-expander toggles.
+  useEffect(() => {
+    writeNavOpen({
+      groups: openGroups,
+      web: webOpen,
+      office: officeOpen,
+      modules: modulesOpen,
+      staff: staffOpen,
+      swOffice: swOfficeOpen,
+    });
+  }, [openGroups, webOpen, officeOpen, modulesOpen, staffOpen, swOfficeOpen]);
   const [persona, setPersona] = useState<string>("general");
   const hasClub = !!clubId;
   // Scoped launch operator: SportsWeb staff, not a platform admin, no club.
@@ -158,10 +203,10 @@ function AdminInner() {
     // Admin chrome is always SportsWeb Electric Blue — the club's own accent is
     // NOT used to tint the admin UI. Club identity is carried by the logo.
     // (Public site still uses the club's real colours; this is admin-only.)
-    "--club-accent": "#2F6BFF",
+    "--club-accent": "#2563eb",
     "--club-silver": bc.silver,
     // Semantic aliases — how clubs think about their palette.
-    "--club-primary": "#2F6BFF",
+    "--club-primary": "#2563eb",
     "--club-secondary": bc.ink,
     "--club-tertiary": bc.tertiary ?? bc.paper,
   } as CSSProperties;
@@ -315,7 +360,7 @@ function AdminInner() {
               onClick={() => setPreviewPersona(null)}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-                background: "#2F6BFF", color: "#fff", border: "none", borderRadius: 8,
+                background: "#2563eb", color: "#fff", border: "none", borderRadius: 8,
                 padding: "9px 12px", margin: "0 0 8px", cursor: "pointer", fontWeight: 600, fontSize: "0.86rem",
               }}
             >

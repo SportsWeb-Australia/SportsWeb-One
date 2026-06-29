@@ -1104,15 +1104,32 @@
 .sw-admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
 .sw-admin-nav button {
   text-align: left;
-  padding: 0.7rem 0.9rem;
+  padding: 0.5rem 0.7rem;
   border-radius: var(--radius);
-  font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  color: color-mix(in srgb, var(--text-invert) 78%, transparent);
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--text-invert) 72%, transparent);
+  position: relative;
+  transition: background 0.12s ease, color 0.12s ease;
 }
-.sw-admin-nav button[data-active="true"] { background: var(--accent); color: #fff; }
+.sw-admin-nav button:hover {
+  background: color-mix(in srgb, var(--text-invert) 6%, transparent);
+  color: var(--text-invert);
+}
+/* Calm active state: quiet tinted background + thin left accent bar (no solid fill). */
+.sw-admin-nav button[data-active="true"] {
+  background: color-mix(in srgb, var(--text-invert) 8%, transparent);
+  color: var(--text-invert);
+  font-weight: 600;
+}
+.sw-admin-nav button[data-active="true"]::before {
+  content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; height: auto;
+  width: 2px; background: var(--accent); border-radius: 0 2px 2px 0;
+}
+.sw-admin-nav button[data-active="true"] .sw-nav-ic { color: var(--accent); opacity: 1; }
 .sw-admin-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8rem; }
 .sw-admin-side-foot button { color: color-mix(in srgb, var(--text-invert) 70%, transparent); text-align: left; }
 .sw-admin-main { padding: 1.5rem; min-width: 0; overflow-x: clip; }
@@ -1696,15 +1713,18 @@
 .sw-admin-nav .sw-admin-navgroup {
   display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
   width: 100%; text-align: left;
-  margin: 1rem 0 0.1rem; padding: 0.5rem 0.6rem;
-  font-family: var(--font-display);
-  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; color: rgba(255, 255, 255, 0.6);
+  margin: 0.9rem 0 0.1rem; padding: 0.4rem 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.74rem; font-weight: 600; letter-spacing: 0.01em;
+  text-transform: none; color: color-mix(in srgb, var(--text-invert) 45%, transparent);
   background: transparent; border: none; border-radius: var(--radius); cursor: pointer;
 }
-.sw-admin-nav .sw-admin-navgroup:hover { background: rgba(255, 255, 255, 0.07); color: rgba(255, 255, 255, 0.92); }
-.sw-admin-nav .sw-admin-navgroup[data-open="true"] { color: #fff; }
-.sw-admin-groupcaret { font-size: 0.7rem; opacity: 0.7; flex: 0 0 auto; }
+.sw-admin-nav .sw-admin-navgroup:hover {
+  background: color-mix(in srgb, var(--text-invert) 6%, transparent);
+  color: color-mix(in srgb, var(--text-invert) 85%, transparent);
+}
+.sw-admin-nav .sw-admin-navgroup[data-open="true"] { color: color-mix(in srgb, var(--text-invert) 75%, transparent); }
+.sw-admin-groupcaret { font-size: 0.7rem; opacity: 0.6; flex: 0 0 auto; }
 .sw-admin-groupitems { display: flex; flex-direction: column; gap: 0.25rem; }
 .sw-admin-groupitems[data-open="false"] { display: none; }
 .sw-admin-parentrow { display: flex; align-items: stretch; gap: 0; }
@@ -2133,7 +2153,7 @@
    Overriding the two source tokens re-skins everything inside.
    ============================================================ */
 .sw-brandwrap {
-  --club-accent: #2F6BFF;   /* SportsWeb Electric Blue */
+  --club-accent: #2563eb;   /* SportsWeb Electric Blue */
   --club-ink: #0E1320;      /* SportsWeb ink */
   --club-paper: #ffffff;
   --club-silver: #9AA3B2;
@@ -2145,10 +2165,10 @@
    console and club-scoped alike. Club identity is carried by the logo, not by
    tinting the UI. Public club sites are unaffected (they're outside .sw-admin). */
 .sw-admin {
-  --accent: #2F6BFF;
-  --accent-deep: color-mix(in srgb, #2F6BFF 72%, #000);
-  --accent-soft: color-mix(in srgb, #2F6BFF 14%, #fff);
-  --accent-on-bg: color-mix(in srgb, #2F6BFF 72%, #000);
+  --accent: #2563eb;
+  --accent-deep: color-mix(in srgb, #2563eb 72%, #000);
+  --accent-soft: color-mix(in srgb, #2563eb 14%, #fff);
+  --accent-on-bg: color-mix(in srgb, #2563eb 72%, #000);
 }
 
 /* Login — SportsWeb wordmark */
