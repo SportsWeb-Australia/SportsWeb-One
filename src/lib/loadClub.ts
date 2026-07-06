@@ -144,6 +144,11 @@ async function buildClubConfig(clubRow: Record<string, any>): Promise<ClubConfig
     const base: ClubConfig = isDemoClub ? staticClub : emptyClub;
     const cfg: ClubConfig = { ...base };
 
+    // Publish state — surfaced to the admin publish control + draft-preview
+    // banner. Anon can't read a draft row at all, so a non-published value here
+    // only ever reaches an authenticated admin.
+    cfg.websiteStatus = clubRow.website_status ?? undefined;
+
     // Identity + colours
     const colours = deriveColours(
       clubRow.primary_colour ?? null,

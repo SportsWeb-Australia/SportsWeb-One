@@ -195,6 +195,11 @@ export default function App() {
           </a>
           <ScrollToTop />
           <SeoManager />
+          {club.websiteStatus && club.websiteStatus !== "published" && (
+            <div className="sw-draftbar" role="status">
+              Draft preview — not visible to the public yet
+            </div>
+          )}
           <TrialBanner />
           <AnnouncementBar />
           <Header />
