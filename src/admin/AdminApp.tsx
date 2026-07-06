@@ -16,6 +16,7 @@ import { Reports } from "./Reports";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor } from "./AdminSiteEditor";
+import { PublishControl } from "./PublishControl";
 import { AdminDashboard } from "./AdminDashboard";
 import { ModulePrePage, COMING_SOON_MODULES, type ModulePre } from "./ModulePrePage";
 import { getModule } from "../lib/modules";
@@ -363,6 +364,17 @@ function AdminInner() {
             {hasClub ? "View live site →" : "View marketing site →"}
           </a>
         </div>
+        {hasClub &&
+          (isPlatformAdmin ||
+            activeRole === "club_admin" ||
+            activeRole === "club_senior_admin" ||
+            activeRole === "super_admin") && (
+            <PublishControl
+              clubId={clubId as string}
+              status={club.websiteStatus}
+              isPlatformAdmin={isPlatformAdmin}
+            />
+          )}
         <nav className="sw-admin-nav">
           {operatorOnly && (
             <button data-active={effectiveActive === "__super_launches"} onClick={() => setActive("__super_launches")}>

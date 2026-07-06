@@ -233,6 +233,11 @@ export interface ClubConfig {
   variant: DesignVariant;
   /** Floating Heritage/Broadcast preview toggle. Turn off for production. */
   showVariantSwitcher: boolean;
+  /** Publish state of the club's website. Populated from the clubs row for
+   *  admins (via direct read or the admin_get_club* RPCs); drives the
+   *  draft-preview banner and the admin publish control. Undefined for the
+   *  static fallback config, so neither shows there. */
+  websiteStatus?: "draft" | "published" | "suspended";
 
   identity: {
     name: string;
