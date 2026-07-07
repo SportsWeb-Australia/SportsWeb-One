@@ -115,6 +115,12 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     footerLogo2: club.content?.["footer.logo.2"] ?? "",
   });
 
+  const [colours, setColours] = useState({
+    primary: club.brandColours?.primary ?? "#1a1a2e",
+    secondary: club.brandColours?.secondary ?? "#e8c100",
+    tertiary: club.brandColours?.tertiary ?? "",
+  });
+
   const [status, setStatus] = useState<Record<string, string>>({});
   const content = club.content ?? {};
   const [heading, setHeading] = useState({
@@ -147,6 +153,26 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
       .from("club_content")
       .upsert({ club_id: clubId, content_key: "branding.logo", value: url }, { onConflict: "club_id,content_key" });
     setSt("brand", error ? `Could not save: ${error.message}` : "Logo updated. Reload your site to see it live.");
+  }
+
+  async function saveColours() {
+    if (!clubId || !supabase) return;
+    const hex = /^#[0-9a-fA-F]{6}$/;
+    const tertiary = colours.tertiary.trim();
+    if (!hex.test(colours.primary) || !hex.test(colours.secondary) || (tertiary && !hex.test(tertiary))) {
+      setSt("colours", "Enter 6-digit hex colours like #ed2129.");
+      return;
+    }
+    setSt("colours", "Saving…");
+    // Single controlled write — the clubs row has no club_admin UPDATE policy,
+    // so colours go through the gated set_club_colours RPC.
+    const { error } = await supabase.rpc("set_club_colours", {
+      p_club: clubId,
+      p_primary: colours.primary,
+      p_secondary: colours.secondary,
+      p_tertiary: tertiary ? tertiary : null,
+    });
+    setSt("colours", error ? `Could not save: ${error.message}` : "Colours saved. Reload your site to see them live.");
   }
 
   if (!clubId) {
@@ -293,6 +319,79 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
         />
         <span className="sw-ed-status" aria-live="polite">{status.brand}</span>
       </EdCard>
+      )}
+
+      {show("home") && (
+        <EdCard title="Brand colours" subtitle="The colours your website is built from — your primary colour drives the look">
+          <div className="sw-col-set">
+            <div className="sw-col-row">
+              <input
+                type="color"
+                className="sw-col-swatch"
+                aria-label="Primary colour"
+                value={/^#[0-9a-fA-F]{6}$/.test(colours.primary) ? colours.primary : "#000000"}
+                onChange={(e) => setColours((c) => ({ ...c, primary: e.target.value }))}
+              />
+              <div className="sw-col-fields">
+                <label className="sw-ed-l">Primary <span className="sw-col-badge sw-col-badge--star">Drives your site</span></label>
+                <input
+                  className="sw-input sw-col-hex"
+                  value={colours.primary}
+                  spellCheck={false}
+                  placeholder="#ed2129"
+                  onChange={(e) => setColours((c) => ({ ...c, primary: e.target.value }))}
+                />
+                <p className="sw-ed-hint">Your main club colour — fills the hero on colour-forward styles and sets the site accent.</p>
+              </div>
+            </div>
+
+            <div className="sw-col-row">
+              <input
+                type="color"
+                className="sw-col-swatch"
+                aria-label="Secondary colour"
+                value={/^#[0-9a-fA-F]{6}$/.test(colours.secondary) ? colours.secondary : "#000000"}
+                onChange={(e) => setColours((c) => ({ ...c, secondary: e.target.value }))}
+              />
+              <div className="sw-col-fields">
+                <label className="sw-ed-l">Secondary <span className="sw-col-badge">Used where it fits</span></label>
+                <input
+                  className="sw-input sw-col-hex"
+                  value={colours.secondary}
+                  spellCheck={false}
+                  placeholder="#ffffff"
+                  onChange={(e) => setColours((c) => ({ ...c, secondary: e.target.value }))}
+                />
+                <p className="sw-ed-hint">A supporting colour, used for contrast where it works with your primary.</p>
+              </div>
+            </div>
+
+            <div className="sw-col-row">
+              <input
+                type="color"
+                className="sw-col-swatch"
+                aria-label="Tertiary colour"
+                value={/^#[0-9a-fA-F]{6}$/.test(colours.tertiary) ? colours.tertiary : "#000000"}
+                onChange={(e) => setColours((c) => ({ ...c, tertiary: e.target.value }))}
+              />
+              <div className="sw-col-fields">
+                <label className="sw-ed-l">Tertiary <span className="sw-col-badge sw-col-badge--soon">Coming soon</span></label>
+                <input
+                  className="sw-input sw-col-hex"
+                  value={colours.tertiary}
+                  spellCheck={false}
+                  placeholder="Optional"
+                  onChange={(e) => setColours((c) => ({ ...c, tertiary: e.target.value }))}
+                />
+                <p className="sw-ed-hint">Captured now, but not yet used on your site — leave blank if unsure.</p>
+              </div>
+            </div>
+          </div>
+          <div className="sw-ed-foot">
+            <button className="sw-btn" onClick={saveColours}>Save colours</button>
+            <span className="sw-ed-status" aria-live="polite">{status.colours}</span>
+          </div>
+        </EdCard>
       )}
 
       {show("home") && (

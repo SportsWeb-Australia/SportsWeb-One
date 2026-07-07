@@ -238,6 +238,11 @@ export interface ClubConfig {
    *  draft-preview banner and the admin publish control. Undefined for the
    *  static fallback config, so neither shows there. */
   websiteStatus?: "draft" | "published" | "suspended";
+  /** Raw stored brand colours from the clubs row (primary/secondary required,
+   *  tertiary optional). deriveColours consumes these into ink/accent tokens,
+   *  so the originals are preserved separately here for the admin colour editor
+   *  to pre-fill. */
+  brandColours?: { primary: string; secondary: string; tertiary: string | null };
 
   identity: {
     name: string;
