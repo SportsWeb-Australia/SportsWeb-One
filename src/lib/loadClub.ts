@@ -149,6 +149,14 @@ async function buildClubConfig(clubRow: Record<string, any>): Promise<ClubConfig
     // only ever reaches an authenticated admin.
     cfg.websiteStatus = clubRow.website_status ?? undefined;
 
+    // Raw brand colours preserved for the admin colour editor (deriveColours
+    // consumes them into derived tokens, so the originals aren't otherwise kept).
+    cfg.brandColours = {
+      primary: clubRow.primary_colour ?? "#1a1a2e",
+      secondary: clubRow.secondary_colour ?? "#e8c100",
+      tertiary: clubRow.tertiary_colour ?? null,
+    };
+
     // Identity + colours
     const colours = deriveColours(
       clubRow.primary_colour ?? null,

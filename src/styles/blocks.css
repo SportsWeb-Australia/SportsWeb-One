@@ -2974,6 +2974,27 @@
 .sw-ed-status { font-size: 0.82rem; color: var(--text-soft); }
 .sw-ed-hint { font-size: 0.8rem; color: var(--text-soft); margin: 0.1rem 0 0.3rem; }
 
+/* ---- Brand colours editor ---- */
+.sw-col-set { display: flex; flex-direction: column; gap: 1.1rem; }
+.sw-col-row { display: flex; align-items: flex-start; gap: 0.9rem; }
+.sw-col-swatch {
+  flex: none; width: 46px; height: 46px; padding: 0; border: 1px solid #d5dae2;
+  border-radius: 10px; background: none; cursor: pointer;
+}
+.sw-col-swatch::-webkit-color-swatch-wrapper { padding: 3px; }
+.sw-col-swatch::-webkit-color-swatch { border: none; border-radius: 7px; }
+.sw-col-swatch::-moz-color-swatch { border: none; border-radius: 7px; }
+.sw-col-fields { flex: 1 1 auto; min-width: 0; }
+.sw-col-hex { max-width: 12rem; font-family: var(--font-mono); text-transform: none; }
+.sw-col-badge {
+  display: inline-block; margin-left: 0.4rem; font-family: var(--font-mono);
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+  padding: 0.08rem 0.4rem; border-radius: 999px; vertical-align: middle;
+  background: #eef2f7; color: #5b6573; border: 1px solid #dce2ea;
+}
+.sw-col-badge--star { background: #eaf0ff; color: #2563eb; border-color: #cfe0ff; }
+.sw-col-badge--soon { background: #f4f1e8; color: #8a7420; border-color: #e6dfca; }
+
 .sw-imgfield { margin: 0.9rem 0 0.4rem; }
 .sw-imgfield-label {
   font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em;
