@@ -75,7 +75,7 @@ const HEADING_PAGES = ["about", "contact", "news", "events", "teams", "fixtures"
 
 export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
   const { club } = useClub();
-  const { clubId } = useActiveClub();
+  const { clubId, reloadClub } = useActiveClub();
   const show = (p: SitePage) => page === "all" || page === p;
   const pageTitle = PAGE_LABELS[page] ?? "Edit website";
   const headingKey = HEADING_PAGES.includes(page) ? page : "";
@@ -142,7 +142,9 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     setSt(card, "Saving…");
     const rows = Object.entries(entries).map(([content_key, value]) => ({ club_id: clubId, content_key, value }));
     const { error } = await supabase.from("club_content").upsert(rows, { onConflict: "club_id,content_key" });
-    setSt(card, error ? `Could not save: ${error.message}` : "Saved. Reload your site to see it live.");
+    if (error) { setSt(card, `Could not save: ${error.message}`); return; }
+    await reloadClub();
+    setSt(card, "Saved.");
   }
 
   async function saveLogo(url: string) {
@@ -152,7 +154,9 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     const { error } = await supabase
       .from("club_content")
       .upsert({ club_id: clubId, content_key: "branding.logo", value: url }, { onConflict: "club_id,content_key" });
-    setSt("brand", error ? `Could not save: ${error.message}` : "Logo updated. Reload your site to see it live.");
+    if (error) { setSt("brand", `Could not save: ${error.message}`); return; }
+    await reloadClub();
+    setSt("brand", "Logo updated.");
   }
 
   async function saveColours() {
@@ -172,7 +176,9 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
       p_secondary: colours.secondary,
       p_tertiary: tertiary ? tertiary : null,
     });
-    setSt("colours", error ? `Could not save: ${error.message}` : "Colours saved. Reload your site to see them live.");
+    if (error) { setSt("colours", `Could not save: ${error.message}`); return; }
+    await reloadClub();
+    setSt("colours", "Colours saved.");
   }
 
   if (!clubId) {
