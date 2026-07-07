@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -42,6 +43,9 @@ interface ActiveClubState {
   setActiveClub: (id: string) => void;
   /** Return to the user's own club / the platform console. */
   exitActingAs: () => void;
+  /** Re-fetch the active club's config in place (after a save) so the admin UI
+   *  reflects branding/content changes without a full browser reload. */
+  reloadClub: () => Promise<void>;
 }
 
 const Ctx = createContext<ActiveClubState | null>(null);
@@ -164,6 +168,26 @@ export function ActiveClubProvider({ children }: { children: ReactNode }) {
     setActiveId(id);
   }, []);
 
+  // Re-fetch the current club's config in place after a save. Reuses the same
+  // load path as the activeId effect; the ref guard drops overlapping calls
+  // (e.g. rapid double-saves) so the last completed fetch wins cleanly.
+  const reloadingRef = useRef(false);
+  const reloadClub = useCallback(async () => {
+    if (!activeId || reloadingRef.current) return;
+    reloadingRef.current = true;
+    setLoading(true);
+    try {
+      const c = await getClubConfigById(activeId);
+      setCfg(c);
+      outer.setVariant(c.variant);
+    } finally {
+      reloadingRef.current = false;
+      setLoading(false);
+    }
+    // outer.setVariant is a stable state setter; intentionally keyed on activeId.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
+
   const exitActingAs = useCallback(() => {
     try {
       sessionStorage.removeItem(SAVED_KEY);
@@ -191,8 +215,9 @@ export function ActiveClubProvider({ children }: { children: ReactNode }) {
       isActingAs,
       setActiveClub,
       exitActingAs,
+      reloadClub,
     }),
-    [activeId, clubName, clubSlug, role, clubs, ready, loading, isActingAs, setActiveClub, exitActingAs]
+    [activeId, clubName, clubSlug, role, clubs, ready, loading, isActingAs, setActiveClub, exitActingAs, reloadClub]
   );
 
   return (
