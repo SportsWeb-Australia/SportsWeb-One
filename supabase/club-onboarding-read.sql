@@ -1,21 +1,22 @@
 -- ============================================================================
--- club_onboarding read policy - widen to platform + super admins
+-- Fix: let SuperClubs operators (club super_admins) read club_onboarding
 -- Repo path: supabase/club-onboarding-read.sql
 -- ----------------------------------------------------------------------------
--- The superadmin "Onboard this club" panel reads club_onboarding for any club.
--- The operator role in this app is a club_users super_admin (is_super_admin()),
--- which already gates SuperClubs and the clubs table - but the original read
--- policy only allowed is_platform_admin() OR is_club_admin(club_id), so a
--- super_admin could not read submissions for clubs they do not personally admin.
--- This adds is_super_admin() so any SuperClubs operator can read every club's
--- submission. Save (clubs.onboarding_drive_url) already works via the existing
--- clubs_super_admin_all (is_super_admin()) all-access policy - no RPC needed.
+-- The onboarding panel lives in the SuperClubs operator screen, which is gated
+-- by is_super_admin() (club_users role super_admin of any club). The original
+-- read policy only allowed is_platform_admin() OR is_club_admin(club_id), so an
+-- operator who is a club super_admin (but not a platform admin) could not see
+-- submissions for clubs they don't directly admin. This extends the READ policy
+-- to include is_super_admin(), matching the operator role that runs SuperClubs.
 --
--- Keyed off club_id only. Applied to prod (project uzibfawcwoapfbigpzum) as an
--- authorized onboarding migration. Safe to re-run (idempotent).
+-- SAVE is unaffected: clubs.onboarding_drive_url writes already work via the
+-- existing clubs is_super_admin() all-access policy, so no RPC is needed.
+--
+-- Pure ASCII. Keyed off club_id. Run in the Supabase SQL Editor (project uzibfawcwoapfbigpzum).
 -- ============================================================================
 
 drop policy if exists club_onboarding_read on public.club_onboarding;
+
 create policy club_onboarding_read
   on public.club_onboarding
   for select
