@@ -15,6 +15,7 @@ import { MobileTabBar } from "./components/layout/MobileTabBar";
 import { AnnouncementBar } from "./components/blocks/AnnouncementBar";
 import { TrialBanner } from "./components/blocks/TrialBanner";
 import { AppPrompts } from "./components/pwa/AppPrompts";
+import { SitePulseWidget } from "./components/SitePulseWidget";
 
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
@@ -226,6 +227,8 @@ export default function App() {
           <Footer />
           <MobileTabBar />
           <AppPrompts />
+          {/* Public-site feedback widget (SitePulse). Club public site only, keyed off club_id. */}
+          <SitePulseWidget clubId={club.clubId} />
         </EditProvider>
       </ClubContext.Provider>
     </AuthProvider>
