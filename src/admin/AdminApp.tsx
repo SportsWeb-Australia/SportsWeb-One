@@ -29,6 +29,7 @@ import { NeedsWizard } from "./NeedsWizard";
 import { SETUP_ROUTES } from "./setupRoutes";
 import { SuperIntegrations } from "./SuperIntegrations";
 import { SuperStudio } from "./SuperStudio";
+import { SuperSitePulse } from "./SuperSitePulse";
 import { SalesFormula } from "./SalesFormula";
 import { LaunchTracker } from "./LaunchTracker";
 import { AddPerson } from "./AddPerson";
@@ -295,7 +296,7 @@ function AdminInner() {
   // SportsWeb↔Zoho connection is a one-time thing handled in Integrations.
   const openZoho = (url: string) => window.open(url, "_blank", "noopener,noreferrer");
   const isSuperView =
-    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__sales" || active === "__super_import" || active === "__super_launches" || active === "__super_team" || active === "__staff" || active.startsWith("__partner_");
+    active === "__biz" || active === "__super_clubs" || active === "__super_integrations" || active === "__super_studio" || active === "__sales" || active === "__super_import" || active === "__super_sitepulse" || active === "__super_launches" || active === "__super_team" || active === "__staff" || active.startsWith("__partner_");
   // A scoped launch operator only ever sees the Launches screen.
   const operatorOnly = isOperator && !isPlatformAdmin && !hasClub;
   // A platform operator with no club of their own lands on the platform views.
@@ -676,6 +677,11 @@ function AdminInner() {
                   Import a club
                 </button>
               )}
+              {can("platform.clubs") && (
+                <button data-active={active === "__super_sitepulse"} onClick={() => setActive("__super_sitepulse")}>
+                  SitePulse
+                </button>
+              )}
               </div>
             </>
           )}
@@ -881,6 +887,8 @@ function AdminInner() {
           <SalesFormula />
         ) : effectiveActive === "__super_import" && can("platform.clubs") ? (
           <AdminImport />
+        ) : effectiveActive === "__super_sitepulse" && can("platform.clubs") ? (
+          <SuperSitePulse />
         ) : hasClub && can("club.content") ? (
           <ResourceManager resource={resource} />
         ) : (
