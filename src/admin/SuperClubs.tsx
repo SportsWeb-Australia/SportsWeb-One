@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { MODULE_CATALOG } from "../lib/modules";
+import { ClubOnboardingPanel } from "./ClubOnboardingPanel";
 import { slugify } from "../lib/slug";
 import { useActiveClub } from "./ActiveClub";
 import {
@@ -28,6 +29,8 @@ export function SuperClubs() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Which club's "Onboard this club" panel is expanded (one at a time).
+  const [onboardId, setOnboardId] = useState<string | null>(null);
 
   // Search + grouping for the clubs list.
   const [search, setSearch] = useState("");
@@ -180,55 +183,73 @@ export function SuperClubs() {
   }, [filtered, groupBy]);
 
   const clubRow = (club: AdminClub) => (
-    <tr key={club.id}>
-      <td className="sw-super-clubcell">
-        <strong>{club.name}</strong>
-        <small>{club.slug}</small>
-        <div style={{ display: "flex", gap: 6, margin: "6px 0 4px", flexWrap: "wrap" }}>
-          <select
-            value={club.account_status ?? "demo"}
-            disabled={savingAccount === `${club.id}:account_status`}
-            onChange={(e) => saveAccount(club.id, "account_status", e.target.value)}
-            title="Account status"
-            style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
-          >
-            {ACCOUNT_STATUSES.map((s) => <option key={s} value={s}>{titleCase(s)}</option>)}
-          </select>
-          <select
-            value={club.plan ?? ""}
-            disabled={savingAccount === `${club.id}:plan`}
-            onChange={(e) => saveAccount(club.id, "plan", e.target.value)}
-            title="Plan"
-            style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
-          >
-            <option value="">No plan</option>
-            {PLAN_TIERS.map((p) => <option key={p} value={p}>{titleCase(p)}</option>)}
-          </select>
-        </div>
-        <button className="sw-openadmin" onClick={() => setActiveClub(club.id)}>
-          Open admin →
-        </button>
-      </td>
-      {MODULE_CATALOG.map((m) => {
-        const st = statusFor(club.id, m.key);
-        const on = st === "enabled" || st === "trial";
-        const cell = `${club.id}:${m.key}`;
-        return (
-          <td key={m.key} className="sw-super-cell">
-            <button
-              type="button"
-              className={`sw-switch sw-switch--sm${on ? " on" : ""}`}
-              aria-pressed={on}
-              disabled={busy === cell}
-              title={st === "default" ? "Using site default" : st}
-              onClick={() => toggle(club.id, m.key, on)}
+    <Fragment key={club.id}>
+      <tr>
+        <td className="sw-super-clubcell">
+          <strong>{club.name}</strong>
+          <small>{club.slug}</small>
+          <div style={{ display: "flex", gap: 6, margin: "6px 0 4px", flexWrap: "wrap" }}>
+            <select
+              value={club.account_status ?? "demo"}
+              disabled={savingAccount === `${club.id}:account_status`}
+              onChange={(e) => saveAccount(club.id, "account_status", e.target.value)}
+              title="Account status"
+              style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
             >
-              <i />
+              {ACCOUNT_STATUSES.map((s) => <option key={s} value={s}>{titleCase(s)}</option>)}
+            </select>
+            <select
+              value={club.plan ?? ""}
+              disabled={savingAccount === `${club.id}:plan`}
+              onChange={(e) => saveAccount(club.id, "plan", e.target.value)}
+              title="Plan"
+              style={{ fontSize: 12, padding: "2px 4px", borderRadius: 6 }}
+            >
+              <option value="">No plan</option>
+              {PLAN_TIERS.map((p) => <option key={p} value={p}>{titleCase(p)}</option>)}
+            </select>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button className="sw-openadmin" onClick={() => setActiveClub(club.id)}>
+              Open admin →
             </button>
+            <button
+              className="sw-openadmin"
+              aria-expanded={onboardId === club.id}
+              onClick={() => setOnboardId((id) => (id === club.id ? null : club.id))}
+            >
+              {onboardId === club.id ? "Hide onboarding" : "Onboard →"}
+            </button>
+          </div>
+        </td>
+        {MODULE_CATALOG.map((m) => {
+          const st = statusFor(club.id, m.key);
+          const on = st === "enabled" || st === "trial";
+          const cell = `${club.id}:${m.key}`;
+          return (
+            <td key={m.key} className="sw-super-cell">
+              <button
+                type="button"
+                className={`sw-switch sw-switch--sm${on ? " on" : ""}`}
+                aria-pressed={on}
+                disabled={busy === cell}
+                title={st === "default" ? "Using site default" : st}
+                onClick={() => toggle(club.id, m.key, on)}
+              >
+                <i />
+              </button>
+            </td>
+          );
+        })}
+      </tr>
+      {onboardId === club.id && (
+        <tr className="sw1-onboard-exprow">
+          <td colSpan={1 + MODULE_CATALOG.length}>
+            <ClubOnboardingPanel club={{ id: club.id, name: club.name, slug: club.slug }} />
           </td>
-        );
-      })}
-    </tr>
+        </tr>
+      )}
+    </Fragment>
   );
 
   const tableFor = (list: AdminClub[]) => (
