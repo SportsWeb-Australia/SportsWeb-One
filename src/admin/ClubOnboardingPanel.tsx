@@ -36,7 +36,32 @@ const STATUS_LABEL: Record<string, string> = {
   archived: "Archived",
 };
 
-export function ClubOnboardingPanel({ club }: { club: Club }) {
+// SitePulse feedback shown in the Website check section (read-only; triage lives
+// in the SuperSitePulse inbox). Labels mirror the widget/inbox vocabulary.
+type FeedbackRow = {
+  id: string;
+  category: string;
+  description: string;
+  urgency_flag: boolean;
+  status: string;
+  created_at: string;
+};
+const FB_CATEGORY: Record<string, string> = {
+  spelling: "Spelling or wording", broken_link: "Broken link", incorrect_info: "Incorrect information",
+  missing_info: "Missing information", image_logo: "Image or logo issue", mobile_display: "Looks wrong on mobile",
+  desktop_display: "Looks wrong on desktop", sports_data: "Fixture / result / ladder", sponsor: "Sponsor or advertiser",
+  event_ticketing: "Event or ticketing", store: "Online store", accessibility: "Accessibility",
+  improvement: "Improvement idea", bug: "Something is broken", other: "Other",
+};
+const FB_STATUS: Record<string, string> = {
+  new: "New", needs_review: "Needs review", accepted: "Accepted", in_progress: "In progress",
+  waiting_on_club: "Waiting on club", waiting_on_sportsweb: "Waiting on us",
+  resolved: "Resolved", rejected: "Rejected", archived: "Archived",
+};
+// A feedback item is "open" until it's resolved/rejected/archived.
+const FB_CLOSED = ["resolved", "rejected", "archived"];
+
+export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenInbox?: () => void }) {
   const [copied, setCopied] = useState<"" | "id" | "link">("");
   const [sub, setSub] = useState<Submission>(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +70,14 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
   const [savingDrive, setSavingDrive] = useState(false);
   const [driveMsg, setDriveMsg] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+
+  // Website check: shareable draft-review link (reuses PR #9 preview_token +
+  // rotate_club_preview_token) and this club's returning SitePulse feedback.
+  const [previewToken, setPreviewToken] = useState<string | null>(null);
+  const [copiedPreview, setCopiedPreview] = useState(false);
+  const [rotating, setRotating] = useState(false);
+  const [shareErr, setShareErr] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
 
   // Link auto-fills with THIS club's id AND its upload drive (if set) - the form
   // reads both from the URL, so the club gets its own drive + submissions return linked.
@@ -61,7 +94,7 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
         setLoading(false);
         return;
       }
-      const [subRes, clubRes] = await Promise.all([
+      const [subRes, clubRes, fbRes] = await Promise.all([
         supabase
           .from("club_onboarding")
           .select("id,status,submitted_at,created_at,contact_name,contact_email,answers")
@@ -69,13 +102,21 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase.from("clubs").select("onboarding_drive_url").eq("id", club.id).maybeSingle(),
+        supabase.from("clubs").select("onboarding_drive_url,preview_token").eq("id", club.id).maybeSingle(),
+        supabase
+          .from("sitepulse_feedback")
+          .select("id,category,description,urgency_flag,status,created_at")
+          .eq("club_id", club.id)
+          .order("created_at", { ascending: false })
+          .limit(100),
       ]);
       if (!alive) return;
       setSub((subRes.data as Submission) ?? null);
       const d = (clubRes.data?.onboarding_drive_url as string) ?? "";
       setDrive(d);
       setSavedDrive(d);
+      setPreviewToken((clubRes.data?.preview_token as string) ?? null);
+      setFeedback((fbRes.data as FeedbackRow[]) ?? []);
       setLoading(false);
     })();
     return () => {
@@ -133,6 +174,34 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
       `Thanks,\nThe SportsWeb One team`;
     return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
+
+  // Draft-review link (shareable, read-only, no login) + rotate to invalidate.
+  const previewUrl = previewToken ? `${window.location.origin}/?preview=${previewToken}` : "";
+  const copyPreview = async () => {
+    if (!previewUrl) return;
+    try {
+      await navigator.clipboard.writeText(previewUrl);
+      setCopiedPreview(true);
+      setTimeout(() => setCopiedPreview(false), 1600);
+    } catch {
+      window.prompt("Copy this review link:", previewUrl);
+    }
+  };
+  const regeneratePreview = async () => {
+    if (!supabase || rotating) return;
+    if (!window.confirm("Regenerate the review link? The current link will stop working.")) return;
+    setRotating(true);
+    setShareErr(null);
+    const { data, error } = await supabase.rpc("rotate_club_preview_token", { p_club_id: club.id });
+    setRotating(false);
+    if (error) {
+      setShareErr(error.message);
+      return;
+    }
+    setPreviewToken((data as string) ?? null);
+    setCopiedPreview(false);
+  };
+  const openFeedback = feedback.filter((f) => !FB_CLOSED.includes(f.status)).length;
 
   const fmt = (d?: string | null) =>
     d ? new Date(d).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) : "";
@@ -277,6 +346,74 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
         </div>
         <small>Send this to the club - their submission comes back linked to this club automatically.</small>
       </label>
+
+      {/* WEBSITE CHECK - draft-review link + returning SitePulse feedback */}
+      <div className="sw1-onboard-websitecheck" style={{ marginTop: 20, borderTop: "1px solid #e4e4e7", paddingTop: 16 }}>
+        <h4 className="sw1-onboard-title" style={{ fontSize: "1.02rem", margin: "0 0 10px" }}>Website check</h4>
+
+        {/* Draft review link */}
+        <label className="sw-admin-field sw1-onboard-row">
+          <span>Draft review link (share with the club - no login)</span>
+          <div className="sw1-onboard-field">
+            <input readOnly value={previewUrl} placeholder="Review link..." onFocus={(e) => e.currentTarget.select()} />
+            <button type="button" className="sw-btn" disabled={!previewUrl} onClick={copyPreview}>
+              {copiedPreview ? "Copied" : "Copy link"}
+            </button>
+            <button type="button" className="sw-btn sw-btn--ghost" disabled={rotating} onClick={regeneratePreview}>
+              {rotating ? "..." : "Regenerate"}
+            </button>
+            {previewUrl && (
+              <a className="sw-btn sw-btn--ghost" href={previewUrl} target="_blank" rel="noreferrer">Open</a>
+            )}
+          </div>
+          {shareErr && <small className="sw1-onboard-err">{shareErr}</small>}
+          <small>Send this to the club so they can review their draft and leave feedback - no login needed. This is the same link the "Feedback" button rides on in draft.</small>
+        </label>
+
+        {/* Returning feedback (read-only; triage in the inbox) */}
+        <div className="sw-admin-field sw1-onboard-row">
+          <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            Review feedback
+            {!loading && feedback.length > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 700, background: "#eff4ff", color: "#2563eb", borderRadius: 20, padding: "2px 10px" }}>
+                {feedback.length} item{feedback.length !== 1 ? "s" : ""} from the club's review
+                {openFeedback > 0 ? ` - ${openFeedback} open` : ""}
+              </span>
+            )}
+          </span>
+
+          {loading ? (
+            <small>Loading feedback...</small>
+          ) : feedback.length === 0 ? (
+            <small>No feedback yet - share the review link above.</small>
+          ) : (
+            <>
+              <div className="sw1-onboard-answers" style={{ marginTop: 6 }}>
+                {feedback.map((f) => (
+                  <div key={f.id} className="sw1-onboard-kv" style={{ alignItems: "start" }}>
+                    <span className="k">
+                      {FB_CATEGORY[f.category] ?? f.category}
+                      {f.urgency_flag ? <b style={{ color: "#b91c1c" }}> - urgent</b> : ""}
+                      <br />
+                      <small style={{ color: "#8a94a6", fontWeight: 400 }}>
+                        {fmt(f.created_at)} &middot; {FB_STATUS[f.status] ?? f.status}
+                      </small>
+                    </span>
+                    <span className="v">{f.description}</span>
+                  </div>
+                ))}
+              </div>
+              {onOpenInbox && (
+                <div style={{ marginTop: 10 }}>
+                  <button type="button" className="sw-btn sw-btn--ghost" onClick={onOpenInbox}>
+                    Open in inbox for triage &rarr;
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

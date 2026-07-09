@@ -22,7 +22,7 @@ const SPORT_LABELS: Record<string, string> = {
 const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "—");
 
 /** Platform operator view: every club, with per-module enable/disable. */
-export function SuperClubs() {
+export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
   const { setActiveClub } = useActiveClub();
   const [clubs, setClubs] = useState<AdminClub[]>([]);
   const [rows, setRows] = useState<AdminModuleRow[]>([]);
@@ -245,7 +245,7 @@ export function SuperClubs() {
       {onboardId === club.id && (
         <tr className="sw1-onboard-exprow">
           <td colSpan={1 + MODULE_CATALOG.length}>
-            <ClubOnboardingPanel club={{ id: club.id, name: club.name, slug: club.slug }} />
+            <ClubOnboardingPanel club={{ id: club.id, name: club.name, slug: club.slug }} onOpenInbox={onOpenInbox} />
           </td>
         </tr>
       )}
