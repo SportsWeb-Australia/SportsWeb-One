@@ -229,6 +229,10 @@ export interface BlockToggles {
 }
 
 export interface ClubConfig {
+  /** The club's uuid (clubs.id), set by loadClub for a resolved club. Undefined
+   *  for the static/neutral fallback. Used to key public-site widgets (e.g. the
+   *  SitePulse feedback widget) off club_id. */
+  clubId?: string;
   /** Selected design template. Clubs choose this; layout stays identical. */
   variant: DesignVariant;
   /** Floating Heritage/Broadcast preview toggle. Turn off for production. */
