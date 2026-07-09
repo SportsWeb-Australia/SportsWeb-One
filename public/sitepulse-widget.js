@@ -20,6 +20,10 @@
   var CLUB_ID = thisScript && thisScript.getAttribute("data-club-id");
   // Optional: <script ... data-source="onboarding"> to log website-check items.
   var SOURCE = (thisScript && thisScript.getAttribute("data-source")) || "report";
+  // Publish lifecycle (from the injector): "draft" -> review-phase copy ("Feedback"),
+  // "published" -> live-site copy ("Report an issue"). Display only; nothing stored.
+  var STATUS = (thisScript && thisScript.getAttribute("data-website-status")) || "";
+  var LIVE = STATUS === "published";
 
   // Categories MUST match the sitepulse_feedback CHECK constraint -- do not invent values.
   var CATEGORIES = [
@@ -113,14 +117,15 @@
     return '<option value="' + c[0] + '">' + c[1] + '</option>';
   }).join("");
 
-  var btnLabel = SOURCE === "onboarding" ? "Website check" : "Report an issue";
+  var btnLabel = SOURCE === "onboarding" ? "Website check" : (LIVE ? "Report an issue" : "Feedback");
+  var sendLabel = SOURCE === "onboarding" ? "Send" : (LIVE ? "Report an issue" : "Send feedback");
 
   root.innerHTML =
     '<style>' + css + '</style>' +
     '<button class="btn" id="sp-open">' + SHIELD + btnLabel + '</button>' +
     '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card">' +
       '<div class="head"><span class="mark">' + SHIELD + '</span>' +
-        '<div><p class="title">Tell us about this page</p></div>' +
+        '<div><p class="title">' + btnLabel + '</p></div>' +
         '<button class="x" id="sp-close" aria-label="Close">&times;</button></div>' +
       '<p class="sub">Spotted something? Let us know -- takes 15 seconds.</p>' +
       '<label>What\'s it about?</label><select id="sp-cat">' + opts + '</select>' +
@@ -131,7 +136,7 @@
       '<div id="sp-contactfields" style="display:none">' +
         '<label>Your name</label><input id="sp-name" type="text">' +
         '<label>Your email</label><input id="sp-email" type="email"></div>' +
-      '<button class="send" id="sp-send">Send</button>' +
+      '<button class="send" id="sp-send">' + sendLabel + '</button>' +
       '<div class="err" id="sp-err"></div>' +
       '<p class="foot">Powered by SitePulse</p>' +
     '</div></div>';
@@ -194,7 +199,7 @@
         '</p><p class="foot">Reference: ' + ref + '</p></div>';
       setTimeout(closeM, 2200);
     }).catch(function (e) {
-      btn.disabled = false; btn.textContent = "Send";
+      btn.disabled = false; btn.textContent = sendLabel;
       err.textContent = e.message || "Something went wrong. Please try again.";
       err.style.display = "block";
     });

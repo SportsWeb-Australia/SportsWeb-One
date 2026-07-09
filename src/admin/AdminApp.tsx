@@ -418,7 +418,7 @@ function AdminInner() {
               activeRole === "club_senior_admin" ||
               activeRole === "super_admin") && (
               <button data-active={active === "__feedback"} onClick={() => setActive("__feedback")}>
-                Feedback
+                {club.websiteStatus === "published" ? "Report an issue" : "Feedback"}
               </button>
             )}
           {hasClub && (
@@ -825,7 +825,7 @@ function AdminInner() {
         ) : effectiveActive === "__needs" && hasClub ? (
           <NeedsWizard clubId={clubId!} filledBy={isPlatformAdmin ? "admin" : "club"} />
         ) : effectiveActive === "__feedback" && hasClub ? (
-          <AdminFeedback clubId={clubId!} />
+          <AdminFeedback clubId={clubId!} websiteStatus={club.websiteStatus} />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
         ) : effectiveActive.startsWith("__partner_") ? (
