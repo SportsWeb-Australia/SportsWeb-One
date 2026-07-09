@@ -233,6 +233,12 @@ export interface ClubConfig {
    *  for the static/neutral fallback. Used to key public-site widgets (e.g. the
    *  SitePulse feedback widget) off club_id. */
   clubId?: string;
+  /** True when this config was resolved via a shareable draft preview token
+   *  (?preview=<token>): read-only draft render, noindex, "not yet public" banner. */
+  previewMode?: boolean;
+  /** True when a ?preview token was supplied but is invalid/expired: App shows a
+   *  friendly "preview link no longer active" screen instead of the site. */
+  previewInactive?: boolean;
   /** Selected design template. Clubs choose this; layout stays identical. */
   variant: DesignVariant;
   /** Floating Heritage/Broadcast preview toggle. Turn off for production. */

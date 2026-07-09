@@ -23,11 +23,53 @@ export function PublishControl({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  // Shareable read-only draft-preview link (no login) for committee/testers.
+  const [token, setToken] = useState<string | null>(null);
+  const [rotating, setRotating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [shareErr, setShareErr] = useState<string | null>(null);
+
   // Re-sync when the active club (or its loaded status) changes.
   useEffect(() => {
     setStatus(initialStatus);
     setErr(null);
   }, [initialStatus, clubId]);
+
+  // Load this club's preview token (club admins can read their own clubs row).
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!supabase) return;
+      const { data } = await supabase.from("clubs").select("preview_token").eq("id", clubId).single();
+      if (alive) setToken((data?.preview_token as string) ?? null);
+    })();
+    return () => { alive = false; };
+  }, [clubId]);
+
+  const previewUrl = token ? `${window.location.origin}/?preview=${token}` : "";
+
+  const copyLink = async () => {
+    if (!previewUrl) return;
+    try {
+      await navigator.clipboard.writeText(previewUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      window.prompt("Copy this preview link:", previewUrl);
+    }
+  };
+
+  const regenerate = async () => {
+    if (!supabase || rotating) return;
+    if (!window.confirm("Regenerate the preview link? The current link will stop working.")) return;
+    setRotating(true);
+    setShareErr(null);
+    const { data, error } = await supabase.rpc("rotate_club_preview_token", { p_club_id: clubId });
+    setRotating(false);
+    if (error) { setShareErr(error.message); return; }
+    setToken((data as string) ?? null);
+    setCopied(false);
+  };
 
   if (!status) return null;
 
@@ -89,6 +131,32 @@ export function PublishControl({
         {!published && (suspended ? isPlatformAdmin : true) && publishBtn}
       </div>
       {err && <div className="sw-pub-err">{err}</div>}
+
+      {/* Shareable read-only draft preview -- no login; reviewers can leave SitePulse feedback. */}
+      <div style={{ marginTop: 10, borderTop: "1px solid #e4e4e7", paddingTop: 10 }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase", color: "#2563eb", marginBottom: 6 }}>
+          Share draft for review
+        </div>
+        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+          <input
+            readOnly
+            value={previewUrl}
+            placeholder="Preview link..."
+            onFocus={(e) => e.currentTarget.select()}
+            style={{ flex: "1 1 200px", minWidth: 160, fontSize: 12.5, padding: "7px 9px", borderRadius: 8, border: "1px solid #d7dbe3" }}
+          />
+          <button type="button" className="sw-btn sw-btn--ghost" disabled={!previewUrl} onClick={copyLink}>
+            {copied ? "Copied" : "Copy"}
+          </button>
+          <button type="button" className="sw-btn sw-btn--ghost" disabled={rotating} onClick={regenerate}>
+            {rotating ? "…" : "Regenerate"}
+          </button>
+        </div>
+        <p className="sw-comms-note" style={{ marginTop: 6 }}>
+          Anyone with this link can view the draft read-only and leave feedback. Regenerate to invalidate the old link.
+        </p>
+        {shareErr && <div className="sw-pub-err">{shareErr}</div>}
+      </div>
     </div>
   );
 }
