@@ -227,8 +227,8 @@ export default function App() {
           <Footer />
           <MobileTabBar />
           <AppPrompts />
-          {/* Public-site feedback widget (SitePulse). Club public site only, keyed off club_id. */}
-          <SitePulseWidget clubId={club.clubId} />
+          {/* Public-site feedback widget (SitePulse). Draft -> everyone; published -> admins only. */}
+          <SitePulseWidget clubId={club.clubId} websiteStatus={club.websiteStatus} />
         </EditProvider>
       </ClubContext.Provider>
     </AuthProvider>
