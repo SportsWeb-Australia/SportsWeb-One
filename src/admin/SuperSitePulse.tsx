@@ -173,6 +173,89 @@ export function SuperSitePulse() {
   );
 }
 
+type Comment = { id: string; author_type: string; body: string; visibility: string; created_at: string };
+
+// Internal notes on a feedback row. cm_select/cm_insert RLS: platform admins see
+// and add all; internal notes are never shown to the person who submitted feedback.
+function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!supabase) { setLoading(false); return; }
+      setLoading(true);
+      const { data } = await supabase
+        .from("sitepulse_comments")
+        .select("id,author_type,body,visibility,created_at")
+        .eq("feedback_id", feedbackId)
+        .order("created_at", { ascending: false });
+      if (alive) { setComments((data as Comment[]) ?? []); setLoading(false); }
+    })();
+    return () => { alive = false; };
+  }, [feedbackId]);
+
+  const add = async () => {
+    if (!supabase) return;
+    const body = note.trim();
+    if (!body) return;
+    setSaving(true); setErr(null);
+    const { data, error } = await supabase
+      .from("sitepulse_comments")
+      .insert({ feedback_id: feedbackId, club_id: clubId, author_type: "team", visibility: "internal", body })
+      .select("id,author_type,body,visibility,created_at")
+      .single();
+    setSaving(false);
+    if (error) { setErr(error.message); return; }
+    setComments((c) => [data as Comment, ...c]);
+    setNote("");
+  };
+
+  const fmt = (d: string) => {
+    try { return new Date(d).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+    catch { return d; }
+  };
+
+  return (
+    <div style={{ marginTop: 12, borderTop: "1px solid #e4e4e7", paddingTop: 10 }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase", color: "#2563eb", marginBottom: 6 }}>Internal notes</div>
+      {loading ? (
+        <div className="sw-muted" style={{ fontSize: 12.5 }}>Loading notes...</div>
+      ) : comments.length === 0 ? (
+        <div className="sw-muted" style={{ fontSize: 12.5, marginBottom: 6 }}>No internal notes yet.</div>
+      ) : (
+        <ul style={{ listStyle: "none", margin: "0 0 8px", padding: 0 }}>
+          {comments.map((c) => (
+            <li key={c.id} style={{ fontSize: 12.5, padding: "5px 0", borderBottom: "1px solid #f1f5f9" }}>
+              <span style={{ whiteSpace: "pre-wrap" }}>{c.body}</span>
+              <span style={{ color: "#8a94a6", marginLeft: 8 }}>
+                {c.visibility === "internal" ? "internal" : "client-visible"} &middot; {fmt(c.created_at)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Add an internal note (not shown to the person who reported it)..."
+          rows={2}
+          style={{ flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 8, border: "1px solid #d7dbe3", resize: "vertical" }}
+        />
+        <button className="sw-btn sw-btn--ghost" disabled={saving || !note.trim()} onClick={add}>
+          {saving ? "Adding..." : "Add note"}
+        </button>
+      </div>
+      {err && <div className="sw1-onboard-err" style={{ marginTop: 4 }}>{err}</div>}
+    </div>
+  );
+}
+
 function FeedbackRow({
   r, open, onToggle, onStatus, saving, clubName, fmt,
 }: {
@@ -217,6 +300,7 @@ function FeedbackRow({
               <div style={{ color: "#667085" }}>
                 {[r.device_type, r.browser, r.os, r.viewport].filter(Boolean).join(" &middot; ").replace(/&middot;/g, "·")}
               </div>
+              <Comments feedbackId={r.id} clubId={r.club_id} />
             </div>
           </td>
         </tr>
