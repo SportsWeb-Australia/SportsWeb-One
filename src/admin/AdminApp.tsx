@@ -17,6 +17,7 @@ import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor } from "./AdminSiteEditor";
 import { PublishControl } from "./PublishControl";
+import { AdminFeedback } from "./AdminFeedback";
 import { AdminDashboard } from "./AdminDashboard";
 import { ModulePrePage, COMING_SOON_MODULES, type ModulePre } from "./ModulePrePage";
 import { getModule } from "../lib/modules";
@@ -411,6 +412,15 @@ function AdminInner() {
               Needs analysis
             </button>
           )}
+          {hasClub &&
+            (isPlatformAdmin ||
+              activeRole === "club_admin" ||
+              activeRole === "club_senior_admin" ||
+              activeRole === "super_admin") && (
+              <button data-active={active === "__feedback"} onClick={() => setActive("__feedback")}>
+                Feedback
+              </button>
+            )}
           {hasClub && (
             <>
               <button type="button" className="sw-admin-navgroup" data-open={groupOpen("workspace")} onClick={() => toggleGroup("workspace")}>
@@ -814,6 +824,8 @@ function AdminInner() {
           />
         ) : effectiveActive === "__needs" && hasClub ? (
           <NeedsWizard clubId={clubId!} filledBy={isPlatformAdmin ? "admin" : "club"} />
+        ) : effectiveActive === "__feedback" && hasClub ? (
+          <AdminFeedback clubId={clubId!} />
         ) : effectiveActive.startsWith("__ws_") && hasClub ? (
           <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
         ) : effectiveActive.startsWith("__partner_") ? (
