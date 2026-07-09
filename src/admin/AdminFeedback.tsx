@@ -36,26 +36,45 @@ function osName() {
 
 type Row = { id: string; category: string; description: string; urgency_flag: boolean; created_at: string; status: string };
 
-export function AdminFeedback({ clubId }: { clubId: string }) {
+// Copy follows the publish lifecycle (websiteStatus), the same trigger the widget
+// uses: draft = review phase ("Feedback" / "My feedback"), published = live site
+// ("Report an issue" / "My issues"). Display only -- stored values are unchanged.
+type SiteStatus = "draft" | "published" | "suspended";
+function labelsFor(status?: SiteStatus) {
+  const live = status === "published";
+  return {
+    entry: live ? "Report an issue" : "Feedback",           // raise view + report tab
+    tracker: live ? "My issues" : "My feedback",             // track view + tab
+    submit: live ? "Report an issue" : "Send feedback",      // submit button
+    intro: live
+      ? "Report an issue with your website, or track what you've reported."
+      : "Share feedback on your website, or track what you've sent.",
+  };
+}
+
+export function AdminFeedback({ clubId, websiteStatus }: { clubId: string; websiteStatus?: SiteStatus }) {
   const [view, setView] = useState<"report" | "mine">("report");
+  const L = labelsFor(websiteStatus);
   return (
     <div className="sw-admin-page">
       <header className="sw-admin-head">
         <div>
-          <h1>Feedback</h1>
-          <p>Report an issue with your website, or track what you've reported.</p>
+          <h1>{view === "report" ? L.entry : L.tracker}</h1>
+          <p>{L.intro}</p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button className={`sw-btn${view === "report" ? "" : " sw-btn--ghost"}`} onClick={() => setView("report")}>Report an issue</button>
-          <button className={`sw-btn${view === "mine" ? "" : " sw-btn--ghost"}`} onClick={() => setView("mine")}>My issues</button>
+          <button className={`sw-btn${view === "report" ? "" : " sw-btn--ghost"}`} onClick={() => setView("report")}>{L.entry}</button>
+          <button className={`sw-btn${view === "mine" ? "" : " sw-btn--ghost"}`} onClick={() => setView("mine")}>{L.tracker}</button>
         </div>
       </header>
-      {view === "report" ? <ReportForm clubId={clubId} onDone={() => setView("mine")} /> : <MyIssues clubId={clubId} />}
+      {view === "report"
+        ? <ReportForm clubId={clubId} onDone={() => setView("mine")} submitLabel={L.submit} trackerLabel={L.tracker} />
+        : <MyIssues clubId={clubId} />}
     </div>
   );
 }
 
-function ReportForm({ clubId, onDone }: { clubId: string; onDone: () => void }) {
+function ReportForm({ clubId, onDone, submitLabel, trackerLabel }: { clubId: string; onDone: () => void; submitLabel: string; trackerLabel: string }) {
   const [category, setCategory] = useState("bug");
   const [description, setDescription] = useState("");
   const [urgent, setUrgent] = useState(false);
@@ -93,10 +112,10 @@ function ReportForm({ clubId, onDone }: { clubId: string; onDone: () => void }) 
     return (
       <div className="sw-super-create" style={{ maxWidth: 560 }}>
         <h3>Thanks — we've logged it.</h3>
-        <p className="sw-comms-note">Your issue is with the SportsWeb One team. Reference: {ref}. Track its status under <b>My issues</b>.</p>
+        <p className="sw-comms-note">It's with the SportsWeb One team now. Reference: {ref}. Track its status under <b>{trackerLabel}</b>.</p>
         <div className="sw-comms-actions">
-          <button className="sw-btn" onClick={() => { setRef(null); onDone(); }}>View my issues</button>
-          <button className="sw-btn sw-btn--ghost" onClick={() => setRef(null)}>Report another</button>
+          <button className="sw-btn" onClick={() => { setRef(null); onDone(); }}>View {trackerLabel.toLowerCase()}</button>
+          <button className="sw-btn sw-btn--ghost" onClick={() => setRef(null)}>Send another</button>
         </div>
       </div>
     );
@@ -124,7 +143,7 @@ function ReportForm({ clubId, onDone }: { clubId: string; onDone: () => void }) 
       </label>
       {err && <div className="sw-comms-result err" style={{ marginTop: 10 }}>{err}</div>}
       <div className="sw-comms-actions">
-        <button className="sw-btn" disabled={busy} onClick={submit}>{busy ? "Sending…" : "Submit issue"}</button>
+        <button className="sw-btn" disabled={busy} onClick={submit}>{busy ? "Sending…" : submitLabel}</button>
       </div>
     </div>
   );
@@ -173,7 +192,7 @@ function MyIssues({ clubId }: { clubId: string }) {
       {loading ? (
         <p className="sw-muted">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="sw-muted">You haven't reported anything yet. Use “Report an issue” to raise one.</p>
+        <p className="sw-muted">Nothing here yet. Anything you send will show up here with its status.</p>
       ) : filtered.length === 0 ? (
         <p className="sw-muted">No issues match that status.</p>
       ) : (

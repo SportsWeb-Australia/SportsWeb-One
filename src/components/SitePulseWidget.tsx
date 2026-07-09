@@ -38,6 +38,8 @@ export function SitePulseWidget({
       s.src = "/sitepulse-widget.js";
       s.async = true;
       s.setAttribute("data-club-id", clubId);
+      // Lifecycle label: draft -> "Feedback", published -> "Report an issue" (copy only).
+      if (websiteStatus) s.setAttribute("data-website-status", websiteStatus);
       document.body.appendChild(s);
     };
 
