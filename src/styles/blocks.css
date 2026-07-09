@@ -2265,6 +2265,33 @@
 .sw-studio-note li { margin: 0.3rem 0; }
 
 /* ============================================================================
+ * Club onboarding panel (SuperClubs -> "Onboard this club"). Admin chrome only,
+ * so it stays neutral / SportsWeb blue - no club tinting.
+ * ========================================================================== */
+.sw1-onboard {
+  border: 1px solid #e4e4e7; border-radius: 12px; padding: 1.1rem 1.2rem;
+  margin: 0.5rem 0; background: var(--surface-2, #f6f6f7); text-align: left;
+}
+.sw1-onboard-title { margin: 0 0 0.7rem; font-size: 1rem; }
+.sw1-onboard-status { font-size: 0.82rem; border-radius: 8px; padding: 0.55rem 0.7rem; margin-bottom: 0.8rem; }
+.sw1-onboard-status.is-wait { background: #fef3c7; color: #92600a; }
+.sw1-onboard-status.is-in { background: #dcfce7; color: #15803d; }
+.sw1-onboard-steps { list-style: none; margin: 0 0 0.9rem; padding: 0; font-size: 0.82rem; line-height: 1.7; color: var(--text-soft); }
+.sw1-onboard-steps li.is-done { color: var(--text, #11161f); }
+.sw1-onboard-tick { display: inline-block; width: 16px; color: #94a3b8; font-weight: 700; }
+.sw1-onboard-steps li.is-done .sw1-onboard-tick { color: #16a34a; }
+.sw1-onboard-row { margin-top: 0.8rem; }
+.sw1-onboard-field { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.sw1-onboard-field input { flex: 1 1 260px; }
+.sw1-onboard-mono {
+  flex: 1 1 260px; font-family: var(--font-mono); font-size: 0.78rem;
+  background: #eef1f5; padding: 0.5rem 0.6rem; border-radius: 8px; word-break: break-all; color: #11161f;
+}
+.sw1-onboard-err { color: #dc2626; }
+.sw1-onboard a.sw-btn { text-decoration: none; display: inline-flex; align-items: center; }
+.sw1-onboard-exprow > td { background: #fbfbfc; padding: 0 0.5rem 0.6rem; }
+
+/* ============================================================================
  * SPORT TEMPLATES (EOFYS batch) — layout CSS. Colours come from the per-variant
  * token blocks in tokens.css, so these rules stay palette-agnostic.
  * ========================================================================== */
