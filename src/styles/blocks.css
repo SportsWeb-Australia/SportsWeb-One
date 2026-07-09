@@ -2273,7 +2273,7 @@
   margin: 0.5rem 0; background: var(--surface-2, #f6f6f7); text-align: left;
 }
 .sw1-onboard-title { margin: 0 0 0.7rem; font-size: 1rem; }
-.sw1-onboard-status { font-size: 0.82rem; border-radius: 8px; padding: 0.55rem 0.7rem; margin-bottom: 0.8rem; }
+.sw1-onboard-status { font-size: 0.82rem; border-radius: 8px; padding: 0.55rem 0.7rem; margin-bottom: 0.8rem; display: flex; gap: 0.4rem 0.7rem; align-items: center; flex-wrap: wrap; }
 .sw1-onboard-status.is-wait { background: #fef3c7; color: #92600a; }
 .sw1-onboard-status.is-in { background: #dcfce7; color: #15803d; }
 .sw1-onboard-steps { list-style: none; margin: 0 0 0.9rem; padding: 0; font-size: 0.82rem; line-height: 1.7; color: var(--text-soft); }
@@ -2290,6 +2290,17 @@
 .sw1-onboard-err { color: #dc2626; }
 .sw1-onboard a.sw-btn { text-decoration: none; display: inline-flex; align-items: center; }
 .sw1-onboard-exprow > td { background: #fbfbfc; padding: 0 0.5rem 0.6rem; }
+/* submitted-answers drill-down */
+.sw1-onboard-answers { border: 1px solid #e4e4e7; border-radius: 10px; padding: 0.75rem 0.9rem; margin: 0 0 0.8rem; background: #fff; }
+.sw1-onboard-ansec { margin-top: 0.7rem; }
+.sw1-onboard-ansec:first-child { margin-top: 0; }
+.sw1-onboard-ansec h4 { font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: #2563eb; margin-bottom: 0.35rem; }
+.sw1-onboard-kv { display: grid; grid-template-columns: 190px 1fr; gap: 0.25rem 0.9rem; font-size: 0.82rem; padding: 0.2rem 0; border-bottom: 1px solid #eef2f7; align-items: center; }
+.sw1-onboard-kv .k { color: var(--text-soft); font-weight: 600; }
+.sw1-onboard-kv .v { color: #11161f; white-space: pre-wrap; word-break: break-word; }
+.sw1-onboard-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.35rem; }
+.sw1-onboard-chips span { font-size: 0.7rem; background: #eef2f7; border-radius: 20px; padding: 0.2rem 0.6rem; color: #0d1f3c; }
+@media (max-width: 640px) { .sw1-onboard-kv { grid-template-columns: 1fr; } }
 
 /* ============================================================================
  * SPORT TEMPLATES (EOFYS batch) — layout CSS. Colours come from the per-variant
