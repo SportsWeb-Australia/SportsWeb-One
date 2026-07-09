@@ -57,8 +57,31 @@ function formatMatchDate(value: string | null): string {
  * always complete. If Supabase isn't reachable or the club isn't found, the
  * full static config is used.
  */
+/** Resolve a club from a shareable draft-preview token (?preview=<token>): a
+ *  no-login, read-only draft render. Uses the token-gated SECURITY DEFINER RPC
+ *  get_club_by_preview_token (which returns only public-site columns). Invalid or
+ *  expired token -> previewInactive so App can show a friendly "not active" state. */
+async function loadPreviewClub(token: string): Promise<ClubConfig> {
+  if (!supabase) return { ...emptyClub, previewInactive: true };
+  try {
+    const { data } = await supabase.rpc("get_club_by_preview_token", { p_token: token });
+    if (!data) return { ...emptyClub, previewInactive: true };
+    const cfg = await buildClubConfig(data as Record<string, any>);
+    cfg.websiteStatus = "draft"; // preview always renders as draft, whatever the real state
+    cfg.previewMode = true;
+    return cfg;
+  } catch {
+    return { ...emptyClub, previewInactive: true };
+  }
+}
+
 export async function getClubConfig(): Promise<ClubConfig> {
   if (!supabase) return staticClub;
+  // Shareable draft preview: ?preview=<token> short-circuits normal slug resolution.
+  const previewToken = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("preview")
+    : null;
+  if (previewToken) return await loadPreviewClub(previewToken);
   let slug = "";
   try {
     slug = await resolveClubSlug();

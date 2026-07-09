@@ -74,12 +74,30 @@ export default function App() {
   // the SportsWeb One entry page — unless a club preview override is active, in
   // which case we render that club's public site for demos/screenshots.
   const [platformHost] = useState(() => isPlatformHost());
+  const hasPreviewToken = new URLSearchParams(location.search).has("preview");
   const isPlatformFront =
-    location.pathname === "/" && platformHost && !hasPreviewClub();
+    location.pathname === "/" && platformHost && !hasPreviewClub() && !hasPreviewToken;
 
   useEffect(() => {
     registerServiceWorker();
   }, []);
+
+  // Draft preview renders must never be indexed. We manage a single robots meta
+  // (nothing else sets one) and remove it once out of preview mode.
+  useEffect(() => {
+    const head = document.head;
+    let m = head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
+    if (club.previewMode) {
+      if (!m) {
+        m = document.createElement("meta");
+        m.setAttribute("name", "robots");
+        head.appendChild(m);
+      }
+      m.setAttribute("content", "noindex,nofollow");
+    } else if (m && m.getAttribute("content") === "noindex,nofollow") {
+      m.remove();
+    }
+  }, [club.previewMode]);
 
   // The admin is its own SportsWeb One-branded installable app: when inside
   // /admin we swap the manifest, theme colour and app icon to SportsWeb One,
@@ -165,6 +183,18 @@ export default function App() {
     return <Guide />;
   }
 
+  // Shareable draft preview link that's invalid or expired.
+  if (club.previewInactive) {
+    return (
+      <div className="sw-admin-loading" style={{ textAlign: "center", maxWidth: 460, margin: "18vh auto", padding: "0 20px" }}>
+        <h1 style={{ fontSize: 22, marginBottom: 8 }}>This preview link is no longer active</h1>
+        <p style={{ color: "#667085", fontSize: 15 }}>
+          The link may have expired or been regenerated. Ask your SportsWeb One contact for a fresh preview link.
+        </p>
+      </div>
+    );
+  }
+
   // SportsWeb One front door: platform host root, no club chrome.
   if (isPlatformFront) {
     return (
@@ -196,11 +226,15 @@ export default function App() {
           </a>
           <ScrollToTop />
           <SeoManager />
-          {club.websiteStatus && club.websiteStatus !== "published" && (
+          {club.previewMode ? (
+            <div className="sw-draftbar" role="status">
+              Preview — this site is not yet public. You're viewing a shared draft for review.
+            </div>
+          ) : club.websiteStatus && club.websiteStatus !== "published" ? (
             <div className="sw-draftbar" role="status">
               Draft preview — not visible to the public yet
             </div>
-          )}
+          ) : null}
           <TrialBanner />
           <AnnouncementBar />
           <Header />
