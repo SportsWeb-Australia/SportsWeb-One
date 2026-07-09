@@ -26,6 +26,7 @@ type Submission = {
   created_at: string;
   contact_name: string | null;
   contact_email: string | null;
+  answers: any; // { sections:[{section,fields:[{label,value}],choices:[]}], uploads?:[{label,name,path?,error?}] }
 } | null;
 
 const STATUS_LABEL: Record<string, string> = {
@@ -43,6 +44,7 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
   const [savedDrive, setSavedDrive] = useState("");
   const [savingDrive, setSavingDrive] = useState(false);
   const [driveMsg, setDriveMsg] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Link auto-fills with THIS club's id AND its upload drive (if set) - the form
   // reads both from the URL, so the club gets its own drive + submissions return linked.
@@ -62,7 +64,7 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
       const [subRes, clubRes] = await Promise.all([
         supabase
           .from("club_onboarding")
-          .select("id,status,submitted_at,created_at,contact_name,contact_email")
+          .select("id,status,submitted_at,created_at,contact_name,contact_email,answers")
           .eq("club_id", club.id)
           .order("created_at", { ascending: false })
           .limit(1)
@@ -92,6 +94,14 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
     } catch {
       window.prompt("Copy this:", text);
     }
+  };
+
+  // Uploaded files live in the private club-onboarding Storage bucket; mint a
+  // short-lived signed URL to view/download (operator is authed via RLS SELECT).
+  const openFile = async (path: string) => {
+    if (!supabase) return;
+    const { data, error } = await supabase.storage.from("club-onboarding").createSignedUrl(path, 60);
+    if (!error && data?.signedUrl) window.open(data.signedUrl, "_blank");
   };
 
   const saveDrive = async () => {
@@ -146,16 +156,67 @@ export function ClubOnboardingPanel({ club }: { club: Club }) {
         {loading ? (
           <span>Checking onboarding status...</span>
         ) : submitted ? (
-          <span>
-            <strong>{STATUS_LABEL[sub!.status] ?? sub!.status}</strong>
-            {" - submitted "}
-            {fmt(sub!.submitted_at ?? sub!.created_at)}
-            {sub!.contact_name ? ` by ${sub!.contact_name}` : ""}
-          </span>
+          <>
+            <span>
+              <strong>{STATUS_LABEL[sub!.status] ?? sub!.status}</strong>
+              {" - submitted "}
+              {fmt(sub!.submitted_at ?? sub!.created_at)}
+              {sub!.contact_name ? ` by ${sub!.contact_name}` : ""}
+            </span>
+            <button type="button" className="sw-btn sw-btn--ghost" onClick={() => setShowDetails((v) => !v)}>
+              {showDetails ? "Hide details" : "View submitted details"}
+            </button>
+          </>
         ) : (
           <span>Not submitted yet - send the club their onboarding link below.</span>
         )}
       </div>
+
+      {/* SUBMITTED ANSWERS + UPLOADED FILES (inline drill-down) */}
+      {submitted && showDetails && (
+        <div className="sw1-onboard-answers">
+          {(sub!.answers?.sections ?? []).length === 0 && (
+            <small>No structured answers captured.</small>
+          )}
+          {(sub!.answers?.sections ?? []).map((s: any, i: number) => (
+            <div key={i} className="sw1-onboard-ansec">
+              <h4>{s.section}</h4>
+              {(s.fields ?? []).map((f: any, j: number) => (
+                <div key={j} className="sw1-onboard-kv">
+                  <span className="k">{f.label}</span>
+                  <span className="v">{f.value}</span>
+                </div>
+              ))}
+              {(s.choices ?? []).length > 0 && (
+                <div className="sw1-onboard-chips">
+                  {s.choices.map((c: string, k: number) => (
+                    <span key={k}>{c}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          {(sub!.answers?.uploads ?? []).length > 0 && (
+            <div className="sw1-onboard-ansec">
+              <h4>Uploaded files</h4>
+              {sub!.answers.uploads.map((u: any, i: number) => (
+                <div key={i} className="sw1-onboard-kv">
+                  <span className="k">{u.label}</span>
+                  <span className="v">
+                    {u.path ? (
+                      <button type="button" className="sw-btn sw-btn--ghost" onClick={() => openFile(u.path)}>
+                        {u.name} &darr;
+                      </button>
+                    ) : (
+                      <em>{u.name} - {u.error || "not uploaded"}</em>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* PROGRESS CHECKLIST */}
       <ol className="sw1-onboard-steps">
