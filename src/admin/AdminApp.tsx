@@ -880,7 +880,7 @@ function AdminInner() {
         ) : effectiveActive === "__biz" && can("platform.clubs") ? (
           <PlatformDashboard go={setActive} platformRole={platformRole} />
         ) : effectiveActive === "__super_clubs" && can("platform.clubs") ? (
-          <SuperClubs />
+          <SuperClubs onOpenInbox={() => setActive("__super_sitepulse")} />
         ) : effectiveActive === "__super_launches" && (can("platform.clubs") || isOperator) ? (
           <LaunchTracker />
         ) : effectiveActive === "__super_team" && can("platform.clubs") ? (
