@@ -18,7 +18,12 @@
 //   SITEPULSE_WEBHOOK_SECRET  - shared secret, must match the trigger's Vault value
 //   SITEPULSE_ALERT_EMAIL     - recipient (operator ops inbox). If unset, nothing is sent.
 //   ZEPTOMAIL_TOKEN           - reused from dispatch-message (already set)
-//   ZEPTOMAIL_FROM            - reused from dispatch-message (already set)
+//   ZEPTOMAIL_API_HOST        - ZeptoMail data centre host. THIS ACCOUNT IS AU:
+//                               set api.zeptomail.com.au (default api.zeptomail.com 500s here).
+//   From sender (must be a VERIFIED ZeptoMail sender) resolves in this order:
+//     ZEPTOMAIL_NOTIFY_FROM -> ZEPTOMAIL_TRIAL_FROM -> ZEPTOMAIL_FROM
+//     (plain ZEPTOMAIL_FROM is NOT verified on this account; TRIAL_FROM =
+//      volunteers@sportsweb.com.au works. Set ZEPTOMAIL_NOTIFY_FROM to override.)
 //   ZEPTOMAIL_FROM_NAME       - optional; defaults to "SportsWeb One"
 //   SITEPULSE_ADMIN_URL       - optional; admin app URL for the inbox link
 //                               (default https://sportsweb-one-v1.vercel.app)
@@ -44,15 +49,24 @@ function esc(s: string) {
 }
 
 async function sendEmail(to: string, subject: string, bodyLines: string[]) {
-  const token = Deno.env.get("ZEPTOMAIL_TOKEN");
-  const from = Deno.env.get("ZEPTOMAIL_FROM");
+  const rawToken = Deno.env.get("ZEPTOMAIL_TOKEN");
+  // From must be a verified ZeptoMail sender. Prefer a dedicated notify sender,
+  // then the trial sender (known verified: hello@sportsweb.com.au), then the club from.
+  const from =
+    Deno.env.get("ZEPTOMAIL_NOTIFY_FROM") ??
+    Deno.env.get("ZEPTOMAIL_TRIAL_FROM") ??
+    Deno.env.get("ZEPTOMAIL_FROM");
   const fromName = Deno.env.get("ZEPTOMAIL_FROM_NAME") ?? "SportsWeb One";
-  if (!token || !from) return { sent: 0, skipped: "zeptomail-not-configured" };
+  if (!rawToken || !from) return { sent: 0, skipped: "zeptomail-not-configured" };
+  // Normalize: strip an accidental "Zoho-enczapikey " prefix and any whitespace/newline
+  // in the stored secret, so the Authorization header is never doubled/malformed.
+  const token = rawToken.trim().replace(/^Zoho-enczapikey\s+/i, "");
   const html =
     `<div style="font-family:system-ui,Arial,sans-serif;font-size:15px;line-height:1.6">` +
     bodyLines.map((l) => esc(l)).join("<br>") +
     `</div>`;
-  const res = await fetch("https://api.zeptomail.com/v1.1/email", {
+  const host = Deno.env.get("ZEPTOMAIL_API_HOST") ?? "api.zeptomail.com";
+  const res = await fetch(`https://${host}/v1.1/email`, {
     method: "POST",
     headers: { Authorization: `Zoho-enczapikey ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -62,7 +76,11 @@ async function sendEmail(to: string, subject: string, bodyLines: string[]) {
       htmlbody: html,
     }),
   });
-  return { sent: res.ok ? 1 : 0, status: res.status };
+  // On failure, keep a short slice of ZeptoMail's response for ops debugging
+  // (lands in net._http_response.content; contains no secrets).
+  let detail: string | undefined;
+  if (!res.ok) { try { detail = (await res.text()).slice(0, 300); } catch { /* ignore */ } }
+  return { sent: res.ok ? 1 : 0, status: res.status, ...(detail ? { detail } : {}) };
 }
 
 Deno.serve(async (req) => {
@@ -120,7 +138,7 @@ Deno.serve(async (req) => {
 
   try {
     const r = await sendEmail(recipient, subject, body);
-    return json({ ok: r.sent > 0, result: r });
+    return json({ ok: r.sent > 0, subject, result: r });
   } catch (e) {
     // Reported for logs; the DB trigger is exception-safe so the row still commits.
     return json({ ok: false, error: String(e) }, 500);
