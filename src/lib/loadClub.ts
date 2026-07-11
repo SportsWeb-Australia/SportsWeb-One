@@ -66,7 +66,7 @@ async function loadPreviewClub(token: string): Promise<ClubConfig> {
   try {
     const { data } = await supabase.rpc("get_club_by_preview_token", { p_token: token });
     if (!data) return { ...emptyClub, previewInactive: true };
-    const cfg = await buildClubConfig(data as Record<string, any>);
+    const cfg = await buildClubConfig(data as Record<string, any>, { previewToken: token });
     cfg.websiteStatus = "draft"; // preview always renders as draft, whatever the real state
     cfg.previewMode = true;
     return cfg;
@@ -141,8 +141,10 @@ export async function getClubConfigById(clubId: string): Promise<ClubConfig> {
   }
 }
 
-/** Build a complete ClubConfig from a clubs row (shared by both loaders). */
-async function buildClubConfig(clubRow: Record<string, any>): Promise<ClubConfig> {
+/** Build a complete ClubConfig from a clubs row (shared by both loaders).
+ *  opts.previewToken: when set (draft-preview render), club_content is read via the
+ *  token-gated RPC instead of a direct select, so it survives the leak-fix policy. */
+async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewToken?: string }): Promise<ClubConfig> {
   if (!supabase) return (clubRow.slug ?? "") === staticClub.identity.slug ? staticClub : emptyClub;
   const clubId = clubRow.id;
 
@@ -429,10 +431,28 @@ async function buildClubConfig(clubRow: Record<string, any>): Promise<ClubConfig
     cfg.enabledModules = [...enabledKeys];
 
     // Inline content overrides (hero copy, images, etc.) edited on the live site.
-    const { data: contentRows, error: contentErr } = await supabase
-      .from("club_content")
-      .select("content_key,value")
-      .eq("club_id", clubId);
+    // Normal path reads club_content directly (RLS-scoped: published clubs for anon,
+    // own clubs for admins). The draft PREVIEW path (anon, no login) reads via the
+    // token-gated RPC, because the leak fix (supabase/club-content-preview-leak.sql)
+    // restricts the public read to published clubs -- a direct select would return
+    // 0 rows for a draft. Falls back to the direct select if the RPC isn't deployed
+    // yet (pre-apply), so preview keeps working either way.
+    let contentRows: { content_key: string; value: string }[] | null = null;
+    let contentErr: unknown = null;
+    if (opts?.previewToken) {
+      const rpc = await supabase.rpc("get_club_content_by_preview_token", { p_token: opts.previewToken });
+      if (!rpc.error && Array.isArray(rpc.data)) {
+        contentRows = rpc.data as { content_key: string; value: string }[];
+      } else {
+        const direct = await supabase.from("club_content").select("content_key,value").eq("club_id", clubId);
+        contentRows = (direct.data as { content_key: string; value: string }[] | null) ?? null;
+        contentErr = direct.error;
+      }
+    } else {
+      const direct = await supabase.from("club_content").select("content_key,value").eq("club_id", clubId);
+      contentRows = (direct.data as { content_key: string; value: string }[] | null) ?? null;
+      contentErr = direct.error;
+    }
     if (!contentErr && contentRows && contentRows.length) {
       const map: Record<string, string> = {};
       for (const r of contentRows) if (r.value != null) map[r.content_key] = r.value;
