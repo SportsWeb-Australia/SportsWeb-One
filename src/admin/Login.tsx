@@ -16,6 +16,7 @@ export function Login() {
   const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
@@ -88,13 +89,29 @@ export function Login() {
         </label>
         <label className="sw-admin-field">
           <span>Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
-            autoComplete="current-password"
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPw ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submit()}
+              autoComplete="current-password"
+              style={{ width: "100%", paddingRight: 60 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              aria-label={showPw ? "Hide password" : "Show password"}
+              aria-pressed={showPw}
+              style={{
+                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", color: "#2563eb", fontSize: 13,
+                fontWeight: 600, cursor: "pointer", padding: 4,
+              }}
+            >
+              {showPw ? "Hide" : "Show"}
+            </button>
+          </div>
         </label>
         <button className="sw-btn" onClick={submit} disabled={busy}>
           {busy ? "Logging in…" : "Log in"}
