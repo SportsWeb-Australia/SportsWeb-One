@@ -106,20 +106,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setReady(true);
       return;
     }
-    supabase.auth.getSession().then(async ({ data }) => {
-      const user = data.session?.user;
-      setEmail(user?.email ?? null);
-      setUserId(user?.id ?? null);
-      if (user) {
-        resolvedFor.current = user.id;
-        setResolving(true);
-        const [m, pr] = await Promise.all([resolveMembershipWithClaim(user.id), resolvePlatformRole()]);
-        setMembership(m);
-        setPlatformRole(pr);
-        setResolving(false);
-      }
-      setReady(true);
-    });
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        const user = data.session?.user;
+        setEmail(user?.email ?? null);
+        setUserId(user?.id ?? null);
+        if (user) {
+          resolvedFor.current = user.id;
+          setResolving(true);
+          try {
+            const [m, pr] = await Promise.all([resolveMembershipWithClaim(user.id), resolvePlatformRole()]);
+            setMembership(m);
+            setPlatformRole(pr);
+          } catch {
+            // A transient boot failure (token-refresh race, network hiccup on the
+            // membership/role query) must NOT strand the app on "Loading" forever.
+            // Clear the resolved marker so a later auth event re-resolves.
+            resolvedFor.current = null;
+          } finally {
+            setResolving(false);
+          }
+        }
+        // ready ALWAYS flips true, so the app leaves the loading gate on first load.
+        setReady(true);
+      })
+      .catch(() => setReady(true));
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const user = session?.user ?? null;
       const nextEmail = user?.email ?? null;
@@ -140,10 +152,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (resolvedFor.current === user.id) return;
       resolvedFor.current = user.id;
       setResolving(true);
-      const [m, pr] = await Promise.all([resolveMembershipWithClaim(user.id), resolvePlatformRole()]);
-      setMembership(m);
-      setPlatformRole(pr);
-      setResolving(false);
+      try {
+        const [m, pr] = await Promise.all([resolveMembershipWithClaim(user.id), resolvePlatformRole()]);
+        setMembership(m);
+        setPlatformRole(pr);
+      } catch {
+        // Don't leave `resolving` stuck on a transient failure (it gates AdminApp).
+        resolvedFor.current = null;
+      } finally {
+        setResolving(false);
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
