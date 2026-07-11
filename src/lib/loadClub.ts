@@ -431,26 +431,33 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
     cfg.enabledModules = [...enabledKeys];
 
     // Inline content overrides (hero copy, images, etc.) edited on the live site.
-    // Normal path reads club_content directly (RLS-scoped: published clubs for anon,
-    // own clubs for admins). The draft PREVIEW path (anon, no login) reads via the
-    // token-gated RPC, because the leak fix (supabase/club-content-preview-leak.sql)
-    // restricts the public read to published clubs -- a direct select would return
-    // 0 rows for a draft. Falls back to the direct select if the RPC isn't deployed
-    // yet (pre-apply), so preview keeps working either way.
-    let contentRows: { content_key: string; value: string }[] | null = null;
+    // Preferred public read: ONE SECURITY DEFINER RPC (public_club_content) decides
+    // access server-side -- published, or a valid preview token, or an authenticated
+    // member/platform admin -- and returns content rows or none. This is the only
+    // public/preview read path once supabase/club-content-public-rpc.sql is applied.
+    // Until then, fall back to the prior behaviour (interim token RPC for preview,
+    // direct select otherwise) so nothing breaks pre-apply.
+    type ContentRow = { content_key: string; value: string };
+    let contentRows: ContentRow[] | null = null;
     let contentErr: unknown = null;
-    if (opts?.previewToken) {
-      const rpc = await supabase.rpc("get_club_content_by_preview_token", { p_token: opts.previewToken });
-      if (!rpc.error && Array.isArray(rpc.data)) {
-        contentRows = rpc.data as { content_key: string; value: string }[];
+    const primary = await supabase.rpc("public_club_content", {
+      p_club_id: clubId,
+      p_preview_token: opts?.previewToken ?? null,
+    });
+    if (!primary.error && Array.isArray(primary.data)) {
+      contentRows = primary.data as ContentRow[];
+    } else if (opts?.previewToken) {
+      const t = await supabase.rpc("get_club_content_by_preview_token", { p_token: opts.previewToken });
+      if (!t.error && Array.isArray(t.data)) {
+        contentRows = t.data as ContentRow[];
       } else {
         const direct = await supabase.from("club_content").select("content_key,value").eq("club_id", clubId);
-        contentRows = (direct.data as { content_key: string; value: string }[] | null) ?? null;
+        contentRows = (direct.data as ContentRow[] | null) ?? null;
         contentErr = direct.error;
       }
     } else {
       const direct = await supabase.from("club_content").select("content_key,value").eq("club_id", clubId);
-      contentRows = (direct.data as { content_key: string; value: string }[] | null) ?? null;
+      contentRows = (direct.data as ContentRow[] | null) ?? null;
       contentErr = direct.error;
     }
     if (!contentErr && contentRows && contentRows.length) {
