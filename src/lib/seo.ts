@@ -28,6 +28,17 @@ function upsertCanonical(href: string) {
   el.setAttribute("href", href);
 }
 
+function upsertJsonLd(id: string, data: unknown) {
+  let el = document.getElementById(id) as HTMLScriptElement | null;
+  if (!el) {
+    el = document.createElement("script");
+    el.type = "application/ld+json";
+    el.id = id;
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
+
 export function useSeo(seo: SeoInput | null) {
   useEffect(() => {
     if (!seo) return;
@@ -56,6 +67,38 @@ export function SeoManager() {
   const { pathname } = useLocation();
   const name = club.identity.name;
   const place = club.identity.location;
+  const league = club.identity.league;
+  const sports = club.identity.sports;
+  const logo = club.identity.logo || "";
+
+  // Club-level head: og:site_name, apple title, default og:image, and per-club
+  // JSON-LD — replacing the neutral platform defaults in index.html once a real
+  // club has resolved. (Client-side; non-JS scrapers see the neutral shell until
+  // a per-host edge injection is added — tracked separately.)
+  useEffect(() => {
+    if (!name) return; // neutral base (emptyClub) not yet resolved: keep platform defaults
+    const origin = window.location.origin;
+    const absLogo = /^https?:\/\//i.test(logo)
+      ? logo
+      : logo.startsWith("/")
+        ? origin + logo
+        : origin + "/icon-512.png"; // data:/placeholder crest -> platform icon, never a data URI
+    upsertMeta("property", "og:site_name", name);
+    upsertMeta("property", "og:image", absLogo);
+    upsertMeta("name", "twitter:card", "summary_large_image");
+    // (apple-mobile-web-app-title is owned per-club by App.tsx; don't fight it here.)
+    const org: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "SportsOrganization",
+      name,
+      url: origin,
+      logo: absLogo,
+    };
+    if (sports && sports.length) org.sport = sports;
+    if (league) org.memberOf = { "@type": "SportsOrganization", name: league };
+    if (place) org.address = { "@type": "PostalAddress", addressLocality: place, addressCountry: "AU" };
+    upsertJsonLd("club-jsonld", org);
+  }, [name, place, league, sports, logo]);
 
   const MAP: Record<string, SeoInput> = {
     "/": {
