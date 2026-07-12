@@ -23,8 +23,8 @@ alter table public.clubs add column if not exists is_demo boolean not null defau
 -- 2. Mark the demo estate. These 13 are supabase/demo-seed.sql's clubs -- fabricated content
 --    is now honestly labelled. Do NOT empty or delete them; the flag is what makes their
 --    content honest. (Barnestoneworth + Bor City are already empty; leave them false.)
---    Dookie is deliberately NOT included -- it has hand-entered content + template origins;
---    that is Carson's call (see the note at the foot of this file).
+--    Dookie is deliberately NOT included -- Carson confirmed it is a REAL club (in draft),
+--    is_demo = false. Its rows are hand-entered (audited), not seed fingerprint.
 update public.clubs set is_demo = true
 where slug in (
   'northside-lions','eastside-united','riverside-cricket','parkville-netball',
@@ -115,11 +115,12 @@ $function$;
 
 -- ------------------------------------------------------------
 -- FOLLOW-UPS (not in this migration):
---   * noindex every is_demo club -- fold into the per-club SEO work (P0, still open). A demo
---     club must never appear in search results as if it were a real club.
---   * Dookie United (dookie-united): has hand-entered content + template origins and is NOT
---     in the demo-seed estate. Carson's call whether it is is_demo=true (a showcase) or a
---     real club to be emptied. Left is_demo=false pending that call.
+--   * noindex: DONE in-app in this same PR -- App.tsx emits robots noindex when
+--     ClubConfig.isDemo (plumbed from clubs.is_demo). The per-HOST edge <head> injection
+--     for non-JS scrapers still rides with the per-club SEO work (P0, next after P2).
+--   * Dookie United (dookie-united): confirmed a REAL club (is_demo=false). One stray
+--     published "Test" news row is a human test artifact (not platform fiction); the club
+--     may want to remove it. Not touched here.
 --   * The fabricated rows already sitting in the 13 demo clubs stay -- they are now honestly
 --     labelled by is_demo. Nothing to clean.
 --
