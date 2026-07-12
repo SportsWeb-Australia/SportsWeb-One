@@ -68,6 +68,12 @@ export interface SectionContext {
 // with REAL match data as entitled (the interim rule, in ONE place) so a working fixtures
 // feature is not hidden behind an unprovisioned flag. This never invents data -- it only
 // decides whether to show a section whose data already exists.
+//
+// This rule SELF-HEALS now that seeding is stripped (Brief 09 sec 2f): create_trial_club no
+// longer seeds fake matches, so once no club is born with fabricated fixtures, "has match
+// data" genuinely means the club entered a season -- and "real data => entitled" is a safe
+// proxy, not a leak. It collapses to `enabled.has(key)` when P5 provisions the capability.
+// (Demo clubs keep their labelled fixtures; clubs.is_demo says that is fine.)
 const ENTITLEMENT_KEY: Partial<Record<SectionType, string>> = {
   match_data: "match_centre",
   scoreboard: "match_centre",

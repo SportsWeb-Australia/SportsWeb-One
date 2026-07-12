@@ -4,3 +4,4 @@ export * from "./blocks";
 export * from "./schemas";
 export * from "./entitlement";
 export * from "./registry";
+export * from "./jsonSchema";
