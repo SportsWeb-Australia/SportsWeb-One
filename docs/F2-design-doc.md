@@ -19,6 +19,7 @@ building against something else is not.
 | 3 | **Free-canvas drag-drop is rejected, not deferred.** Nudge room, if ever, = section variants from a menu. | §7 |
 | 4 | **Two mandatory schema fixes inside the registry build:** `hero.media` union; `rich_text.body` → typed `Block[]`. **Raw HTML in props is banned.** | §4 |
 | 5 | **Freeze the variant picker to Classic + themes**, before any F2 code. | §6 |
+| 6 | **NO FAKE DATA. EVER.** No fallback to sample content, placeholder content, or another club's data. A section with no data renders its defined empty state, or renders nothing. | §5 |
 
 Still open: §11 Q3 (`social_feed`), Q4 (Fastbreak/Poster draft clubs), Q5 (BHRDCA contacts model).
 None of them block P2.
@@ -285,13 +286,23 @@ integration debt.**
 
 ### The outliers — `bento_grid`, `feature_split`
 
-Rated Not-typeable. They appear only in bespoke variants that carry **zero published clubs**.
+Rated Not-typeable. The audit proposes an **escape hatch** for them. **Rejected.**
 
-**Decision: do not build a `custom_html` escape hatch.** An escape hatch is a hole in every guarantee
-this platform makes — clubs can break it, Claude can't author it, the renderer can't validate it, and it
-will quietly become where all the hard cases go to hide. Instead: rebuild those two visual effects as
-**theme treatments** over standard sections. If a layout genuinely cannot be expressed without an escape
-hatch, that layout does not ship. **The fence is the product.**
+Both live only in `bento` and `fieldcourt` — bespoke variants carrying **zero clubs, published or draft**.
+There is no customer to protect and no reason to contort the model around them.
+
+**Decision: do not build a `custom_html` or `bento_grid`-cell escape hatch.** An escape hatch is a hole in
+every guarantee this platform makes — clubs can break it, Claude cannot author it, the renderer cannot
+validate it, and it will quietly become where every hard case goes to hide. Rebuild those two visual
+effects as **theme treatments** over standard sections, or do not ship them. If a layout genuinely cannot
+be expressed without an escape hatch, that layout does not ship. **The fence is the product.**
+
+The audit's other outlier calls are **accepted**:
+- **Hero-with-embedded-fixture** (`matchday`, `rugbyleague`, `scorecard`) → split into `hero` +
+  `scoreboard` / `match_data`. Correct — it was never one section.
+- **Static content strips** (juniors parent-info, touch how-it-works, oztag comp-nights, rugbyunion
+  honours, all teams/grades) → generalise to `rich_text`, wire `teams` to its table. **Do not port the
+  hardcoded arrays.** See rule 9 in §5 — those arrays are fake data and they die with the rest.
 
 ---
 
@@ -308,6 +319,32 @@ hatch, that layout does not ship. **The fence is the product.**
 8. **Every section must look correct at any position in the stack.** That is what makes free reordering
    safe, and it is a hard requirement on every section's CSS. No section may assume it is first, last, or
    adjacent to any other.
+9. **NO FAKE DATA. EVER.** No fallback to sample content, placeholder content, demo content, or another
+   club's data — not in the renderer, not in `loadClub`, not in a section component, not anywhere.
+
+### Rule 9 is not a style preference. It is the core of the product promise.
+
+The audit found this pattern is **systemic**, not incidental:
+
+- `loadClub` **falls back to static sample fixtures** when it cannot read `matches` / `ladder` — which
+  meant three published clubs (Northside, Eastside, Riverside) were serving **"MANUAL / SAMPLE DATA"** and
+  Dookie's **"Following the Dooks"** placeholder on their live public fixtures pages, to real parents
+  checking real match times.
+- `teams` sections render **hardcoded static grade arrays** despite the `teams` table existing.
+- `juniors` parent-info, `touch` how-it-works, `oztag` comp-nights, `rugbyunion` honours — all hardcoded
+  fake content shipped as if it were the club's.
+
+**A site that silently lies is worse than a site that is broken.** A broken site gets reported in an hour.
+A plausible-looking fixtures page showing another club's sample data sits there for a year.
+
+It also poisons the AI path: if the renderer invents data, Claude cannot distinguish real content from
+fabricated content, and neither can the club, and neither can we.
+
+**The only permitted behaviours when a section has no data:**
+1. Render the section's **defined empty state** (a real, honest, non-embarrassing message).
+2. Render **nothing at all**.
+
+There is no third option. No sample data, no lorem, no demo club's content, no "example" rows.
 
 **A kill-switch flag stays.** Not the elaborate per-club `render_engine` rollout I originally proposed —
 Codey is right that is overkill for 4 published clubs — but one flag that flips a club back to the legacy
