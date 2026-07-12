@@ -11,7 +11,7 @@ export function Register() {
 
   return (
     <>
-      <PageHero pageKey="register" eyebrow="Join the Dooks" title="Register & Get Involved" intro={join.blurb} />
+      <PageHero pageKey="register" eyebrow="Join the Club" title="Register & Get Involved" intro={join.blurb} />
 
       <section className="sw-section">
         <div className="sw-container">
@@ -91,10 +91,6 @@ export function Register() {
             </div>
           )}
 
-          <p className="sw-social-embed-note" style={{ marginTop: "2rem" }}>
-            Registration links currently point to the club's sign-up pages. Confirm the live
-            PlayHQ / registration URLs for football and netball before launch.
-          </p>
         </div>
       </section>
     </>

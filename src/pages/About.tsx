@@ -13,12 +13,20 @@ export function About() {
   const { about, identity } = club;
   const aboutPhoto = value("about.photo", "");
 
+  // Club-agnostic, empty-safe intro: only mention location / league if the club
+  // actually has them (no "in , competing in the ." holes; no assumed sport).
+  const aboutBits = [
+    identity.location && `A community club in ${identity.location}`,
+    identity.league && `competing in ${identity.league}`,
+  ].filter(Boolean);
+  const aboutIntro = aboutBits.length ? aboutBits.join(", ") + "." : "A community sports club.";
+
   return (
     <>
       <PageHero pageKey="about"
         eyebrow="The Club"
         title={about.heading}
-        intro={`Football & netball in ${identity.location}, competing in the ${identity.league}.`}
+        intro={aboutIntro}
       />
 
       <PresidentWelcome />

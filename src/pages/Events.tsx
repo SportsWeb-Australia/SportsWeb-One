@@ -14,7 +14,7 @@ export function Events() {
         <div className="sw-container">
           <div className="sw-prose" style={{ marginBottom: "2rem" }}>
             <p>
-              Club events are a big part of life at the Dooks — they bring players, families and
+              Club events are a big part of club life — they bring players, families and
               supporters together and help fund everything we do. Everyone's welcome, so come down and
               get involved.
             </p>
