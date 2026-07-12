@@ -11,19 +11,17 @@
 --
 -- Safe ONLY because supabase/publish-gate-club-tables.sql is applied: matches_public_read
 -- and ladder_public_read are now club-publish-gated, so anon reads a PUBLISHED club's
--- rows and 0 for draft/suspended. (club_modules is included so the public renderer can
--- read a published club's module entitlements to decide what to show; its public_read
--- is likewise now published-gated.)
+-- rows and 0 for draft/suspended.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name. Ships SEPARATELY
--- from the publish-gate migration (a security gate + a functional change in one file
--- makes a failed verify ambiguous). Pure ASCII, re-runnable.
+-- club_modules is deliberately NOT granted: the public render (components/ + pages/)
+-- never reads enabledModules, so a logged-out visitor does not need club_modules to
+-- decide what to show (loadClub's club_modules read is admin-only and already
+-- fails-safe for anon). Per Brief 06 item 1 step 4: grant only if the renderer needs
+-- it -- it does not.
 --
--- After applying, verify on a DRAFT or SCRATCH club promoted to published (NOT by
--- editing a live published club): logged-out /fixtures shows the club's real fixtures/
--- results/ladder, not the sample; a draft club still shows nothing to anon.
+-- APPLIED 2026-07-12 (authorized, Brief 06 item 1). Ships SEPARATELY from the
+-- publish-gate migration. Pure ASCII, re-runnable.
 -- ============================================================
 
-grant select on public.matches      to anon;
-grant select on public.ladder       to anon;
-grant select on public.club_modules to anon;
+grant select on public.matches to anon;
+grant select on public.ladder  to anon;
