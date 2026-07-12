@@ -177,6 +177,10 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
     // only ever reaches an authenticated admin.
     cfg.websiteStatus = clubRow.website_status ?? undefined;
 
+    // clubs.is_demo (NOT isDemoClub above, which is the static-template check): a labelled
+    // demo tenant. Undefined until the is_demo migration is applied -> treated as false.
+    cfg.isDemo = clubRow.is_demo === true;
+
     // Raw brand colours preserved for the admin colour editor (deriveColours
     // consumes them into derived tokens, so the originals aren't otherwise kept).
     cfg.brandColours = {
