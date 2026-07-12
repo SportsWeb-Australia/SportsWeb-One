@@ -41,7 +41,7 @@ where slug in (
 create or replace function public.create_trial_club(
   p_name text,
   p_sport text default 'afl',
-  p_variant text default 'leaguefooty',
+  p_variant text default 'heritage',
   p_email text default null,
   p_primary text default '#1F2A44',
   p_secondary text default '#C8102E'
@@ -49,7 +49,7 @@ create or replace function public.create_trial_club(
 returns json
 language plpgsql
 security definer
-set search_path to 'public'
+set search_path to 'public', pg_temp
 as $function$
 declare
   v_club  uuid;
@@ -97,7 +97,7 @@ begin
 
   -- Assigned template variant (read by loadClub via club_content). Config, not content.
   insert into public.club_content (club_id, content_key, value)
-  values (v_club, 'site.variant', coalesce(nullif(trim(p_variant),''),'leaguefooty'))
+  values (v_club, 'site.variant', coalesce(nullif(trim(p_variant),''),'heritage'))
   on conflict (club_id, content_key) do update set value = excluded.value;
 
   -- Volunteer Manager on trial, consistent with admin_create_club. Entitlement, not content.
@@ -109,7 +109,7 @@ begin
   -- Getting REAL data in fast is onboarding's job (AI Import, P7) -- not a seed's.
 
   return json_build_object('club_id', v_club, 'slug', v_slug, 'variant',
-                           coalesce(nullif(trim(p_variant),''),'leaguefooty'));
+                           coalesce(nullif(trim(p_variant),''),'heritage'));
 end
 $function$;
 
