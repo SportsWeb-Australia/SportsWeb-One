@@ -178,8 +178,19 @@ clubs.theme_key        -- which theme this club uses
 clubs.theme_overrides  jsonb   -- club's own primary/secondary colours, logo. Nothing structural.
 ```
 
-`clubs.website_variant` is **retired** at the end of the migration. During it, it is the fallback for
-clubs still on the legacy renderer.
+**Correction (verified against prod, 2026):** there is **no `clubs.website_variant` column** — earlier
+drafts of this doc invented it. The legacy variant lives in **two** live places, resolved by `loadClub`
+in this order (last wins):
+
+1. base default (`heritage`),
+2. `clubs.selected_template_id` → `templates.template_key` → a variant (**live fallback**, 3 clubs),
+3. `club_content['site.variant']` → a variant (**authoritative**, 4 clubs).
+
+They are disjoint today (0 clubs set both), so the precedence has never been exercised; 10 clubs set
+neither and fall back to `heritage`. **`templates` (3 rows: `default` / `afl-classic` / `club-modern`) is a
+live variant source, not a design catalog** — its FK feeds resolution. All three legacy mechanisms
+(`site.variant`, `selected_template_id`, `templates`) are retired at **P6**, replaced by `clubs.theme_key`
+→ `club_themes`. Until then they are the fallback for clubs still on the legacy renderer.
 
 ### Public read
 
@@ -559,7 +570,7 @@ child is claimed, the child owns its own data and the association loses write ac
 | **P3** | Admin composition UI: reorder, toggle, add, remove, duplicate, edit content. Draft → publish → revert visibly works. Home page only. | A club admin can rearrange their home page and cannot break it |
 | **P4** | Multi-page: page CRUD, DB-driven nav (kills the hardcoded routes in `App.tsx`), page-level SEO | |
 | **P5** | Collections build-out (data debt §9) + **BHRDCA ported as a real tenant.** | **BHRDCA is the acceptance test for the whole arc.** |
-| **P6** | AI Fill · rebuild remaining variants as themes · migrate Fastbreak/Poster drafts · retire `website_variant` | |
+| **P6** | AI Fill · rebuild remaining variants as themes · migrate Fastbreak/Poster drafts · **retire the legacy variant sources — `club_content['site.variant']`, `clubs.selected_template_id` and the `templates` table — replaced by `clubs.theme_key` → `club_themes`** (there is no `website_variant` column; see §3) | |
 | **P7** | AI Import · AI Design (Template Studio) | |
 
 ### ⚠️ Context that changes P2's gate: NO CLUB IS LIVE
