@@ -247,72 +247,18 @@ export function SportsWebFooter({
   );
 }
 
-/* ── Sample trend charts (placeholder until modules/Zoho connected) ── */
-const SAMPLE_FIN = [
-  { m: "Jan", inc: 5.2, exp: 3.1 },
-  { m: "Feb", inc: 3.4, exp: 3.6 },
-  { m: "Mar", inc: 6.8, exp: 4.2 },
-  { m: "Apr", inc: 4.1, exp: 3.0 },
-  { m: "May", inc: 7.5, exp: 5.1 },
-  { m: "Jun", inc: 5.9, exp: 3.8 },
-];
-const SAMPLE_MEM = [
-  { m: "Jan", v: 142 },
-  { m: "Feb", v: 158 },
-  { m: "Mar", v: 171 },
-  { m: "Apr", v: 176 },
-  { m: "May", v: 189 },
-  { m: "Jun", v: 203 },
-];
-
+/* ── Trends: honest empty state until real data is connected (rule 9) ──
+   Previously rendered fabricated income/expense/membership charts labelled
+   "Sample data". Fake money in front of the person responsible for the club's
+   money is a rule-9 violation -- removed. No chart renders until real numbers exist. */
 export function SampleCharts() {
-  const finMax = Math.max(...SAMPLE_FIN.flatMap((d) => [d.inc, d.exp]));
-  const memMax = Math.max(...SAMPLE_MEM.map((d) => d.v));
   return (
-    <Collapsible title="Trends" badge={<span className="sw-sample-badge">Sample data</span>}>
+    <Collapsible title="Trends">
       <p className="sw-cc-sample-note">
-        These graphs show example figures so you can see the shape of things at a glance. They fill with your club's real
-        numbers once Club Finance and your modules are connected.
+        Income, expenses and membership trends will appear here once Club Finance and your
+        modules are connected. Until then there is nothing to show &mdash; we never fill this
+        with example figures.
       </p>
-      <div className="sw-chart-grid">
-        <div className="sw-chart-card">
-          <header>
-            <span>Income vs expenses</span>
-            <span className="sw-chart-unit">$ '000 / month</span>
-          </header>
-          <div className="sw-bars">
-            {SAMPLE_FIN.map((d) => (
-              <div key={d.m} className="sw-bars-col">
-                <div className="sw-bars-pair">
-                  <span className="sw-bar sw-bar--inc" style={{ height: `${(d.inc / finMax) * 100}%` }} />
-                  <span className="sw-bar sw-bar--exp" style={{ height: `${(d.exp / finMax) * 100}%` }} />
-                </div>
-                <span className="sw-bars-lbl">{d.m}</span>
-              </div>
-            ))}
-          </div>
-          <div className="sw-chart-legend">
-            <span className="sw-lg sw-lg--inc">Income</span>
-            <span className="sw-lg sw-lg--exp">Expenses</span>
-          </div>
-        </div>
-        <div className="sw-chart-card">
-          <header>
-            <span>Membership growth</span>
-            <span className="sw-chart-unit">members</span>
-          </header>
-          <div className="sw-bars">
-            {SAMPLE_MEM.map((d) => (
-              <div key={d.m} className="sw-bars-col">
-                <div className="sw-bars-pair">
-                  <span className="sw-bar sw-bar--mem" style={{ height: `${(d.v / memMax) * 100}%` }} />
-                </div>
-                <span className="sw-bars-lbl">{d.m}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
     </Collapsible>
   );
 }

@@ -343,15 +343,15 @@ function csvTemplate(resource: ResourceDef): string {
   if (resource.key === "matches") {
     return [
       header,
-      "Seniors,Round 1,2026-04-04T14:00,Benalla,,Home,,,scheduled",
-      "Seniors,Round 2,2026-04-11T14:00,Euroa,,Away,,,scheduled",
+      "Seniors,Round 1,2026-04-04T14:00,Opponent FC,,Home,,,scheduled",
+      "Seniors,Round 2,2026-04-11T14:00,Rival Club,,Away,,,scheduled",
     ].join("\n");
   }
   if (resource.key === "ladder") {
     return [
       header,
-      "Seniors,1,Dookie United,,8,7,1,0,28,142.5,true",
-      "Seniors,2,Benalla,,8,6,2,0,24,128.0,false",
+      "Seniors,1,Your Club,,8,7,1,0,28,142.5,true",
+      "Seniors,2,Opponent FC,,8,6,2,0,24,128.0,false",
     ].join("\n");
   }
   const example = cols.map((c) => (c === "status" ? "published" : "")).join(",");
