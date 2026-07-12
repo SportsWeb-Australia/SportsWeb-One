@@ -10,9 +10,9 @@ export function Teams() {
   return (
     <>
       <PageHero pageKey="teams"
-        eyebrow="Football & Netball"
+        eyebrow="Get Involved"
         title="Teams & Programs"
-        intro="From Auskick and Net Set Go through to seniors — there's a place at the Dooks for every age and ability."
+        intro="From juniors through to seniors — there's a place for every age and ability."
       />
 
       <section className="sw-section">

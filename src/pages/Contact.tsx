@@ -57,7 +57,7 @@ export function Contact() {
                 <a href="/register" style={{ color: "var(--accent-on-bg)" }}>
                   registration page
                 </a>{" "}
-                for football and netball sign-up links. Keen to <strong>volunteer</strong> or{" "}
+                for sign-up links. Keen to <strong>volunteer</strong> or{" "}
                 <strong>sponsor</strong> the club? Email us and we'll find a way to get you involved.
               </p>
 
