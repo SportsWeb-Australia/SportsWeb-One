@@ -122,19 +122,23 @@ Short honest verdict: only **bento** and **code_split** genuinely resist a clean
 
 17 clubs total: **13 draft, 4 published, 0 suspended.** Variant is derived (`selected_template_id → templates.template_key → TEMPLATE_VARIANT`, or a `club_content.site.variant` override, `loadClub.ts:8-31,237-238,443`).
 
-| Effective variant | Backing layout | Published | Draft |
-|---|---|---|---|
-| `heritage` (template `default`) | **Classic** | 1 | (10 more `(none)` clubs also default to heritage/empty → Classic) |
-| `broadcast` (template `club-modern`) | **Classic** | 1 | 0 |
-| `arena` (template `afl-classic` + 1 override) | **Classic** | 2 | 1 |
-| `fastbreak` (override) | Fastbreak | 0 | 1 |
-| `poster` (override) | Poster | 0 | 1 |
+**Effective variant × publish status — every bucket (draft counts included):**
 
-- **All 4 published clubs render through `Classic`** (arena/broadcast/heritage are legacy → Classic). 
-- **The 20 bespoke structural variants have ZERO published clubs** (fastbreak and poster have 1 *draft* each; the other 18 have none).
-- **Total published: 4.** Only 3 clubs even set `selected_template_id`; 4 use a `site.variant` override; 10 have neither (→ heritage/Classic default).
+| Effective variant | Backing layout | Draft | Published | Total |
+|---|---|---|---|---|
+| `(none)` → heritage | **Classic** | 10 | 0 | 10 |
+| `arena` (afl-classic + 1 override) | **Classic** | 1 | 1 | 2 |
+| `broadcast` (club-modern) | **Classic** | 0 | 1 | 1 |
+| `heritage` (default) | **Classic** | 0 | 1 | 1 |
+| `fastbreak` (override) | **Fastbreak** | **1** | 0 | 1 |
+| `poster` (override) | **Poster** | **1** | 0 | 1 |
+| the other 18 bespoke variants | (their fn) | 0 | 0 | 0 |
 
-Porting order writes itself: **Classic covers 100% of published traffic.** The bespoke variants are effectively dead in production.
+- **`Classic` carries 15 of 17 clubs** — all 4 published **and 11 of 13 draft**.
+- **Mid-build drafts on bespoke variants: `Fastbreak` (1) and `Poster` (1).** These are in the blast radius even though nothing is *published* on them — a port must not strand a club mid-build, and **anyone who starts a new club on any bespoke variant enters the blast radius the moment they save `site.variant`.** "Zero published" ≠ "safe to break."
+- **18 bespoke variants have zero clubs** (draft or published) — free to defer or delete; not work to schedule.
+
+Porting order: **Classic first** (15/17 clubs, 100% of published). Then a deliberate call on `Fastbreak`/`Poster` (1 draft each — migrate or move them onto a template+theme) vs. collapsing all bespoke variants into themes. Do not treat the 18 empty variants as a migration backlog.
 
 ---
 
@@ -174,6 +178,129 @@ Inert keys (in DB, not read by `loadClub`): `news.mode`, `about.photo`, `footer.
 **AI readiness:** of ~15 types, the **7 Content types are Clean/Messy** and are the only ones an LLM authors free-form; **Collection/Module types are config-only** (AI picks count/mode/grade, records come from tables). **One Messy field: `rich_text` body** — close it into structured blocks and the Content set is fully AI-emittable. **Content/presentation entanglement to name:** (1) the static `teams`/grades arrays baked into variant JSX (content *is* markup); (2) `hero.image` vs `hero.video` smuggled as separate keys rather than a typed `media` union; (3) any future `rich_text` that accepts raw HTML. These three are the AI-path threats.
 
 > Could Claude generate each from a two-line club brief? **Content types: yes.** Collection/Module: **only config** (it can't invent a club's real fixtures/sponsors — nor should it). `rich_text`: only once the schema is closed.
+
+---
+
+## 2g-iii. Section registry spec — typed props per type (build the registry from this)
+
+TypeScript-shaped props for every canonical type, with class, table/entitlement, **Clean / Messy / Not-typeable** rating, the exact offending field where Messy, and whether Claude can author it. `?` = optional. Data-bearing (Collection/Module) types carry only *display config* in props; their records live in the named table.
+
+### Content — author-able (props hold the actual content)
+
+**`hero`** — Content — **Messy today → Clean after one fix** — AI: ✅
+```ts
+{ eyebrow?: string; title: string; subtitle?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  media?: { kind: 'none' | 'image' | 'video'; url?: string; poster?: string } }
+```
+Offending fields: today `hero.image` and `hero.video` are **two separate content_keys** — presentation smuggled as parallel scalars. Fix: the `media` discriminated union above. Then Clean.
+
+**`announcement_bar`** — Content — **Clean** — AI: ✅
+```ts
+{ enabled: boolean; text: string; link?: { label: string; href: string } }
+```
+
+**`rich_text`** — Content — **Messy** — AI: ✅ only once closed
+```ts
+{ heading?: string; body: Block[] }
+// Block = { kind:'paragraph'; text:string }
+//       | { kind:'list'; ordered?:boolean; items:string[] }
+//       | { kind:'stat'; label:string; value:string }
+```
+Offending field: **`body`**. Today the equivalent (juniors "for parents", touch "how it works", oztag "comp nights", `about.body.0`) is a blob string or hardcoded JSX. If `body` is a raw string / HTML it is non-validatable and lets markup into content → **Messy/Not-typeable**. With the closed `Block[]` union it is Clean. This is the one Content type that is *not* Clean out of the box.
+
+**`quick_links`** — Content — **Clean** — AI: ✅
+```ts
+{ heading?: string; links: { label: string; href: string; icon?: string }[] }
+```
+
+**`cta_band`** (was `join_cta`) — Content — **Clean** — AI: ✅
+```ts
+{ heading: string; blurb?: string; actions: { label: string; href: string }[] }
+```
+
+**`president_welcome`** — Content — **Clean** — AI: ✅
+```ts
+{ name: string; role?: string; portrait?: string; body: string[]; signoff?: string }
+```
+(`body: string[]` = paragraphs; typeable.)
+
+**`contact`** — Content/global — **Clean** (display config; values bind to global club fields) — AI: config-only
+```ts
+{ heading?: string; showEmail?: boolean; showPhone?: boolean; showAddress?: boolean; showMap?: boolean }
+```
+
+### Collection — records from a typed table (props hold display config only)
+
+**`news`** — table `news` ✓ — **Clean (config)** — AI: config-only
+```ts
+{ heading?: string; layout: 'feature' | 'grid' | 'list'; count: number }
+```
+Empty: hide / "News coming soon".
+
+**`events`** — table `events` ✓ — **Clean (config)**
+```ts
+{ heading?: string; count: number; window?: 'upcoming' | 'all' }
+```
+
+**`teams`** — table `teams` ✓ **but rendered STATIC today** — **Clean (config) + wiring debt**
+```ts
+{ heading?: string; groupBy?: 'sport' | 'none'; linkTo?: string }
+```
+Debt: variants render hardcoded grade arrays, not the table. Wire at port.
+
+**`sponsors`** — table `sponsors` ✓ — **Clean (config)**
+```ts
+{ heading?: string; display: 'strip' | 'wall' | 'tiered'; showBlurb?: boolean;
+  tiers?: ('platinum' | 'gold' | 'silver')[] }
+```
+
+**`committee`** — table `people` ✓ (filtered) — **Clean (config)**
+```ts
+{ heading?: string; roles?: string[] }
+```
+
+**`documents`** — table **MISSING** — **Clean (config) + table debt**
+```ts
+{ heading?: string; kinds?: ('policy' | 'form' | 'guide' | 'welfare')[] }
+```
+Debt: no `documents` table exists yet.
+
+### Module — data owned elsewhere; entitlement-gated (props hold config only)
+
+**`match_data`** — tables `matches`,`ladder` ✓ — **Clean (config)** — entitlement-gated
+```ts
+{ mode: 'fixtures' | 'results' | 'ladder' | 'combined'; grade?: string; count?: number; heading?: string }
+```
+Not entitled → hide. Entitled, no data → "Fixtures to be confirmed" / "Ladder in-season". No formal Match Centre module/entitlement row exists yet — decide that before build.
+
+**`scoreboard`** — tables `matches`,`results`,`ladder` ✓ — **Clean (config)**
+```ts
+{ showLast?: boolean; showNext?: boolean; showLadderPos?: boolean }
+```
+Empty: "Season ahead".
+
+**`social_feed`** — **no table** — **Clean (config) + source debt**
+```ts
+{ provider?: 'facebook' | 'instagram'; handle?: string }
+```
+
+### Outliers — **Not-typeable** as a flat prop set (cross-ref 2d)
+
+**`bento_grid`** — cells render conditionally on data presence; not a flat prop set. Option: `{ cells: SectionInstance[] }` (nested sections) or a `custom` escape hatch.
+**`feature_split`** (fieldcourt code_split) — two heterogeneous columns (one embeds a fixture). Option: two nested mini-sections, or escape hatch.
+
+### Rating tally (the number you asked for)
+
+| Rating | Count | Types |
+|---|---|---|
+| **Clean** | **13** | announcement_bar, quick_links, cta_band, president_welcome, contact, + all 9 config types (news, events, teams, sponsors, committee, documents, match_data, scoreboard, social_feed) |
+| **Clean after one fix** | **1** | `hero` (collapse image/video → `media` union) |
+| **Messy** | **1** | `rich_text` (`body` must become `Block[]`, not raw string/HTML) |
+| **Not-typeable (outlier → escape hatch)** | **2** | `bento_grid`, `feature_split` |
+
+**AI path is viable now** for the whole Content set with **two cleanups only**: `hero.media` union and `rich_text.body` blocks. Data debt to schedule separately (not schema): wire `teams` to its table; build a `documents` table; find a `social_feed` source; define a Match Centre entitlement.
 
 ---
 
