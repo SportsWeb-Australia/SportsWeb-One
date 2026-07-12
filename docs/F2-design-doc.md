@@ -500,12 +500,34 @@ child is claimed, the child owns its own data and the association loses write ac
 |---|---|---|
 | **P0** | Publish-gate migration (Brief 03). Per-club SEO plumbing (edge-injected `<head>`, dynamic sitemap/robots — **club-level only**, page-level lands at P4). **Freeze the variant picker.** F0 hygiene: capture off-repo SQL, delete dead `LaunchTracker.tsx`. | — |
 | **P1** | ✅ Done — taxonomy audit | |
-| **P2** | Schema (`club_pages` restructured, `club_sections` dropped, `club_page_versions`, themes, `public_club_page` RPC) + registry + renderer + **Classic ported as one template + themes**. Layout seeded by SQL. **No admin UI.** Kill-switch flag. | **One published club renders identically from `published_layout`.** That is the whole proof. |
+| **P2** | Schema (`club_pages` restructured, `club_sections` + `pages` dropped, `club_page_versions`, themes, `public_club_page` RPC) + registry + renderer + **Classic ported as one template + themes**. Layout seeded by SQL. **No admin UI.** | **One club's home page renders correctly and well from `published_layout`, and Carson approves it.** See note below. |
 | **P3** | Admin composition UI: reorder, toggle, add, remove, duplicate, edit content. Draft → publish → revert visibly works. Home page only. | A club admin can rearrange their home page and cannot break it |
 | **P4** | Multi-page: page CRUD, DB-driven nav (kills the hardcoded routes in `App.tsx`), page-level SEO | |
 | **P5** | Collections build-out (data debt §9) + **BHRDCA ported as a real tenant.** | **BHRDCA is the acceptance test for the whole arc.** |
 | **P6** | AI Fill · rebuild remaining variants as themes · migrate Fastbreak/Poster drafts · retire `website_variant` | |
 | **P7** | AI Import · AI Design (Template Studio) | |
+
+### ⚠️ Context that changes P2's gate: NO CLUB IS LIVE
+
+The 4 clubs with `website_status = 'published'` are **Carson's own demo estate**, not customers. Nothing
+on this platform has a real audience. Carson has deliberately held off launching until the foundation is
+right.
+
+**Consequences:**
+
+1. **Pixel-parity with the legacy render is NOT the success condition.** Faithfully reproducing 28
+   hardcoded designs that nobody has ever seen — and that Carson is not happy enough with to launch — is
+   archaeology, not progress. **The gate is: it renders correctly and well, and Carson approves it.** If
+   the data-driven Classic is *better* than the hardcoded one, that is a pass.
+2. **The blast radius is zero.** No migration ceremony, no one-club-at-a-time rollout, no customer
+   conversations. Move fast.
+3. **The kill-switch flag is optional.** Keep it only if it is genuinely trivial. It is insurance against
+   nothing.
+4. **"Never write to a published club" remains good hygiene** — but there is currently no real customer to
+   protect. Ask before writing to any club that Carson may be demoing.
+
+**What does NOT relax:** rule 9 (no fake data), the closed schemas, the total renderer, the no-escape-hatch
+rule, and the RLS discipline. Those are properties of the product, not precautions about live traffic.
 
 ---
 
@@ -520,3 +542,44 @@ child is claimed, the child owns its own data and the association loses write ac
 | 5 | BHRDCA's 51 club contacts — how modelled? | **Member clubs as `clubs` stubs under `parent_club_id`; contacts in `people` with an `is_public` flag.** §9b |
 
 Nothing is blocking. P2 can start.
+
+---
+
+## Appendix A — Sport → variant seed map (seed for the P6 sport→theme map)
+
+Captured from `StartTrial.tsx` **before** it was frozen to Classic. It mapped a new
+club's chosen sport to a bespoke variant. Those bespoke variants are retired at P6 and
+rebuilt as **themes**; this map is the starting point for the **sport → theme** lookup —
+and the seed of *"Claude, build me a &lt;sport&gt; club site."* **Promoted, not deleted.**
+
+| Club type (label) | `sport_type` | bespoke variant (retired) → future theme |
+|---|---|---|
+| AFL / Australian Football | `afl` | `leaguefooty` |
+| Football & Netball club | `afl` | `fieldcourt` |
+| Netball | `netball` | `courtside` |
+| Soccer | `soccer` | `pitch` |
+| Cricket | `cricket` | `scorecard` |
+| Basketball | `basketball` | `hardcourt` |
+| Rugby Union | `rugby_union` | `rugbyunion` |
+| Rugby League | `rugby_league` | `rugbyleague` |
+| Junior Football | `afl` | `juniors` |
+| Masters / Over-35s | `afl` | `masters` |
+| Oztag | `other` | `oztag` |
+| Touch Football | `other` | `touch` |
+| Lacrosse | `other` | `fastbreak` |
+
+At P6, each "future theme" column becomes a real theme token set over the ~6 templates;
+the sport→theme lookup drives template defaults and AI generation. Until then, StartTrial
+maps sport → a **Classic-backed theme preset** (`afl→heritage, netball→coastal,
+soccer→broadcast, cricket→classic, basketball→arena, rugby→stadium, other→heritage`).
+
+## Appendix B — `clubs.sport_type` is a platform asset
+
+`clubs.sport_type` is populated for **all 17 clubs** (afl ×6, other ×4, soccer ×2,
+rugby_union / rugby_league / cricket / basketball / netball ×1 each).
+
+**Not usable for user-facing copy** — 4 clubs are `other`, and assuming a sport ships a
+lie (the purge went club-agnostic instead, correctly, under rule 9). **But it IS usable
+for:** theme selection, page-template defaults, and AI generation (e.g. "cricket club →
+scorecard-style theme, `match_data` section, cricket ladder columns"). Record it as an
+asset — a selector and a generation hint, never a copy source.

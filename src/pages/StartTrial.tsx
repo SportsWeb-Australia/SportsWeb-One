@@ -1,22 +1,39 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
-/** Club types offered at signup -> the real sport_type enum + assigned template variant. */
-const CLUB_TYPES: { label: string; sport: string; variant: string }[] = [
-  { label: "AFL / Australian Football", sport: "afl", variant: "leaguefooty" },
-  { label: "Football & Netball club", sport: "afl", variant: "fieldcourt" },
-  { label: "Netball", sport: "netball", variant: "courtside" },
-  { label: "Soccer", sport: "soccer", variant: "pitch" },
-  { label: "Cricket", sport: "cricket", variant: "scorecard" },
-  { label: "Basketball", sport: "basketball", variant: "hardcourt" },
-  { label: "Rugby Union", sport: "rugby_union", variant: "rugbyunion" },
-  { label: "Rugby League", sport: "rugby_league", variant: "rugbyleague" },
-  { label: "Junior Football", sport: "afl", variant: "juniors" },
-  { label: "Masters / Over-35s Football", sport: "afl", variant: "masters" },
-  { label: "Oztag", sport: "other", variant: "oztag" },
-  { label: "Touch Football", sport: "other", variant: "touch" },
-  { label: "Lacrosse", sport: "other", variant: "fastbreak" },
+/** Club types offered at signup -> the real sport_type enum. The website VARIANT is
+ *  always a FROZEN Classic-backed theme preset (never a bespoke variant), so no trial
+ *  club joins the F2 blast radius. The old sport->bespoke-variant map is promoted to
+ *  docs/F2-design-doc.md Appendix A as the seed for the P6 sport->theme map. */
+const CLUB_TYPES: { label: string; sport: string }[] = [
+  { label: "AFL / Australian Football", sport: "afl" },
+  { label: "Football & Netball club", sport: "afl" },
+  { label: "Netball", sport: "netball" },
+  { label: "Soccer", sport: "soccer" },
+  { label: "Cricket", sport: "cricket" },
+  { label: "Basketball", sport: "basketball" },
+  { label: "Rugby Union", sport: "rugby_union" },
+  { label: "Rugby League", sport: "rugby_league" },
+  { label: "Junior Football", sport: "afl" },
+  { label: "Masters / Over-35s Football", sport: "afl" },
+  { label: "Oztag", sport: "other" },
+  { label: "Touch Football", sport: "other" },
+  { label: "Lacrosse", sport: "other" },
 ];
+
+// Sport -> a Classic-backed theme preset (all render as Classic today; differentiated
+// when themes land at P6). NEVER a bespoke variant -- the variant picker is frozen.
+const SPORT_THEME: Record<string, string> = {
+  afl: "heritage",
+  netball: "coastal",
+  soccer: "broadcast",
+  cricket: "classic",
+  basketball: "arena",
+  rugby_union: "stadium",
+  rugby_league: "stadium",
+  other: "heritage",
+};
+const themeForSport = (sport: string): string => SPORT_THEME[sport] ?? "heritage";
 
 type Result = { slug: string; variant: string };
 
@@ -64,12 +81,13 @@ export function StartTrial() {
       return;
     }
     const t = CLUB_TYPES[typeIdx];
+    const variant = themeForSport(t.sport); // frozen Classic-backed preset, never bespoke
     setBusy(true);
     try {
       const { data, error } = await supabase.rpc("create_trial_club", {
         p_name: name.trim(),
         p_sport: t.sport,
-        p_variant: t.variant,
+        p_variant: variant,
         p_email: email.trim(),
         p_primary: primary,
         p_secondary: secondary,
@@ -77,7 +95,7 @@ export function StartTrial() {
       if (error) throw error;
       const r = (data ?? {}) as { slug?: string; variant?: string };
       if (!r.slug) throw new Error("Could not create your trial. Please try again.");
-      setResult({ slug: r.slug, variant: r.variant ?? t.variant });
+      setResult({ slug: r.slug, variant: r.variant ?? variant });
       // Send the welcome email straight away; the scheduled job is the backstop.
       try {
         await supabase.functions.invoke("trial-nurture", { body: {} });
