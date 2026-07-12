@@ -37,22 +37,14 @@ const STYLES: { id: DesignVariant; label: string; note: string; sports?: string[
   { id: "touch", label: "Touch Footy", note: "Summery social — come-and-try steps + draw.", sports: ["touch"] },
 ];
 
-// Map a club's free-text sport (e.g. "Football", "AFL") to a canonical family.
-// In this AFL/footy platform, "football"/"footy" means Australian Rules.
-function sportFamily(s: string): string {
-  const k = s.toLowerCase().trim();
-  if (/(afl|aussie|australian rules|footy|^football$|aussie rules)/.test(k)) return "afl";
-  if (k.includes("netball")) return "netball";
-  if (k.includes("soccer")) return "soccer";
-  if (k.includes("cricket")) return "cricket";
-  if (k.includes("basket")) return "basketball";
-  if (k.includes("lacrosse")) return "lacrosse";
-  if (k.includes("union")) return "rugbyunion";
-  if (k.includes("league")) return "rugbyleague";
-  if (k.includes("oztag")) return "oztag";
-  if (k.includes("touch")) return "touch";
-  return k;
-}
+// F2 variant-picker freeze (Brief 04 item 2): the club-facing picker offers ONLY
+// Classic + its theme presets (the Classic-backed variants). The 20 bespoke variants
+// are removed from the picker; any club already on one keeps rendering it (we never
+// change the stored site.variant). A platform admin can still reveal all via "Show all"
+// to manage the two draft test tenants on Fastbreak/Poster.
+const ALLOWED_VARIANTS: DesignVariant[] = [
+  "heritage", "broadcast", "arena", "classic", "stadium", "editorial", "momentum", "coastal",
+];
 
 export function AdminWebsite() {
   const { club, variant, setVariant } = useClub();
@@ -66,18 +58,16 @@ export function AdminWebsite() {
   const [styleSaving, setStyleSaving] = useState(false);
   const [styleSaved, setStyleSaved] = useState(false);
 
-  // Only offer styles relevant to this club's sport(s). Generic styles (no sport
-  // tag) always show; the current style always shows so it never disappears.
-  const clubFamilies = useMemo(
-    () => new Set((club.identity.sports ?? []).map(sportFamily)),
-    [club.identity.sports],
-  );
+  // Picker offers Classic + its theme presets only. Platform admins can reveal all
+  // (to manage the draft test tenants). The stored variant is never changed here.
   const visibleStyles = useMemo(() => {
     if (isPlatform && showAll) return STYLES;
-    return STYLES.filter(
-      (s) => !s.sports || s.id === variant || s.sports.some((sp) => clubFamilies.has(sp)),
-    );
-  }, [clubFamilies, variant, isPlatform, showAll]);
+    return STYLES.filter((s) => ALLOWED_VARIANTS.includes(s.id));
+  }, [isPlatform, showAll]);
+  // If the club is already on a now-frozen bespoke variant, surface it read-only so
+  // it never silently resets to Classic and the admin can see what they're on.
+  const frozenCurrent =
+    ALLOWED_VARIANTS.includes(variant) ? null : STYLES.find((s) => s.id === variant) ?? null;
 
   const chooseMode = async (m: NewsMode) => {
     setMode(m);
@@ -110,10 +100,14 @@ export function AdminWebsite() {
       </div>
       <p className="sw-admin-note">
         Pick a look for the {club.identity.shortName} website. It applies live across the site and
-        saves as your club&apos;s style straight away. Only styles suited to your
-        club&apos;s sport{(club.identity.sports ?? []).length === 1 ? "" : "s"} are shown
-        {(club.identity.sports ?? []).length > 0 ? ` (${club.identity.sports.join(" & ")})` : ""}.
+        saves as your club&apos;s style straight away.
       </p>
+      {frozenCurrent && (
+        <p className="sw-admin-note" style={{ background: "#eef2f7", borderRadius: 8, padding: "8px 12px" }}>
+          Your current style is <strong>{frozenCurrent.label}</strong>, which is no longer offered to new
+          clubs. It keeps working &mdash; pick one of the styles below if you&apos;d like to switch.
+        </p>
+      )}
       {isPlatform && (
         <label className="sw-admin-showall">
           <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
