@@ -16,9 +16,13 @@
 -- Depends on: clubs, vm_is_club_member(), is_platform_admin(), preview_token cols.
 -- ============================================================
 
--- 0. Remove the row-model scaffolding + the off-repo function that seeds it.
+-- 0. Remove the competing empty composition models + the off-repo function that
+--    seeds one of them. Three empty page tables (pages, club_pages, club_sections)
+--    is two too many; F2 keeps ONE restructured club_pages (below).
 drop function if exists public.ensure_club_home_sections(uuid);   -- writes to club_sections
 drop table if exists public.club_sections;                        -- empty; row model rejected (sec 2)
+drop table if exists public.pages;                                -- empty THIRD composition model (drift)
+drop type if exists public.page_type;                             -- orphaned once pages is gone
 
 -- 1. Restructure club_pages to the page-document shape (empty -> rebuild).
 drop table if exists public.club_pages cascade;
