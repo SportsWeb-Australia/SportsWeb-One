@@ -15,8 +15,18 @@
 --     locks them BEFORE F2 writes any draft page/section content.
 --   * club_content: re-asserted (already gated) so this file is the single source
 --     of truth for the end state. No-op on the current DB.
--- Only the *_public_read policies are touched; every member/admin write policy is
--- left exactly as-is. people is intentionally untouched (member-only, holds PII).
+-- Only the *_public_read policies are touched; every member/admin policy is left
+-- exactly as-is. people is intentionally untouched (member-only, holds PII).
+--
+-- Admin editing on DRAFT clubs is NOT affected: unlike club_content (which relied
+-- on member_write ALL), news/events/sponsors/teams already carry a full member/admin
+-- read set that is independent of *_public_read and unchanged here --
+--   <t>_member_read  SELECT  club_id IN my_club_ids()
+--   <t>_admin_all    ALL     is_club_admin(club_id) OR is_super_admin()
+--   <t>_member_write ALL     club_id IN my_club_ids()
+-- RLS policies are OR'd, so a draft club's admin keeps read+write via these even
+-- with public_read gated to published. Verified by role-sim (draft admin read+write
+-- ALLOWED on all four) before this file was written -- no new policy is required.
 --
 -- Does NOT change any table grant. Note (separate decision): club_modules, ladder
 -- and matches have NO anon grant, so anonymous visitors cannot read them even when
@@ -97,8 +107,12 @@ create policy club_content_public_read on public.club_content
   );
 
 -- ------------------------------------------------------------
--- After applying, verify with a RAW ANON key (per club-scoped table):
---   * published club -> rows returned;  draft/suspended club -> 0 rows.
---   * authenticated non-member of a DRAFT club -> 0 rows (cross-club read closed).
---   * admin/member editing own club -> unaffected (write policies untouched).
+-- After applying, verify:
+--   RAW ANON key (per club-scoped table):
+--     * published club -> rows returned;  draft/suspended club -> 0 rows.
+--     * authenticated non-member of a DRAFT club -> 0 rows (cross-club read closed).
+--   AUTHENTICATED club admin of a DRAFT club (the one that must NOT break):
+--     * can still READ its own news / events / sponsors / teams in the admin.
+--     * can still EDIT (insert/update/delete) its own news / events / sponsors /
+--       teams. (Pre-verified by role-sim: read + write ALLOWED on all four.)
 -- ============================================================
