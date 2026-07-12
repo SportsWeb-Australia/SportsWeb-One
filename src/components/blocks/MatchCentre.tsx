@@ -27,6 +27,9 @@ export function MatchCentre({ bare }: Props) {
   }, [club.matchCentre]);
 
   const embedSrc = data.mode === "embed" ? data.embed?.[tab] : undefined;
+  // Rule 9: honest empty state, never a "sample data" affordance. A club with no
+  // fixtures/results/ladder shows a defined message, not empty tables or a fake flag.
+  const hasAnyData = data.fixtures.length > 0 || data.results.length > 0 || data.ladder.length > 0;
 
   const panel = (
     <>
@@ -74,6 +77,10 @@ export function MatchCentre({ bare }: Props) {
               If the live table doesn&apos;t load, the provider may block embedding — use “Open ↗”.
             </p>
           </div>
+        ) : !hasAnyData ? (
+          <p className="sw-mc-empty" style={{ padding: "1.5rem 0", color: "#667085" }}>
+            Fixtures, results and the ladder will appear here once the season is underway.
+          </p>
         ) : (
           <>
             {tab === "fixtures" && (
@@ -175,14 +182,7 @@ export function MatchCentre({ bare }: Props) {
         )}
 
         <div className="sw-mc-foot">
-          <span className="sw-mc-comp">
-            {data.competitionLabel}
-            {data.mode === "manual" && data.placeholder && (
-              <span className="sw-flag" style={{ marginLeft: 8 }}>
-                Manual / sample data
-              </span>
-            )}
-          </span>
+          <span className="sw-mc-comp">{data.competitionLabel}</span>
           {data.fullFixturesHref && (
             <SmartLink href={data.fullFixturesHref} className="sw-link-arrow">
               Full fixtures →
