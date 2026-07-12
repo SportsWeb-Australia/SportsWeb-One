@@ -200,13 +200,25 @@ existence). Granted to `anon` and `authenticated`.
 Member/platform-admin policies for read and write, using the existing `vm_is_club_member` pattern.
 The tables are locked *before* a single row is written to them.
 
+> **⚠️ P4 note — the public nav read is an RPC, never an anon grant.** When P4 builds DB-driven
+> navigation, the temptation will be `grant select on club_pages to anon` so the nav can read page
+> titles/slugs/order. **Do not.** A blanket anon SELECT on `club_pages` is exactly how `club_content`
+> ended up world-readable across clubs — it exposes every club's draft page rows, not just nav fields.
+> The public nav read is its own `SECURITY DEFINER` RPC returning only the nav-visible fields for one
+> club (`slug, title, nav_label, nav_order, nav_parent_id, is_home` where `nav_visible`), gated the same
+> way `public_club_page` is. One door, again.
+
 ---
 
-## 4. The registry — 15 types, 3 classes
+## 4. The registry — 16 types, 3 classes
 
-From the audit. **Only the 7 Content types hold authored content.** Collection and Module props are pure
-display config. **That means the AI authoring surface is 7 schemas, not 15.** That is the number that
-makes this tractable.
+From the audit, plus the `social_feed` reclassification below. **7 Content · 7 Collection · 2 Module.**
+(The audit's headline said "~15 / 7-5-3"; `social_feed` moved from Module to Collection once its source
+was decided (`social_highlights`), which makes it 16 and 7-7-2. The registry builds 16.)
+
+**Only the 7 Content types hold authored content.** Collection and Module props are pure display config.
+**That means the AI authoring surface is 7 schemas, not 16.** That is the number that makes this
+tractable.
 
 ### Content — props hold the content. This is Claude's canvas.
 
@@ -345,6 +357,49 @@ fabricated content, and neither can the club, and neither can we.
 2. Render **nothing at all**.
 
 There is no third option. No sample data, no lorem, no demo club's content, no "example" rows.
+
+### Rule 9 applies to the DATABASE, not just the code
+
+The seeding audit (Brief 08) found the fake data was not only in code — the platform **manufactures it at
+club creation**:
+
+- **`create_trial_club` seeded 16 fabricated rows** (3 news, 2 events, 2 sponsors, 4 teams, 4 matches, 5
+  ladder) into every new trial club. Every club was **born full of fabricated content.**
+- **`supabase/demo-seed.sql` seeded the 13-club demo estate** — including all three non-empty published
+  clubs. The "real fixtures" once screenshotted as proof were **seed data** (one batch, one minute,
+  fabricated opponents), not anything a human entered.
+- Moving fiction out of a hardcoded array and into the `matches` table did not make it honest — it made it
+  **invisible**, because it now looks exactly like real data. **It *is* data.** Nothing in the DB recorded
+  which rows were manufactured.
+
+**Rule 9, extended: the platform never manufactures data. Not in code, not at provisioning, not in a seed,
+not in a migration.** A new real club starts **empty** and renders its honest empty states — which is what
+those empty states are for. Getting real data in fast is onboarding's job (AI Import, P7), not a seed's.
+
+### The seeding decision — `is_demo`, provenance at the tenant
+
+Row-level provenance (`created_by`/`origin` on eight tables, backfilled) is invasive and solves the wrong
+problem. The clean cut is one level up:
+
+```sql
+clubs.is_demo boolean not null default false
+```
+
+**A club is either a real tenant or a demo. There is no third kind.**
+
+- **Demo** (`is_demo = true`) — Carson's showcase. Fabricated content is **fine**, because the tenant is
+  honestly labelled as what it is. Always `noindex`. The 13 `demo-seed.sql` clubs are marked demo (not
+  emptied); the flag is what makes their content honest.
+- **Real** (`is_demo = false` — trial, paying, draft, anything) — **starts empty.** It only ever holds what
+  a human put there. Dookie is a real club (in draft), not a demo.
+
+**Fake data is not banned. Manufacturing it for someone else is.** A demo tenant full of invented fixtures
+is honest; a prospect's brand-new club full of invented fixtures is a lie they never asked for and cannot
+detect. `is_demo` is **not** `is_trial` — a trial is a real prospect's club and starts empty.
+
+Consequences now in force: `create_trial_club` stops seeding content; `demo-seed.sql` is hard-guarded to
+refuse any `is_demo = false` club; every test write goes to a dedicated `is_demo` **scratch tenant**
+(`slug = scratch-tenant`), never a real club; every demo club is `noindex` (folds into per-club SEO).
 
 **A kill-switch flag stays.** Not the elaborate per-club `render_engine` rollout I originally proposed —
 Codey is right that is overkill for 4 published clubs — but one flag that flips a club back to the legacy
