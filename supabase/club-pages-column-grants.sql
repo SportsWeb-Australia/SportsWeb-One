@@ -33,6 +33,12 @@ grant update (draft_layout, seo, title, nav_label, nav_order, nav_visible, nav_p
 revoke insert, update, delete on public.club_page_versions from authenticated;
 -- select unchanged (admins view their history; restore goes through restore_club_page_version).
 
+-- club_pages DELETE: a raw delete CASCADES to club_page_versions (page_id on delete cascade)
+-- -- an admin could drop the page and take the append-only ledger with it in one statement.
+-- Page deletion is a P4 concern: it goes through an RPC that decides the history's fate
+-- (soft-delete, or archive the versions first), never a cascade. Take delete out of reach now.
+revoke delete on public.club_pages from authenticated;
+
 -- ------------------------------------------------------------
 -- After applying, verify (role-sim as a club-admin member):
 --   * update club_pages set published_layout = '...'  -> permission denied for column.
@@ -40,4 +46,5 @@ revoke insert, update, delete on public.club_page_versions from authenticated;
 --   * select publish_club_page(page_id)               -> succeeds (publishes + snapshots).
 --   * insert/update/delete on club_page_versions      -> permission denied.
 --   * select on club_page_versions                    -> succeeds.
+--   * delete from club_pages where id = ...           -> permission denied.
 -- ============================================================
