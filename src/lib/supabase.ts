@@ -126,3 +126,10 @@ export const supabase =
         auth: { persistSession: true, autoRefreshToken: true, storageKey: "sw_admin_session" },
       })
     : null;
+
+// Dev-only test harness hook: exposes the auth client so an automated headless browser can
+// sign in as a seeded test admin (there is no other way to reach an authenticated session in
+// the preview). Stripped from production builds by the import.meta.env.DEV guard.
+if (import.meta.env.DEV && typeof window !== "undefined") {
+  (window as unknown as { __sbAuth?: unknown }).__sbAuth = supabase?.auth;
+}
