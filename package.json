@@ -7,9 +7,11 @@
   "scripts": {
     "dev": "vite",
     "gen:variant-sql": "node scripts/gen-variant-fence.mjs",
-    "build": "node scripts/gen-variant-fence.mjs --check && vite build",
+    "build": "node scripts/gen-variant-fence.mjs --check && node scripts/check-no-html-sink.mjs && vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "guard:html": "node scripts/check-no-html-sink.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -23,7 +25,9 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "happy-dom": "^20.10.6",
     "typescript": "^5.5.4",
-    "vite": "^5.4.6"
+    "vite": "^5.4.6",
+    "vitest": "^4.1.10"
   }
 }
