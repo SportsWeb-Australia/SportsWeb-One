@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getClubConfigById } from "../lib/loadClub";
 import { variantDefault } from "../sections/presentation";
+import { RichTextEditor, pruneBlocks, type RichTextValue } from "../sections/RichTextEditor";
 import {
   PageRenderer,
   resolveSection,
@@ -62,6 +63,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [busy, setBusy] = useState<Busy>(false);
   const [toast, setToast] = useState<Toast>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editing, setEditing] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsAuth, setNeedsAuth] = useState(false);
@@ -195,6 +197,30 @@ export function PageComposer({ clubId }: { clubId: string }) {
     setAddOpen(false);
     flash(`Added "${SECTION_REGISTRY[type].label}". Remember to save.`);
   };
+  // --- content editing (PR 2) ---
+  const updateProps = (i: number, props: unknown) =>
+    setLayout((L) => L.map((s, k) => (k === i ? ({ ...s, props } as SectionInstance) : s)));
+  // She pasted a multi-heading document and chose "separate parts": replace this section with one
+  // rich_text section per heading. Fully undoable -- the composer owns the layout array.
+  const splitIntoSections = (i: number, sections: RichTextValue[]) => {
+    const made: SectionInstance[] = sections.map((sec) => ({
+      id: crypto.randomUUID(),
+      type: "rich_text",
+      props: { heading: sec.heading, body: sec.body } as SectionInstance["props"],
+      visible: true,
+    }));
+    const prev = layout;
+    setLayout((L) => [...L.slice(0, i), ...made, ...L.slice(i + 1)]);
+    setEditing(null);
+    flash(`Split into ${made.length} section${made.length > 1 ? "s" : ""}.`, () => setLayout(prev));
+  };
+  // Prune empty blocks from rich_text bodies at save time -- an empty paragraph is a deleted one.
+  const pruneLayout = (L: SectionInstance[]): SectionInstance[] =>
+    L.map((s) =>
+      s.type === "rich_text"
+        ? ({ ...s, props: { ...(s.props as RichTextValue), body: pruneBlocks((s.props as RichTextValue).body) } } as SectionInstance)
+        : s,
+    );
 
   const usedTypes = useMemo(() => layout.map((s) => s.type), [layout]);
 
@@ -209,7 +235,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
     // RAISES (no more silent zero-rows success), so any failure keeps the dirty flag.
     const { data, error: e } = await supabase.rpc("save_club_page_draft", {
       p_page_id: pageId,
-      p_layout: layout,
+      p_layout: pruneLayout(layout),
     });
     setBusy(false);
     if (e || data == null) {
@@ -231,7 +257,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
     // verify it took before publishing.
     const { data: stored, error: se } = await supabase.rpc("save_club_page_draft", {
       p_page_id: pageId,
-      p_layout: layout,
+      p_layout: pruneLayout(layout),
     });
     if (se || stored == null) {
       setBusy(false);
@@ -346,6 +372,13 @@ export function PageComposer({ clubId }: { clubId: string }) {
                   {!ok && <span className="sw-comp-tag sw-comp-tag-warn">Needs attention</span>}
                 </div>
                 <div className="sw-comp-item-ctrls">
+                  <button
+                    className="sw-comp-ic"
+                    onClick={() => setEditing(editing === i ? null : i)}
+                    aria-label="Edit content"
+                  >
+                    {editing === i ? "Close" : "Edit"}
+                  </button>
                   <button className="sw-comp-ic" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
                     &uarr;
                   </button>
@@ -367,6 +400,19 @@ export function PageComposer({ clubId }: { clubId: string }) {
                     Remove
                   </button>
                 </div>
+                {editing === i && (
+                  <div className="sw-comp-editor">
+                    {s.type === "rich_text" ? (
+                      <RichTextEditor
+                        value={s.props as RichTextValue}
+                        onChange={(v) => updateProps(i, v)}
+                        onSplitIntoSections={(secs) => splitIntoSections(i, secs)}
+                      />
+                    ) : (
+                      <p className="sw-comp-editor-soon">The editor for &ldquo;{def.label}&rdquo; is coming next.</p>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

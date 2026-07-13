@@ -112,6 +112,9 @@
 }
 .sw-comp-tag-warn { background: #fef3c7; color: #92400e; }
 .sw-comp-item-ctrls { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+/* PR 2: the section's content editor, expanded inline under its card. */
+.sw-comp-editor { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px dashed var(--comp-line); }
+.sw-comp-editor-soon { color: var(--comp-soft); font-style: italic; font-size: 0.9rem; margin: 0; }
 .sw-comp-ic {
   min-height: 40px;
   min-width: 40px;
