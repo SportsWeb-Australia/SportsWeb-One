@@ -533,6 +533,94 @@ is a pixel of "broken on mobile" the platform owns. If clubs later want nudge ro
 **variants within a section** (`hero: image-left | image-right | centred`) — three good options from a
 menu. Not a canvas.
 
+### 7a. Two audiences, two fences
+
+The CAN/CANNOT above is the **club admin's HARD fence**. Content only: text, images, reorder,
+toggle, add/remove sections, publish. No colour, no size, no fonts, no markup. **They cannot make
+it ugly.** This is the product promise and it does not bend.
+
+**SportsWeb / platform admin (`is_platform_admin()`) — a SOFT fence.** Design authority — but the
+flexibility lives in the **theme layer, never per-section**. Per-section styling is an escape hatch
+by the back door that produces un-migratable one-offs — the exact 28-hardcoded-variants trap §6 is
+digging out of. A platform admin gets:
+
+- **A theme editor** — live-edit the ~27 tokens against a real-time preview (colours, type scale,
+  radii, spacing, heading treatment), save as a **new theme in `club_themes`**. Every club can then
+  use it.
+- **Authority over section variants** (`hero.layout` etc.) **and page templates.**
+- **Optionally a theme-level custom-CSS field — platform-only.** Carson can break his own demo
+  tenant; a club never can.
+
+**The rule that keeps it honest:** whatever a platform admin creates must be expressible as **a theme
+or a section variant**. Never a one-off on a single club.
+
+**The principle, stated properly** (not "no formatting"): **the club expresses intent; the platform
+decides appearance.** "This is important" — yes. "Make this 24px orange" — no.
+
+### 7b. How the fence is actually enforced — schema, not UI
+
+> **The real fence is the closed schema, not a role check.** There is no colour field, no size
+> field, no markup field — so there is nothing to enforce a permission *against*. **The schema is the
+> permission system.**
+>
+> **A permission you cannot express is a permission you cannot grant by mistake.**
+
+That is why this design is robust where a role-based one would not be: a role system can be
+misconfigured, a check can be forgotten on one of sixteen write paths, a new field can ship without
+its guard. A field that does not exist has none of those failure modes. Keep the surface closed and
+most of the enforcement problem simply never arises. What *is* left to enforce — the handful of
+fields that legitimately exist but are platform-owned (variants, theme selection) — is small,
+finite, and named below.
+
+A hidden button is a curtain, not a fence. Be precise about which is which:
+
+- **Real fence, server-enforced today: the closed zod schemas.** There is no colour / size / font /
+  markup field *anywhere* in any section schema, so a club admin cannot express one, and
+  `resolveSection` strips unknown keys on the way in. Raw HTML has no field to live in. This holds
+  with **no role check at all** — it is the fence.
+- **Curtain, not fence (today):** section variants (`hero.layout`, `rich_text.layout`) live inside
+  the `draft_layout` **JSON**, and theme/template selection (`clubs.theme_key`,
+  `clubs.selected_template_id`) is **column-writable by `authenticated`**. The composer hides both,
+  but the API accepts them. A determined club admin could change a variant or swap themes by
+  crafting the write directly. **⚠️ These are not yet fenced server-side.**
+- **To make them real fences (pending — see follow-up):**
+  - *Theme / template selection* → revoke `UPDATE(theme_key, selected_template_id)` on `clubs` from
+    `authenticated`; route changes through a platform-admin-guarded RPC. Clean column-grant fence,
+    same shape as `publish_club_page`.
+  - *Section variants in JSON* → a save-path guard: for a non-platform-admin, variant-class fields in
+    `draft_layout` must equal their prior values (reject or normalise on write). Harder because it
+    lives in JSON — needs a guard on the save RPC/trigger, not a column grant.
+  - *Open question for Carson:* does a club admin get to **select** among platform-published themes at
+    all, or is even selection platform-only? "No colour, no fonts" leans toward platform-only or a
+    curated shortlist.
+
+**In the composer (PR 1):** the client seam is `is_platform_admin()` → `canDesign`. The club admin
+sees only the content controls (the hard fence — already the default). Platform-only affordances (the
+variant pickers inside PR 2's editors, the theme editor) gate behind `canDesign`, and the elevated
+role is shown so a platform admin knows they hold design authority. Proven on the branch — the seed
+needs a `platform_admin` test user alongside the `club_admin` one.
+
+### 7c. Emphasis — intent, not appearance (correction to the earlier "no formatting" line)
+
+Bold and italic are fine, **for everyone** — as **typed spans, never markup**:
+
+```json
+{ "kind": "paragraph", "spans": [
+  { "text": "Registrations close " },
+  { "text": "31 March", "emphasis": "strong" },
+  { "text": " — no late entries." }
+]}
+```
+
+Closed schema. Zod-validated. AI-emittable. **Impossible to inject HTML into.** The theme decides what
+`strong` looks like, so it cannot clash with the design. **Headings are not formatting — they are
+structure:** no H1/H4 picker; another heading is another section; the renderer keeps the hierarchy
+semantically correct, which a volunteer choosing "H4 because it looks nice" would destroy.
+
+**PR 2 scope call:** ship the `Block[]` editor with **plain paragraphs first**. Typed spans are an
+**additive** schema change (`text` → `spans`) and land in **PR 2b** once the editor works. The
+treasurer's first problem is getting her About text onto the page — not italicising a word in it.
+
 ---
 
 ## 8. The AI path — Fill, then Design

@@ -27,7 +27,20 @@
   border-bottom: 1px solid var(--comp-line);
 }
 .sw-comp-bar-status { display: flex; flex-direction: column; }
-.sw-comp-bar-status strong { font-size: 1rem; }
+.sw-comp-bar-status strong { font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+/* Elevated-role pill: platform admins hold design authority. Admin-neutral blue -- never a club
+   colour (admin chrome is always SportsWeb blue). Shown only to platform admins. */
+.sw-comp-role {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--comp-blue);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+}
 .sw-comp-dirty { color: #b45309; font-size: 0.85rem; }
 .sw-comp-clean { color: #059669; font-size: 0.85rem; }
 .sw-comp-bar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }

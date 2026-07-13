@@ -62,6 +62,17 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsAuth, setNeedsAuth] = useState(false);
+  // The role split (design doc 7a/7b). Two audiences, two fences:
+  //   - Club admin  -> HARD fence. Content only. This is the DEFAULT and needs no gate: the
+  //     real fence is the closed zod schemas (no colour/size/font/markup field exists anywhere),
+  //     enforced server-side by resolveSection, not by hiding buttons here.
+  //   - Platform admin (is_platform_admin()) -> SOFT fence. Design authority. canDesign gates the
+  //     platform-only affordances (variant pickers in PR 2's editors, the theme editor).
+  // NOTE: canDesign is a CURTAIN, not a fence. Variant fields live in draft_layout JSON and theme
+  // selection is column-writable by authenticated, so a determined club admin could still change
+  // them via the API. Making those real fences (grant revoke on clubs + a save-path variant guard)
+  // is a pending server-side follow-up tracked in the design doc.
+  const [canDesign, setCanDesign] = useState(false);
 
   const currentJson = JSON.stringify(layout);
   const dirty = currentJson !== savedJson;
@@ -84,6 +95,12 @@ export function PageComposer({ clubId }: { clubId: string }) {
         setLoading(false);
         return;
       }
+      // Which fence is this user in? is_platform_admin() is a SECURITY DEFINER RPC (checks
+      // platform_user_roles). Defaults to the hard fence on any error/null -- design authority
+      // is opt-in, never assumed.
+      const { data: pa } = await supabase.rpc("is_platform_admin");
+      if (!active) return;
+      setCanDesign(pa === true);
       const { data: base } = await supabase
         .from("club_pages")
         .select("id, draft_layout, published_layout")
@@ -265,7 +282,13 @@ export function PageComposer({ clubId }: { clubId: string }) {
     <div className="sw-comp">
       <div className="sw-comp-bar">
         <div className="sw-comp-bar-status">
-          <strong>Your home page</strong>
+          <strong>
+            Your home page
+            {/* Only the ELEVATED role is labelled: a club admin sees the normal composer (their
+                content-only fence is the default); a platform admin is told they hold design
+                authority so the power is never wielded unknowingly. */}
+            {canDesign && <span className="sw-comp-role">Platform admin · design tools</span>}
+          </strong>
           <span className={dirty ? "sw-comp-dirty" : "sw-comp-clean"}>
             {dirty ? "Unsaved changes" : "All changes saved"}
           </span>
