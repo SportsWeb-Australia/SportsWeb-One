@@ -4,8 +4,12 @@
 -- to reach a session in the preview). Repo: supabase/dev-test-admin.sql
 -- ------------------------------------------------------------
 -- NEVER run against a real project other than this dev/test one. The user is a member of the
--- is_demo scratch tenant only. Password is a throwaway test credential, not a real secret.
--- Applied to the dev project on 2026-07. Documented here for reproducibility.
+-- is_demo scratch tenant only.
+--
+-- PASSWORD IS NEVER COMMITTED. Generate a strong random one at apply time and substitute it
+-- for :PW below -- e.g. `openssl rand -base64 24`. The live value is stored outside git (a
+-- password manager / local env), not here. If it ever needs rotating, re-run just the
+-- encrypted_password UPDATE with a fresh random value.
 --
 -- GoTrue gotcha baked in: the *_token / *_change columns MUST be '' (empty), never NULL, or
 -- password login 500s (GoTrue can't scan NULL into a Go string).
@@ -25,7 +29,7 @@ insert into auth.users (
   'aaaaaaaa-0000-4000-8000-000000000001',
   'authenticated', 'authenticated',
   'composer-test@scratchtest.com',
-  crypt('ScratchCompose!2026', gen_salt('bf')),
+  crypt(:PW, gen_salt('bf')),  -- :PW = a random password supplied at apply time; NEVER commit it
   now(), now(), now(),
   '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, false, false,
   '', '', '', '', '', '', '', ''
