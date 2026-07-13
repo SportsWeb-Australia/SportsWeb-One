@@ -52,6 +52,22 @@
   border-color: var(--comp-blue);
 }
 
+.sw-comp-signin {
+  max-width: 28rem;
+  margin: 3rem auto;
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  color: #1f2937;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+.sw-comp-signin strong { font-size: 1.15rem; }
+.sw-comp-signin p { color: #6b7280; margin: 0; }
+.sw-comp-signin a { text-decoration: none; }
+
 .sw-comp-error { background: #fef2f2; color: #b91c1c; padding: 0.6rem 1rem; }
 .sw-comp-warn { background: #fffbeb; color: #92400e; padding: 0.6rem 1rem; font-size: 0.9rem; }
 

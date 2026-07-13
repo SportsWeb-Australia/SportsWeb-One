@@ -61,6 +61,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [addOpen, setAddOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   const currentJson = JSON.stringify(layout);
   const dirty = currentJson !== savedJson;
@@ -74,24 +75,21 @@ export function PageComposer({ clubId }: { clubId: string }) {
     if (!supabase) return;
     setLoading(true);
     (async () => {
-      const { data: page } = await supabase
+      // The composer is an authenticated admin tool. No session -> a clear "sign in" prompt,
+      // never a functional-looking read-only editor (that was a test workaround).
+      const { data: auth } = await supabase.auth.getUser();
+      if (!active) return;
+      if (!auth?.user) {
+        setNeedsAuth(true);
+        setLoading(false);
+        return;
+      }
+      const { data: base } = await supabase
         .from("club_pages")
         .select("id, draft_layout, published_layout")
         .eq("club_id", clubId)
         .eq("slug", "home")
         .maybeSingle();
-      // Fallback: if the draft row isn't directly readable (e.g. RLS), start from the
-      // published layout via the public RPC so there is always something to work from.
-      let base = page;
-      if (!base) {
-        const { data: pub } = await supabase.rpc("public_club_page", {
-          p_club_id: clubId,
-          p_slug: "home",
-          p_preview_token: null,
-        });
-        const row = Array.isArray(pub) ? pub[0] : pub;
-        if (row) base = { id: null, draft_layout: (row as any).layout, published_layout: (row as any).layout } as any;
-      }
       const cfg = await getClubConfigById(clubId);
       let themeTokens: Record<string, string> | undefined;
       const { data: club } = await supabase.from("clubs").select("theme_key").eq("id", clubId).maybeSingle();
@@ -185,9 +183,17 @@ export function PageComposer({ clubId }: { clubId: string }) {
     if (!supabase || !pageId) return;
     setBusy("save");
     setError(null);
-    const { error: e } = await supabase.from("club_pages").update({ draft_layout: layout }).eq("id", pageId);
+    const { data, error: e } = await supabase
+      .from("club_pages")
+      .update({ draft_layout: layout })
+      .eq("id", pageId)
+      .select("id");
     setBusy(false);
-    if (e) return setError("Could not save. Please try again.");
+    // A write that touched NO row (session lost, access revoked) is a failure even with no
+    // error object. Never clear the dirty flag on it -- the treasurer's work must survive.
+    if (e || !data || data.length === 0) {
+      return setError("Could not save — your changes are still here. Check your connection and try again.");
+    }
     setSavedJson(currentJson);
     flash("Saved. Your changes are kept, but not live yet.");
   };
@@ -198,11 +204,19 @@ export function PageComposer({ clubId }: { clubId: string }) {
     if (!window.confirm("Publish these changes? Your public website will update straight away.")) return;
     setBusy("publish");
     setError(null);
-    // A save first, so we publish exactly what is on screen.
-    await supabase.from("club_pages").update({ draft_layout: layout }).eq("id", pageId);
+    // Save first, so we publish exactly what is on screen -- and verify it actually took.
+    const { data: saved } = await supabase
+      .from("club_pages")
+      .update({ draft_layout: layout })
+      .eq("id", pageId)
+      .select("id");
+    if (!saved || saved.length === 0) {
+      setBusy(false);
+      return setError("Could not publish — your changes are still here. Check your connection and try again.");
+    }
     const { error: e } = await supabase.rpc("publish_club_page", { p_page_id: pageId });
     setBusy(false);
-    if (e) return setError("Could not publish. Please try again.");
+    if (e) return setError("Could not publish — your changes are still here. Please try again.");
     setSavedJson(currentJson);
     setPublishedJson(currentJson);
     flash("Published. Your website is now live.");
@@ -225,10 +239,26 @@ export function PageComposer({ clubId }: { clubId: string }) {
     flash("Reverted to your live website.");
   };
 
-  if (loading || !ctx) return <div className="sw-admin-loading">Loading your page&hellip;</div>;
+  if (loading) return <div className="sw-admin-loading">Loading your page&hellip;</div>;
+  if (needsAuth)
+    return (
+      <div className="sw-comp-signin">
+        <strong>Sign in to edit your home page.</strong>
+        <p>You need to be signed in to your club admin.</p>
+        <a className="sw-comp-btn sw-comp-btn-publish" href="/admin">
+          Go to sign in
+        </a>
+      </div>
+    );
+  if (!ctx) return <div className="sw-admin-loading">Loading your page&hellip;</div>;
+  if (!pageId)
+    return (
+      <div className="sw-comp-signin">
+        <strong>We couldn&rsquo;t open your home page.</strong>
+        <p>It may not exist yet, or your account can&rsquo;t edit this club.</p>
+      </div>
+    );
 
-  // No editable page row (e.g. viewing the composer signed out): show it, but writes are off.
-  const readOnly = !pageId;
   const invalidCount = layout.filter((s) => !resolveSection(s).ok && s.visible !== false).length;
 
   return (
@@ -241,13 +271,13 @@ export function PageComposer({ clubId }: { clubId: string }) {
           </span>
         </div>
         <div className="sw-comp-bar-actions">
-          <button className="sw-comp-btn" onClick={save} disabled={!dirty || busy !== false || readOnly}>
+          <button className="sw-comp-btn" onClick={save} disabled={!dirty || busy !== false}>
             {busy === "save" ? "Saving…" : "Save"}
           </button>
           <button
             className="sw-comp-btn sw-comp-btn-ghost"
             onClick={revert}
-            disabled={!hasPublished || busy !== false || readOnly}
+            disabled={!hasPublished || busy !== false}
             title="Go back to your live website"
           >
             {busy === "revert" ? "Reverting…" : "Revert to live"}
@@ -255,7 +285,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
           <button
             className="sw-comp-btn sw-comp-btn-publish"
             onClick={publish}
-            disabled={!publishable || busy !== false || readOnly}
+            disabled={!publishable || busy !== false}
             title="Make your changes live"
           >
             {busy === "publish" ? "Publishing…" : "Publish"}
@@ -263,11 +293,6 @@ export function PageComposer({ clubId }: { clubId: string }) {
         </div>
       </div>
 
-      {readOnly && (
-        <div className="sw-comp-warn">
-          Preview mode &mdash; sign in to your club admin to save or publish. You can still try the controls.
-        </div>
-      )}
       {error && <div className="sw-comp-error">{error}</div>}
       {invalidCount > 0 && (
         <div className="sw-comp-warn">
