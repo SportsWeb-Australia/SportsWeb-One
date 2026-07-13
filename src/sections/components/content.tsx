@@ -30,8 +30,11 @@ function Cta({ label, href, primary }: { label: string; href: string; primary?: 
 
 export function HeroSection({ props }: C<"hero">) {
   const m = props.media;
+  // layout is a section VARIANT (data-layout), not a theme -- the CSS positions the media
+  // per layout; absent = centred. This is the doc sec 7 fixed menu, not a theme selector.
+  const layout = props.layout ?? "centred";
   return (
-    <section className="sw-sec sw-sec--hero">
+    <section className="sw-sec sw-sec--hero" data-layout={layout}>
       {m?.kind === "image" && m.url && <img className="sw-sec-hero-media" src={m.url} alt="" />}
       {m?.kind === "video" && m.url && (
         <video className="sw-sec-hero-media" src={m.url} poster={m.poster} muted playsInline autoPlay loop />
