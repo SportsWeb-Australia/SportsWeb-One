@@ -239,6 +239,9 @@ export interface ClubConfig {
   /** True when a ?preview token was supplied but is invalid/expired: App shows a
    *  friendly "preview link no longer active" screen instead of the site. */
   previewInactive?: boolean;
+  /** True for a demo tenant (clubs.is_demo). Its content is fabricated-but-labelled;
+   *  it must never be indexed as if it were a real club. Drives the robots noindex. */
+  isDemo?: boolean;
   /** Selected design template. Clubs choose this; layout stays identical. */
   variant: DesignVariant;
   /** Floating Heritage/Broadcast preview toggle. Turn off for production. */

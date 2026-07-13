@@ -19,6 +19,22 @@
 --   Lakes United FNC               /?club=lakes-united-fnc&variant=fieldcourt
 -- ============================================================================
 
+-- Requires clubs.is_demo (supabase/strip-seeding-and-demo-flag.sql). Run that first.
+-- 0) HARD GUARD (Brief 09 sec 2d). The script that created the fake-data mess must be
+--    structurally incapable of recreating it. Refuse to run if ANY target slug already
+--    exists as a REAL club (is_demo = false). A raise, not a comment.
+do $$
+declare v_bad text;
+begin
+  select string_agg(slug, ', ') into v_bad
+  from public.clubs
+  where is_demo = false
+    and slug in ('northside-lions','eastside-united','riverside-cricket','parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc');
+  if v_bad is not null then
+    raise exception 'demo-seed refused: these target clubs are real (is_demo=false): %', v_bad;
+  end if;
+end $$;
+
 -- 1) Clear prior demo content (safe re-run) ----------------------------------
 delete from news where club_id in (select id from clubs where slug in ('northside-lions','eastside-united','riverside-cricket','parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
 delete from events where club_id in (select id from clubs where slug in ('northside-lions','eastside-united','riverside-cricket','parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc'));
@@ -80,6 +96,11 @@ insert into clubs (name, slug, sport_type, primary_colour, secondary_colour, con
 select 'Lakes United FNC','lakes-united-fnc','afl'::sport_type,
   '#16284a','#e0533d','info+lakes-united-fnc@sportsweb.com.au'
 where not exists (select 1 from clubs where slug='lakes-united-fnc');
+
+-- 2b) Mark every demo club as a demo tenant. Fabricated content below is then honestly
+--     labelled by is_demo (a from-scratch rebuild self-marks; the guard passes on re-run).
+update clubs set is_demo = true
+where slug in ('northside-lions','eastside-united','riverside-cricket','parkville-netball','metro-city-basketball','bayside-lacrosse','brighton-rugby','riverstone-rugby-league','sunset-oztag','coastal-touch','westvale-juniors','vintage-masters','lakes-united-fnc');
 
 -- 3) Seed content -----------------------------------------------------------
 -- Northside Lions FC

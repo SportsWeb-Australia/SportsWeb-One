@@ -178,15 +178,16 @@ export function StartTrial() {
               {busy ? "Building your site..." : "Create my free site"}
             </button>
             <p className="sw-trial-fine">
-              We will set you up with starter content so your site looks alive straight away.
+              Your site starts as a clean slate. Add your logo, photos and content and it updates live.
             </p>
           </>
         ) : (
           <>
             <h1 className="sw-trial-title">Your site is live.</h1>
             <p className="sw-trial-sub">
-              We have set up your club with sample news, fixtures, teams and sponsors so you can see
-              it in action. We have emailed {email} a quick-start guide too.
+              Your club site is ready with its own address and colours - a clean slate to make your own.
+              Add your news, teams, fixtures and sponsors and they appear instantly. We have emailed{" "}
+              {email} a quick-start guide to walk you through it.
             </p>
             <div className="sw-trial-actions">
               <a className="sw-trial-btn" href={`/?club=${result.slug}`}>
