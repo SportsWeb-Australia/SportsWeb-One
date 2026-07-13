@@ -86,12 +86,13 @@ export default function App() {
     registerServiceWorker();
   }, []);
 
-  // Draft preview renders must never be indexed. We manage a single robots meta
-  // (nothing else sets one) and remove it once out of preview mode.
+  // Draft preview renders AND demo tenants must never be indexed as real clubs. We manage
+  // a single robots meta (nothing else sets one) and remove it once neither applies.
+  const noindex = club.previewMode || club.isDemo;
   useEffect(() => {
     const head = document.head;
     let m = head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
-    if (club.previewMode) {
+    if (noindex) {
       if (!m) {
         m = document.createElement("meta");
         m.setAttribute("name", "robots");
@@ -101,7 +102,7 @@ export default function App() {
     } else if (m && m.getAttribute("content") === "noindex,nofollow") {
       m.remove();
     }
-  }, [club.previewMode]);
+  }, [noindex]);
 
   // The admin is its own SportsWeb One-branded installable app: when inside
   // /admin we swap the manifest, theme colour and app icon to SportsWeb One,
