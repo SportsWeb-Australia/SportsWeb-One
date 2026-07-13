@@ -5,6 +5,7 @@ import { usePermissions } from "../lib/permissions";
 import { supabase } from "../lib/supabase";
 import { getNewsMode, NEWS_MODE_OPTIONS, type NewsMode } from "../lib/newsMode";
 import type { DesignVariant } from "../content/types";
+import { ALLOWED_VARIANTS } from "../content/allowedVariants";
 
 const STYLES: { id: DesignVariant; label: string; note: string; sports?: string[] }[] = [
   { id: "heritage", label: "Heritage", note: "Clean, light, classic club feel." },
@@ -42,9 +43,8 @@ const STYLES: { id: DesignVariant; label: string; note: string; sports?: string[
 // are removed from the picker; any club already on one keeps rendering it (we never
 // change the stored site.variant). A platform admin can still reveal all via "Show all"
 // to manage the two draft test tenants on Fastbreak/Poster.
-const ALLOWED_VARIANTS: DesignVariant[] = [
-  "heritage", "broadcast", "arena", "classic", "stadium", "editorial", "momentum", "coastal",
-];
+// Single source of truth for the freeze lives in content/allowedVariants (shared with the
+// public renderer's clamp in loadClub), so the admin picker and the renderer never diverge.
 
 export function AdminWebsite() {
   const { club, variant, setVariant } = useClub();
