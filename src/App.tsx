@@ -72,8 +72,11 @@ export default function App() {
   const isTrial = location.pathname.startsWith("/start");
   const isGuide = location.pathname.startsWith("/guide");
   // F2 data-driven render: ?f2 renders the club's published_layout via PageRenderer
-  // (P2 opt-in; the legacy renderer stays the default until the F2 rollout).
-  const isF2 = new URLSearchParams(location.search).has("f2");
+  // (P2 opt-in; the legacy renderer stays the default until the F2 rollout). ?f2=<slug>
+  // renders that page; ?f2 / ?f2=1 default to the home page.
+  const f2Param = new URLSearchParams(location.search).get("f2");
+  const isF2 = f2Param !== null;
+  const f2Slug = f2Param && f2Param !== "1" ? f2Param : "home";
   // Host-aware front door: on a SportsWeb One platform host, the root path shows
   // the SportsWeb One entry page — unless a club preview override is active, in
   // which case we render that club's public site for demos/screenshots.
@@ -182,7 +185,7 @@ export default function App() {
   // already injected the club's --club-* brand colours; F2Page sets data-render="f2".
   if (isF2) {
     return club.clubId ? (
-      <F2Page clubId={club.clubId} slug="home" />
+      <F2Page clubId={club.clubId} slug={f2Slug} />
     ) : (
       <div className="sw-admin-loading">Loading&hellip;</div>
     );
