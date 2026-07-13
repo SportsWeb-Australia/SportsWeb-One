@@ -105,7 +105,9 @@ export function SponsorsSection({ props, ctx }: C<"sponsors">) {
 }
 
 export function CommitteeSection({ props, ctx }: C<"committee">) {
-  let items = ctx.committee.filter((p) => !p.placeholder);
+  // PII gate (doc sec 9b): only opt-in people ever render. Belt-and-braces with loadClub's
+  // is_public filter -- the section refuses to show a non-public person even if one reaches it.
+  let items = ctx.committee.filter((p) => !p.placeholder && p.isPublic === true);
   if (props.roles?.length) items = items.filter((p) => props.roles!.includes(p.role));
   return (
     <Frame heading={props.heading} cls="sw-sec--committee">
