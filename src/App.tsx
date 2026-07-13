@@ -38,6 +38,7 @@ import { AdminApp } from "./admin/AdminApp";
 import { PlatformLanding } from "./pages/PlatformLanding";
 import { SeoManager } from "./lib/seo";
 import { F2Page } from "./sections/F2Page";
+import { PageComposer } from "./admin/PageComposer";
 
 /** Scroll to top on every route change. */
 function ScrollToTop() {
@@ -77,6 +78,8 @@ export default function App() {
   const f2Param = new URLSearchParams(location.search).get("f2");
   const isF2 = f2Param !== null;
   const f2Slug = f2Param && f2Param !== "1" ? f2Param : "home";
+  // P3 composer entry (authenticated admins). Moves into the admin nav later; ?compose for now.
+  const isCompose = new URLSearchParams(location.search).has("compose");
   // Host-aware front door: on a SportsWeb One platform host, the root path shows
   // the SportsWeb One entry page — unless a club preview override is active, in
   // which case we render that club's public site for demos/screenshots.
@@ -180,6 +183,15 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute("data-variant", variant);
   }, [variant]);
+
+  // P3 composer: edit the club's home page. Authenticated; App has injected --club-*.
+  if (isCompose) {
+    return club.clubId ? (
+      <PageComposer clubId={club.clubId} />
+    ) : (
+      <div className="sw-admin-loading">Loading&hellip;</div>
+    );
+  }
 
   // F2 data-driven render: the club's published_layout walked by PageRenderer. App has
   // already injected the club's --club-* brand colours; F2Page sets data-render="f2".
