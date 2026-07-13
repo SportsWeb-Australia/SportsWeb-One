@@ -7,6 +7,7 @@ import type { ZodTypeAny } from "zod";
 import type { SectionContext } from "./entitlement";
 import { entitlementKeyFor } from "./entitlement";
 import { AI_AUTHORABLE, type AiAuthorable } from "./aiAuthorable";
+import { CARDINALITY, type Cardinality } from "./cardinality";
 import {
   SECTION_SCHEMAS,
   sectionInstanceSchema,
@@ -60,6 +61,9 @@ export interface SectionDef<T extends SectionType = SectionType> {
   /** Per-field AI-authoring class (free | grounded | enhance-only). The truth fence the P7
    *  generation path honours; a field not listed is "free". See ./aiAuthorable + doc sec 4/5. */
   aiAuthorable: Record<string, AiAuthorable>;
+  /** Page cardinality: "single" (max one per page, enforced) or "many" (freely duplicable).
+   *  The composer greys out / blocks a used singleton. See ./cardinality + doc sec 7. */
+  cardinality: Cardinality;
 }
 
 // A stub editor -- the admin editing UI is a later PR. Real, non-embarrassing placeholder.
@@ -91,6 +95,7 @@ function def<T extends SectionType>(
     Editor: makeStubEditor(type, label) as SectionEditor,
     entitlementKey: entitlementKeyFor(type),
     aiAuthorable: AI_AUTHORABLE[type],
+    cardinality: CARDINALITY[type],
   };
 }
 
