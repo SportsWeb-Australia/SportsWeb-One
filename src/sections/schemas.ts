@@ -41,6 +41,11 @@ export const heroSchema = z.object({
       poster: z.string().optional(),
     })
     .optional(),
+  // Hero LAYOUT is a section variant (a fixed menu), NOT a theme -- the one structural
+  // difference the token thesis cannot express (stadium/editorial/momentum/coastal were
+  // media-full / media-split / media-diagonal hero layouts in the legacy CSS). Absent =
+  // 'centred'. This is the doc sec 7 "variants within a section", not an escape hatch.
+  layout: z.enum(["centred", "media-full", "media-split", "media-diagonal"]).optional(),
 });
 
 export const announcementBarSchema = z.object({
