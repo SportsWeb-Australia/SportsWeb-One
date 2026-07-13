@@ -67,6 +67,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsAuth, setNeedsAuth] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   // The role split (design doc 7a/7b). Two audiences, two fences:
   //   - Club admin  -> HARD fence. Content only. This is the DEFAULT and needs no gate: the
   //     real fence is the closed zod schemas (no colour/size/font/markup field exists anywhere),
@@ -90,7 +91,9 @@ export function PageComposer({ clubId }: { clubId: string }) {
     let active = true;
     if (!supabase) return;
     setLoading(true);
+    setLoadFailed(false);
     (async () => {
+      try {
       // The composer is an authenticated admin tool. No session -> a clear "sign in" prompt,
       // never a functional-looking read-only editor (that was a test workaround).
       const { data: auth } = await supabase.auth.getUser();
@@ -129,6 +132,13 @@ export function PageComposer({ clubId }: { clubId: string }) {
       setCtx(sectionContextFromClub(cfg));
       setTheme(themeTokens);
       setLoading(false);
+      } catch {
+        // Any load failure (network drop, RPC error) -> an actionable error, never an endless spinner.
+        if (active) {
+          setLoadFailed(true);
+          setLoading(false);
+        }
+      }
     })();
     return () => {
       active = false;
@@ -292,6 +302,16 @@ export function PageComposer({ clubId }: { clubId: string }) {
   };
 
   if (loading) return <div className="sw-admin-loading">Loading your page&hellip;</div>;
+  if (loadFailed)
+    return (
+      <div className="sw-comp-signin">
+        <strong>We couldn&rsquo;t load your page.</strong>
+        <p>Something went wrong reaching your club&rsquo;s data. Check your connection and try again.</p>
+        <button className="sw-comp-btn sw-comp-btn-publish" onClick={() => window.location.reload()}>
+          Try again
+        </button>
+      </div>
+    );
   if (needsAuth)
     return (
       <div className="sw-comp-signin">

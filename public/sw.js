@@ -1,5 +1,5 @@
 /* SportsWeb One — service worker (PWA shell + push). */
-const CACHE = "sportsweb-one-v1";
+const CACHE = "sportsweb-one-v2";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/dookie-logo.png"];
 
 self.addEventListener("install", (event) => {
@@ -24,10 +24,14 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("/index.html", copy));
+          // Auth/SSO redirects (Vercel SSO, a club's own login) and any non-OK response MUST pass
+          // straight through -- cloning an opaqueredirect throws ("body already used"), and caching
+          // or falling back to the shell would swallow the redirect and strand the user on a spinner.
+          if (res.redirected || res.type === "opaqueredirect" || !res.ok) return res;
+          caches.open(CACHE).then((c) => c.put("/index.html", res.clone())).catch(() => {});
           return res;
         })
+        // Only a GENUINE network failure (offline) falls back to the cached shell.
         .catch(() => caches.match("/index.html"))
     );
     return;

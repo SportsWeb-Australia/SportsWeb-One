@@ -62,12 +62,34 @@ function PlatformFront() {
   return <PlatformLanding />;
 }
 
+/** Shown when the club config can't be loaded (RPC error, unknown slug, transient failure).
+ *  The total-renderer rule for the app: never an indefinite spinner -- always something actionable. */
+function ClubLoadError() {
+  return (
+    <div style={{ textAlign: "center", maxWidth: 460, margin: "18vh auto", padding: "0 20px", fontFamily: "system-ui, sans-serif" }}>
+      <h1 style={{ fontSize: 22, marginBottom: 8, color: "#1f2937" }}>We couldn&rsquo;t load this club</h1>
+      <p style={{ color: "#667085", fontSize: 15, marginBottom: 16, lineHeight: 1.5 }}>
+        Something went wrong reaching your club&rsquo;s data. Check the web address, or try again in a moment.
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: "#2563eb", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   // Static config renders instantly; live Supabase content swaps in when ready.
   // Seed with the neutral base, not the demo club, so a non-demo club never paints
   // Dookie's name/content for a frame before getClubConfig() resolves.
   const [club, setClub] = useState<ClubConfig>(emptyClub);
   const [variant, setVariant] = useState<DesignVariant>(emptyClub.variant);
+  // Distinguishes "still loading the club" from "load finished but no club" -- so a failed load
+  // shows an actionable error, never an indefinite spinner (the total-renderer rule for the app).
+  const [ready, setReady] = useState(false);
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isTrial = location.pathname.startsWith("/start");
@@ -151,6 +173,7 @@ export default function App() {
     getClubConfig().then((c) => {
       if (!active) return;
       setClub(c);
+      setReady(true);
       // Preview override: ?variant=<key> forces a template for screenshots/demos.
       let v = c.variant;
       try {
@@ -186,21 +209,17 @@ export default function App() {
 
   // P3 composer: edit the club's home page. Authenticated; App has injected --club-*.
   if (isCompose) {
-    return club.clubId ? (
-      <PageComposer clubId={club.clubId} />
-    ) : (
-      <div className="sw-admin-loading">Loading&hellip;</div>
-    );
+    if (!ready) return <div className="sw-admin-loading">Loading&hellip;</div>;
+    if (!club.clubId) return <ClubLoadError />;
+    return <PageComposer clubId={club.clubId} />;
   }
 
   // F2 data-driven render: the club's published_layout walked by PageRenderer. App has
   // already injected the club's --club-* brand colours; F2Page sets data-render="f2".
   if (isF2) {
-    return club.clubId ? (
-      <F2Page clubId={club.clubId} slug={f2Slug} />
-    ) : (
-      <div className="sw-admin-loading">Loading&hellip;</div>
-    );
+    if (!ready) return <div className="sw-admin-loading">Loading&hellip;</div>;
+    if (!club.clubId) return <ClubLoadError />;
+    return <F2Page clubId={club.clubId} slug={f2Slug} />;
   }
 
   // Public self-serve trial signup runs as its own clean page (no club chrome).
