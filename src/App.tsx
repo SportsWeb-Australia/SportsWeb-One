@@ -37,6 +37,7 @@ import { Guide } from "./pages/Guide";
 import { AdminApp } from "./admin/AdminApp";
 import { PlatformLanding } from "./pages/PlatformLanding";
 import { SeoManager } from "./lib/seo";
+import { F2Page } from "./sections/F2Page";
 
 /** Scroll to top on every route change. */
 function ScrollToTop() {
@@ -70,6 +71,9 @@ export default function App() {
   const isAdmin = location.pathname.startsWith("/admin");
   const isTrial = location.pathname.startsWith("/start");
   const isGuide = location.pathname.startsWith("/guide");
+  // F2 data-driven render: ?f2 renders the club's published_layout via PageRenderer
+  // (P2 opt-in; the legacy renderer stays the default until the F2 rollout).
+  const isF2 = new URLSearchParams(location.search).has("f2");
   // Host-aware front door: on a SportsWeb One platform host, the root path shows
   // the SportsWeb One entry page — unless a club preview override is active, in
   // which case we render that club's public site for demos/screenshots.
@@ -172,6 +176,16 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute("data-variant", variant);
   }, [variant]);
+
+  // F2 data-driven render: the club's published_layout walked by PageRenderer. App has
+  // already injected the club's --club-* brand colours; F2Page sets data-render="f2".
+  if (isF2) {
+    return club.clubId ? (
+      <F2Page clubId={club.clubId} slug="home" />
+    ) : (
+      <div className="sw-admin-loading">Loading&hellip;</div>
+    );
+  }
 
   // Public self-serve trial signup runs as its own clean page (no club chrome).
   if (isTrial) {

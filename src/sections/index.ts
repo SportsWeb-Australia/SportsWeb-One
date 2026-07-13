@@ -7,3 +7,4 @@ export * from "./registry";
 export * from "./jsonSchema";
 export * from "./PageRenderer";
 export * from "./usePublicClubPage";
+export * from "./themeSchema";
