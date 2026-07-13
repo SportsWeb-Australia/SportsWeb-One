@@ -329,10 +329,13 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
     }
 
     // Committee from people whose roles look like committee/official positions
-    // (so the page doesn't fill with every volunteer or player).
+    // (so the page doesn't fill with every volunteer or player). PII gate (doc sec 9b):
+    // only is_public rows are ever exposed -- a volunteer's name/phone/email is opt-IN.
+    // Rows without the column (pre-migration) read undefined -> excluded -> safe.
     const committee = (peopleRes.data ?? [])
       .filter(
         (p) =>
+          p.is_public === true &&
           Array.isArray(p.roles) &&
           p.roles.some((r: string) =>
             COMMITTEE_ROLES.some((k) => (r ?? "").toLowerCase().includes(k))
@@ -343,6 +346,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
           name: p.full_name ?? [p.first_name, p.last_name].filter(Boolean).join(" "),
           role: p.roles[0],
           email: p.email ?? undefined,
+          isPublic: true,
         })
       );
     if (committee.length) cfg.committee = committee;

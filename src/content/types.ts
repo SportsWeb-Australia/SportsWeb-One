@@ -141,6 +141,8 @@ export interface Person {
   role: string;
   email?: string;
   phone?: string;
+  /** PII opt-in (people.is_public, doc sec 9b). Only true rows are ever public. */
+  isPublic?: boolean;
   placeholder?: boolean;
 }
 
