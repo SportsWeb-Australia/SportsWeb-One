@@ -150,7 +150,12 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
     setSavingDrive(true);
     setDriveMsg(null);
     const value = drive.trim() || null;
-    const { error } = await supabase.from("clubs").update({ onboarding_drive_url: value }).eq("id", club.id);
+    // onboarding_drive_url is platform-only (revoked from direct writes); a SECURITY DEFINER RPC,
+    // is_platform_admin()-gated, is the only path. This panel is a SuperAdmin tool.
+    const { error } = await supabase.rpc("set_club_onboarding_drive_url", {
+      p_club_id: club.id,
+      p_url: value,
+    });
     setSavingDrive(false);
     if (error) {
       setDriveMsg(error.message);

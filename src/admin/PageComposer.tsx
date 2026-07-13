@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getClubConfigById } from "../lib/loadClub";
+import { variantDefault } from "../sections/presentation";
 import {
   PageRenderer,
   resolveSection,
@@ -22,20 +23,22 @@ import {
   type SectionType,
 } from "../sections";
 
-/** A minimal, schema-valid instance for a freshly added section. */
+/** A minimal, schema-valid instance for a freshly added section. Presentation-variant defaults
+ *  (hero.layout, news.layout, sponsors.display) come from the single source of truth
+ *  (presentation.ts), so they can never drift from the server-side variant fence. */
 function defaultInstance(type: SectionType): SectionInstance {
   const id = crypto.randomUUID();
   const props: Record<SectionType, unknown> = {
-    hero: { title: "New heading", layout: "centred" },
+    hero: { title: "New heading", layout: variantDefault("hero", "layout") },
     announcement_bar: { enabled: true, text: "New announcement" },
     rich_text: { body: [{ kind: "paragraph", text: "New paragraph." }] },
     quick_links: { links: [{ label: "New link", href: "/" }] },
     cta_band: { heading: "New call to action", actions: [{ label: "Go", href: "/" }] },
     president_welcome: { name: "Name", body: ["Welcome message."] },
     contact: { showEmail: true },
-    news: { layout: "grid", count: 3 },
+    news: { layout: variantDefault("news", "layout"), count: 3 },
     events: { count: 3 },
-    sponsors: { display: "strip" },
+    sponsors: { display: variantDefault("sponsors", "display") },
     committee: {},
     teams: {},
     documents: {},
@@ -200,18 +203,21 @@ export function PageComposer({ clubId }: { clubId: string }) {
     if (!supabase || !pageId) return;
     setBusy("save");
     setError(null);
-    const { data, error: e } = await supabase
-      .from("club_pages")
-      .update({ draft_layout: layout })
-      .eq("id", pageId)
-      .select("id");
+    // Every write to club_pages is an RPC -- the table is not an API. save_club_page_draft REJECTS
+    // any attempt by a non-admin to change a platform-controlled variant (unreachable in the
+    // composer anyway) and returns the stored layout. A lost session / revoked access / not-found
+    // RAISES (no more silent zero-rows success), so any failure keeps the dirty flag.
+    const { data, error: e } = await supabase.rpc("save_club_page_draft", {
+      p_page_id: pageId,
+      p_layout: layout,
+    });
     setBusy(false);
-    // A write that touched NO row (session lost, access revoked) is a failure even with no
-    // error object. Never clear the dirty flag on it -- the treasurer's work must survive.
-    if (e || !data || data.length === 0) {
+    if (e || data == null) {
       return setError("Could not save — your changes are still here. Check your connection and try again.");
     }
-    setSavedJson(currentJson);
+    const stored = data as SectionInstance[];
+    setLayout(stored);
+    setSavedJson(JSON.stringify(stored));
     flash("Saved. Your changes are kept, but not live yet.");
   };
 
@@ -221,21 +227,24 @@ export function PageComposer({ clubId }: { clubId: string }) {
     if (!window.confirm("Publish these changes? Your public website will update straight away.")) return;
     setBusy("publish");
     setError(null);
-    // Save first, so we publish exactly what is on screen -- and verify it actually took.
-    const { data: saved } = await supabase
-      .from("club_pages")
-      .update({ draft_layout: layout })
-      .eq("id", pageId)
-      .select("id");
-    if (!saved || saved.length === 0) {
+    // Save first via the RPC, so we publish exactly what is stored (post variant-fence) -- and
+    // verify it took before publishing.
+    const { data: stored, error: se } = await supabase.rpc("save_club_page_draft", {
+      p_page_id: pageId,
+      p_layout: layout,
+    });
+    if (se || stored == null) {
       setBusy(false);
       return setError("Could not publish — your changes are still here. Check your connection and try again.");
     }
     const { error: e } = await supabase.rpc("publish_club_page", { p_page_id: pageId });
     setBusy(false);
     if (e) return setError("Could not publish — your changes are still here. Please try again.");
-    setSavedJson(currentJson);
-    setPublishedJson(currentJson);
+    const storedLayout = stored as SectionInstance[];
+    const storedStr = JSON.stringify(storedLayout);
+    setLayout(storedLayout);
+    setSavedJson(storedStr);
+    setPublishedJson(storedStr);
     flash("Published. Your website is now live.");
   };
 

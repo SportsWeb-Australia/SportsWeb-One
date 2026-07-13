@@ -621,6 +621,16 @@ semantically correct, which a volunteer choosing "H4 because it looks nice" woul
 **additive** schema change (`text` → `spans`) and land in **PR 2b** once the editor works. The
 treasurer's first problem is getting her About text onto the page — not italicising a word in it.
 
+### 7d. The one appearance control a club gets — and why it is safe
+
+`primary/secondary/tertiary_colour` stay **club-editable** — the only appearance levers a club
+touches. They are safe because the theme consumes them as **inputs**, not as free choices:
+`color-mix()` derives every semantic colour (surfaces, text, borders, hover states) from the brand
+colours *within the theme's designed relationships*, so a club setting its colours **cannot produce
+grey-on-grey or an unreadable page** — the theme guarantees contrast. That is the whole model in one
+control: the club expresses intent ("our colours are navy and gold"), the theme decides appearance
+(how navy and gold become a readable site). Every other colour / size / font stays platform-only.
+
 ---
 
 ## 8. The AI path — Fill, then Design

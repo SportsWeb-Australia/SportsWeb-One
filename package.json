@@ -6,7 +6,8 @@
   "description": "SportsWeb One — reusable football/netball club website template. Client zero: Dookie United FNC.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "gen:variant-sql": "node scripts/gen-variant-fence.mjs",
+    "build": "node scripts/gen-variant-fence.mjs --check && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },

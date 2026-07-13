@@ -1,0 +1,6 @@
+{
+  "_comment": "SINGLE SOURCE OF TRUTH for section PRESENTATION variants (design doc 7b). section -> field -> default value. The SQL variant fence is GENERATED from this file (scripts/gen-variant-fence.mjs); the build fails if the generated SQL is stale. The composer derives its new-section defaults from the same file. Add a presentation variant HERE and nowhere else.",
+  "hero": { "layout": "centred" },
+  "news": { "layout": "grid" },
+  "sponsors": { "display": "strip" }
+}
