@@ -71,7 +71,7 @@
 
 /* ---------- HERITAGE (light, community, sponsor-friendly — default) ---------- */
 :root,
-[data-variant="heritage"] {
+html:not([data-render="f2"])[data-variant="heritage"] {
   --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
   --font-body: "Outfit", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -93,7 +93,7 @@
 }
 
 /* ---------- BROADCAST (dark, bold, match-day energy) ---------- */
-[data-variant="broadcast"] {
+html:not([data-render="f2"])[data-variant="broadcast"] {
   --ink-black: #0b0e10;
   --font-display: "Anton", "Arial Narrow", sans-serif;
   --font-body: "Outfit", system-ui, sans-serif;
@@ -119,7 +119,7 @@
 }
 
 /* ---------- ARENA (bold, sharp, high-contrast sporting) ---------- */
-[data-variant="arena"] {
+html:not([data-render="f2"])[data-variant="arena"] {
   --font-display: "Archivo", system-ui, sans-serif;
   --font-body: "Archivo", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -147,7 +147,7 @@
 }
 
 /* ---------- CLASSIC (premium, soft, silver-toned heritage) ---------- */
-[data-variant="classic"] {
+html:not([data-render="f2"])[data-variant="classic"] {
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Newsreader", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -183,7 +183,7 @@
    ============================================================ */
 
 /* ---------- STADIUM (immersive photo hero, light content, scoreboard) ---------- */
-[data-variant="stadium"] {
+html:not([data-render="f2"])[data-variant="stadium"] {
   --font-display: "Oswald", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -211,7 +211,7 @@
 }
 
 /* ---------- EDITORIAL (magazine; serif headlines, overlapping card) ---------- */
-[data-variant="editorial"] {
+html:not([data-render="f2"])[data-variant="editorial"] {
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -240,7 +240,7 @@
 }
 
 /* ---------- MOMENTUM (diagonal split hero, energetic condensed) ---------- */
-[data-variant="momentum"] {
+html:not([data-render="f2"])[data-variant="momentum"] {
   --font-display: "Saira Condensed", "Arial Narrow", sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -268,7 +268,7 @@
 }
 
 /* ---------- COASTAL (airy, minimal, calm image bands) ---------- */
-[data-variant="coastal"] {
+html:not([data-render="f2"])[data-variant="coastal"] {
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Space Grotesk", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -299,21 +299,21 @@
 }
 
 /* ---- Structural variants: typographic flavour (layout lives in blocks.css) ---- */
-[data-variant="broadsheet"] {
+html:not([data-render="f2"])[data-variant="broadsheet"] {
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: none;
   --heading-tracking: -0.01em;
   --heading-weight: 800;
 }
-[data-variant="matchday"] {
+html:not([data-render="f2"])[data-variant="matchday"] {
   --font-display: "Anton", Impact, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: uppercase;
   --heading-tracking: 0.01em;
   --heading-weight: 400;
 }
-[data-variant="appshell"] {
+html:not([data-render="f2"])[data-variant="appshell"] {
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: none;
@@ -322,7 +322,7 @@
   --radius: 14px;
   --radius-lg: 20px;
 }
-[data-variant="bento"] {
+html:not([data-render="f2"])[data-variant="bento"] {
   --font-display: "Archivo", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: none;
@@ -331,14 +331,14 @@
   --radius: 12px;
   --radius-lg: 18px;
 }
-[data-variant="sponsorforward"] {
+html:not([data-render="f2"])[data-variant="sponsorforward"] {
   --font-display: "Saira Condensed", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: uppercase;
   --heading-tracking: 0.01em;
   --heading-weight: 700;
 }
-[data-variant="portal"] {
+html:not([data-render="f2"])[data-variant="portal"] {
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: none;
@@ -347,7 +347,7 @@
   --radius: 10px;
   --radius-lg: 14px;
 }
-[data-variant="poster"] {
+html:not([data-render="f2"])[data-variant="poster"] {
   --font-display: "Anton", Impact, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --heading-transform: uppercase;
@@ -364,7 +364,7 @@
  * ========================================================================== */
 
 /* ---------- FIELDCOURT (AFL + Netball dual club — navy/coral, structured) ---------- */
-[data-variant="fieldcourt"] {
+html:not([data-render="f2"])[data-variant="fieldcourt"] {
   --accent: #e0533d;
   --accent-deep: #b53a27;
   --accent-soft: #fbe6e1;
@@ -395,7 +395,7 @@
 }
 
 /* ---------- MASTERS (AFL Masters — warm vintage maroon/gold, social, serif) ---------- */
-[data-variant="masters"] {
+html:not([data-render="f2"])[data-variant="masters"] {
   --accent: #c79a3a;
   --accent-deep: #9d7822;
   --accent-soft: #f3e8cc;
@@ -427,7 +427,7 @@
 }
 
 /* ---------- PITCH (Soccer — modern pitch-green/lime on near-black, sleek) ---------- */
-[data-variant="pitch"] {
+html:not([data-render="f2"])[data-variant="pitch"] {
   --accent: #b6f24a;
   --accent-deep: #8fd11f;
   --accent-soft: #1a3322;
@@ -458,7 +458,7 @@
 }
 
 /* ---------- SCORECARD (Cricket — heritage green/cream, ball-red, scoreboard) ---------- */
-[data-variant="scorecard"] {
+html:not([data-render="f2"])[data-variant="scorecard"] {
   --accent: #9b2226;
   --accent-deep: #781a1d;
   --accent-soft: #f0dcd1;
@@ -490,7 +490,7 @@
 }
 
 /* ---------- HARDCOURT (Basketball — dark, electric orange, stat-forward) ---------- */
-[data-variant="hardcourt"] {
+html:not([data-render="f2"])[data-variant="hardcourt"] {
   --accent: #ff6b1a;
   --accent-deep: #e0540a;
   --accent-soft: #2a1709;
@@ -522,7 +522,7 @@
 }
 
 /* ---------- FASTBREAK (Lacrosse — electric teal/violet/lime, energetic) ---------- */
-[data-variant="fastbreak"] {
+html:not([data-render="f2"])[data-variant="fastbreak"] {
   --accent: #00c2b3;
   --accent-deep: #009a8e;
   --accent-soft: #d7fffb;
@@ -555,7 +555,7 @@
 }
 
 /* ---------- LEAGUEFOOTY (AFL-only club — bold navy/red, guernsey energy) ---------- */
-[data-variant="leaguefooty"] {
+html:not([data-render="f2"])[data-variant="leaguefooty"] {
   --accent: #c8102e;
   --accent-deep: #9d0c24;
   --accent-soft: #fbe2e6;
@@ -587,7 +587,7 @@
 }
 
 /* ---------- COURTSIDE (Netball-only club — fresh teal/coral, airy, bibs) ---------- */
-[data-variant="courtside"] {
+html:not([data-render="f2"])[data-variant="courtside"] {
   --accent: #ff6f61;
   --accent-deep: #e2513f;
   --accent-soft: #ffe6e1;
@@ -619,7 +619,7 @@
 }
 
 /* ---------- JUNIORS (Junior Football — bright, friendly, family/parent) ---------- */
-[data-variant="juniors"] {
+html:not([data-render="f2"])[data-variant="juniors"] {
   --accent: #2aa7ff;
   --accent-deep: #1683d6;
   --accent-soft: #dff0ff;
@@ -651,7 +651,7 @@
 }
 
 /* ---------- RUGBYUNION (traditional, bottle-green/gold, crest-centred) ---------- */
-[data-variant="rugbyunion"] {
+html:not([data-render="f2"])[data-variant="rugbyunion"] {
   --accent: #c9a227;
   --accent-deep: #a07f17;
   --accent-soft: #f3ead0;
@@ -684,7 +684,7 @@
 }
 
 /* ---------- RUGBYLEAGUE (tough, bold red/ink/steel, clash + form guide) ---------- */
-[data-variant="rugbyleague"] {
+html:not([data-render="f2"])[data-variant="rugbyleague"] {
   --accent: #d62828;
   --accent-deep: #a81d1d;
   --accent-soft: #2a1212;
@@ -716,7 +716,7 @@
 }
 
 /* ---------- OZTAG (social night-comp — magenta/cyan, register-a-team) ---------- */
-[data-variant="oztag"] {
+html:not([data-render="f2"])[data-variant="oztag"] {
   --accent: #b5179e;
   --accent-deep: #8f1280;
   --accent-soft: #fbe2f6;
@@ -748,7 +748,7 @@
 }
 
 /* ---------- TOUCH (summery social — teal/coral, come-and-try steps) ---------- */
-[data-variant="touch"] {
+html:not([data-render="f2"])[data-variant="touch"] {
   --accent: #ff9f1c;
   --accent-deep: #e0850a;
   --accent-soft: #fff0d8;
