@@ -307,6 +307,26 @@ integration debt.**
    the "club breaks the site" vector, the XSS vector, and the reason an LLM can't be trusted to author
    it.
 
+### `aiAuthorable` — a registry property per field. Build it now, not as a P7 bolt-on.
+
+The manual AI test (§5) proved the schema stops malformed sections but not untrue ones. `aiAuthorable` is
+the same fence as zod, one layer up — and it belongs in the registry now, while the registry is fresh.
+Every field carries one of three classifications:
+
+- **`free`** — the AI may write it. Headings, CTAs, invitations, structural copy, section ordering.
+- **`grounded`** — the AI may fill it **only from facts supplied in the brief or the club record**. Every
+  number, date, count, name, venue, competition, media URL. No fact supplied → **omit the field, or omit
+  the section.** Never substitute a placeholder, never invent.
+- **`enhance-only`** — the AI may reword, tighten and improve **human-supplied** input. It may never
+  originate the content. No human input → the field stays empty and the section is omitted. (Used for any
+  section that speaks in a named human's voice; see §5 — `president_welcome.body`.)
+
+**Required fields compel fiction (test finding #2).** Making an unknowable field required — e.g.
+`president_welcome.name` — forces the generator to emit *something*, and "something" becomes a placeholder
+or a hallucinated name. The fix is **generation, not schema**: keep `name` required, and teach generation
+to **omit a section it cannot truthfully fill**. A schema that lets sections be half-empty is worse than
+one that forces the generator to admit it does not know.
+
 ### The outliers — `bento_grid`, `feature_split`
 
 Rated Not-typeable. The audit proposes an **escape hatch** for them. **Rejected.**
@@ -417,6 +437,47 @@ Codey is right that is overkill for 4 published clubs — but one flag that flip
 renderer. Twenty lines, and it is the difference between "flip one club back" and "revert a deploy at
 9pm."
 
+### Rule 9 applies to GENERATED CONTENT, not just data and provisioning
+
+A manual test of the AI authoring path (a one-line brief → Claude emits a page document → validated →
+rendered) found the third door. **12/16 section props validated on the first try, 16 types were
+sufficient — and the AI fabricated club facts anyway, while explicitly reasoning about rule 9.** From
+"Bendigo Thunder Netball Club, strong junior program, navy and silver" it invented: a founding year
+(**1974**), a team count (**14**), a player count (**180+**), a club value, and a **fictional personal
+anecdote in the president's voice** ("When I joined the Thunder as an Under 13, we had four teams and one
+set of bibs"). Every one was schema-valid. Every one was false.
+
+**Diagnosis — why the gap is exactly here.** Rule 9 is enforced at the DATA layer: Collection and Module
+sections bind to tables, so they *cannot* be faked — they render the club's rows or an empty state.
+Content sections hold **authored prose**, and prose is exactly where fabrication lives. The fence
+(zod) proves a section is well-formed; it does not prove it is true. Structural validation is necessary
+and not sufficient. **The AI authoring path must not invent facts about a club.**
+
+The fix is not more schema — zod cannot check truth. It is a new registry property, `aiAuthorable`, per
+field (see §4), plus two hard generation rules:
+
+1. **AI output lands in `draft_layout`. Always.** The AI can never publish. The human confirm step *is*
+   the publish step — the draft/published split already gives us this for free.
+2. **Every `grounded` and `enhance-only` field the AI touches is flagged for human confirmation before
+   publish.** The president sees "we've said you were founded in 1974 — is that right?" *before* it
+   publishes, not after a member finds out.
+
+### `president_welcome.body` is `enhance-only`, and why the voice rule is hard
+
+A fabricated anecdote in a **named, identifiable person's voice** — signed off, published on their club's
+site — is a different class of wrong from a wrong statistic. Enhancing a president's own words is editing;
+inventing them is **forgery**. And "enhance" degrades into "embellish" on its own — that is precisely what
+happened, unprompted. So the rule is hard:
+
+- **Human input is required before generation runs.** No input → the section is **omitted**. Never
+  generated from the club name and a vibe.
+- The AI may **improve what was written** — reword, tighten. It may **not** add facts, anecdotes,
+  memories, history, or claims that were not in the input. Rewording is in scope; new substance is not.
+- The president sees **before and after, side by side, and approves the after** before it can publish. It
+  is their voice; they sign it.
+
+**Same treatment for any section that speaks in a named human's voice, now or later.**
+
 ---
 
 ## 6. The 28 variants → themes + templates
@@ -495,6 +556,19 @@ of the words.
 
 **The registry is the fence that stops both the volunteer and the AI from producing a broken site. Same
 fence. That is not a coincidence — it is the design.**
+
+### What the manual test settled (2026)
+
+A paste-into-chat run — one-line brief → page document → validate → render — before any generation code:
+
+- **The contract is de-risked.** 12/12 sections valid on the first try; the 16 types were sufficient; no
+  missing section type, no "I need a section for X." Structure is a solved problem.
+- **The truth is not.** The same run fabricated a founding year, team count, player count, a club value,
+  and a president's anecdote — all schema-valid, all false (§5). zod stops malformed sections;
+  `aiAuthorable` (§4) stops untrue ones; the human-confirm-at-publish rule (§5) is the backstop.
+
+**P7's design centre is grounding and a human-confirm step — not more schema.** A naive generation
+pipeline built on the contract alone would ship plausible lies to real clubs.
 
 ---
 

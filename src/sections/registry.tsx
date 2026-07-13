@@ -6,6 +6,7 @@ import type { ComponentType } from "react";
 import type { ZodTypeAny } from "zod";
 import type { SectionContext } from "./entitlement";
 import { entitlementKeyFor } from "./entitlement";
+import { AI_AUTHORABLE, type AiAuthorable } from "./aiAuthorable";
 import {
   SECTION_SCHEMAS,
   sectionInstanceSchema,
@@ -56,6 +57,9 @@ export interface SectionDef<T extends SectionType = SectionType> {
   Editor: SectionEditor<T>;
   /** Capability required to render (Module class), or null if never gated. */
   entitlementKey: string | null;
+  /** Per-field AI-authoring class (free | grounded | enhance-only). The truth fence the P7
+   *  generation path honours; a field not listed is "free". See ./aiAuthorable + doc sec 4/5. */
+  aiAuthorable: Record<string, AiAuthorable>;
 }
 
 // A stub editor -- the admin editing UI is a later PR. Real, non-embarrassing placeholder.
@@ -86,6 +90,7 @@ function def<T extends SectionType>(
     Component: Component as SectionComponent,
     Editor: makeStubEditor(type, label) as SectionEditor,
     entitlementKey: entitlementKeyFor(type),
+    aiAuthorable: AI_AUTHORABLE[type],
   };
 }
 
