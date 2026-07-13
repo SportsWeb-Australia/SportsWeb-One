@@ -8,3 +8,4 @@ export * from "./jsonSchema";
 export * from "./PageRenderer";
 export * from "./usePublicClubPage";
 export * from "./themeSchema";
+export * from "./templates/classic";
