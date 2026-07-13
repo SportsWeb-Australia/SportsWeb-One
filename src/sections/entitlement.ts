@@ -67,8 +67,8 @@ export interface SectionContext {
 // (supabase/grant-anon-club-modules.sql), so the public render sees the module flag too --
 // there is no longer any reason for a second "real data => entitled" mechanism, and it is
 // DELETED, not left as a fallback. Two entitlement sources with no stated authority would be
-// the same collision as site.variant vs selected_template_id and [data-variant] vs
-// club_themes.tokens. One source: enabled.has(key). A club with match data but no
+// the same collision as site.variant vs selected_template_id and the legacy variant token
+// blocks vs club_themes.tokens. One source: enabled.has(key). A club with match data but no
 // match_centre flag renders NOTHING.
 const ENTITLEMENT_KEY: Partial<Record<SectionType, string>> = {
   match_data: "match_centre",
