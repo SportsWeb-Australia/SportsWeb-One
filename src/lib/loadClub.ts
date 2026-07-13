@@ -3,6 +3,7 @@ import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
 import { emptyClub } from "../content/emptyClub";
 import type { ClubConfig, DesignVariant, Sponsor, NewsPost, ClubEvent, TeamGroup, Person, BrandColours, Fixture, Result, LadderRow } from "../content/types";
+import { clampVariant } from "../content/allowedVariants";
 
 /** SportsWeb One template_key -> this template's design variant. */
 const TEMPLATE_VARIANT: Record<string, DesignVariant> = {
@@ -502,6 +503,12 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       if (map["footer.acknowledgement"] != null)
         cfg.footer = { ...cfg.footer, acknowledgement: map["footer.acknowledgement"] };
     }
+
+    // Freeze enforced in code: whatever the legacy sources resolved to (site.variant,
+    // selected_template_id -> templates -> a possibly-bespoke TEMPLATE_VARIANT key, or the
+    // base default), clamp the public variant to the allowed Classic-backed set. A stray
+    // bespoke value never reaches the renderer -- the fence is the code, not the data.
+    cfg.variant = clampVariant(cfg.variant);
 
     return cfg;
 }
