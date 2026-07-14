@@ -85,6 +85,7 @@ a { color: inherit; text-decoration: none; }
 .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; height: 62px; }
 .nav-brand { display: flex; align-items: center; gap: 11px; margin-right: 20px; flex-shrink: 0; }
 .nav-logo-img { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+.nav-link-logo { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
 .brand-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: .8px; color: #fff; line-height: 1; }
 .brand-sub { font-size: 10px; color: rgba(255, 255, 255, .38); line-height: 1.2; }
 .nav-links { display: flex; align-items: center; gap: 1px; flex: 1; overflow: visible; }
@@ -95,6 +96,19 @@ a { color: inherit; text-decoration: none; }
 .nav-icon-btn { width: 36px; height: 36px; border-radius: 8px; background: rgba(255, 255, 255, .07); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, .55); transition: all .15s; }
 .nav-icon-btn:hover { background: rgba(255, 255, 255, .14); color: #fff; }
 .hamburger { display: none; min-width: 44px; min-height: 44px; }
+
+/* Nav dropdowns — one level (backed by club_pages.nav_parent_id). Hover/focus
+   reveals the .nav-drop; the chevron rotates. This is nav functionality, not
+   styling: the chrome shell renders a parent's children as a .nav-drop. */
+.nav-item { position: relative; display: flex; align-items: center; }
+.nav-drop { position: absolute; top: calc(100% + 8px); left: 0; min-width: 210px; background: #13294d; border: 1px solid rgba(255, 255, 255, .12); border-radius: 12px; box-shadow: 0 14px 34px rgba(0, 0, 0, .34); padding: 7px; opacity: 0; visibility: hidden; transform: translateY(6px); transition: opacity .16s ease, transform .16s ease, visibility .16s; z-index: 120; }
+.nav-item:hover .nav-drop, .nav-item:focus-within .nav-drop { opacity: 1; visibility: visible; transform: translateY(0); }
+.nav-drop::before { content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; }
+.nav-drop a { display: block; padding: 9px 12px; border-radius: 8px; color: rgba(255, 255, 255, .82); text-decoration: none; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.nav-drop a:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.nav-drop-toggle { cursor: pointer; }
+.nav-drop-toggle .ti-chevron-down { transition: transform .16s ease; }
+.nav-item:hover .nav-drop-toggle .ti-chevron-down { transform: rotate(180deg); }
 
 /* ---- chrome: ticker (Space Grotesk; tk-* namespaced off Tabler's .ti) ----- */
 .ticker-bar { background: #060e1a; padding: 8px 0; overflow: hidden; }
@@ -127,12 +141,15 @@ a { color: inherit; text-decoration: none; }
 .hero-sub { color: rgba(255, 255, 255, .6); font-size: 15px; line-height: 1.7; max-width: 460px; margin-bottom: 28px; }
 .hero-ctas { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
 .hero-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255, 255, 255, .06); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .07); margin-top: auto; }
-.hero-stat { background: rgba(255, 255, 255, .04); padding: 14px; text-align: center; }
-.hero-stat-top { display: flex; align-items: center; justify-content: center; gap: 6px; }
-.hero-stat-ic { font-size: 15px; color: var(--brand-accent); }
+/* Glass stat strip — matched to the RDCA homepage's authoritative inline style
+   (richer than _shared.css): frosted panel, 27px white icons, solid-white bold
+   labels. Icons are neutral white, NOT accent — matches source. */
+.hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255, 255, 255, .30); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .28); margin-top: auto; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 8px 30px rgba(6, 14, 26, .28); }
+.hero-stat { background: rgba(13, 31, 60, .55); padding: 14px; text-align: center; }
+.hero-stat-top { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.hero-stat-ic { font-size: 27px; color: #fff; opacity: .8; }
 .hero-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: #fff; line-height: 1; }
-.hero-stat-lbl { font-size: 10px; color: rgba(255, 255, 255, .38); letter-spacing: .5px; text-transform: uppercase; margin-top: 2px; }
+.hero-stat-lbl { font-size: 10px; color: #fff; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; margin-top: 2px; }
 .hero-right { display: flex; flex-direction: column; }
 
 /* Content-driven degradation (Brief 10 / Ruling 3): no match card -> the hero
@@ -142,7 +159,7 @@ a { color: inherit; text-decoration: none; }
 
 /* Home Match Centre card — the glass scorecard INSIDE the hero (sport-neutral
    frame; RDCA cricket content shown; AFL etc. swap the stat rows via sport_type). */
-.hmc { background: rgba(8, 16, 30, .75); border: 1px solid rgba(255, 255, 255, .12); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; backdrop-filter: blur(16px); flex: 1; }
+.hmc { background: rgba(8, 16, 30, .9); border: 1px solid rgba(255, 255, 255, .12); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; backdrop-filter: blur(16px); flex: 1; }
 .hmc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--brand-accent), #254d87, var(--brand-accent)); }
 .hmc-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .hmc-comp { font-size: 11px; color: rgba(255, 255, 255, .32); }
@@ -156,7 +173,7 @@ a { color: inherit; text-decoration: none; }
 .hmc-score.dim { color: rgba(255, 255, 255, .4); font-size: 20px; }
 .hmc-overs { font-size: 10px; color: rgba(255, 255, 255, .3); text-align: right; }
 .hmc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-.hmc-cell { background: rgba(255, 255, 255, .07); border-radius: 9px; padding: 9px 11px; }
+.hmc-cell { background: rgba(255, 255, 255, .14); border-radius: 9px; padding: 9px 11px; }
 .hmc-lbl { font-size: 9px; color: rgba(255, 255, 255, .3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
 .hmc-val { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
 .hmc-val2 { font-size: 10px; color: rgba(255, 255, 255, .3); margin-top: 1px; }
