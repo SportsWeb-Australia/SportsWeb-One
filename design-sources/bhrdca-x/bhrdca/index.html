@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!-- BHRDCA homepage. Uses shared chrome (bhrdca-components.js) + data (site-data.js). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BHRDCA — Box Hill Reporter District Cricket Association</title>
+<meta name="description" content="The Box Hill Reporter District Cricket Association — amateur 'hard wicket' cricket across Melbourne's eastern suburbs since 1890. Juniors, Seniors, Women's & Veterans.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="/_shared.css">
+<link rel="stylesheet" href="/_pages.css">
+<script src="/bhrdca-components.js"></script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0a2242">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<script src="/pwa.js" defer></script>
+</head>
+<body data-page="home">
+
+<div data-bhrdca="masthead"></div>
+<div data-bhrdca="ticker"></div>
+
+<!-- HERO -->
+<section class="bh-hero">
+  <div class="bh-hero-inner">
+    <div>
+      <div class="bh-eyebrow">Est. 1890 · Melbourne's Eastern Suburbs</div>
+      <h1>Box Hill Reporter<br><span class="g">District Cricket</span></h1>
+      <p class="lead">The longest-running cricket association in Victoria. More than <strong>3,500 cricketers</strong> across 28 clubs play Junior, Senior, Women's and Veterans cricket with the BHRDCA every week.</p>
+      <div class="bh-hero-actions">
+        <a class="btn btn-red" href="https://www.playhq.com/cricket-australia/org/box-hill-reporter-district-cricket-association/f8c1124c" target="_blank" rel="noopener"><i class="ti ti-scoreboard"></i> Fixtures, Results &amp; Ladders</a>
+        <a class="btn btn-outline-white" href="/clubs.html"><i class="ti ti-buildings"></i> Find a Club</a>
+      </div>
+    </div>
+    <div class="bh-hero-badge"><img src="/bhrdca-logo.svg" alt="BHRDCA crest"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="bh-stats"><div class="bh-stats-inner" id="stats-mount"></div></section>
+
+<!-- QUICK TILES -->
+<section class="bh-quick">
+  <a class="bh-qtile" href="/juniors.html"><div class="qi"><i class="ti ti-friends"></i></div><h3>Juniors</h3><p>Boys &amp; girls cricket across 20+ grades, Friday nights &amp; weekend mornings.</p></a>
+  <a class="bh-qtile" href="/seniors.html"><div class="qi"><i class="ti ti-trophy"></i></div><h3>Seniors</h3><p>12+ Saturday grades plus a mid-week twilight T20 competition.</p></a>
+  <a class="bh-qtile" href="/womens.html"><div class="qi"><i class="ti ti-cricket"></i></div><h3>Women's</h3><p>A growing women's and girls' game right across the Association.</p></a>
+  <a class="bh-qtile" href="/veterans.html"><div class="qi"><i class="ti ti-medal"></i></div><h3>Veterans</h3><p>Over 40s &amp; Over 50s cricket, played Sunday afternoons.</p></a>
+</section>
+
+<div class="page-wrap wide">
+
+  <!-- ABOUT SNAPSHOT -->
+  <div class="section-block">
+    <div class="bh-secintro">
+      <div>
+        <div class="eyebrow">About the Association</div>
+        <div class="block-hed" style="margin-top:6px">135 seasons of cricket in the east</div>
+        <div class="block-sub" style="font-size:14px;line-height:1.75">The BHRDCA is an amateur 'hard wicket' cricket association centred around Melbourne's eastern suburbs, first established in 1890/91. We support Junior Boys &amp; Girls, Senior, Women's and Veterans (Over 40 &amp; Over 50) competitions — providing more than 3,500 cricketers of all ages and abilities the chance to play every week. New players, umpires and officials are always welcome.</div>
+        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn btn-navy" href="/about.html"><i class="ti ti-info-circle"></i> About BHRDCA</a>
+          <a class="btn btn-outline-red" href="/honours.html"><i class="ti ti-award"></i> Honours &amp; History</a>
+        </div>
+      </div>
+      <div class="ph"><i class="ti ti-shield"></i></div>
+    </div>
+  </div>
+
+  <!-- OUR CLUBS — club recognition section -->
+  <div class="section-block">
+    <div class="sec-head">
+      <div><div class="eyebrow">Member Clubs</div><div class="block-hed">Our Clubs</div></div>
+      <a class="view-all" href="/clubs.html">Full directory <i class="ti ti-arrow-right"></i></a>
+    </div>
+    <div class="block-sub" id="clubs-note"></div>
+    <div id="clubs-mount"></div>
+  </div>
+
+  <!-- COMMUNICATIONS TEASER -->
+  <div class="section-block">
+    <div class="callout callout-navy">
+      <i class="ti ti-broadcast"></i>
+      <div><strong>Never miss a washout, a fixture change or a result.</strong> See how the BHRDCA keeps clubs, players, parents and volunteers informed — and what to switch on so nothing important gets missed. <a href="/communications.html" style="color:var(--gold);font-weight:700">Explore Communications →</a></div>
+    </div>
+  </div>
+
+</div>
+
+<div data-bhrdca="sponsor-carousel"></div>
+<div data-bhrdca="footer"></div>
+
+<script src="/site-data.js"></script>
+<script src="/bhrdca-render.js"></script>
+<script>
+  BHRDCA.render.stats("#stats-mount");
+  BHRDCA.render.clubs("#clubs-mount");
+  (function(){
+    var d = window.BHRDCA_DATA || {};
+    var n = (d.clubs||[]).length;
+    document.getElementById("clubs-note").innerHTML =
+      "Showing <strong>" + n + "</strong> member clubs — tap any club to visit its website. " + (d.clubsNote || "");
+  })();
+</script>
+</body>
+</html>

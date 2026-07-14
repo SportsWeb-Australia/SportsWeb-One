@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BHRDCA Contacts — BHRDCA</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="/_shared.css">
+<link rel="stylesheet" href="/_pages.css">
+<script src="/bhrdca-components.js"></script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0a2242">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<script src="/pwa.js" defer></script>
+</head>
+<body data-page="contacts">
+
+<div data-bhrdca="masthead"></div>
+<div data-bhrdca="ticker"></div>
+
+<header class="page-hero">
+  <div class="page-hero-inner wide">
+    <div class="crumb"><a href="/index.html">Home</a> <i class="ti ti-chevron-right"></i> Association · Contacts</div>
+    <div class="eyebrow">Committee of Management</div>
+    <h1>BHRDCA Contacts</h1>
+    <p class="page-sub">The Committee of Management and sub-committees for the 2025/26 season.</p>
+  </div>
+</header>
+
+<div class="page-wrap wide">
+  <div class="section-block">
+    <div class="callout callout-navy" style="margin-bottom:20px">
+      <i class="ti ti-map-pin"></i>
+      <div><strong>BHRDCA Postal Address:</strong> 604 Mountain Highway, Bayswater VIC 3153.<br>Registered with Consumer Affairs Victoria — Box Hill Reporter District Cricket Association Inc. Registered 26/9/1995, Registration #A0032112P.</div>
+    </div>
+    <div class="block-hed">2025/26 Administration</div>
+    <div class="block-sub">The people who run the Association. New volunteers are always welcome — get in touch.</div>
+    <div id="cm"></div>
+  </div>
+  <div class="section-block">
+    <div class="block-hed">Sub-Committees</div>
+    <div id="sm"></div>
+  </div>
+</div>
+
+<div data-bhrdca="sponsor-carousel"></div>
+<div data-bhrdca="footer"></div>
+<script src="/site-data.js"></script>
+<script src="/bhrdca-render.js"></script>
+<script>
+BHRDCA.render.committee("#cm");
+BHRDCA.render.subCommittees("#sm");
+</script>
+</body>
+</html>

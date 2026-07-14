@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Contact — BHRDCA</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="/_shared.css">
+<link rel="stylesheet" href="/_pages.css">
+<script src="/bhrdca-components.js"></script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0a2242">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<script src="/pwa.js" defer></script>
+</head>
+<body data-page="contact">
+
+<div data-bhrdca="masthead"></div>
+<div data-bhrdca="ticker"></div>
+
+<header class="page-hero">
+  <div class="page-hero-inner wide">
+    <div class="crumb"><a href="/index.html">Home</a> <i class="ti ti-chevron-right"></i> Contact</div>
+    <div class="eyebrow">Get in touch</div>
+    <h1>Contact</h1>
+    <p class="page-sub">Media inquiries, general questions and how to join our mailing list.</p>
+  </div>
+</header>
+
+<div class="page-wrap wide">
+  <div class="section-block">
+    <div class="bh-secintro">
+      <div>
+        <div class="block-hed">Contact the BHRDCA team</div>
+        <div class="block-sub" style="font-size:14px;line-height:1.7">For media inquiries, reach out to our Media Manager below. For all other inquiries, send us a message and we'll point you in the right direction.</div>
+        <div class="bh-ccard" style="margin-top:16px;max-width:340px">
+          <div class="role">Media Manager</div>
+          <div class="nm">Paul Hooper</div>
+          <a href="tel:0420789811"><i class="ti ti-phone"></i> 0420 789 811</a>
+          <a href="mailto:bhrdca.media@gmail.com"><i class="ti ti-mail"></i> bhrdca.media@gmail.com</a>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px">
+          <a class="f-soc" style="background:var(--navy);color:#fff;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center" href="https://www.facebook.com/bhrdca" target="_blank" rel="noopener" aria-label="Facebook"><i class="ti ti-brand-facebook"></i></a>
+          <a class="f-soc" style="background:var(--navy);color:#fff;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center" href="https://www.instagram.com/bhrdca1/" target="_blank" rel="noopener" aria-label="Instagram"><i class="ti ti-brand-instagram"></i></a>
+        </div>
+      </div>
+      <div>
+        <form class="bh-form" onsubmit="event.preventDefault();this.style.display='none';document.getElementById('bh-thanks').style.display='block';">
+          <div class="bh-field"><label>First name</label><input required type="text" name="first"></div>
+          <div class="bh-field"><label>Last name</label><input required type="text" name="last"></div>
+          <div class="bh-field"><label>Email</label><input required type="email" name="email"></div>
+          <div class="bh-field"><label>Phone</label><input type="tel" name="phone"></div>
+          <div class="bh-field"><label>Message</label><textarea required rows="4" name="msg"></textarea></div>
+          <button class="btn btn-red" type="submit"><i class="ti ti-send"></i> Submit</button>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px">This demo form shows a confirmation only. Live submissions &rarr; BHRDCA inbox is the SportsWeb One integration step.</p>
+        </form>
+        <div id="bh-thanks" style="display:none" class="callout callout-blue"><i class="ti ti-circle-check"></i><div><strong>Thanks for submitting!</strong> We'll be in touch soon.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="section-block">
+    <div class="callout callout-navy"><i class="ti ti-mail-opened"></i><div><strong>Join our mailing list.</strong> Season information, important notices and event invitations — straight to your inbox. Ask your club to add you, or email <a href="mailto:bhrdca.media@gmail.com" style="color:var(--gold);font-weight:700">bhrdca.media@gmail.com</a>.</div></div>
+  </div>
+</div>
+
+<div data-bhrdca="sponsor-carousel"></div>
+<div data-bhrdca="footer"></div>
+
+</body>
+</html>
