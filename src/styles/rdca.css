@@ -1,0 +1,244 @@
+/*
+ * SportsWeb One — RDCA design foundation (PR-A).
+ *
+ * Ported from SportsWeb-Australia/bhrdca `_shared.css` (RDCA v9), re-expressed
+ * as a token model. See docs/rdca-port-audit.md.
+ *
+ * PR-A scope: token model (with --ink-* accent pairs) + chrome + hero + the
+ * two-column shell. NO section engine and NO live-data sections yet — those are
+ * PR-B/PR-C. Everything is scoped under `.rdca` so it never collides with the
+ * existing 28-variant system in blocks.css / tokens.css.
+ *
+ * Ruling 3 (docs/rdca-port-audit.md): the page must hold with every live-data
+ * section absent. Degradation here is CONTENT-driven, not just viewport-driven:
+ *   - the hero drops the Home Match Centre card and re-centres (no dead gap)
+ *     whenever `.hmc` is not rendered  ->  showMatchCard: false
+ *   - the sidebar rail collapses to full-width main whenever `.col-side` has no
+ *     children  ->  live-data sidebar sections absent
+ */
+
+.rdca {
+  /* ---- Chrome surfaces (RDCA = navy) ---- */
+  --navy: #0a2242;
+  --navy-2: #123059;
+  --navy-3: #1c4a86;
+  --chrome-ink: #060e1a;      /* deepest navy: topbar / ticker ground */
+
+  /* ---- Accent + its paired ink -------------------------------------------
+   * The RDCA lesson: an accent that is too light to carry white text ships
+   * WITH the ink colour that sits ON it. Text-on-accent is a token decision,
+   * not a per-rule patch. Every accent below has a matching --ink-<accent>. */
+  --accent: #f2b90c;          /* RDCA gold */
+  --ink-accent: #0a2242;      /* navy text ON gold */
+  --accent-hover: #ffcb2e;
+  --accent-deep: #a9770a;     /* gold, darkened, for text on light bg */
+
+  --danger: #cc2222;
+  --ink-danger: #ffffff;
+  --ok: #16a34a;
+  --ink-ok: #ffffff;
+
+  /* ---- Neutral surfaces ---- */
+  --bg: #f0f2f5;
+  --bg-2: #e4e7ec;
+  --card: #ffffff;
+  --border: rgba(0, 0, 0, .08);
+  --muted: #5a6880;
+  --text: #0d1923;
+
+  /* ---- Shape + shadow ---- */
+  --r: 14px;
+  --r-sm: 8px;
+  --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .05);
+  --shadow-2: 0 8px 32px rgba(0, 0, 0, .14);
+
+  /* ---- Type ---- */
+  --font-body: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.rdca *, .rdca *::before, .rdca *::after { box-sizing: border-box; }
+.rdca img { display: block; max-width: 100%; }
+.rdca a { color: inherit; text-decoration: none; }
+
+/* ============================ PRIMITIVES ============================ */
+.rdca .btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: var(--r-sm);
+  font-family: var(--font-body); font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; white-space: nowrap;
+  transition: transform .15s, background .15s, color .15s;
+}
+.rdca .btn:hover { transform: translateY(-1px); }
+/* accent button uses the paired ink automatically */
+.rdca .btn-accent { background: var(--accent); color: var(--ink-accent); }
+.rdca .btn-accent:hover { background: var(--accent-hover); color: var(--ink-accent); }
+.rdca .btn-navy { background: var(--navy); color: #fff; }
+.rdca .btn-navy:hover { background: var(--navy-2); }
+.rdca .btn-outline-white { background: transparent; color: #fff; border: 1.5px solid rgba(255, 255, 255, .4); }
+.rdca .btn-outline-white:hover { background: rgba(255, 255, 255, .12); }
+.rdca .btn-outline-accent { background: transparent; color: var(--accent-deep); border: 1.5px solid var(--accent); }
+.rdca .btn-outline-accent:hover { background: var(--accent); color: var(--ink-accent); }
+
+.rdca .badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  letter-spacing: .4px; text-transform: uppercase; white-space: nowrap;
+}
+.rdca .badge-accent { background: var(--accent); color: var(--ink-accent); }
+.rdca .badge-navy { background: var(--navy-2); color: rgba(255, 255, 255, .85); }
+
+.rdca .eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--muted); display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+}
+.rdca .eyebrow::before { content: ""; width: 18px; height: 2.5px; background: var(--accent); border-radius: 2px; flex-shrink: 0; }
+.rdca .card { background: var(--card); border-radius: var(--r); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.rdca .s-hed { font-family: var(--font-display); font-size: 28px; letter-spacing: .5px; color: var(--text); line-height: 1; }
+
+/* ============================== TOPBAR ============================== */
+.rdca .topbar {
+  background: var(--chrome-ink); padding: 7px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rdca .tb-item { font-size: 11px; color: rgba(255, 255, 255, .4); display: flex; align-items: center; gap: 5px; }
+.rdca .t-soc { display: flex; gap: 6px; }
+.rdca .t-soc a {
+  width: 30px; height: 30px; border-radius: 6px; background: rgba(255, 255, 255, .05);
+  display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, .55);
+  font-size: 16px; transition: background .15s, color .15s;
+}
+.rdca .t-soc a:hover { background: color-mix(in srgb, var(--accent) 70%, transparent); color: var(--ink-accent); }
+
+/* ================================ NAV ============================== */
+.rdca .nav-wrap { background: var(--navy); position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 20px rgba(0, 0, 0, .35); }
+.rdca .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; height: 62px; }
+.rdca .nav-brand { display: flex; align-items: center; gap: 11px; margin-right: 20px; flex-shrink: 0; }
+.rdca .nav-logo-img { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+.rdca .brand-name { font-family: var(--font-display); font-size: 22px; letter-spacing: .8px; color: #fff; line-height: 1; }
+.rdca .brand-sub { font-size: 10px; color: rgba(255, 255, 255, .38); line-height: 1.2; }
+.rdca .nav-links { display: flex; align-items: center; gap: 1px; flex: 1; }
+.rdca .nav-link {
+  padding: 9px 13px; font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, .65);
+  border-radius: 7px; cursor: pointer; white-space: nowrap; transition: background .15s, color .15s;
+}
+.rdca .nav-link:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.rdca .nav-link.active { background: var(--accent); color: var(--ink-accent); }
+.rdca .nav-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-left: 8px; }
+
+/* ============================== TICKER ============================= *
+ * Chrome shell only (PR-A). The live-scores content is a PR-C section; when it
+ * is absent the whole bar is simply not rendered (Ruling 3). */
+.rdca .ticker-bar { background: var(--chrome-ink); padding: 8px 0; overflow: hidden; }
+.rdca .ticker-inner { display: flex; align-items: center; }
+.rdca .ticker-pill {
+  background: var(--accent); color: var(--ink-accent); padding: 5px 18px; font-size: 11px;
+  font-weight: 700; letter-spacing: .6px; text-transform: uppercase; white-space: nowrap;
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px; border-radius: 0 20px 20px 0; margin-right: 8px;
+}
+.rdca .ticker-scroll { flex: 1; overflow: hidden; white-space: nowrap; color: rgba(255, 255, 255, .72); font-size: 12.5px; }
+
+/* =============================== HERO ============================== */
+.rdca .hero { position: relative; overflow: hidden; min-height: 560px; display: flex; align-items: stretch; }
+.rdca .hero-photo { position: absolute; inset: 0; background-size: cover; background-position: center 30%; background-image: linear-gradient(160deg, var(--navy), var(--navy-3)); }
+.rdca .hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, rgba(8, 16, 30, .96) 0%, rgba(13, 31, 60, .88) 45%, rgba(13, 31, 60, .55) 100%); }
+.rdca .hero-grid {
+  max-width: 1200px; margin: 0 auto; padding: 80px 20px 56px;
+  display: grid; grid-template-columns: 1fr minmax(360px, 440px); gap: 48px;
+  align-items: stretch; position: relative; z-index: 1; width: 100%;
+}
+.rdca .hero-left { display: flex; flex-direction: column; }
+.rdca .hero-hed { font-family: var(--font-display); font-size: 68px; line-height: .9; color: #fff; letter-spacing: .5px; margin-bottom: 16px; }
+.rdca .hero-hed .accent { color: var(--accent); }
+.rdca .hero-hed .ghost { -webkit-text-stroke: 1.5px rgba(255, 255, 255, .35); color: transparent; }
+.rdca .hero-sub { color: rgba(255, 255, 255, .6); font-size: 15px; line-height: 1.7; max-width: 460px; margin-bottom: 28px; }
+.rdca .hero-ctas { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+.rdca .hero-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.rdca .hero-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255, 255, 255, .06);
+  border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .07); margin-top: auto;
+}
+.rdca .hero-stat { background: rgba(255, 255, 255, .04); padding: 14px; text-align: center; }
+.rdca .hero-stat-val { font-family: var(--font-display); font-size: 28px; color: #fff; line-height: 1; }
+.rdca .hero-stat-lbl { font-size: 10px; color: rgba(255, 255, 255, .38); letter-spacing: .5px; text-transform: uppercase; margin-top: 2px; }
+.rdca .hero-right { display: flex; flex-direction: column; }
+
+/* Ruling 3 — content-driven: when the match card (.hmc) is NOT rendered, the
+ * hero becomes a single, left-weighted column with a capped measure. No empty
+ * 440px rail, no stretched headline, no dead gap. This is showMatchCard:false. */
+.rdca .hero:not(:has(.hmc)) .hero-grid { grid-template-columns: 1fr; }
+.rdca .hero:not(:has(.hmc)) .hero-left { max-width: 760px; }
+
+/* -------- Home Match Centre card (frame only; sport-neutral per Ruling 5) --- */
+.rdca .hmc { background: rgba(8, 16, 30, .75); border: 1px solid rgba(255, 255, 255, .12); border-radius: 16px; padding: 20px; position: relative; overflow: hidden; backdrop-filter: blur(16px); flex: 1; }
+.rdca .hmc::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--navy-3), var(--accent)); }
+.rdca .hmc-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.rdca .hmc-comp { font-size: 11px; color: rgba(255, 255, 255, .32); }
+.rdca .hmc-team { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+.rdca .hmc-team + .hmc-team { border-top: 1px solid rgba(255, 255, 255, .07); }
+.rdca .hmc-tid { display: flex; align-items: center; gap: 10px; }
+.rdca .hmc-logo { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 12px; color: #fff; flex-shrink: 0; background: var(--navy-2); }
+.rdca .hmc-name { font-size: 14px; font-weight: 600; color: #fff; }
+.rdca .hmc-sub { font-size: 10px; color: rgba(255, 255, 255, .32); }
+.rdca .hmc-score { font-family: var(--font-display); font-size: 26px; color: #fff; text-align: right; }
+.rdca .hmc-score.dim { color: rgba(255, 255, 255, .4); font-size: 20px; }
+.rdca .hmc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.rdca .hmc-cell { background: rgba(255, 255, 255, .07); border-radius: 9px; padding: 9px 11px; }
+.rdca .hmc-lbl { font-size: 9px; color: rgba(255, 255, 255, .3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.rdca .hmc-val { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+
+/* =========================== MAIN LAYOUT ==========================
+ * The critical grid: main content + a thin sidebar rail. Ruling 3 —
+ * content-driven: if the sidebar has no children (live-data sections absent),
+ * the rail collapses and main content takes the full width. No empty 320px gap. */
+.rdca .main-layout { max-width: 1200px; margin: 0 auto; padding: 28px 20px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+.rdca .main-layout:not(:has(.col-side > *)) { grid-template-columns: 1fr; }
+.rdca .main-layout:not(:has(.col-side > *)) .col-side { display: none; }
+.rdca .col-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.rdca .col-side { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.rdca .sec-hdr { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.rdca .view-all { font-size: 13px; font-weight: 700; color: var(--accent-deep); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+/* ============================== FOOTER ============================= */
+.rdca .footer { background: #050c17; }
+.rdca .footer-accent { height: 4px; background: linear-gradient(90deg, var(--accent), var(--navy-3), var(--accent)); }
+.rdca .footer-top { max-width: 1200px; margin: 0 auto; padding: 40px 20px 28px; display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr; gap: 40px; }
+.rdca .f-link { display: block; font-size: 12px; color: rgba(255, 255, 255, .85); margin-bottom: 8px; transition: color .14s; }
+.rdca .f-link:hover { color: #fff; }
+.rdca .f-soc { width: 42px; height: 42px; border-radius: 9px; background: rgba(255, 255, 255, .06); display: inline-flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, .9); font-size: 20px; transition: background .14s, transform .14s; }
+.rdca .f-soc:hover { background: var(--danger); color: #fff; transform: translateY(-2px); }
+.rdca .footer h4 { color: #fff; font-size: 13px; margin-bottom: 12px; }
+.rdca .footer-legal { max-width: 1200px; margin: 0 auto; padding: 16px 20px; border-top: 1px solid rgba(255, 255, 255, .08); color: rgba(255, 255, 255, .4); font-size: 11px; }
+
+/* ============================ RESPONSIVE ==========================
+ * The viewport collapses remain (they are still correct), but they are now the
+ * SECOND line of defence — content-driven collapse above handles the "no live
+ * data" case at every width. */
+@media (max-width: 1060px) {
+  .rdca .hero-grid { grid-template-columns: 1fr; }
+  .rdca .hmc { display: none; }
+  .rdca .main-layout { grid-template-columns: 1fr; }
+  .rdca .col-side { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .rdca .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .rdca .topbar, .rdca .nav-links { display: none; }
+  .rdca .hero-hed { font-size: 52px; }
+  .rdca .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .rdca .col-side { display: flex; flex-direction: column; }
+  .rdca .footer-top { grid-template-columns: 1fr 1fr; }
+  .rdca .hero-ctas { flex-direction: column; gap: 8px; }
+  .rdca .hero-ctas .btn { width: 100%; justify-content: flex-start; }
+}
+@media (max-width: 480px) {
+  .rdca .hero-hed { font-size: 40px; }
+  .rdca .footer-top { grid-template-columns: 1fr; }
+}
