@@ -363,7 +363,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
           )}
         </div>
 
-        <div className="sw-comp-preview" data-render="f2" aria-label="Live preview">
+        <div className="sw-comp-preview sw-f2" data-render="f2" aria-label="Live preview">
           <div className="sw-comp-preview-cap">Preview &mdash; exactly what visitors see</div>
           {ctx && <PageRenderer layout={layout} ctx={ctx} theme={theme} />}
         </div>
