@@ -117,8 +117,20 @@
     return '<option value="' + c[0] + '">' + c[1] + '</option>';
   }).join("");
 
-  var btnLabel = SOURCE === "onboarding" ? "Website check" : (LIVE ? "Report an issue" : "Feedback");
-  var sendLabel = SOURCE === "onboarding" ? "Send" : (LIVE ? "Report an issue" : "Send feedback");
+  // Two jobs, one backend: source=onboarding is PRE-LAUNCH REVIEW ("Site feedback",
+  // feedback-inviting copy, onboarding triage bucket); source=report is the LIVE site
+  // ("Report an issue"). Mode is prop-driven (data-source / data-website-status) -- never
+  // hardcode it per client, or every future pre-launch review has to be re-fixed.
+  var FEEDBACK = SOURCE === "onboarding";
+  var btnLabel = FEEDBACK ? "Site feedback" : (LIVE ? "Report an issue" : "Feedback");
+  var sendLabel = FEEDBACK ? "Send feedback" : (LIVE ? "Report an issue" : "Send feedback");
+  var subCopy = FEEDBACK
+    ? "Tell us what you think of this page — it takes 15 seconds."
+    : "Spotted something? Let us know -- takes 15 seconds.";
+  var promptLabel = FEEDBACK ? "Your feedback" : "What did you notice?";
+  var promptPh = FEEDBACK
+    ? "e.g. Love the look — the fixtures list could be easier to scan"
+    : "e.g. The ladder on this page is out of date";
 
   root.innerHTML =
     '<style>' + css + '</style>' +
@@ -127,10 +139,10 @@
       '<div class="head"><span class="mark">' + SHIELD + '</span>' +
         '<div><p class="title">' + btnLabel + '</p></div>' +
         '<button class="x" id="sp-close" aria-label="Close">&times;</button></div>' +
-      '<p class="sub">Spotted something? Let us know -- takes 15 seconds.</p>' +
+      '<p class="sub">' + subCopy + '</p>' +
       '<label>What\'s it about?</label><select id="sp-cat">' + opts + '</select>' +
-      '<label>What did you notice?</label>' +
-      '<textarea id="sp-desc" placeholder="e.g. The ladder on this page is out of date"></textarea>' +
+      '<label>' + promptLabel + '</label>' +
+      '<textarea id="sp-desc" placeholder="' + promptPh + '"></textarea>' +
       '<div class="row"><input type="checkbox" id="sp-urgent"><label for="sp-urgent">This is urgent</label></div>' +
       '<div class="row"><input type="checkbox" id="sp-contact"><label for="sp-contact">I\'d like a reply</label></div>' +
       '<div id="sp-contactfields" style="display:none">' +
