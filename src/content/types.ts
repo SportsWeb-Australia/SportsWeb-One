@@ -192,6 +192,32 @@ export interface MatchEmbed {
   height?: number;
 }
 
+/**
+ * The current/most-recent match, shown in the hero's Home Match Centre card (.hmc).
+ * SPORT-NEUTRAL by construction: `teams`, `cells` and `deliveries` are generic, so a cricket
+ * club fills overs/wickets/RRR/ball-by-ball while an AFL club fills quarters/goals/behinds.
+ * The per-sport authoring of these fields keys off clubs.sport_type (PR-C / PlayHQ adapter).
+ */
+export interface CurrentMatch {
+  /** e.g. "Premier Division · Round 14 · Ringwood Reserve". */
+  competition?: string;
+  /** Short status label shown as a badge, e.g. "Live Now" / "Stumps". */
+  status?: string;
+  live?: boolean;
+  /** The two sides. `initials` + `colour` render the small logo chip; `note` is the line under
+   *  the name (e.g. "Batting"); `score` is the big figure and `scoreNote` its sub (e.g. "42.2 ov");
+   *  `dim` greys a finished side. */
+  teams: { name: string; initials?: string; colour?: string; note?: string; score?: string; scoreNote?: string; dim?: boolean }[];
+  /** The stat grid (Partnership / Required / Best Bowler / … for cricket). Generic label+value. */
+  cells?: { label: string; value: string; sub?: string; emphasis?: boolean }[];
+  /** Recent deliveries / scoring events as chips; `kind` tints boundaries (four/six). */
+  deliveries?: { value: string; kind?: "four" | "six" }[];
+  /** A short footnote, e.g. "CRR 4.41". */
+  footNote?: string;
+  /** Deep link to the full Match Centre. */
+  cta?: LinkRef;
+}
+
 export interface MatchCentreData {
   /**
    * "manual" renders the data below.
@@ -199,6 +225,8 @@ export interface MatchCentreData {
    * "api"    uses the adapter (future).
    */
   mode: "manual" | "embed" | "api";
+  /** The live/most-recent match for the hero card (.hmc). Absent -> hero renders single-column. */
+  current?: CurrentMatch;
   /** Provider name shown on the embed panel, e.g. "GameDay". */
   provider?: string;
   competitionLabel: string;

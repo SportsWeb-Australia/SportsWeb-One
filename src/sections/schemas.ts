@@ -30,9 +30,26 @@ const linkRef = z.object({ label: z.string().min(1), href: safeHref });
 export const heroSchema = z.object({
   eyebrow: z.string().optional(),
   title: z.string().min(1),
+  /** Optional styled headline: an ordered run of plain-text segments, each optionally
+   *  emphasised. Renders as spans (accent = brand colour, ghost = outline stroke). A closed
+   *  union of styles -- raw HTML stays banned; `title` is the plain fallback + AI surface. */
+  titleRich: z
+    .array(z.object({ text: z.string().min(1), style: z.enum(["accent", "ghost"]).optional(), break: z.boolean().optional() }))
+    .max(12)
+    .optional(),
   subtitle: z.string().optional(),
   primaryCta: linkRef.optional(),
   secondaryCta: linkRef.optional(),
+  /** Small badges above the stat strip (e.g. season / round). `live` shows the pulse dot. */
+  badges: z.array(z.object({ text: z.string().min(1), live: z.boolean().optional() })).max(3).optional(),
+  /** A short note beside the badges ("Round 14 of 18 underway"). */
+  note: z.string().optional(),
+  /** Up to 6 headline club stats pinned to the bottom of the feature hero. `icon` is a
+   *  Tabler icon name (e.g. "ti-trophy"); validated as a plain token, never markup. */
+  stats: z
+    .array(z.object({ value: z.string().min(1), label: z.string().min(1), icon: z.string().optional() }))
+    .max(6)
+    .optional(),
   // The media fix: one union, not separate image/video keys.
   media: z
     .object({
@@ -42,10 +59,13 @@ export const heroSchema = z.object({
     })
     .optional(),
   // Hero LAYOUT is a section variant (a fixed menu), NOT a theme -- the one structural
-  // difference the token thesis cannot express (stadium/editorial/momentum/coastal were
-  // media-full / media-split / media-diagonal hero layouts in the legacy CSS). Absent =
-  // 'centred'. This is the doc sec 7 "variants within a section", not an escape hatch.
-  layout: z.enum(["centred", "media-full", "media-split", "media-diagonal"]).optional(),
+  // difference the token thesis cannot express. 'feature' is the RDCA two-column hero (content
+  // + a 440px right slot that can hold the Home Match Centre card). Absent = 'centred'.
+  layout: z.enum(["centred", "feature", "media-full", "media-split", "media-diagonal"]).optional(),
+  /** Feature hero only: render the live-match card in the 440px right slot, reading from the
+   *  same source as `scoreboard` (ctx.matchCentre.current) and gated by Match Centre
+   *  entitlement. Not entitled / no current match -> single-column hero, no empty box (Rule 9). */
+  showMatchCard: z.boolean().optional(),
 });
 
 export const announcementBarSchema = z.object({
