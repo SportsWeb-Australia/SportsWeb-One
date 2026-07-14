@@ -63,6 +63,8 @@ export const CLASSIC_TEMPLATE: PageTemplate = {
 };
 
 /** All page templates by key. P3/P6 read from here; add new templates as new constants. */
+import { RDCA_TEMPLATE } from "./rdca";
 export const PAGE_TEMPLATES: Record<string, PageTemplate> = {
   classic: CLASSIC_TEMPLATE,
+  rdca: RDCA_TEMPLATE,
 };
