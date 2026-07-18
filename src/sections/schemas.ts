@@ -207,12 +207,22 @@ export interface SectionInstance<T extends SectionType = SectionType> {
   props: PropsOf<T>;
   /** false -> renderer skips it (sec 5, rule 5). Absent = visible. */
   visible?: boolean;
+  /** Column placement when the page's layout_mode is 'main-side' (Brief 10 sec 3a). Absent =
+   *  full-width (the natural stack flow, e.g. the hero); 'main'/'side' place it in the two-column
+   *  region. Ignored entirely when layout_mode is 'stack'. Platform-side, like the variants. */
+  column?: "main" | "side";
 }
 
-/** The raw (unvalidated) instance shape as it arrives from the layout document. */
-export const sectionInstanceSchema = z.object({
-  id: z.string().min(1),
-  type: z.string().min(1),
-  props: z.unknown(),
-  visible: z.boolean().optional(),
-});
+/** The raw (unvalidated) instance shape as it arrives from the layout document.
+ *  STRICT: an unknown key raises rather than being silently stripped -- a bare `column` (or any
+ *  future field) that isn't declared here would otherwise vanish on save with no error, and the
+ *  feature would die quietly. Reject-not-sanitize, applied to the schema itself (Brief 10 sec 3a). */
+export const sectionInstanceSchema = z
+  .object({
+    id: z.string().min(1),
+    type: z.string().min(1),
+    props: z.unknown(),
+    visible: z.boolean().optional(),
+    column: z.enum(["main", "side"]).optional(),
+  })
+  .strict();

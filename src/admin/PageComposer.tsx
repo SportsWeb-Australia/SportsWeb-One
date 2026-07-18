@@ -20,6 +20,7 @@ import {
   type SectionContext,
   type SectionInstance,
   type SectionType,
+  type LayoutMode,
 } from "../sections";
 
 /** A minimal, schema-valid instance for a freshly added section. */
@@ -56,6 +57,9 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [savedJson, setSavedJson] = useState<string>("[]");
   const [ctx, setCtx] = useState<SectionContext | null>(null);
   const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
+  // The page's arrangement, so the preview matches the live render. Slice A shows it read-only;
+  // slice B adds the two-drop-zone editing UI that sets it.
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("stack");
   const [busy, setBusy] = useState<Busy>(false);
   const [toast, setToast] = useState<Toast>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -86,7 +90,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
       }
       const { data: base } = await supabase
         .from("club_pages")
-        .select("id, draft_layout, published_layout")
+        .select("id, draft_layout, published_layout, layout_mode")
         .eq("club_id", clubId)
         .eq("slug", "home")
         .maybeSingle();
@@ -104,6 +108,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
       setLayout(draft);
       setSavedJson(JSON.stringify(draft));
       setPublishedJson(JSON.stringify(base?.published_layout ?? null));
+      setLayoutMode((base as { layout_mode?: string } | null)?.layout_mode === "main-side" ? "main-side" : "stack");
       setCtx(sectionContextFromClub(cfg));
       setTheme(themeTokens);
       setLoading(false);
@@ -365,7 +370,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
 
         <div className="sw-comp-preview sw-f2" data-render="f2" aria-label="Live preview">
           <div className="sw-comp-preview-cap">Preview &mdash; exactly what visitors see</div>
-          {ctx && <PageRenderer layout={layout} ctx={ctx} theme={theme} />}
+          {ctx && <PageRenderer layout={layout} ctx={ctx} theme={theme} layoutMode={layoutMode} />}
         </div>
       </div>
 

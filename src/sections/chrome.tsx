@@ -14,6 +14,10 @@ export interface NavPageRow {
   nav_order: number | null;
   nav_visible: boolean | null;
   nav_parent_id: string | null;
+  /** Brief 10 sec 3a: the page's arrangement ('stack' | 'main-side'). Carried on the nav rows so
+   *  F2Page can read the current page's mode from the same query. Absent = 'stack'. Ignored by
+   *  buildNav (nav is orthogonal to layout). */
+  layout_mode?: string | null;
 }
 
 export interface NavNode {

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getClubConfigById } from "../lib/loadClub";
 import type { ClubConfig } from "../content/types";
-import { PageRenderer } from "./PageRenderer";
+import { PageRenderer, type LayoutMode } from "./PageRenderer";
 import { sectionContextFromClub, type SectionContext } from "./entitlement";
 import { usePublicClubPage } from "./usePublicClubPage";
 import { Header, Footer, buildNav, type NavNode, type NavPageRow } from "./chrome";
@@ -16,6 +16,7 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
   const [ctx, setCtx] = useState<SectionContext | null>(null);
   const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
   const [nav, setNav] = useState<NavNode[]>([]);
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("stack");
   const { page, loading, notFound } = usePublicClubPage(clubId, slug);
 
   // Declare this an F2 render: legacy data-variant token blocks stop applying.
@@ -53,10 +54,16 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
     if (!supabase) return;
     supabase
       .from("club_pages")
-      .select("id, slug, nav_label, nav_order, nav_visible, nav_parent_id")
+      .select("id, slug, nav_label, nav_order, nav_visible, nav_parent_id, layout_mode")
       .eq("club_id", clubId)
       .then(({ data }) => {
-        if (active) setNav(buildNav((data as NavPageRow[]) ?? [], slug));
+        if (!active) return;
+        const rows = (data as NavPageRow[]) ?? [];
+        setNav(buildNav(rows, slug));
+        // The current page's arrangement rides the same query. Anything but 'main-side' (null,
+        // 'stack', an unknown future value) safely renders as the flat stack.
+        const mode = rows.find((r) => r.slug === slug)?.layout_mode;
+        setLayoutMode(mode === "main-side" ? "main-side" : "stack");
       });
     return () => {
       active = false;
@@ -69,7 +76,7 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
   return (
     <div className="sw-f2">
       <Header ctx={ctx} nav={nav} register={{ label: "Register", href: "/register" }} />
-      <PageRenderer layout={page.layout} ctx={ctx} theme={theme} />
+      <PageRenderer layout={page.layout} ctx={ctx} theme={theme} layoutMode={layoutMode} />
       <Footer ctx={ctx} nav={nav} />
     </div>
   );

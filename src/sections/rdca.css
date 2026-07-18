@@ -478,3 +478,41 @@ font-size: 40px;
 grid-template-columns: 1fr;
 }
 }
+
+/* ============================================================================
+   Two-column magazine region (Brief 10 sec 3a). Emitted by PageRenderer ONLY when
+   the page's layout_mode is 'main-side'; sections opt in via instance.column. Ported
+   from the RDCA homepage (index.html): 1fr + 320px rail, 1480px canvas. Scoped under
+   .sw-f2 so the bare .main-layout / .col-* hooks can never leak into admin or legacy.
+   ============================================================================ */
+.sw-f2 .main-layout {
+max-width: 1480px; margin: 0 auto; padding: 28px 20px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start;
+}
+.sw-f2 .col-main {
+display: flex; flex-direction: column; gap: 24px; min-width: 0;
+}
+.sw-f2 .col-side {
+display: flex; flex-direction: column; gap: 20px; min-width: 0;
+}
+/* Content-driven degradation (Ruling 3 / Rule 9): a run with no side sections (or no
+   main) leaves that column with zero children. Drop the empty column and collapse the
+   grid to a single full-width flow -- no empty rail, no orphaned gap. */
+.sw-f2 .col-main:empty, .sw-f2 .col-side:empty {
+display: none;
+}
+.sw-f2 .main-layout:has(> .col-side:empty), .sw-f2 .main-layout:has(> .col-main:empty) {
+grid-template-columns: 1fr;
+}
+@media (max-width: 1060px) {
+.sw-f2 .main-layout {
+grid-template-columns: 1fr;
+}
+.sw-f2 .col-side {
+display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
+}
+}
+@media (max-width: 768px) {
+.sw-f2 .col-side {
+display: flex; flex-direction: column;
+}
+}
