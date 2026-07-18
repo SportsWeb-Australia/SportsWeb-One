@@ -488,6 +488,17 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       if (map["contact.instagram"]) cfg.contact = { ...cfg.contact, instagram: map["contact.instagram"] };
       if (map["contact.facebook"]) cfg.contact = { ...cfg.contact, facebook: map["contact.facebook"] };
       if (map["contact.address"]) cfg.contact = { ...cfg.contact, addressLine: map["contact.address"] };
+      // Home Match Centre card (.hmc): the current/most-recent match, stored as a JSON blob in
+      // club_content. Sport-neutral (see CurrentMatch); the feature hero renders it when
+      // showMatchCard is set AND the club is entitled to Match Centre. Malformed -> ignored,
+      // so the hero simply degrades to single-column (Rule 9 / Ruling 3).
+      if (map["match.current"]) {
+        try {
+          cfg.matchCentre = { ...cfg.matchCentre, current: JSON.parse(map["match.current"]) };
+        } catch {
+          /* ignore malformed match JSON */
+        }
+      }
       // Saved homepage hero copy (text) — neutralised above for new clubs, so
       // re-apply whatever the club has edited. Without this, saved text vanishes
       // on the next load.
