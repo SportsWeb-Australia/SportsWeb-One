@@ -81,6 +81,14 @@
     'font-size:14px;font-weight:600;background:linear-gradient(180deg,#D6322F 0%,#B01D20 55%,#5B0000 100%);' +
     'box-shadow:0 6px 20px rgba(91,0,0,.35)}' +
     '.btn:hover{filter:brightness(1.06)}' +
+    // Mobile: onboarding mode shrinks the button to an icon-only circular badge (48px keeps the
+    // tap target above the 44px min). Scoped to onboarding so report mode keeps its label on
+    // public sites by default -- an unlabelled icon is far less discoverable to an unbriefed visitor.
+    '@media(max-width:640px){' +
+      ':host(.sp-mode-onboarding) .btn{width:48px;height:48px;padding:0;gap:0;' +
+        'border-radius:50%;justify-content:center}' +
+      ':host(.sp-mode-onboarding) .btn-label{display:none}' +
+    '}' +
     '.overlay{position:fixed;inset:0;z-index:2147483001;background:rgba(11,13,16,.5);display:none;' +
     'align-items:flex-end;justify-content:center}' +
     '.overlay.open{display:flex}' +
@@ -110,6 +118,7 @@
     '.err{color:#C21F22;font-size:12px;margin-top:8px;display:none}';
 
   var host = document.createElement("div");
+  host.className = "sp-mode-" + SOURCE;   // sp-mode-onboarding | sp-mode-report -- scopes the mobile rule
   var root = host.attachShadow({ mode: "open" });
   document.body.appendChild(host);
 
@@ -117,12 +126,13 @@
     return '<option value="' + c[0] + '">' + c[1] + '</option>';
   }).join("");
 
-  var btnLabel = SOURCE === "onboarding" ? "Website check" : (LIVE ? "Report an issue" : "Feedback");
+  var btnLabel = SOURCE === "onboarding" ? "Feedback" : (LIVE ? "Report an issue" : "Feedback");
   var sendLabel = SOURCE === "onboarding" ? "Send" : (LIVE ? "Report an issue" : "Send feedback");
 
   root.innerHTML =
     '<style>' + css + '</style>' +
-    '<button class="btn" id="sp-open">' + SHIELD + btnLabel + '</button>' +
+    '<button class="btn" id="sp-open" aria-label="' + btnLabel + '">' +
+      SHIELD + '<span class="btn-label">' + btnLabel + '</span></button>' +
     '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card">' +
       '<div class="head"><span class="mark">' + SHIELD + '</span>' +
         '<div><p class="title">' + btnLabel + '</p></div>' +
