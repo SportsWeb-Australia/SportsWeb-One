@@ -126,7 +126,7 @@
     return '<option value="' + c[0] + '">' + c[1] + '</option>';
   }).join("");
 
-  var btnLabel = SOURCE === "onboarding" ? "Website check" : (LIVE ? "Report an issue" : "Feedback");
+  var btnLabel = SOURCE === "onboarding" ? "Feedback" : (LIVE ? "Report an issue" : "Feedback");
   var sendLabel = SOURCE === "onboarding" ? "Send" : (LIVE ? "Report an issue" : "Send feedback");
 
   root.innerHTML =
