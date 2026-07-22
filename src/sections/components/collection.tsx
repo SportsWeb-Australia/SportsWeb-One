@@ -85,61 +85,126 @@ export function NewsSection({ props, ctx }: C<"news">) {
   );
 }
 
+/** Split an ISO date into a day number + short month for the RDCA date badge. */
+function dayMonth(iso?: string): { day: string; mon: string } | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return { day: String(d.getDate()), mon: d.toLocaleString("en-AU", { month: "short" }).toUpperCase() };
+}
+
+/** Events, RDCA design (audit sec 10): a `.card` with an `.events-grid` of image cards, each with a
+ *  red day/month badge + type tag over the photo, then title + location. Reads ctx.events; Rule 9
+ *  empty state kept. Shared across designs. */
 export function EventsSection({ props, ctx }: C<"events">) {
   const today = new Date().toISOString().slice(0, 10);
   let items = ctx.events.filter((e) => !e.placeholder);
   if (props.window !== "all") items = items.filter((e) => (e.date ?? "") >= today);
   items = items.slice(0, props.count);
   return (
-    <Frame heading={props.heading} cls="sw-sec--events">
+    <section className="sw-sec sw-sec--events card sw-events">
+      <div className="sec-hdr">
+        <div className="s-hed">{props.heading ?? "Upcoming Events"}</div>
+        <a className="view-all" href="/events">
+          All Events <i className="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
       {items.length === 0 ? (
         <Empty>Upcoming events will be listed here as they are scheduled.</Empty>
       ) : (
-        <ul className="sw-sec-events-list">
-          {items.map((e) => (
-            <li key={e.id} className="sw-sec-events-item">
-              <time className="sw-sec-events-date">{e.date}</time>
-              <span className="sw-sec-events-title">{e.title}</span>
-              {e.location && <span className="sw-sec-events-loc">{e.location}</span>}
-              {e.ticketHref && (
-                <a className="sw-sec-events-cta" href={e.ticketHref}>
-                  Details
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
+        <div className="events-grid">
+          {items.map((e) => {
+            const dm = dayMonth(e.date);
+            return (
+              <a key={e.id} className="ev-card" href={e.ticketHref ?? `/events/${e.slug ?? e.id}`}>
+                <div className="ev-img" style={e.image ? { backgroundImage: `url('${e.image}')` } : undefined}>
+                  <div className="ev-img-ov" />
+                  <div className="ev-meta">
+                    {dm && (
+                      <div className="ev-date">
+                        <span className="ev-day">{dm.day}</span>
+                        <span className="ev-mon">{dm.mon}</span>
+                      </div>
+                    )}
+                    {e.tag && <span className="ev-type">{e.tag}</span>}
+                  </div>
+                </div>
+                <div className="ev-body">
+                  <div className="ev-title">{e.title}</div>
+                  {e.location && (
+                    <div className="ev-loc">
+                      <i className="ti ti-map-pin" aria-hidden="true"></i>
+                      {e.location}
+                    </div>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
       )}
-    </Frame>
+    </section>
   );
 }
 
+type SponsorRow = C<"sponsors">["ctx"]["sponsors"][number];
+
+/** One RDCA sponsor tile (logo, or the name when no logo), linked when a href exists. */
+function SponsorTile({ s, showBlurb }: { s: SponsorRow; showBlurb?: boolean }) {
+  const inner = s.logo ? <img src={s.logo} alt={s.name} /> : <span className="sponsor-name">{s.name}</span>;
+  return (
+    <div className="sponsor-tile">
+      {s.href ? (
+        <a href={s.href} target="_blank" rel="noreferrer" className="sponsor-link">
+          {inner}
+        </a>
+      ) : (
+        inner
+      )}
+      {showBlurb && s.blurb && <p className="sponsor-blurb">{s.blurb}</p>}
+    </div>
+  );
+}
+
+const SPONSOR_TIERS = ["platinum", "gold", "silver"] as const;
+
+/** Sponsors, RDCA design (audit sec 20): a `.card` with a logo wall. `display: "tiered"` groups by
+ *  tier; "wall"/"strip" show one wall. Reads ctx.sponsors; Rule 9 empty state kept. */
 export function SponsorsSection({ props, ctx }: C<"sponsors">) {
   let items = ctx.sponsors.filter((s) => !s.placeholder);
   if (props.tiers?.length) items = items.filter((s) => props.tiers!.includes(s.tier));
   return (
-    <Frame heading={props.heading} cls={`sw-sec--sponsors sw-sec--sponsors-${props.display}`}>
+    <section className="sw-sec sw-sec--sponsors card sw-sponsors">
+      {props.heading && (
+        <div className="sec-hdr">
+          <div className="s-hed">{props.heading}</div>
+        </div>
+      )}
       {items.length === 0 ? (
         <Empty>Our sponsors will be showcased here.</Empty>
+      ) : props.display === "tiered" ? (
+        SPONSOR_TIERS.map((tier) => {
+          const tierItems = items.filter((s) => s.tier === tier);
+          if (tierItems.length === 0) return null;
+          return (
+            <div key={tier} className="sponsor-tier">
+              <div className="sponsor-tier-label">{tier}</div>
+              <div className={`sponsor-wall sponsor-wall--${tier}`}>
+                {tierItems.map((s, i) => (
+                  <SponsorTile key={i} s={s} showBlurb={props.showBlurb} />
+                ))}
+              </div>
+            </div>
+          );
+        })
       ) : (
-        <ul className="sw-sec-sponsors-list">
+        <div className={`sponsor-wall sponsor-wall--${props.display}`}>
           {items.map((s, i) => (
-            <li key={i} className={`sw-sec-sponsor sw-sec-sponsor--${s.tier}`}>
-              {s.href ? (
-                <a href={s.href} target="_blank" rel="noreferrer" className="sw-sec-sponsor-link">
-                  {s.logo ? <img src={s.logo} alt={s.name} /> : <span>{s.name}</span>}
-                </a>
-              ) : s.logo ? (
-                <img src={s.logo} alt={s.name} />
-              ) : (
-                <span>{s.name}</span>
-              )}
-              {props.showBlurb && s.blurb && <p className="sw-sec-sponsor-blurb">{s.blurb}</p>}
-            </li>
+            <SponsorTile key={i} s={s} showBlurb={props.showBlurb} />
           ))}
-        </ul>
+        </div>
       )}
-    </Frame>
+    </section>
   );
 }
 

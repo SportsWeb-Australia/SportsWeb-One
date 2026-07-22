@@ -295,46 +295,81 @@ export function PresidentWelcomeSection({ props }: C<"president_welcome">) {
 
 /** Contact binds GLOBAL club fields. A toggle that is on but has no underlying value shows
  *  nothing for that row (rule 9: no empty "Email: " label, no placeholder). */
+/** Contact, RDCA design (audit sec 19): a full-width navy band with an intro, icon-tiled contact
+ *  methods, and socials + a message CTA. Binds GLOBAL club fields (ctx.contact / identity); props
+ *  only toggle which methods show. Renders nothing if there is nothing to show. */
 export function ContactSection({ props, ctx }: C<"contact">) {
   const { contact, identity } = ctx;
-  const rows: ReactNode[] = [];
-  if (props.showEmail !== false && contact.email)
-    rows.push(
-      <a key="e" className="sw-sec-contact-row" href={`mailto:${contact.email}`}>
-        {contact.email}
-      </a>,
-    );
-  if (props.showPhone && contact.phone)
-    rows.push(
-      <a key="p" className="sw-sec-contact-row" href={`tel:${contact.phone}`}>
-        {contact.phone}
-      </a>,
-    );
-  const address = contact.addressLine || identity.ground;
-  if (props.showAddress && address)
-    rows.push(
-      <span key="a" className="sw-sec-contact-row">
-        {address}
-      </span>,
-    );
-  if (props.showMap && address)
-    rows.push(
-      <a
-        key="m"
-        className="sw-sec-contact-map"
-        href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        View on map
-      </a>,
-    );
+  const address = contact.addressLine || identity.ground || identity.location;
+  const showEmail = props.showEmail !== false && !!contact.email;
+  const showPhone = props.showPhone && !!contact.phone;
+  const showAddress = (props.showAddress || props.showMap) && !!address;
+  const hasSocial = !!(contact.facebook || contact.instagram);
 
-  if (rows.length === 0) return null; // nothing to show -> render nothing
+  if (!showEmail && !showPhone && !showAddress && !hasSocial) return null;
+
   return (
-    <section className="sw-sec sw-sec--contact">
-      {props.heading && <h2 className="sw-sec-heading">{props.heading}</h2>}
-      <div className="sw-sec-contact-rows">{rows}</div>
+    <section className="sw-sec sw-sec--contact contact-section sw-contact">
+      <div className="contact-inner">
+        <div className="ct-intro">
+          <div className="ct-eyebrow">Get in Touch</div>
+          <div className="ct-title">{props.heading ?? `Contact ${identity.shortName || identity.name}`}</div>
+          <div className="ct-sub">Questions about registrations, competitions or anything else — we&rsquo;re here to help.</div>
+        </div>
+
+        <div className="ct-methods">
+          {showPhone && (
+            <a className="ct-row" href={`tel:${contact.phone}`}>
+              <span className="ct-ic"><i className="ti ti-phone" aria-hidden="true"></i></span>
+              {contact.phone}
+            </a>
+          )}
+          {showEmail && (
+            <a className="ct-row" href={`mailto:${contact.email}`}>
+              <span className="ct-ic"><i className="ti ti-mail" aria-hidden="true"></i></span>
+              {contact.email}
+            </a>
+          )}
+          {showAddress && (
+            <a
+              className="ct-row"
+              href={`https://maps.google.com/?q=${encodeURIComponent(address!)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="ct-ic"><i className="ti ti-map-pin" aria-hidden="true"></i></span>
+              {address}
+            </a>
+          )}
+        </div>
+
+        {(hasSocial || showEmail) && (
+          <div className="ct-follow">
+            {hasSocial && (
+              <>
+                <div className="ct-eyebrow">Follow Us</div>
+                <div className="ct-social-row">
+                  {contact.facebook && (
+                    <a className="ct-soc" href={contact.facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
+                      <i className="ti ti-brand-facebook" aria-hidden="true"></i>
+                    </a>
+                  )}
+                  {contact.instagram && (
+                    <a className="ct-soc" href={contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
+                      <i className="ti ti-brand-instagram" aria-hidden="true"></i>
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+            {showEmail && (
+              <a className="btn btn-red" href={`mailto:${contact.email}`}>
+                <i className="ti ti-mail" aria-hidden="true"></i> Send a Message
+              </a>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
