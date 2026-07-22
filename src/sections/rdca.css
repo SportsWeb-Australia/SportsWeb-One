@@ -615,3 +615,105 @@ display: flex; flex-direction: column; align-items: center; justify-content: cen
 .sw-f2 .ct-soc { width: 36px; height: 36px; border-radius: 9px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .12); display: flex; align-items: center; justify-content: center; color: rgba(255, 255, 255, .92); font-size: 16px; text-decoration: none; transition: background .15s; }
 .sw-f2 .ct-soc:hover { background: var(--red); }
 @media (max-width: 768px) { .sw-f2 .contact-inner { gap: 24px; } }
+
+/* ============================================================================
+   RDCA NEW CONTENT TYPES (Brief 10 batch 2). All scoped under .sw-f2.
+   ============================================================================ */
+/* app_grid -- icon-tile launcher */
+.sw-f2 .app-section { padding: 2px 0; }
+.sw-f2 .app-hed { margin-bottom: 12px; }
+.sw-f2 .app-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.sw-f2 .ab {
+display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px;
+border: 1px solid var(--border); border-radius: var(--r); background: var(--card);
+text-decoration: none; color: var(--text); transition: transform .15s, box-shadow .15s;
+}
+.sw-f2 .ab:hover { transform: translateY(-2px); box-shadow: var(--shadow2); }
+.sw-f2 .ai { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-size: 22px; overflow: hidden; }
+.sw-f2 .ai img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.sw-f2 .al { font-size: 12px; font-weight: 600; text-align: center; }
+@media (max-width: 900px) { .sw-f2 .app-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 560px) { .sw-f2 .app-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* feature_banner -- Rep (tall) + Umpires (compact) */
+.sw-f2 .feature-banner { position: relative; overflow: hidden; border-radius: var(--r); background: var(--navy); }
+.sw-f2 .fb-photo { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.sw-f2 .feature-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(8, 16, 30, .92), rgba(13, 31, 60, .72)); }
+.sw-f2 .fb-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 28px 26px; }
+.sw-f2 .fb--compact .fb-inner { padding: 20px 22px; }
+.sw-f2 .fb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255, 255, 255, .28); margin-bottom: 3px; }
+.sw-f2 .fb-title { font-family: "Bebas Neue", sans-serif; font-size: 32px; color: #fff; letter-spacing: .4px; margin-bottom: 4px; }
+.sw-f2 .fb--compact .fb-title { font-size: 26px; }
+.sw-f2 .fb-blurb { font-size: 13px; color: rgba(255, 255, 255, .5); line-height: 1.6; max-width: 520px; }
+
+/* newsletter -- signup band */
+.sw-f2 .newsletter { position: relative; overflow: hidden; border-radius: var(--r); }
+.sw-f2 .nl-bg { position: absolute; inset: 0; background: linear-gradient(135deg, var(--navy), var(--navy3)); }
+.sw-f2 .nl-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 26px 24px; }
+.sw-f2 .nl-text { flex: 1; min-width: 200px; }
+.sw-f2 .nl-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255, 255, 255, .28); margin-bottom: 4px; }
+.sw-f2 .nl-title { font-family: "Bebas Neue", sans-serif; font-size: 28px; color: #fff; margin-bottom: 4px; }
+.sw-f2 .nl-blurb { font-size: 13px; color: rgba(255, 255, 255, .5); line-height: 1.5; }
+.sw-f2 .nl-form { display: flex; gap: 8px; min-width: 280px; flex-wrap: wrap; }
+.sw-f2 .nl-input { flex: 1; min-width: 180px; padding: 11px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); color: #fff; font-size: 13px; }
+.sw-f2 .nl-input::placeholder { color: rgba(255, 255, 255, .4); }
+
+/* photo_strip -- scrolling gallery row */
+.sw-f2 .photo-strip { padding: 2px 0; }
+.sw-f2 .ps-hdr { margin-bottom: 14px; }
+.sw-f2 .pstrip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sw-f2 .pstrip-track { display: flex; gap: 10px; width: max-content; }
+.sw-f2 .pstrip-item { flex: 0 0 auto; width: 220px; height: 150px; border-radius: var(--r); background-size: cover; background-position: center; background-color: var(--bg2); }
+
+/* clubs_directory -- division-grouped club grid */
+.sw-f2 .sw-clubs { padding: 20px; }
+.sw-f2 .club-div + .club-div { margin-top: 18px; }
+.sw-f2 .club-div-hdr { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.sw-f2 .club-div-count { font-size: 11px; font-weight: 600; color: var(--muted); background: var(--bg2); border-radius: 999px; padding: 2px 8px; }
+.sw-f2 .clubs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.sw-f2 .club-tile {
+display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px;
+border: 1px solid var(--border); border-radius: var(--r); background: var(--card);
+text-decoration: none; color: var(--text); transition: transform .15s, box-shadow .15s;
+}
+.sw-f2 .club-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow2); }
+.sw-f2 .club-logo { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--navy); font-size: 26px; }
+.sw-f2 .club-logo img { width: 100%; height: 100%; object-fit: contain; }
+.sw-f2 .club-name { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.3; }
+@media (max-width: 900px) { .sw-f2 .clubs-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .sw-f2 .clubs-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* identity -- sidebar club card */
+.sw-f2 .sw-identity { overflow: hidden; }
+.sw-f2 .id-cover { position: relative; height: 100px; background-size: cover; background-position: center; background-color: var(--navy); }
+.sw-f2 .id-cover-ov { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13, 31, 60, .3), rgba(13, 31, 60, .9)); }
+.sw-f2 .id-body { background: linear-gradient(135deg, var(--navy), var(--navy3)); padding: 0 16px 18px; text-align: center; color: #fff; }
+.sw-f2 .id-crest { width: 72px; height: 72px; margin: -36px auto 10px; position: relative; z-index: 2; background: #fff; border-radius: 14px; padding: 6px; box-shadow: var(--shadow2); }
+.sw-f2 .id-crest img { width: 100%; height: 100%; object-fit: contain; }
+.sw-f2 .id-name { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: .3px; }
+.sw-f2 .id-blurb { font-size: 12px; color: rgba(255, 255, 255, .6); line-height: 1.5; margin-top: 6px; }
+.sw-f2 .id-facts { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.sw-f2 .id-fact { font-size: 12px; color: rgba(255, 255, 255, .7); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.sw-f2 .id-fact .ti { color: var(--red); }
+
+/* player_spotlight -- sidebar featured player */
+.sw-f2 .sw-spotlight { overflow: hidden; }
+.sw-f2 .sp-cover { position: relative; height: 90px; background-size: cover; background-position: center 30%; background-color: var(--navy); }
+.sw-f2 .sp-cover-ov { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13, 31, 60, .15), rgba(13, 31, 60, .88)); }
+.sw-f2 .sp-cover-cap { position: absolute; bottom: 10px; left: 14px; z-index: 1; }
+.sw-f2 .sp-cover-cap .eyebrow { color: rgba(255, 255, 255, .45); }
+.sw-f2 .sp-kicker { font-family: "Bebas Neue", sans-serif; font-size: 16px; color: #fff; }
+.sw-f2 .sp-body { padding: 14px; }
+.sw-f2 .sp-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.sw-f2 .sp-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.sw-f2 .sp-stat { display: flex; align-items: baseline; gap: 6px; margin: 10px 0; }
+.sw-f2 .sp-stat-val { font-family: "Bebas Neue", sans-serif; font-size: 28px; color: var(--red); line-height: 1; }
+.sw-f2 .sp-stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.sw-f2 .sp-blurb { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 8px; }
+
+/* alerts -- sidebar notices prompt */
+.sw-f2 .sw-alerts { padding: 14px; border-left: 3px solid var(--red); }
+.sw-f2 .al-hdr { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.sw-f2 .al-title { display: flex; align-items: center; gap: 7px; font-family: "Bebas Neue", sans-serif; font-size: 15px; color: var(--red); }
+.sw-f2 .al-blurb { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+.sw-f2 .al-cta { width: 100%; justify-content: center; }

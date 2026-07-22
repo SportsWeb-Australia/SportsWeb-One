@@ -15,7 +15,16 @@ export const CARDINALITY: Record<SectionType, Cardinality> = {
   announcement_bar: "single",
   contact: "single",
   president_welcome: "single",
+  // RDCA additions: identity + newsletter + alerts are page singletons; the rest duplicable.
+  identity: "single",
+  newsletter: "single",
+  alerts: "single",
   // Everything else -- freely duplicable.
+  app_grid: "many",
+  feature_banner: "many",
+  photo_strip: "many",
+  clubs_directory: "many",
+  player_spotlight: "many",
   rich_text: "many",
   quick_links: "many",
   cta_band: "many",

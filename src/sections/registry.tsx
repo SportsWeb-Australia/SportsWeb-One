@@ -35,6 +35,16 @@ import {
   TeamsSection,
 } from "./components/collection";
 import { MatchDataSection, ScoreboardSection } from "./components/module";
+import {
+  AppGridSection,
+  FeatureBannerSection,
+  NewsletterSection,
+  PhotoStripSection,
+  ClubsDirectorySection,
+  IdentitySection,
+  PlayerSpotlightSection,
+  AlertsSection,
+} from "./components/rdca";
 
 /** What the renderer passes a section component: validated props + the club data context. */
 export type SectionComponent<T extends SectionType = SectionType> = ComponentType<{
@@ -108,6 +118,15 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   cta_band: def("cta_band", "Call to action", "content", CtaBandSection),
   president_welcome: def("president_welcome", "President welcome", "content", PresidentWelcomeSection),
   contact: def("contact", "Contact", "content", ContactSection),
+  // content -- RDCA additions (Brief 10)
+  app_grid: def("app_grid", "App buttons", "content", AppGridSection),
+  feature_banner: def("feature_banner", "Feature banner", "content", FeatureBannerSection),
+  newsletter: def("newsletter", "Newsletter", "content", NewsletterSection),
+  photo_strip: def("photo_strip", "Photo strip", "content", PhotoStripSection),
+  clubs_directory: def("clubs_directory", "Clubs directory", "content", ClubsDirectorySection),
+  identity: def("identity", "Identity card", "content", IdentitySection),
+  player_spotlight: def("player_spotlight", "Player spotlight", "content", PlayerSpotlightSection),
+  alerts: def("alerts", "Alerts", "content", AlertsSection),
   // collection (7) -- social_feed reclassified here (sec 4)
   news: def("news", "News", "collection", NewsSection),
   events: def("events", "Events", "collection", EventsSection),

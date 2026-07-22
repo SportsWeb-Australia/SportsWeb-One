@@ -29,6 +29,15 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
     body: "enhance-only", // a named human's voice: enhance, never forge (doc sec 5)
   },
   contact: {}, // toggles only; the data binds from the club record
+  // Content -- RDCA additions. Media URLs + factual names/stats are grounded; copy is free.
+  app_grid: { tiles: "grounded" }, // links point at real destinations
+  feature_banner: { image: "grounded" }, // a real photo, never invented; heading/blurb free
+  newsletter: {}, // structural signup copy
+  photo_strip: { images: "grounded" }, // real media only (rule 9)
+  clubs_directory: { divisions: "grounded" }, // real member clubs, never fabricated
+  identity: { image: "grounded", blurb: "enhance-only" }, // the club's own words: enhance, not forge
+  player_spotlight: { name: "grounded", stat: "grounded", image: "grounded", blurb: "enhance-only" },
+  alerts: {}, // structural prompt copy
   // Collection -- display config only; the rows come from tables (rule 9 at the data layer).
   news: {},
   events: {},

@@ -107,6 +107,92 @@ export const contactSchema = z.object({
   showMap: z.boolean().optional(),
 });
 
+// ---- RDCA content types (Brief 10 / audit sec 1a) ---------------------------
+/** App-launcher: a grid of icon tiles (Fixtures / Results / Ladders / ...). Distinct icon-tile
+ *  form, not quick_links (audit sec 3). `icon` is a Tabler token; `image` an optional logo tile. */
+export const appGridSchema = z.object({
+  heading: z.string().optional(),
+  tiles: z
+    .array(z.object({ label: z.string().min(1), href: safeHref, icon: z.string().optional(), image: z.string().optional() }))
+    .min(1)
+    .max(8),
+});
+
+/** Feature banner: a photo band with an eyebrow / headline / blurb and one CTA. Absorbs the RDCA
+ *  "Rep Cricket" (tall) and "Umpires" (compact) sections -- one type, a size variant (audit sec 7/9). */
+export const featureBannerSchema = z.object({
+  eyebrow: z.string().optional(),
+  heading: z.string().min(1),
+  blurb: z.string().optional(),
+  image: z.string().optional(),
+  cta: linkRef.optional(),
+  variant: z.enum(["tall", "compact"]).optional(),
+});
+
+/** Newsletter signup band. The input is display-only for now (no list backend); the CTA is the real
+ *  action. `heading` free; copy is structural. */
+export const newsletterSchema = z.object({
+  eyebrow: z.string().optional(),
+  heading: z.string().min(1),
+  blurb: z.string().optional(),
+  placeholder: z.string().optional(),
+  cta: linkRef.optional(),
+});
+
+/** Photo strip: a scrolling row of images (a gallery teaser). `url` real media, never invented. */
+export const photoStripSchema = z.object({
+  eyebrow: z.string().optional(),
+  heading: z.string().optional(),
+  viewAllHref: safeHref.optional(),
+  images: z.array(z.object({ url: z.string().min(1), href: safeHref.optional(), caption: z.string().optional() })).min(1).max(20),
+});
+
+/** Clubs directory: member clubs grouped by division (association-level). Author-provided tiles
+ *  (there is no member-club table); `logo`/`href` are real when supplied. */
+export const clubsDirectorySchema = z.object({
+  eyebrow: z.string().optional(),
+  heading: z.string().optional(),
+  viewAllHref: safeHref.optional(),
+  divisions: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        clubs: z.array(z.object({ name: z.string().min(1), href: safeHref.optional(), logo: z.string().optional() })).min(1),
+      }),
+    )
+    .min(1)
+    .max(12),
+});
+
+/** Identity card (sidebar): the club's own identity, over an optional cover image. Binds global
+ *  club fields (name/founded/ground) via ctx; props add the cover + a short blurb. */
+export const identitySchema = z.object({
+  heading: z.string().optional(),
+  image: z.string().optional(),
+  blurb: z.string().optional(),
+  showFounded: z.boolean().optional(),
+  showGround: z.boolean().optional(),
+});
+
+/** Player spotlight (sidebar): a featured player card. `name`/`stat` are grounded facts. */
+export const playerSpotlightSchema = z.object({
+  heading: z.string().optional(),
+  image: z.string().optional(),
+  name: z.string().min(1),
+  meta: z.string().optional(),
+  stat: z.object({ value: z.string().min(1), label: z.string().min(1) }).optional(),
+  blurb: z.string().optional(),
+  href: safeHref.optional(),
+});
+
+/** Alerts band (sidebar): a notices / match-day alert prompt (red-accented). The toggle is display
+ *  only for now; `cta` is the real action. */
+export const alertsSchema = z.object({
+  heading: z.string().optional(),
+  blurb: z.string().optional(),
+  cta: linkRef.optional(),
+});
+
 // =============================================================================
 // COLLECTION (7) -- records live in a typed table; props are display config.
 // social_feed is here, not under Module: sec 4 reclassified it as an owned
@@ -179,6 +265,15 @@ export const SECTION_SCHEMAS = {
   cta_band: ctaBandSchema,
   president_welcome: presidentWelcomeSchema,
   contact: contactSchema,
+  // content -- RDCA additions (Brief 10)
+  app_grid: appGridSchema,
+  feature_banner: featureBannerSchema,
+  newsletter: newsletterSchema,
+  photo_strip: photoStripSchema,
+  clubs_directory: clubsDirectorySchema,
+  identity: identitySchema,
+  player_spotlight: playerSpotlightSchema,
+  alerts: alertsSchema,
   // collection
   news: newsSchema,
   events: eventsSchema,
