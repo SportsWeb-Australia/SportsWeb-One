@@ -1,5 +1,17 @@
 # SportsWeb One — Builder Roadmap
 
+> **Status (branch `rdca-design-port`, unmerged — pending Carson's visual review):**
+> Phase A **design layer is functionally complete**. RDCA is fully ported: chrome + hero (with the
+> in-hero `.hmc` match card), the sidebar (`layout_mode` + `column`, versioned draft/published) with
+> the composer two-column editor, and **all 27 section types render RDCA** (16 re-skinned + 11 new:
+> app_grid, feature_banner, newsletter, photo_strip, clubs_directory, identity, player_spotlight,
+> alerts, ticker, top_performers, lineup). `sections.css` retired; the full RDCA homepage renders
+> from `club_pages` (20 sections, acceptance 27/27 resolve) on the develop demo tenant. A vitest
+> fence suite (21 tests) guards the registry / `.strict()` column door / validate-or-skip /
+> cardinality / sidebar bucketing. **Outstanding for prod:** apply
+> `supabase/club-pages-layout-mode-versioned.sql`; Carson's side-by-side visual pass vs the static
+> site; then merge. `blocks.css` (legacy path) not yet retired.
+
 The website builder is a funnel. The F2 engine (registry + renderer + composer + themes +
 fences) is built. The **design layer** (real, hand-ported designs) is what's being added now
 (Brief 10). Two capabilities complete the funnel and are recorded here so their dependencies are
