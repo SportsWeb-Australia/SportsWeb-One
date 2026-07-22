@@ -82,6 +82,46 @@ function columnOf(raw: unknown): "main" | "side" | undefined {
   return undefined;
 }
 
+/** One raw entry paired with its original index (indices label the render + preserve keys). */
+export type IndexedEntry = { raw: unknown; i: number };
+/** A main-side layout segment: a full-width `flow` entry, or a `grid` region bucketing a contiguous
+ *  run of columned entries into main / side (order preserved within each column). */
+export type LayoutSegment =
+  | { kind: "flow"; raw: unknown; i: number }
+  | { kind: "grid"; key: number; mains: IndexedEntry[]; sides: IndexedEntry[] };
+
+/**
+ * Segment a main-side layout (Brief 10 sec 3a). Full-width entries (no `column`) stay in flow; a
+ * contiguous RUN of columned entries collapses into one grid region, so the hero stays full-bleed
+ * above the magazine grid and any later full-width band splits the run cleanly. Pure + exported so
+ * the bucketing is unit-tested independently of React. An empty column is kept (rdca.css :has()
+ * collapses it to a single column -- Rule 9 / Ruling 3), never dropped here.
+ */
+export function segmentMainSide(items: unknown[]): LayoutSegment[] {
+  const out: LayoutSegment[] = [];
+  let run: IndexedEntry[] = [];
+  const flush = () => {
+    if (run.length === 0) return;
+    out.push({
+      kind: "grid",
+      key: run[0].i,
+      mains: run.filter((e) => columnOf(e.raw) === "main"),
+      sides: run.filter((e) => columnOf(e.raw) === "side"),
+    });
+    run = [];
+  };
+  items.forEach((raw, i) => {
+    if (columnOf(raw) === undefined) {
+      flush();
+      out.push({ kind: "flow", raw, i });
+    } else {
+      run.push({ raw, i });
+    }
+  });
+  flush();
+  return out;
+}
+
 export function PageRenderer({ layout, ctx, theme, layoutMode = "stack" }: PageRendererProps) {
   const items = Array.isArray(layout) ? layout : [];
 
@@ -94,41 +134,18 @@ export function PageRenderer({ layout, ctx, theme, layoutMode = "stack" }: PageR
     );
   }
 
-  // main-side: full-width entries (no column) render in flow; a contiguous RUN of columned entries
-  // collapses into one .main-layout with .col-main / .col-side buckets (order preserved within
-  // each). A full-width entry between two columned runs opens a fresh region below it -- so the
-  // hero stays full-bleed above the magazine grid, and any later full-width band splits cleanly.
-  const out: ReactNode[] = [];
-  let run: { raw: unknown; i: number }[] = [];
-
-  const flushRun = () => {
-    if (run.length === 0) return;
-    const mains = run.filter((e) => columnOf(e.raw) === "main");
-    const sides = run.filter((e) => columnOf(e.raw) === "side");
-    // A run of only-main (or only-side) still renders through the grid; :has() in rdca.css
-    // collapses an empty column so the page degrades to a single column (Rule 9 / Ruling 3).
-    out.push(
-      <div className="main-layout" key={`ml-${run[0].i}`}>
-        <div className="col-main">{mains.map((e) => renderSection(e.raw, e.i, ctx))}</div>
-        <div className="col-side">{sides.map((e) => renderSection(e.raw, e.i, ctx))}</div>
-      </div>,
-    );
-    run = [];
-  };
-
-  items.forEach((raw, i) => {
-    if (columnOf(raw) === undefined) {
-      flushRun();
-      out.push(renderSection(raw, i, ctx));
-    } else {
-      run.push({ raw, i });
-    }
-  });
-  flushRun();
-
   return (
     <div className="sw-page" style={themeToStyle(theme)}>
-      {out}
+      {segmentMainSide(items).map((seg) =>
+        seg.kind === "flow" ? (
+          renderSection(seg.raw, seg.i, ctx)
+        ) : (
+          <div className="main-layout" key={`ml-${seg.key}`}>
+            <div className="col-main">{seg.mains.map((e) => renderSection(e.raw, e.i, ctx))}</div>
+            <div className="col-side">{seg.sides.map((e) => renderSection(e.raw, e.i, ctx))}</div>
+          </div>
+        ),
+      )}
     </div>
   );
 }
