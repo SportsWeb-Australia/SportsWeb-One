@@ -734,7 +734,7 @@ text-decoration: none; color: var(--text); transition: transform .15s, box-shado
 .sw-f2 .tk-status { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: rgba(255, 255, 255, .5); }
 .sw-f2 .tk-status.is-live { color: var(--red); font-weight: 700; }
 
-/* competition hub -- tabs + ladder / fixtures / results (ported .comp-*/.lt/.fxr) */
+/* competition hub -- tabs + ladder / fixtures / results (ported comp-tabs, lt, fxr) */
 .sw-f2 .sw-comp-hub { padding: 20px; }
 .sw-f2 .comp-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
 .sw-f2 .comp-tab { padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); background: none; border: 0; border-bottom: 2.5px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color .15s, border-color .15s; }
