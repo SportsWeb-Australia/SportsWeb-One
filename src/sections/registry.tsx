@@ -34,7 +34,7 @@ import {
   SponsorsSection,
   TeamsSection,
 } from "./components/collection";
-import { MatchDataSection, ScoreboardSection } from "./components/module";
+import { MatchDataSection, ScoreboardSection, TickerSection, TopPerformersSection, LineupSection } from "./components/module";
 import {
   AppGridSection,
   FeatureBannerSection,
@@ -138,6 +138,9 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   // module (2) -- entitlement-gated
   match_data: def("match_data", "Match centre", "module", MatchDataSection),
   scoreboard: def("scoreboard", "Scoreboard", "module", ScoreboardSection),
+  ticker: def("ticker", "Live ticker", "module", TickerSection),
+  top_performers: def("top_performers", "Top performers", "module", TopPerformersSection),
+  lineup: def("lineup", "Team lineup", "module", LineupSection),
 };
 
 export const SECTION_TYPES = Object.keys(SECTION_REGISTRY) as SectionType[];

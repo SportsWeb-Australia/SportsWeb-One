@@ -247,6 +247,26 @@ export const matchDataSchema = z.object({
   mode: z.enum(["fixtures", "results", "ladder", "combined"]),
   grade: z.string().optional(),
   count: z.number().int().positive().max(50).optional(),
+  /** RDCA competition hub: 'tabs' shows ladder/fixtures/results as switchable tabs (one at a time);
+   *  'stacked' (default) shows each enabled block in sequence. Display only. */
+  display: z.enum(["stacked", "tabs"]).optional(),
+});
+
+/** Ticker: a live-score strip. Module (Match Centre). Data from ctx.matchCentre.ticker; config only. */
+export const tickerSchema = z.object({
+  heading: z.string().optional(),
+});
+
+/** Top performers: a leaderboard. Module (Match Centre). Data from ctx.matchCentre.performers. */
+export const topPerformersSchema = z.object({
+  heading: z.string().optional(),
+  category: z.string().optional(),
+  count: z.number().int().positive().max(20).optional(),
+});
+
+/** Lineup: an announced team. Module (Match Centre). Data from ctx.matchCentre.lineup. */
+export const lineupSchema = z.object({
+  heading: z.string().optional(),
 });
 
 export const scoreboardSchema = z.object({
@@ -285,6 +305,9 @@ export const SECTION_SCHEMAS = {
   // module
   match_data: matchDataSchema,
   scoreboard: scoreboardSchema,
+  ticker: tickerSchema,
+  top_performers: topPerformersSchema,
+  lineup: lineupSchema,
 } as const;
 
 export type SectionType = keyof typeof SECTION_SCHEMAS;

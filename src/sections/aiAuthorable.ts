@@ -46,6 +46,9 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
   teams: {},
   documents: {},
   social_feed: {},
+  ticker: {}, // config only; chips come from the Match Centre feed
+  top_performers: {}, // config only; the leaderboard is module-owned
+  lineup: {}, // config only; the announced team is module-owned
   // Module -- config only; data is module-owned + entitlement-gated.
   match_data: {},
   scoreboard: {},

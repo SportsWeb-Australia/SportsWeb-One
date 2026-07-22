@@ -37,6 +37,9 @@ export const CARDINALITY: Record<SectionType, Cardinality> = {
   social_feed: "many",
   match_data: "many",
   scoreboard: "many",
+  ticker: "single",
+  top_performers: "many",
+  lineup: "many",
 };
 
 export function cardinalityFor(type: SectionType): Cardinality {

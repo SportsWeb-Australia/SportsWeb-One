@@ -34,6 +34,14 @@ function defaultInstance(type: SectionType): SectionInstance {
     cta_band: { heading: "New call to action", actions: [{ label: "Go", href: "/" }] },
     president_welcome: { name: "Name", body: ["Welcome message."] },
     contact: { showEmail: true },
+    app_grid: { tiles: [{ label: "Fixtures", href: "/fixtures", icon: "ti-calendar-event" }] },
+    feature_banner: { heading: "Feature heading", blurb: "A short supporting line.", variant: "tall" },
+    newsletter: { heading: "Stay in the loop", blurb: "Get news and results in your inbox." },
+    photo_strip: { heading: "Around the Grounds", images: [{ url: "" }] },
+    clubs_directory: { heading: "Club Directory", divisions: [{ name: "Division 1", clubs: [{ name: "New Club" }] }] },
+    identity: { blurb: "A short line about the club." },
+    player_spotlight: { name: "Player name", stat: { value: "0", label: "Runs" } },
+    alerts: { heading: "Community Notices", blurb: "Turn on alerts for important updates." },
     news: { layout: "grid", count: 3 },
     events: { count: 3 },
     sponsors: { display: "strip" },
@@ -43,6 +51,9 @@ function defaultInstance(type: SectionType): SectionInstance {
     social_feed: { source: "highlights", count: 6 },
     match_data: { mode: "combined" },
     scoreboard: {},
+    ticker: {},
+    top_performers: { heading: "Top Performers" },
+    lineup: {},
   };
   return { id, type, props: props[type] as SectionInstance["props"], visible: true };
 }

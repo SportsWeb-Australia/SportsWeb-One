@@ -239,7 +239,41 @@ export interface MatchCentreData {
   liveLinks?: LinkRef[];
   /** Where full fixtures live (league site / GameDay) until API is wired. */
   fullFixturesHref?: string;
+  /** Live-score ticker chips (Module: ticker). Sport-neutral. Absent -> the ticker renders nothing. */
+  ticker?: TickerItem[];
+  /** Leaderboard rows (Module: top_performers). Sport-neutral (runs/wickets/goals/...). */
+  performers?: Performer[];
+  /** Announced team (Module: lineup). Sport-neutral. */
+  lineup?: LineupData;
   placeholder?: boolean;
+}
+
+/** One live-score ticker chip. Sport-neutral: `teams` + `score` + a status label. */
+export interface TickerItem {
+  label?: string; // e.g. grade / competition
+  teams: string; // "Ringwood v Croydon"
+  score?: string; // "4/187 (42.2)"
+  status?: string; // "Live" | "Stumps" | "Result"
+  live?: boolean;
+  href?: string;
+}
+
+/** One leaderboard entry. `stat` is the headline number; `statLabel` names it (Runs / Wkts / Goals). */
+export interface Performer {
+  name: string;
+  club?: string;
+  stat: string;
+  statLabel?: string;
+  category?: string; // e.g. "Batting" | "Bowling"
+  image?: string;
+}
+
+/** An announced team / XI. Sport-neutral. */
+export interface LineupData {
+  teamName?: string;
+  grade?: string;
+  note?: string;
+  players: { name: string; role?: string; number?: string }[];
 }
 
 export interface BlockToggles {

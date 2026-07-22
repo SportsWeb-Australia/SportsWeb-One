@@ -5,13 +5,41 @@
 //   - ENTITLED, NO DATA      -> a defined, honest empty state.
 // Entitlement is resolved by ctx.isEntitled(type); see ../entitlement for the "match_centre"
 // capability decision. Props are config only. No colours (sec 5, rule 7).
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { Fixture, LadderRow, Result } from "../../content/types";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf } from "../schemas";
 
 function Empty({ children }: { children: ReactNode }) {
   return <p className="sw-sec-empty">{children}</p>;
+}
+
+/** RDCA competition-hub tabs (.comp-tabs): one pane visible at a time. Client-side tab state. */
+function CompHubTabs({ panes }: { panes: { key: string; label: string; node: ReactNode }[] }) {
+  const [active, setActive] = useState(0);
+  return (
+    <div className="comp-hub">
+      <div className="comp-tabs" role="tablist">
+        {panes.map((p, i) => (
+          <button
+            key={p.key}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            className={`comp-tab${i === active ? " active" : ""}`}
+            onClick={() => setActive(i)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      {panes.map((p, i) => (
+        <div key={p.key} role="tabpanel" className={`comp-pane${i === active ? " active" : ""}`} hidden={i !== active}>
+          {p.node}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function MatchDataSection({ props, ctx }: { props: PropsOf<"match_data">; ctx: SectionContext }) {
@@ -30,76 +58,101 @@ export function MatchDataSection({ props, ctx }: { props: PropsOf<"match_data">;
   const showLadder = wants("ladder") && ladder.length > 0;
   const n = props.count ?? 5;
 
+  const heading = "Competition Hub";
+
   if (!showFixtures && !showResults && !showLadder) {
     return (
-      <section className="sw-sec sw-sec--matchdata">
+      <section className="sw-sec sw-sec--matchdata card sw-comp-hub">
+        <div className="sec-hdr">
+          <div className="s-hed">{heading}</div>
+        </div>
         <Empty>Fixtures, results and the ladder will appear here once the season draw is published.</Empty>
       </section>
     );
   }
 
+  // RDCA-styled panes (ported .lt ladder / .fxr fixtures / .rrow results).
+  const ladderNode = (
+    <div className="ladder-wrap">
+      <table className="lt">
+        <thead>
+          <tr>
+            <th className="tl">Team</th>
+            <th>P</th>
+            <th>W</th>
+            <th>L</th>
+            <th>D</th>
+            <th>Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ladder.map((row, i) => (
+            <tr key={i} className={row.isClub ? "promo" : undefined}>
+              <td className="tl">{row.team}</td>
+              <td>{row.played}</td>
+              <td>{row.won}</td>
+              <td>{row.lost}</td>
+              <td>{row.drawn}</td>
+              <td className="pts">{row.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+  const fixturesNode = (
+    <div className="fx-list">
+      {fixtures.slice(0, n).map((f, i) => (
+        <div key={i} className="fxr">
+          <div className="fxd">{f.round}</div>
+          <div className="fxi">
+            <div className="fxt">{f.opponent}</div>
+            <div className="fxm">
+              {f.venue} &middot; {f.date}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+  const resultsNode = (
+    <div className="rx-list">
+      {results.slice(0, n).map((r, i) => (
+        <div key={i} className={`rrow rrow--${r.outcome}`}>
+          <div className="fxi">
+            <div className="fxt">{r.opponent}</div>
+            <div className="fxm">
+              {r.round} &middot; {r.outcome}
+            </div>
+          </div>
+          <div className="rx-score">
+            {r.scoreFor}&ndash;{r.scoreAgainst}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const panes = [
+    showLadder && { key: "ladder", label: "Ladder", node: ladderNode },
+    showFixtures && { key: "fixtures", label: "Fixtures", node: fixturesNode },
+    showResults && { key: "results", label: "Results", node: resultsNode },
+  ].filter(Boolean) as { key: string; label: string; node: ReactNode }[];
+
   return (
-    <section className="sw-sec sw-sec--matchdata">
-      {showFixtures && (
-        <div className="sw-sec-md-block">
-          <h3 className="sw-sec-md-h">Fixtures</h3>
-          <ul className="sw-sec-md-list">
-            {fixtures.slice(0, n).map((f, i) => (
-              <li key={i} className="sw-sec-md-row">
-                <span className="sw-sec-md-round">{f.round}</span>
-                <span className="sw-sec-md-opp">{f.opponent}</span>
-                <span className="sw-sec-md-venue">{f.venue}</span>
-                <span className="sw-sec-md-date">{f.date}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {showResults && (
-        <div className="sw-sec-md-block">
-          <h3 className="sw-sec-md-h">Results</h3>
-          <ul className="sw-sec-md-list">
-            {results.slice(0, n).map((r, i) => (
-              <li key={i} className={`sw-sec-md-row sw-sec-md-row--${r.outcome}`}>
-                <span className="sw-sec-md-round">{r.round}</span>
-                <span className="sw-sec-md-opp">{r.opponent}</span>
-                <span className="sw-sec-md-score">
-                  {r.scoreFor}&ndash;{r.scoreAgainst}
-                </span>
-                <span className="sw-sec-md-outcome">{r.outcome}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {showLadder && (
-        <div className="sw-sec-md-block">
-          <h3 className="sw-sec-md-h">Ladder</h3>
-          <table className="sw-sec-md-ladder">
-            <thead>
-              <tr>
-                <th>Team</th>
-                <th>P</th>
-                <th>W</th>
-                <th>L</th>
-                <th>D</th>
-                <th>Pts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ladder.map((row, i) => (
-                <tr key={i} className={row.isClub ? "sw-sec-md-ladder-club" : undefined}>
-                  <td>{row.team}</td>
-                  <td>{row.played}</td>
-                  <td>{row.won}</td>
-                  <td>{row.lost}</td>
-                  <td>{row.drawn}</td>
-                  <td>{row.points}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <section className="sw-sec sw-sec--matchdata card sw-comp-hub">
+      <div className="sec-hdr">
+        <div className="s-hed">{heading}</div>
+      </div>
+      {props.display === "tabs" ? (
+        <CompHubTabs panes={panes} />
+      ) : (
+        panes.map((p) => (
+          <div key={p.key} className="comp-block">
+            <h3 className="comp-block-h">{p.label}</h3>
+            {p.node}
+          </div>
+        ))
       )}
     </section>
   );
@@ -149,6 +202,94 @@ export function ScoreboardSection({ props, ctx }: { props: PropsOf<"scoreboard">
           <span className="sw-sec-sb-main">#{ladderPos}</span>
         </div>
       )}
+    </section>
+  );
+}
+
+/** Ticker: a live-score strip (Module: match_centre). Rule 9: not entitled or no chips -> nothing
+ *  (never an empty bar). Data from ctx.matchCentre.ticker (sport-neutral). */
+export function TickerSection({ props, ctx }: { props: PropsOf<"ticker">; ctx: SectionContext }) {
+  if (!ctx.isEntitled("ticker")) return null;
+  const items = ctx.matchCentre?.ticker ?? [];
+  if (items.length === 0) return null;
+  return (
+    <section className="sw-sec ticker-bar sw-ticker" aria-label={props.heading ?? "Live scores"}>
+      <div className="tk-inner">
+        <span className="tk-label">
+          <span className="live-dot" aria-hidden="true"></span> Live
+        </span>
+        <div className="tk-track">
+          {items.map((t, i) => (
+            <a key={i} className="tk-chip" href={t.href ?? "#"}>
+              {t.label && <span className="tk-grade">{t.label}</span>}
+              <span className="tk-teams">{t.teams}</span>
+              {t.score && <span className="tk-score">{t.score}</span>}
+              {t.status && <span className={`tk-status${t.live ? " is-live" : ""}`}>{t.status}</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Top performers: a leaderboard (Module: match_centre). Entitled + no rows -> honest empty state. */
+export function TopPerformersSection({ props, ctx }: { props: PropsOf<"top_performers">; ctx: SectionContext }) {
+  if (!ctx.isEntitled("top_performers")) return null;
+  let items = ctx.matchCentre?.performers ?? [];
+  if (props.category) items = items.filter((p) => p.category === props.category);
+  items = items.slice(0, props.count ?? 6);
+  return (
+    <section className="sw-sec card sw-perf">
+      <div className="sec-hdr">
+        <div className="s-hed">{props.heading ?? "Top Performers"}</div>
+      </div>
+      {items.length === 0 ? (
+        <Empty>Leaders will appear here once matches are played.</Empty>
+      ) : (
+        <div className="perf-grid">
+          {items.map((p, i) => (
+            <div key={i} className="perf-row">
+              <div className="perf-rank">{i + 1}</div>
+              <div className="perf-id">
+                <div className="perf-name">{p.name}</div>
+                {p.club && <div className="perf-club">{p.club}</div>}
+              </div>
+              <div className="perf-stat">
+                <span className="perf-val">{p.stat}</span>
+                {p.statLabel && <span className="perf-lbl">{p.statLabel}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Lineup: an announced team (Module: match_centre). Rule 9: not entitled or no players -> nothing. */
+export function LineupSection({ props, ctx }: { props: PropsOf<"lineup">; ctx: SectionContext }) {
+  if (!ctx.isEntitled("lineup")) return null;
+  const lu = ctx.matchCentre?.lineup;
+  if (!lu || lu.players.length === 0) return null;
+  return (
+    <section className="sw-sec card sw-lineup">
+      <div className="sec-hdr">
+        <div>
+          {lu.grade && <div className="eyebrow">{lu.grade}</div>}
+          <div className="s-hed">{props.heading ?? lu.teamName ?? "Team Lineup"}</div>
+        </div>
+      </div>
+      {lu.note && <div className="lu-note">{lu.note}</div>}
+      <ul className="lu-list">
+        {lu.players.map((pl, i) => (
+          <li key={i} className="lu-player">
+            {pl.number && <span className="lu-num">{pl.number}</span>}
+            <span className="lu-name">{pl.name}</span>
+            {pl.role && <span className="lu-role">{pl.role}</span>}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

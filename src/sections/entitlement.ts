@@ -73,6 +73,9 @@ export interface SectionContext {
 const ENTITLEMENT_KEY: Partial<Record<SectionType, string>> = {
   match_data: "match_centre",
   scoreboard: "match_centre",
+  ticker: "match_centre",
+  top_performers: "match_centre",
+  lineup: "match_centre",
 };
 
 /** The capability key a section requires, or null if it is never entitlement-gated. */

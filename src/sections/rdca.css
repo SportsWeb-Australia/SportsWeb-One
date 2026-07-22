@@ -717,3 +717,72 @@ text-decoration: none; color: var(--text); transition: transform .15s, box-shado
 .sw-f2 .al-title { display: flex; align-items: center; gap: 7px; font-family: "Bebas Neue", sans-serif; font-size: 15px; color: var(--red); }
 .sw-f2 .al-blurb { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
 .sw-f2 .al-cta { width: 100%; justify-content: center; }
+
+/* ============================================================================
+   RDCA MODULE TYPES (Brief 10 batch 3): ticker, competition hub, performers,
+   lineup. All scoped under .sw-f2. Module-gated + Rule-9 empty in the components.
+   ============================================================================ */
+/* ticker -- live-score strip (reuses the .ticker-bar chrome background) */
+.sw-f2 .sw-ticker { overflow: hidden; }
+.sw-f2 .tk-inner { display: flex; align-items: stretch; }
+.sw-f2 .tk-label { display: flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #fff; background: var(--red); flex-shrink: 0; }
+.sw-f2 .tk-track { display: flex; gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sw-f2 .tk-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-right: 1px solid rgba(255, 255, 255, .08); text-decoration: none; white-space: nowrap; color: rgba(255, 255, 255, .85); font-size: 12px; }
+.sw-f2 .tk-grade { color: rgba(255, 255, 255, .45); font-weight: 600; }
+.sw-f2 .tk-teams { font-weight: 600; }
+.sw-f2 .tk-score { font-family: "Bebas Neue", sans-serif; font-size: 15px; color: #fff; }
+.sw-f2 .tk-status { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: rgba(255, 255, 255, .5); }
+.sw-f2 .tk-status.is-live { color: var(--red); font-weight: 700; }
+
+/* competition hub -- tabs + ladder / fixtures / results (ported .comp-*/.lt/.fxr) */
+.sw-f2 .sw-comp-hub { padding: 20px; }
+.sw-f2 .comp-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+.sw-f2 .comp-tab { padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); background: none; border: 0; border-bottom: 2.5px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color .15s, border-color .15s; }
+.sw-f2 .comp-tab.active { color: var(--navy); border-color: var(--red); }
+.sw-f2 .comp-pane { display: none; }
+.sw-f2 .comp-pane.active { display: block; }
+.sw-f2 .comp-block + .comp-block { margin-top: 20px; }
+.sw-f2 .comp-block-h { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.sw-f2 .ladder-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.sw-f2 table.lt { width: 100%; border-collapse: collapse; min-width: 480px; }
+.sw-f2 table.lt th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+.sw-f2 table.lt td { padding: 9px 8px; border-bottom: 1px solid var(--border); font-size: 13px; text-align: center; }
+.sw-f2 table.lt tr.promo { background: rgba(204, 34, 34, .04); }
+.sw-f2 table.lt tr:last-child td { border-bottom: none; }
+.sw-f2 table.lt th.tl, .sw-f2 table.lt td.tl { text-align: left; }
+.sw-f2 .pts { font-family: "Bebas Neue", sans-serif; font-size: 16px; }
+.sw-f2 .fxr { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.sw-f2 .fxr:last-child { border-bottom: none; }
+.sw-f2 .fxd { min-width: 44px; padding: 7px 6px; border-radius: 10px; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; text-align: center; flex-shrink: 0; }
+.sw-f2 .fxi { flex: 1; min-width: 0; }
+.sw-f2 .fxt { font-size: 13px; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sw-f2 .fxm { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.sw-f2 .rrow { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.sw-f2 .rrow:last-child { border-bottom: none; }
+.sw-f2 .rx-score { font-family: "Bebas Neue", sans-serif; font-size: 18px; color: var(--navy); flex-shrink: 0; }
+.sw-f2 .rrow--win .rx-score { color: #16a34a; }
+.sw-f2 .rrow--loss .rx-score { color: var(--red); }
+
+/* top_performers -- leaderboard */
+.sw-f2 .sw-perf { padding: 20px; }
+.sw-f2 .perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+.sw-f2 .perf-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.sw-f2 .perf-rank { width: 22px; height: 22px; border-radius: 50%; background: var(--bg2); color: var(--muted); font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sw-f2 .perf-row:first-child .perf-rank { background: var(--red); color: #fff; }
+.sw-f2 .perf-id { flex: 1; min-width: 0; }
+.sw-f2 .perf-name { font-size: 13px; font-weight: 600; }
+.sw-f2 .perf-club { font-size: 11px; color: var(--muted); }
+.sw-f2 .perf-stat { display: flex; align-items: baseline; gap: 4px; flex-shrink: 0; }
+.sw-f2 .perf-val { font-family: "Bebas Neue", sans-serif; font-size: 20px; color: var(--navy); }
+.sw-f2 .perf-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+@media (max-width: 640px) { .sw-f2 .perf-grid { grid-template-columns: 1fr; } }
+
+/* lineup -- announced team */
+.sw-f2 .sw-lineup { padding: 20px; }
+.sw-f2 .lu-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.sw-f2 .lu-list { list-style: none; margin: 0; padding: 0; }
+.sw-f2 .lu-player { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.sw-f2 .lu-player:last-child { border-bottom: none; }
+.sw-f2 .lu-num { width: 24px; height: 24px; border-radius: 6px; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sw-f2 .lu-name { font-size: 13px; font-weight: 600; flex: 1; }
+.sw-f2 .lu-role { font-size: 11px; color: var(--muted); }
