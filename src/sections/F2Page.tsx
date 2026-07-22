@@ -54,15 +54,16 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
     if (!supabase) return;
     supabase
       .from("club_pages")
-      .select("id, slug, nav_label, nav_order, nav_visible, nav_parent_id, layout_mode")
+      .select("id, slug, nav_label, nav_order, nav_visible, nav_parent_id, published_layout_mode")
       .eq("club_id", clubId)
       .then(({ data }) => {
         if (!active) return;
         const rows = (data as NavPageRow[]) ?? [];
         setNav(buildNav(rows, slug));
-        // The current page's arrangement rides the same query. Anything but 'main-side' (null,
-        // 'stack', an unknown future value) safely renders as the flat stack.
-        const mode = rows.find((r) => r.slug === slug)?.layout_mode;
+        // The current page's PUBLISHED arrangement rides the same query (the public site shows the
+        // published mode, not the draft). Anything but 'main-side' (null, 'stack', an unknown future
+        // value) safely renders as the flat stack.
+        const mode = rows.find((r) => r.slug === slug)?.published_layout_mode;
         setLayoutMode(mode === "main-side" ? "main-side" : "stack");
       });
     return () => {

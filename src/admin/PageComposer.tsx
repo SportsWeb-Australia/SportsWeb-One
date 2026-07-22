@@ -57,9 +57,13 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [savedJson, setSavedJson] = useState<string>("[]");
   const [ctx, setCtx] = useState<SectionContext | null>(null);
   const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
-  // The page's arrangement, so the preview matches the live render. Slice A shows it read-only;
-  // slice B adds the two-drop-zone editing UI that sets it.
+  // The page's arrangement (Brief 10 sec 3a). Versioned like the layout itself: `layoutMode` is
+  // the DRAFT the composer edits; `savedMode` is what's persisted to draft_layout_mode; and
+  // `publishedMode` is what's live (published_layout_mode). Changing the toggle is a draft edit --
+  // it only reaches the public site on Publish, never on Save (the same contract as the layout).
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("stack");
+  const [savedMode, setSavedMode] = useState<LayoutMode>("stack");
+  const [publishedMode, setPublishedMode] = useState<LayoutMode>("stack");
   const [busy, setBusy] = useState<Busy>(false);
   const [toast, setToast] = useState<Toast>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -68,10 +72,11 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [needsAuth, setNeedsAuth] = useState(false);
 
   const currentJson = JSON.stringify(layout);
-  const dirty = currentJson !== savedJson;
+  // Arrangement is part of the draft: a mode change alone counts as unsaved / publishable.
+  const dirty = currentJson !== savedJson || layoutMode !== savedMode;
   const hasPublished = publishedJson !== "null";
   // Differs from what is currently live -> "Publish" has something to do.
-  const publishable = currentJson !== publishedJson;
+  const publishable = currentJson !== publishedJson || layoutMode !== publishedMode;
 
   // --- load the home page + the club's render context + theme ---
   useEffect(() => {
@@ -90,7 +95,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
       }
       const { data: base } = await supabase
         .from("club_pages")
-        .select("id, draft_layout, published_layout, layout_mode")
+        .select("id, draft_layout, published_layout, draft_layout_mode, published_layout_mode")
         .eq("club_id", clubId)
         .eq("slug", "home")
         .maybeSingle();
@@ -108,7 +113,12 @@ export function PageComposer({ clubId }: { clubId: string }) {
       setLayout(draft);
       setSavedJson(JSON.stringify(draft));
       setPublishedJson(JSON.stringify(base?.published_layout ?? null));
-      setLayoutMode((base as { layout_mode?: string } | null)?.layout_mode === "main-side" ? "main-side" : "stack");
+      const row = base as { draft_layout_mode?: string; published_layout_mode?: string } | null;
+      const draftMode: LayoutMode = row?.draft_layout_mode === "main-side" ? "main-side" : "stack";
+      const pubMode: LayoutMode = row?.published_layout_mode === "main-side" ? "main-side" : "stack";
+      setLayoutMode(draftMode);
+      setSavedMode(draftMode);
+      setPublishedMode(pubMode);
       setCtx(sectionContextFromClub(cfg));
       setTheme(themeTokens);
       setLoading(false);
@@ -180,6 +190,21 @@ export function PageComposer({ clubId }: { clubId: string }) {
     setAddOpen(false);
     flash(`Added "${SECTION_REGISTRY[type].label}". Remember to save.`);
   };
+  // Two-column placement (Brief 10 sec 3a): undefined = full width, else the main/side rail.
+  // Only meaningful when layoutMode is 'main-side'; the value is kept but ignored in 'stack'.
+  const setColumn = (i: number, col: "main" | "side" | undefined) =>
+    setLayout((L) =>
+      L.map((s, k) => {
+        if (k !== i) return s;
+        if (!col) {
+          // Full width: drop the key entirely (absent = full width, per the schema).
+          const next = { ...s };
+          delete (next as { column?: unknown }).column;
+          return next;
+        }
+        return { ...s, column: col };
+      }),
+    );
 
   const usedTypes = useMemo(() => layout.map((s) => s.type), [layout]);
 
@@ -190,7 +215,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
     setError(null);
     const { data, error: e } = await supabase
       .from("club_pages")
-      .update({ draft_layout: layout })
+      .update({ draft_layout: layout, draft_layout_mode: layoutMode })
       .eq("id", pageId)
       .select("id");
     setBusy(false);
@@ -200,6 +225,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
       return setError("Could not save — your changes are still here. Check your connection and try again.");
     }
     setSavedJson(currentJson);
+    setSavedMode(layoutMode);
     flash("Saved. Your changes are kept, but not live yet.");
   };
 
@@ -212,18 +238,21 @@ export function PageComposer({ clubId }: { clubId: string }) {
     // Save first, so we publish exactly what is on screen -- and verify it actually took.
     const { data: saved } = await supabase
       .from("club_pages")
-      .update({ draft_layout: layout })
+      .update({ draft_layout: layout, draft_layout_mode: layoutMode })
       .eq("id", pageId)
       .select("id");
     if (!saved || saved.length === 0) {
       setBusy(false);
       return setError("Could not publish — your changes are still here. Check your connection and try again.");
     }
+    // publish_club_page copies draft -> published for BOTH the layout and the arrangement.
     const { error: e } = await supabase.rpc("publish_club_page", { p_page_id: pageId });
     setBusy(false);
     if (e) return setError("Could not publish — your changes are still here. Please try again.");
     setSavedJson(currentJson);
+    setSavedMode(layoutMode);
     setPublishedJson(currentJson);
+    setPublishedMode(layoutMode);
     flash("Published. Your website is now live.");
   };
 
@@ -234,10 +263,19 @@ export function PageComposer({ clubId }: { clubId: string }) {
     setError(null);
     const { error: e } = await supabase.rpc("revert_club_page", { p_page_id: pageId });
     if (!e) {
-      const { data: page } = await supabase.from("club_pages").select("draft_layout").eq("id", pageId).maybeSingle();
+      // revert_club_page restored BOTH draft_layout and draft_layout_mode from the published state.
+      const { data: page } = await supabase
+        .from("club_pages")
+        .select("draft_layout, draft_layout_mode")
+        .eq("id", pageId)
+        .maybeSingle();
       const draft = (page?.draft_layout as SectionInstance[]) ?? [];
+      const draftMode: LayoutMode =
+        (page as { draft_layout_mode?: string } | null)?.draft_layout_mode === "main-side" ? "main-side" : "stack";
       setLayout(draft);
       setSavedJson(JSON.stringify(draft));
+      setLayoutMode(draftMode);
+      setSavedMode(draftMode);
     }
     setBusy(false);
     if (e) return setError("Could not revert. Please try again.");
@@ -305,6 +343,33 @@ export function PageComposer({ clubId }: { clubId: string }) {
         </div>
       )}
 
+      <div className="sw-comp-layout">
+        <span className="sw-comp-layout-label">Page layout</span>
+        <div className="sw-comp-seg" role="group" aria-label="Page layout">
+          <button
+            type="button"
+            className={layoutMode === "stack" ? "is-active" : ""}
+            aria-pressed={layoutMode === "stack"}
+            onClick={() => setLayoutMode("stack")}
+          >
+            Single column
+          </button>
+          <button
+            type="button"
+            className={layoutMode === "main-side" ? "is-active" : ""}
+            aria-pressed={layoutMode === "main-side"}
+            onClick={() => setLayoutMode("main-side")}
+          >
+            Two column
+          </button>
+        </div>
+        <span className="sw-comp-layout-hint">
+          {layoutMode === "main-side"
+            ? "Choose where each section sits — the main area or the sidebar. Leave the big ones (like your hero) full width."
+            : "One column, top to bottom. Switch to two column to add a sidebar."}
+        </span>
+      </div>
+
       <div className="sw-comp-body">
         <div className="sw-comp-list" aria-label="Your sections">
           {layout.map((s, i) => {
@@ -319,6 +384,20 @@ export function PageComposer({ clubId }: { clubId: string }) {
                   {!ok && <span className="sw-comp-tag sw-comp-tag-warn">Needs attention</span>}
                 </div>
                 <div className="sw-comp-item-ctrls">
+                  {layoutMode === "main-side" && (
+                    <select
+                      className="sw-comp-col"
+                      value={s.column ?? "full"}
+                      onChange={(e) =>
+                        setColumn(i, e.target.value === "full" ? undefined : (e.target.value as "main" | "side"))
+                      }
+                      aria-label={`Column placement for ${def.label}`}
+                    >
+                      <option value="full">Full width</option>
+                      <option value="main">Main area</option>
+                      <option value="side">Sidebar</option>
+                    </select>
+                  )}
                   <button className="sw-comp-ic" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
                     &uarr;
                   </button>

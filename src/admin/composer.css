@@ -71,6 +71,46 @@
 .sw-comp-error { background: #fef2f2; color: #b91c1c; padding: 0.6rem 1rem; }
 .sw-comp-warn { background: #fffbeb; color: #92400e; padding: 0.6rem 1rem; font-size: 0.9rem; }
 
+/* --- page layout toggle (Brief 10 sec 3a: single vs two-column) --- */
+.sw-comp-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.85rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid var(--comp-line);
+}
+.sw-comp-layout-label { font-weight: 700; }
+.sw-comp-layout-hint { font-size: 0.82rem; color: var(--comp-soft); flex: 1 1 14rem; }
+/* Segmented control: the active mode fills SportsWeb blue (admin chrome, never the club theme). */
+.sw-comp-seg { display: inline-flex; border: 1px solid var(--comp-line); border-radius: 8px; overflow: hidden; }
+.sw-comp-seg button {
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  background: #fff;
+  color: var(--comp-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sw-comp-seg button + button { border-left: 1px solid var(--comp-line); }
+.sw-comp-seg button.is-active { background: var(--comp-blue); color: #fff; }
+
+/* Per-section column placement (only rendered in two-column mode). */
+.sw-comp-col {
+  min-height: 40px;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid var(--comp-blue);
+  background: #eff6ff;
+  color: var(--comp-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* --- body: list + preview --- */
 .sw-comp-body { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; background: var(--comp-bg); }
 @media (min-width: 900px) {
