@@ -12,10 +12,16 @@ type C<T extends SectionType> = { props: PropsOf<T>; ctx: SectionContext };
 function Empty({ children }: { children: ReactNode }) {
   return <p className="sw-sec-empty">{children}</p>;
 }
+/** RDCA card frame used by the remaining collection sections (committee/teams/documents/social).
+ *  A `.card` with a `.sec-hdr` header; the primitives come from the PR-A base layer. */
 function Frame({ heading, cls, children }: { heading?: string; cls: string; children: ReactNode }) {
   return (
-    <section className={`sw-sec ${cls}`}>
-      {heading && <h2 className="sw-sec-heading">{heading}</h2>}
+    <section className={`sw-sec ${cls} card sw-card-pad`}>
+      {heading && (
+        <div className="sec-hdr">
+          <div className="s-hed">{heading}</div>
+        </div>
+      )}
       {children}
     </section>
   );
@@ -218,19 +224,19 @@ export function CommitteeSection({ props, ctx }: C<"committee">) {
       {items.length === 0 ? (
         <Empty>Committee members will be listed here.</Empty>
       ) : (
-        <ul className="sw-sec-committee-list">
+        <div className="cm-grid">
           {items.map((p, i) => (
-            <li key={i} className="sw-sec-committee-item">
-              <span className="sw-sec-committee-name">{p.name}</span>
-              <span className="sw-sec-committee-role">{p.role}</span>
+            <div key={i} className="cm-card">
+              <div className="cm-name">{p.name}</div>
+              <div className="cm-role">{p.role}</div>
               {p.email && (
-                <a className="sw-sec-committee-email" href={`mailto:${p.email}`}>
-                  {p.email}
+                <a className="cm-email" href={`mailto:${p.email}`}>
+                  <i className="ti ti-mail" aria-hidden="true"></i> {p.email}
                 </a>
               )}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </Frame>
   );
@@ -245,23 +251,23 @@ export function TeamsSection({ props, ctx }: C<"teams">) {
       {groups.length === 0 ? (
         <Empty>Teams and grades will appear here once they are added.</Empty>
       ) : flat ? (
-        <ul className="sw-sec-teams-flat">
+        <ul className="tm-flat">
           {groups.flatMap((g) => g.teams).map((t, i) => (
-            <li key={i} className="sw-sec-team">
+            <li key={i} className="tm-item">
               {props.linkTo === "page" && t.href ? <a href={t.href}>{t.name}</a> : <span>{t.name}</span>}
-              {t.ages && <span className="sw-sec-team-ages">{t.ages}</span>}
+              {t.ages && <span className="tm-ages">{t.ages}</span>}
             </li>
           ))}
         </ul>
       ) : (
         groups.map((g, gi) => (
-          <div key={gi} className="sw-sec-teams-group">
-            <h3 className="sw-sec-teams-sport">{g.sport}</h3>
-            <ul className="sw-sec-teams-flat">
+          <div key={gi} className="tm-group">
+            <h3 className="tm-sport">{g.sport}</h3>
+            <ul className="tm-flat">
               {g.teams.map((t, i) => (
-                <li key={i} className="sw-sec-team">
+                <li key={i} className="tm-item">
                   {props.linkTo === "page" && t.href ? <a href={t.href}>{t.name}</a> : <span>{t.name}</span>}
-                  {t.ages && <span className="sw-sec-team-ages">{t.ages}</span>}
+                  {t.ages && <span className="tm-ages">{t.ages}</span>}
                 </li>
               ))}
             </ul>
@@ -280,11 +286,13 @@ export function DocumentsSection({ props, ctx }: C<"documents">) {
       {items.length === 0 ? (
         <Empty>Club documents and forms will be available here.</Empty>
       ) : (
-        <ul className="sw-sec-docs-list">
+        <ul className="doc-list">
           {items.map((d, i) => (
-            <li key={i} className={`sw-sec-doc sw-sec-doc--${d.kind}`}>
+            <li key={i} className={`doc-row doc-row--${d.kind}`}>
               <a href={d.href} target="_blank" rel="noreferrer">
-                {d.label}
+                <i className="ti ti-file-text doc-ic" aria-hidden="true"></i>
+                <span className="doc-label">{d.label}</span>
+                <i className="ti ti-download doc-dl" aria-hidden="true"></i>
               </a>
             </li>
           ))}
@@ -303,15 +311,13 @@ export function SocialFeedSection({ props, ctx }: C<"social_feed">) {
       {items.length === 0 ? (
         <Empty>Match-day photos and highlights will appear here.</Empty>
       ) : (
-        <ul className="sw-sec-social-list">
+        <div className="social-grid">
           {items.map((h, i) => (
-            <li key={i} className="sw-sec-social-item">
-              <a href={h.postUrl} target="_blank" rel="noreferrer">
-                {h.imageUrl ? <img src={h.imageUrl} alt={h.caption ?? ""} /> : <span>{h.caption ?? h.postUrl}</span>}
-              </a>
-            </li>
+            <a key={i} className="social-item" href={h.postUrl} target="_blank" rel="noreferrer">
+              {h.imageUrl ? <img src={h.imageUrl} alt={h.caption ?? ""} /> : <span className="social-cap">{h.caption ?? h.postUrl}</span>}
+            </a>
           ))}
-        </ul>
+        </div>
       )}
     </Frame>
   );

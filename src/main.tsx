@@ -6,7 +6,6 @@ import App from "./App";
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/blocks.css";
-import "./sections/sections.css";
 import "./sections/rdca.css";
 import "./admin/composer.css";
 

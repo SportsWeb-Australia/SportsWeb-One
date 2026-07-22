@@ -21,14 +21,6 @@ interface PropsMap {
   contact: PropsOf<"contact">;
 }
 
-function Cta({ label, href, primary }: { label: string; href: string; primary?: boolean }): ReactNode {
-  return (
-    <a className={primary ? "sw-sec-cta sw-sec-cta--primary" : "sw-sec-cta"} href={href}>
-      {label}
-    </a>
-  );
-}
-
 /** Styled headline: renders titleRich segments (accent/ghost, with line breaks) or the plain
  *  title. No raw HTML -- segments are plain text placed in spans with a closed set of classes. */
 function HeroHeadline({ props }: { props: PropsOf<"hero"> }): ReactNode {
@@ -199,13 +191,16 @@ export function HeroSection({ props, ctx }: C<"hero">) {
 export function AnnouncementBarSection({ props }: C<"announcement_bar">) {
   if (!props.enabled) return null; // disabled -> nothing, not an empty bar
   return (
-    <aside className="sw-sec sw-sec--announce" role="note">
-      <span className="sw-sec-announce-text">{props.text}</span>
-      {props.link && (
-        <a className="sw-sec-announce-link" href={props.link.href}>
-          {props.link.label}
-        </a>
-      )}
+    <aside className="sw-sec announce-bar" role="note">
+      <div className="announce-inner">
+        <i className="ti ti-speakerphone" aria-hidden="true"></i>
+        <span className="announce-text">{props.text}</span>
+        {props.link && (
+          <a className="announce-link" href={props.link.href}>
+            {props.link.label} <i className="ti ti-arrow-right" aria-hidden="true"></i>
+          </a>
+        )}
+      </div>
     </aside>
   );
 }
@@ -213,26 +208,31 @@ export function AnnouncementBarSection({ props }: C<"announcement_bar">) {
 function BlockView({ block }: { block: Block }): ReactNode {
   switch (block.kind) {
     case "paragraph":
-      return <p className="sw-sec-rt-p">{block.text}</p>;
+      return <p className="rt-p">{block.text}</p>;
     case "list": {
       const items = block.items.map((it, i) => <li key={i}>{it}</li>);
-      return block.ordered ? <ol className="sw-sec-rt-list">{items}</ol> : <ul className="sw-sec-rt-list">{items}</ul>;
+      return block.ordered ? <ol className="rt-list">{items}</ol> : <ul className="rt-list">{items}</ul>;
     }
     case "stat":
       return (
-        <div className="sw-sec-rt-stat">
-          <span className="sw-sec-rt-stat-value">{block.value}</span>
-          <span className="sw-sec-rt-stat-label">{block.label}</span>
+        <div className="rt-stat">
+          <span className="rt-stat-value">{block.value}</span>
+          <span className="rt-stat-label">{block.label}</span>
         </div>
       );
   }
 }
 
+/** Rich text, RDCA design: a `.card` prose block. */
 export function RichTextSection({ props }: C<"rich_text">) {
   return (
-    <section className="sw-sec sw-sec--richtext">
-      {props.heading && <h2 className="sw-sec-heading">{props.heading}</h2>}
-      <div className="sw-sec-rt-body">
+    <section className="sw-sec sw-sec--richtext card sw-rt">
+      {props.heading && (
+        <div className="sec-hdr">
+          <div className="s-hed">{props.heading}</div>
+        </div>
+      )}
+      <div className="rt-body">
         {props.body.map((b, i) => (
           <BlockView key={i} block={b} />
         ))}
@@ -241,16 +241,22 @@ export function RichTextSection({ props }: C<"rich_text">) {
   );
 }
 
+/** Quick links, RDCA design: a `.card` list of icon rows (the sidebar nav card). */
 export function QuickLinksSection({ props }: C<"quick_links">) {
   return (
-    <section className="sw-sec sw-sec--quicklinks">
-      {props.heading && <h2 className="sw-sec-heading">{props.heading}</h2>}
-      <ul className="sw-sec-ql-list">
+    <section className="sw-sec sw-sec--quicklinks card sw-ql">
+      {props.heading && (
+        <div className="sec-hdr">
+          <div className="s-hed">{props.heading}</div>
+        </div>
+      )}
+      <ul className="ql-list">
         {props.links.map((l, i) => (
           <li key={i}>
-            <a className="sw-sec-ql-link" href={l.href}>
-              {l.icon && <span className="sw-sec-ql-icon" aria-hidden="true" data-icon={l.icon} />}
-              {l.label}
+            <a className="ql-row" href={l.href}>
+              {l.icon && <i className={`ti ${l.icon} ql-icon`} aria-hidden="true"></i>}
+              <span className="ql-label">{l.label}</span>
+              <i className="ti ti-chevron-right ql-arrow" aria-hidden="true"></i>
             </a>
           </li>
         ))}
@@ -259,35 +265,43 @@ export function QuickLinksSection({ props }: C<"quick_links">) {
   );
 }
 
+/** CTA band, RDCA design: a navy gradient band with a headline + buttons. */
 export function CtaBandSection({ props }: C<"cta_band">) {
   return (
-    <section className="sw-sec sw-sec--ctaband">
-      <h2 className="sw-sec-heading">{props.heading}</h2>
-      {props.blurb && <p className="sw-sec-ctaband-blurb">{props.blurb}</p>}
-      <div className="sw-sec-ctaband-actions">
-        {props.actions.map((a, i) => (
-          <Cta key={i} {...a} primary={i === 0} />
-        ))}
+    <section className="sw-sec sw-sec--ctaband cta-band">
+      <div className="cta-band-inner">
+        <div className="cta-band-text">
+          <div className="cta-band-hed">{props.heading}</div>
+          {props.blurb && <div className="cta-band-blurb">{props.blurb}</div>}
+        </div>
+        <div className="cta-band-actions">
+          {props.actions.map((a, i) => (
+            <a key={i} className={`btn ${i === 0 ? "btn-red" : "btn-outline-white"}`} href={a.href}>
+              {a.label}
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
+/** President welcome, RDCA design: a `.card` with an optional portrait + a signed message. */
 export function PresidentWelcomeSection({ props }: C<"president_welcome">) {
   return (
-    <section className="sw-sec sw-sec--president">
-      {props.portrait && <img className="sw-sec-pres-portrait" src={props.portrait} alt={props.name} />}
-      <div className="sw-sec-pres-body">
+    <section className="sw-sec sw-sec--president card sw-pres">
+      {props.portrait && <img className="pres-portrait" src={props.portrait} alt={props.name} />}
+      <div className="pres-body">
         {props.body.map((para, i) => (
-          <p key={i} className="sw-sec-rt-p">
+          <p key={i} className="pres-p">
             {para}
           </p>
         ))}
-        <p className="sw-sec-pres-sign">
-          {props.signoff && <span className="sw-sec-pres-signoff">{props.signoff}</span>}
-          <span className="sw-sec-pres-name">{props.name}</span>
-          {props.role && <span className="sw-sec-pres-role">{props.role}</span>}
-        </p>
+        <div className="pres-sign">
+          {props.signoff && <span className="pres-signoff">{props.signoff}</span>}
+          <span className="pres-name">{props.name}</span>
+          {props.role && <span className="pres-role">{props.role}</span>}
+        </div>
       </div>
     </section>
   );

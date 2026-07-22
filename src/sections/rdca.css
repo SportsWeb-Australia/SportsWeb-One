@@ -786,3 +786,105 @@ text-decoration: none; color: var(--text); transition: transform .15s, box-shado
 .sw-f2 .lu-num { width: 24px; height: 24px; border-radius: 6px; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .sw-f2 .lu-name { font-size: 13px; font-weight: 600; flex: 1; }
 .sw-f2 .lu-role { font-size: 11px; color: var(--muted); }
+
+/* ============================================================================
+   PAGE BASE (relocated from the retired sections.css, RDCA-clean). The .sw-page
+   wrapper always renders inside .sw-f2, so this is the F2 page base now: no
+   alternating bands (RDCA does not band), just tokens + vertical rhythm between
+   full-width sections. Columned sections are spaced by the .col-* flex gaps.
+   ============================================================================ */
+.sw-f2 .sw-page { background: var(--bg); color: var(--text); font-family: "DM Sans", system-ui, sans-serif; font-size: 14px; line-height: 1.55; }
+.sw-f2 .sw-page > * + * { margin-top: 28px; }
+.sw-f2 .sw-sec-empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+.sw-f2 .sw-card-pad { padding: 20px; }
+
+/* ============================================================================
+   REMAINING SECTION PORTS (Brief 10 batch 4): announcement bar, rich text, quick
+   links, CTA band, president welcome, committee, teams, documents, social feed,
+   scoreboard. All scoped under .sw-f2.
+   ============================================================================ */
+/* announcement_bar */
+.sw-f2 .announce-bar { background: var(--navy); border-radius: var(--r); }
+.sw-f2 .announce-inner { max-width: 1480px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
+.sw-f2 .announce-inner > .ti { color: var(--red); font-size: 16px; }
+.sw-f2 .announce-text { font-weight: 600; }
+.sw-f2 .announce-link { margin-left: auto; color: var(--red); font-weight: 700; text-decoration: none; white-space: nowrap; }
+
+/* rich_text */
+.sw-f2 .sw-rt { padding: 20px; }
+.sw-f2 .rt-body { font-size: 14px; line-height: 1.7; color: var(--text); }
+.sw-f2 .rt-p { margin: 0 0 12px; }
+.sw-f2 .rt-p:last-child { margin-bottom: 0; }
+.sw-f2 .rt-list { margin: 0 0 12px 18px; }
+.sw-f2 .rt-list li { margin-bottom: 4px; }
+.sw-f2 .rt-stat { display: inline-flex; flex-direction: column; margin: 6px 12px 6px 0; }
+.sw-f2 .rt-stat-value { font-family: "Bebas Neue", sans-serif; font-size: 28px; color: var(--red); line-height: 1; }
+.sw-f2 .rt-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+
+/* quick_links */
+.sw-f2 .sw-ql { padding: 20px; }
+.sw-f2 .ql-list { list-style: none; margin: 0; padding: 0; }
+.sw-f2 .ql-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600; }
+.sw-f2 .ql-list li:last-child .ql-row { border-bottom: none; }
+.sw-f2 .ql-icon { color: var(--red); font-size: 16px; }
+.sw-f2 .ql-label { flex: 1; }
+.sw-f2 .ql-arrow { color: var(--muted); font-size: 14px; }
+
+/* cta_band */
+.sw-f2 .cta-band { border-radius: var(--r); overflow: hidden; background: linear-gradient(135deg, var(--navy), var(--navy3)); }
+.sw-f2 .cta-band-inner { max-width: 1480px; margin: 0 auto; padding: 28px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.sw-f2 .cta-band-hed { font-family: "Bebas Neue", sans-serif; font-size: 30px; color: #fff; letter-spacing: .3px; }
+.sw-f2 .cta-band-blurb { font-size: 13px; color: rgba(255, 255, 255, .55); margin-top: 4px; }
+.sw-f2 .cta-band-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* president_welcome */
+.sw-f2 .sw-pres { padding: 20px; display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.sw-f2 .pres-portrait { width: 84px; height: 84px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.sw-f2 .pres-body { flex: 1; min-width: 220px; }
+.sw-f2 .pres-p { font-size: 14px; line-height: 1.7; color: var(--text); margin: 0 0 10px; }
+.sw-f2 .pres-sign { display: flex; flex-direction: column; margin-top: 8px; }
+.sw-f2 .pres-signoff { font-size: 13px; color: var(--muted); }
+.sw-f2 .pres-name { font-family: "Bebas Neue", sans-serif; font-size: 20px; color: var(--navy); }
+.sw-f2 .pres-role { font-size: 12px; color: var(--muted); }
+
+/* committee */
+.sw-f2 .cm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sw-f2 .cm-card { border: 1px solid var(--border); border-radius: var(--r); padding: 14px; background: var(--card); }
+.sw-f2 .cm-name { font-size: 14px; font-weight: 700; }
+.sw-f2 .cm-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.sw-f2 .cm-email { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--red); text-decoration: none; margin-top: 8px; }
+@media (max-width: 900px) { .sw-f2 .cm-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .sw-f2 .cm-grid { grid-template-columns: 1fr; } }
+
+/* teams */
+.sw-f2 .tm-group + .tm-group { margin-top: 16px; }
+.sw-f2 .tm-sport { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 8px; }
+.sw-f2 .tm-flat { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.sw-f2 .tm-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r); background: var(--card); font-size: 13px; font-weight: 600; }
+.sw-f2 .tm-item a { text-decoration: none; color: var(--text); }
+.sw-f2 .tm-ages { font-size: 11px; color: var(--muted); font-weight: 500; }
+@media (max-width: 560px) { .sw-f2 .tm-flat { grid-template-columns: 1fr; } }
+
+/* documents */
+.sw-f2 .doc-list { list-style: none; margin: 0; padding: 0; }
+.sw-f2 .doc-row a { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); font-size: 13px; font-weight: 600; }
+.sw-f2 .doc-list li:last-child a { border-bottom: none; }
+.sw-f2 .doc-ic { color: var(--red); font-size: 16px; }
+.sw-f2 .doc-label { flex: 1; }
+.sw-f2 .doc-dl { color: var(--muted); font-size: 15px; }
+
+/* social_feed */
+.sw-f2 .social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sw-f2 .social-item { aspect-ratio: 1; border-radius: var(--r); overflow: hidden; background: var(--bg2); display: block; }
+.sw-f2 .social-item img { width: 100%; height: 100%; object-fit: cover; }
+.sw-f2 .social-cap { display: flex; align-items: center; justify-content: center; height: 100%; padding: 8px; font-size: 11px; color: var(--muted); text-align: center; }
+@media (max-width: 560px) { .sw-f2 .social-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* scoreboard */
+.sw-f2 .sw-scoreboard { display: flex; gap: 10px; flex-wrap: wrap; }
+.sw-f2 .sb-cell { flex: 1; min-width: 120px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; }
+.sw-f2 .sb-cap { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.sw-f2 .sb-main { display: block; font-family: "Bebas Neue", sans-serif; font-size: 20px; color: var(--navy); }
+.sw-f2 .sb-sub { font-size: 11px; color: var(--muted); }
+.sw-f2 .sb-cell--W { border-left: 3px solid #16a34a; }
+.sw-f2 .sb-cell--L { border-left: 3px solid var(--red); }

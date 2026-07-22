@@ -170,36 +170,36 @@ export function ScoreboardSection({ props, ctx }: { props: PropsOf<"scoreboard">
 
   if (!last && !next && !ladderPos) {
     return (
-      <section className="sw-sec sw-sec--scoreboard">
+      <section className="sw-sec sw-sec--scoreboard card sw-scoreboard">
         <Empty>The latest result and next fixture will show here once the season is underway.</Empty>
       </section>
     );
   }
 
   return (
-    <section className="sw-sec sw-sec--scoreboard">
+    <section className="sw-sec sw-sec--scoreboard sw-scoreboard">
       {last && (
-        <div className={`sw-sec-sb-cell sw-sec-sb-cell--${last.outcome}`}>
-          <span className="sw-sec-sb-cap">Last</span>
-          <span className="sw-sec-sb-main">
+        <div className={`sb-cell sb-cell--${last.outcome}`}>
+          <span className="sb-cap">Last</span>
+          <span className="sb-main">
             {last.outcome} {last.scoreFor}&ndash;{last.scoreAgainst}
           </span>
-          <span className="sw-sec-sb-sub">v {last.opponent}</span>
+          <span className="sb-sub">v {last.opponent}</span>
         </div>
       )}
       {next && (
-        <div className="sw-sec-sb-cell">
-          <span className="sw-sec-sb-cap">Next</span>
-          <span className="sw-sec-sb-main">v {next.opponent}</span>
-          <span className="sw-sec-sb-sub">
+        <div className="sb-cell">
+          <span className="sb-cap">Next</span>
+          <span className="sb-main">v {next.opponent}</span>
+          <span className="sb-sub">
             {next.venue} &middot; {next.date}
           </span>
         </div>
       )}
       {ladderPos && (
-        <div className="sw-sec-sb-cell">
-          <span className="sw-sec-sb-cap">Ladder</span>
-          <span className="sw-sec-sb-main">#{ladderPos}</span>
+        <div className="sb-cell">
+          <span className="sb-cap">Ladder</span>
+          <span className="sb-main">#{ladderPos}</span>
         </div>
       )}
     </section>
