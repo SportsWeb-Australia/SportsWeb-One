@@ -21,28 +21,67 @@ function Frame({ heading, cls, children }: { heading?: string; cls: string; chil
   );
 }
 
+// RDCA news badge palette -- cycles red / navy / green across cards so a wall of posts reads with
+// the source's visual variety. Category is free text (never a fixed enum), so the colour is chosen
+// by position, not by inventing category semantics.
+const NEWS_BADGES = ["badge-red", "badge-navy", "badge-green"] as const;
+
+/** News, RDCA design (audit sec 4): a `.card` with a header, an optional feature hero (the first
+ *  post, big), and a grid of the rest. `layout: "feature"` shows the hero; "grid"/"list" skip it.
+ *  Emits the ported RDCA class hooks (styled by the scoped rdca.css); shares ctx.news with every
+ *  design. Rule 9: no real posts -> the defined empty state, never placeholder rows. */
 export function NewsSection({ props, ctx }: C<"news">) {
   const items = ctx.news.filter((n) => !n.placeholder).slice(0, props.count);
+  const hrefOf = (n: (typeof items)[number]) => n.href ?? `/news/${n.slug ?? n.id}`;
+  const meta = (n: (typeof items)[number]) => [n.category, n.date].filter(Boolean).join(" · ");
+
+  const useHero = props.layout === "feature" && items.length > 0;
+  const hero = useHero ? items[0] : undefined;
+  const grid = useHero ? items.slice(1) : items;
+
   return (
-    <Frame heading={props.heading} cls={`sw-sec--news sw-sec--news-${props.layout}`}>
+    <section className="sw-sec sw-sec--news card sw-news">
+      <div className="sec-hdr">
+        <div className="s-hed">{props.heading ?? "News & Articles"}</div>
+        <a className="view-all" href="/news">
+          All News <i className="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
       {items.length === 0 ? (
         <Empty>Club news will appear here once the first post is published.</Empty>
       ) : (
-        <ul className="sw-sec-news-list">
-          {items.map((n) => (
-            <li key={n.id} className="sw-sec-news-item">
-              {n.image && <img className="sw-sec-news-img" src={n.image} alt="" />}
-              <span className="sw-sec-news-cat">{n.category}</span>
-              <a className="sw-sec-news-title" href={n.href ?? `/news/${n.slug ?? n.id}`}>
-                {n.title}
-              </a>
-              <time className="sw-sec-news-date">{n.date}</time>
-              {n.excerpt && <p className="sw-sec-news-excerpt">{n.excerpt}</p>}
-            </li>
-          ))}
-        </ul>
+        <>
+          {hero && (
+            <a className="news-hero" href={hrefOf(hero)}>
+              <div className="nh-img" style={hero.image ? { backgroundImage: `url('${hero.image}')` } : undefined} />
+              <div className="nh-overlay" />
+              <div className="nh-body">
+                {hero.category && <span className="badge badge-red nh-badge">{hero.category}</span>}
+                <div className="nh-title">{hero.title}</div>
+                {meta(hero) && <div className="nh-meta">{meta(hero)}</div>}
+              </div>
+            </a>
+          )}
+          {grid.length > 0 && (
+            <div className="news-grid">
+              {grid.map((n, i) => (
+                <a key={n.id} className="nc" href={hrefOf(n)}>
+                  <div className="nct" style={n.image ? { backgroundImage: `url('${n.image}')` } : undefined} />
+                  <div className="ncb">
+                    {n.category && (
+                      <span className={`badge ${NEWS_BADGES[i % NEWS_BADGES.length]} nc-badge`}>{n.category}</span>
+                    )}
+                    <div className="nc-title">{n.title}</div>
+                    {n.date && <div className="nc-date">{n.date}</div>}
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </>
       )}
-    </Frame>
+    </section>
   );
 }
 

@@ -516,3 +516,39 @@ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
 display: flex; flex-direction: column;
 }
 }
+
+/* ============================================================================
+   NEWS section (Brief 10 / audit sec 4). Ported from RDCA _pages.css (.news-hero +
+   .news-grid) with the source's inline-styled title/meta promoted to classes. The
+   primitives (.card / .sec-hdr / .badge / .view-all) come from the PR-A base layer.
+   Scoped under .sw-f2. Emitted by NewsSection for every F2 design in Phase A.
+   ============================================================================ */
+.sw-f2 .sw-news { padding: 20px; }
+.sw-f2 .news-hero {
+position: relative; display: block; height: 300px; margin-bottom: 14px; overflow: hidden;
+border-radius: var(--r); background: var(--navy); text-decoration: none; color: #fff;
+}
+.sw-f2 .nh-img { position: absolute; inset: 0; background-size: cover; background-position: center 25%; }
+.sw-f2 .nh-overlay {
+position: absolute; inset: 0;
+background: linear-gradient(to top, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .2) 55%, transparent 100%);
+}
+.sw-f2 .nh-body { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; padding: 22px 24px; }
+.sw-f2 .nh-badge { display: inline-block; margin-bottom: 8px; }
+.sw-f2 .nh-title {
+font-family: "Bebas Neue", sans-serif; font-size: 26px; line-height: 1.05; color: #fff; margin-bottom: 6px;
+}
+.sw-f2 .nh-meta { font-size: 11px; color: rgba(255, 255, 255, .5); }
+.sw-f2 .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sw-f2 .nc {
+display: block; overflow: hidden; border: 1px solid var(--border); border-radius: var(--r);
+background: var(--card); text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s;
+}
+.sw-f2 .nc:hover { transform: translateY(-2px); box-shadow: var(--shadow2); }
+.sw-f2 .nct { height: 140px; background-color: var(--bg2); background-size: cover; background-position: center; }
+.sw-f2 .ncb { padding: 12px; }
+.sw-f2 .nc-badge { display: inline-block; margin-bottom: 6px; }
+.sw-f2 .nc-title { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); margin-bottom: 5px; }
+.sw-f2 .nc-date { font-size: 11px; color: var(--muted); }
+@media (max-width: 900px) { .sw-f2 .news-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .sw-f2 .news-grid { grid-template-columns: 1fr; } }
