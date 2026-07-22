@@ -499,6 +499,22 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
           /* ignore malformed match JSON */
         }
       }
+      // Match Centre feeds for the ticker / top_performers / lineup sections. Same JSON-blob
+      // pattern as match.current, sport-neutral; malformed -> ignored (the section stays empty,
+      // Rule 9). Populated by the demo seed today; by the PlayHQ adapter later.
+      for (const [key, field] of [
+        ["match.ticker", "ticker"],
+        ["match.performers", "performers"],
+        ["match.lineup", "lineup"],
+      ] as const) {
+        if (map[key]) {
+          try {
+            cfg.matchCentre = { ...cfg.matchCentre, [field]: JSON.parse(map[key]) };
+          } catch {
+            /* ignore malformed match JSON */
+          }
+        }
+      }
       // Saved homepage hero copy (text) — neutralised above for new clubs, so
       // re-apply whatever the club has edited. Without this, saved text vanishes
       // on the next load.
