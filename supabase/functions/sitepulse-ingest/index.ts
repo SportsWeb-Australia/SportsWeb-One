@@ -19,6 +19,65 @@ function json(body: unknown, status = 200) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Element picker capture (v1 additive; tolerant of v2 fields).
+// Rule: NEVER reject a report over element data. If any field is malformed,
+// null it and save the report anyway. The comment is the value; the element
+// is a bonus. This also guards the DB CHECK on element_confidence -- an
+// invalid value MUST become null here, or the whole insert would fail.
+// v1 widget fills element_tag/element_label/element_meta; element_selector
+// and element_confidence stay null until the v2 selector engine sends them.
+// ---------------------------------------------------------------------------
+const ALLOWED_CONFIDENCE = ["high", "medium", "low", "none"];
+
+function sanitizeElement(body: Record<string, unknown>) {
+  // tag: lowercase-alpha, <= 20 chars, else null
+  let element_tag: string | null = null;
+  if (typeof body.element_tag === "string") {
+    const t = body.element_tag.toLowerCase();
+    if (/^[a-z]+$/.test(t) && t.length <= 20) element_tag = t;
+  }
+
+  // label: trimmed, capped at 200 chars
+  let element_label: string | null = null;
+  if (typeof body.element_label === "string") {
+    const l = body.element_label.trim();
+    if (l.length > 0) element_label = l.slice(0, 200);
+  }
+
+  // meta: plain object serialising under ~4KB, else null
+  let element_meta: Record<string, unknown> | null = null;
+  if (
+    body.element_meta && typeof body.element_meta === "object" &&
+    !Array.isArray(body.element_meta)
+  ) {
+    try {
+      if (JSON.stringify(body.element_meta).length <= 4096) {
+        element_meta = body.element_meta as Record<string, unknown>;
+      }
+    } catch {
+      // circular / non-serialisable -> leave null
+    }
+  }
+
+  // selector (v2): string capped at 500 chars, else null
+  let element_selector: string | null = null;
+  if (typeof body.element_selector === "string" && body.element_selector.length > 0) {
+    element_selector = body.element_selector.slice(0, 500);
+  }
+
+  // confidence (v2): one of the four allowed values or null (guards CHECK)
+  let element_confidence: string | null = null;
+  if (
+    typeof body.element_confidence === "string" &&
+    ALLOWED_CONFIDENCE.includes(body.element_confidence)
+  ) {
+    element_confidence = body.element_confidence;
+  }
+
+  return { element_tag, element_label, element_meta, element_selector, element_confidence };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -36,6 +95,9 @@ Deno.serve(async (req) => {
     if (!club_id || !description) {
       return json({ error: "Missing required fields: club_id, description" }, 400);
     }
+
+    // Element data is fully optional and never a reason to reject a report.
+    const element = sanitizeElement(body);
 
     // Service role -> bypasses RLS for this controlled server-side insert.
     const supabase = createClient(
@@ -67,6 +129,12 @@ Deno.serve(async (req) => {
         viewport: viewport ?? null,
         urgency_flag: !!urgency_flag,
         contact_requested: !!contact_requested,
+        // element picker (additive; all null when not sent)
+        element_tag: element.element_tag,
+        element_label: element.element_label,
+        element_meta: element.element_meta,
+        element_selector: element.element_selector,
+        element_confidence: element.element_confidence,
       })
       .select("id, status_token")
       .single();
