@@ -8,6 +8,7 @@ import "./styles/base.css";
 import "./styles/blocks.css";
 import "./sections/sections.css";
 import "./admin/composer.css";
+import "./admin/admin-console.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

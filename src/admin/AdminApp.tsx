@@ -38,6 +38,7 @@ import { StaffAccess } from "./StaffAccess";
 import { PlatformDashboard } from "./PlatformDashboard";
 import { Login } from "./Login";
 import { ZohoWorkspace, WS_ICON, WORKSPACE } from "./ZohoWorkspace";
+import { AdminConsole, CONSOLE_HOME } from "./AdminConsole";
 import { SportsWebAccount } from "./SportsWebAccount";
 import { readSidebarLook, SIDEBAR_LOOK_EVENT } from "./sidebarLook";
 import { loadCommitteeProfile } from "../lib/committee";
@@ -181,6 +182,12 @@ function AdminInner() {
     if (clubId) setActive("__dashboard");
   }, [clubId]);
 
+  // Platform admin (no club) lands on the console launcher, not a screen. The default active
+  // ("__dashboard") is a club key, so flip it to the launcher home for this context.
+  useEffect(() => {
+    if (isPlatformAdmin && !clubId && active === "__dashboard") setActive(CONSOLE_HOME);
+  }, [isPlatformAdmin, clubId, active]);
+
   // Keep the browser tab title right for the admin: the platform/super-admin
   // view reads "SportsWeb One"; inside a club it's "{club} · SportsWeb One".
   useEffect(() => {
@@ -306,6 +313,129 @@ function AdminInner() {
     : !hasClub && !isSuperView ? "__biz" : active;
   // The SportsWeb-branded console: platform admins and launch operators with no club.
   const operatorConsole = (isPlatformAdmin || isOperator) && !hasClub;
+
+  // The active screen, rendered by the `active` chain below. Extracted so BOTH the club/operator
+  // shell (in <main>) and the new platform console render the same screens from one source.
+  const screen = (
+    effectiveActive === "__dashboard" && hasClub ? (
+      <AdminDashboard
+        go={setActive}
+        canSwitchView={isPlatformAdmin || activeRole === "club_senior_admin"}
+        previewPersona={previewPersona}
+        setPreviewPersona={setPreviewPersona}
+        realIsSuper={isPlatformAdmin}
+      />
+    ) : effectiveActive === "__setup" && hasClub ? (
+      <ClubSetup
+        clubId={clubId!}
+        clubName={clubName}
+        onGo={(route) => setActive(SETUP_ROUTES[route] ?? "__dashboard")}
+      />
+    ) : effectiveActive === "__needs" && hasClub ? (
+      <NeedsWizard clubId={clubId!} filledBy={isPlatformAdmin ? "admin" : "club"} />
+    ) : effectiveActive === "__feedback" && hasClub ? (
+      <AdminFeedback clubId={clubId!} websiteStatus={club.websiteStatus} />
+    ) : effectiveActive.startsWith("__ws_") && hasClub ? (
+      <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
+    ) : effectiveActive.startsWith("__partner_") ? (
+      <div className="sw-admin-panel">
+        <h2 className="sw-admin-title">Zoho Partner</h2>
+        <p style={{ color: "#5b6573", maxWidth: 560 }}>
+          <strong>{PARTNER_LABELS[effectiveActive.slice("__partner_".length)] ?? "Partner tools"}</strong> lives here.
+          This is the SportsWeb partner-account area (separate from the Zoho business apps). Send me the Zoho Partner
+          deep link or the detail for this action and I'll wire it up — and add more partner menu items as you list them.
+        </p>
+      </div>
+    ) : effectiveActive === "__account" && hasClub ? (
+      <SportsWebAccount />
+    ) : effectiveActive.startsWith("__mod_") && hasClub ? (
+      (() => {
+        const key = effectiveActive.slice("__mod_".length);
+        const item = moduleNav.find((m) => m.def.key === key);
+        return item ? (
+          <ModulePrePage mod={item.def} status={item.status} />
+        ) : (
+          <div className="sw-admin-loading">That module isn't available.</div>
+        );
+      })()
+    ) : effectiveActive === "__site" && can("club.website") ? (
+      <AdminSiteEditor key="__site" />
+    ) : effectiveActive.startsWith("__page_") && can("club.website") ? (
+      <AdminSiteEditor
+        key={effectiveActive}
+        page={effectiveActive.slice("__page_".length) as "home" | "about" | "contact" | "register" | "footer"}
+      />
+    ) : effectiveActive === "__website" && can("club.settings") ? (
+      <AdminWebsite />
+    ) : effectiveActive === "__modules" && hasClub ? (
+      <AdminModules />
+    ) : effectiveActive === "__members" && can("club.users") ? (
+      <MembersList onOpen={(id) => setActive(`__member_${id}`)} />
+    ) : effectiveActive.startsWith("__member_") && can("club.users") ? (
+      (() => {
+        const id = effectiveActive.slice("__member_".length);
+        return <MemberDetail personId={id} onBack={() => setActive("__members")} />;
+      })()
+    ) : effectiveActive === "__people" && can("club.users") ? (
+      <AdminPeople />
+    ) : effectiveActive === "__teams_seasons" && can("club.users") ? (
+      <TeamsSeasons />
+    ) : effectiveActive === "__reports_members" && can("club.users") ? (
+      <Reports section="members" />
+    ) : effectiveActive === "__comms" && can("club.comms") ? (
+      <Communications />
+    ) : effectiveActive === "__comms_reports" && can("club.comms") ? (
+      <Reports section="communications" />
+    ) : effectiveActive === "__biz" && can("platform.clubs") ? (
+      <PlatformDashboard go={setActive} platformRole={platformRole} />
+    ) : effectiveActive === "__super_clubs" && can("platform.clubs") ? (
+      <SuperClubs onOpenInbox={() => setActive("__super_sitepulse")} />
+    ) : effectiveActive === "__super_launches" && (can("platform.clubs") || isOperator) ? (
+      <LaunchTracker />
+    ) : effectiveActive === "__super_team" && can("platform.clubs") ? (
+      <AddPerson />
+    ) : effectiveActive === "__staff" && can("platform.clubs") ? (
+      <StaffAccess
+        onAddPerson={() => setActive("__super_team")}
+        canManageSuper={platformRole === "superadmin"}
+        currentUserId={userId}
+      />
+    ) : effectiveActive === "__super_integrations" && can("platform.integrations") ? (
+      <SuperIntegrations />
+    ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (
+      <SuperStudio />
+    ) : effectiveActive === "__sales" && can("platform.clubs") ? (
+      <SalesFormula />
+    ) : effectiveActive === "__super_import" && can("platform.clubs") ? (
+      <AdminImport />
+    ) : effectiveActive === "__super_sitepulse" && can("platform.clubs") ? (
+      <SuperSitePulse />
+    ) : hasClub && can("club.content") ? (
+      <ResourceManager resource={resource} />
+    ) : (
+      <div className="sw-admin-loading">You don't have access to this area.</div>
+    )
+  );
+
+  // Platform admin (no active club): the new full-screen console owns the nav chrome; every screen
+  // above still renders, passed in as `screen`. Club + launch-operator contexts keep the old shell.
+  const useConsole = isPlatformAdmin && !hasClub && !previewing;
+  if (useConsole) {
+    return (
+      <MfaGate required={mfaRequired} email={email} onSignOut={signOut}>
+        <AdminConsole
+          active={active}
+          setActive={setActive}
+          can={can}
+          openZoho={openZoho}
+          signOut={signOut}
+          email={email}
+          workspace={WORKSPACE}
+          screen={screen}
+        />
+      </MfaGate>
+    );
+  }
 
   return (
     <MfaGate required={mfaRequired} email={email} onSignOut={signOut}>
@@ -808,104 +938,7 @@ function AdminInner() {
             </label>
           )}
         </div>
-        {effectiveActive === "__dashboard" && hasClub ? (
-          <AdminDashboard
-            go={setActive}
-            canSwitchView={isPlatformAdmin || activeRole === "club_senior_admin"}
-            previewPersona={previewPersona}
-            setPreviewPersona={setPreviewPersona}
-            realIsSuper={isPlatformAdmin}
-          />
-        ) : effectiveActive === "__setup" && hasClub ? (
-          <ClubSetup
-            clubId={clubId!}
-            clubName={clubName}
-            onGo={(route) => setActive(SETUP_ROUTES[route] ?? "__dashboard")}
-          />
-        ) : effectiveActive === "__needs" && hasClub ? (
-          <NeedsWizard clubId={clubId!} filledBy={isPlatformAdmin ? "admin" : "club"} />
-        ) : effectiveActive === "__feedback" && hasClub ? (
-          <AdminFeedback clubId={clubId!} websiteStatus={club.websiteStatus} />
-        ) : effectiveActive.startsWith("__ws_") && hasClub ? (
-          <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
-        ) : effectiveActive.startsWith("__partner_") ? (
-          <div className="sw-admin-panel">
-            <h2 className="sw-admin-title">Zoho Partner</h2>
-            <p style={{ color: "#5b6573", maxWidth: 560 }}>
-              <strong>{PARTNER_LABELS[effectiveActive.slice("__partner_".length)] ?? "Partner tools"}</strong> lives here.
-              This is the SportsWeb partner-account area (separate from the Zoho business apps). Send me the Zoho Partner
-              deep link or the detail for this action and I'll wire it up — and add more partner menu items as you list them.
-            </p>
-          </div>
-        ) : effectiveActive === "__account" && hasClub ? (
-          <SportsWebAccount />
-        ) : effectiveActive.startsWith("__mod_") && hasClub ? (
-          (() => {
-            const key = effectiveActive.slice("__mod_".length);
-            const item = moduleNav.find((m) => m.def.key === key);
-            return item ? (
-              <ModulePrePage mod={item.def} status={item.status} />
-            ) : (
-              <div className="sw-admin-loading">That module isn't available.</div>
-            );
-          })()
-        ) : effectiveActive === "__site" && can("club.website") ? (
-          <AdminSiteEditor key="__site" />
-        ) : effectiveActive.startsWith("__page_") && can("club.website") ? (
-          <AdminSiteEditor
-            key={effectiveActive}
-            page={effectiveActive.slice("__page_".length) as "home" | "about" | "contact" | "register" | "footer"}
-          />
-        ) : effectiveActive === "__website" && can("club.settings") ? (
-          <AdminWebsite />
-        ) : effectiveActive === "__modules" && hasClub ? (
-          <AdminModules />
-        ) : effectiveActive === "__members" && can("club.users") ? (
-          <MembersList onOpen={(id) => setActive(`__member_${id}`)} />
-        ) : effectiveActive.startsWith("__member_") && can("club.users") ? (
-          (() => {
-            const id = effectiveActive.slice("__member_".length);
-            return <MemberDetail personId={id} onBack={() => setActive("__members")} />;
-          })()
-        ) : effectiveActive === "__people" && can("club.users") ? (
-          <AdminPeople />
-        ) : effectiveActive === "__teams_seasons" && can("club.users") ? (
-          <TeamsSeasons />
-        ) : effectiveActive === "__reports_members" && can("club.users") ? (
-          <Reports section="members" />
-        ) : effectiveActive === "__comms" && can("club.comms") ? (
-          <Communications />
-        ) : effectiveActive === "__comms_reports" && can("club.comms") ? (
-          <Reports section="communications" />
-        ) : effectiveActive === "__biz" && can("platform.clubs") ? (
-          <PlatformDashboard go={setActive} platformRole={platformRole} />
-        ) : effectiveActive === "__super_clubs" && can("platform.clubs") ? (
-          <SuperClubs onOpenInbox={() => setActive("__super_sitepulse")} />
-        ) : effectiveActive === "__super_launches" && (can("platform.clubs") || isOperator) ? (
-          <LaunchTracker />
-        ) : effectiveActive === "__super_team" && can("platform.clubs") ? (
-          <AddPerson />
-        ) : effectiveActive === "__staff" && can("platform.clubs") ? (
-          <StaffAccess
-            onAddPerson={() => setActive("__super_team")}
-            canManageSuper={platformRole === "superadmin"}
-            currentUserId={userId}
-          />
-        ) : effectiveActive === "__super_integrations" && can("platform.integrations") ? (
-          <SuperIntegrations />
-        ) : effectiveActive === "__super_studio" && can("platform.clubs") ? (
-          <SuperStudio />
-        ) : effectiveActive === "__sales" && can("platform.clubs") ? (
-          <SalesFormula />
-        ) : effectiveActive === "__super_import" && can("platform.clubs") ? (
-          <AdminImport />
-        ) : effectiveActive === "__super_sitepulse" && can("platform.clubs") ? (
-          <SuperSitePulse />
-        ) : hasClub && can("club.content") ? (
-          <ResourceManager resource={resource} />
-        ) : (
-          <div className="sw-admin-loading">You don't have access to this area.</div>
-        )}
+        {screen}
       </main>
     </div>
     </MfaGate>
