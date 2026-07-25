@@ -24,9 +24,12 @@ so updating it updates every embedding site at once.
 ## First — get the club's UUID
 
 `data-club-id` is the one value you must supply, and it must be a real row in the
-`clubs` table. Get it once per club, either way:
+`clubs` table. Get it once per club.
 
-**Supabase SQL editor** (project `sportsweb-one`):
+**Easiest — in the admin:** Super Admin → **Clubs**, find the club, click
+**Copy ID** on its row. The UUID is on your clipboard.
+
+**Fallback — Supabase SQL editor** (project `sportsweb-one`):
 
 ```sql
 -- list all, or filter by name
@@ -35,10 +38,8 @@ select id, name from clubs where name ilike '%chadstone%';
 
 Copy the `id` from the matching row (e.g. `ddba4ef9-54ad-4127-a601-1e82a2a15976`).
 
-**Supabase Table editor:** open project `sportsweb-one` → **Table editor** →
-`clubs`, find the club by name, and copy its `id` cell.
-
-> No club row yet? The site needs a `clubs` record first — create it before embedding.
+> No club row yet? Create it in Super Admin → Clubs first — the widget needs a
+> real `clubs` record to attach reports to.
 
 ## Then — add it to a site
 
