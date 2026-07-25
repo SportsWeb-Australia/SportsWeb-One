@@ -30,11 +30,12 @@
   // drifts (embed a video on that page later without touching every site).
   var HELP_URL = (thisScript && thisScript.getAttribute("data-help-url")) || "";
 
-  // Mode-aware helper line under the form title. One sentence; the whole point is
-  // that it's obvious enough that most people never need the "How it works" page.
+  // Mode-aware helper line under the form title. Describes the order: point first,
+  // then choose a category and describe -- so the "Point at it" button (placed first)
+  // reads as step one. Pointing stays optional.
   var HELPER = SOURCE === "onboarding"
-    ? "Reviewing this site? Tell us what looks wrong and where -- we'll capture the rest."
-    : "Spotted something on this page? Tell us what and where -- we'll capture the rest.";
+    ? "Point at what looks wrong, then pick a category and tell us what and why."
+    : "Point at the problem, then pick a category and tell us what's wrong.";
 
   // Categories MUST match the sitepulse_feedback CHECK constraint -- do not invent values.
   var CATEGORIES = [
@@ -265,16 +266,33 @@
     '<style>' + css + '</style>' +
     '<button class="btn" id="sp-open" aria-label="' + btnLabel + '">' +
       SHIELD + '<span class="btn-label">' + btnLabel + '</span></button>' +
-    '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card">' +
-      '<div class="head"><span class="mark">' + SHIELD + '</span>' +
+    '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card"></div></div>' +
+    '<div class="pbanner" id="sp-pbanner"><span>Tap the thing you\'re talking about</span>' +
+      '<button type="button" class="pcancel" id="sp-pcancel">Cancel</button></div>' +
+    '<div class="sphl" id="sp-hl"></div>';
+
+  var $ = function (id) { return root.getElementById(id); };
+  var overlay = $("sp-overlay"), card = $("sp-card");
+  function closeM() { overlay.classList.remove("open"); }
+  function openM() {
+    // Mount a fresh form whenever the card isn't already showing one -- first open, or
+    // after a submit left the "thanks" screen. This is what lets a reviewer log more than
+    // one report on the same page (the old code left the done screen stuck in the card).
+    if (!$("sp-send")) mountForm();
+    overlay.classList.add("open");
+  }
+
+  // Form markup. "Point at it" is placed FIRST -- point, then categorise & describe.
+  function formHTML() {
+    return '<div class="head"><span class="mark">' + SHIELD + '</span>' +
         '<div><p class="title">' + btnLabel + '</p></div>' +
         '<button class="x" id="sp-close" aria-label="Close">&times;</button></div>' +
       '<p class="sub">' + esc(HELPER) + '</p>' +
+      '<button type="button" class="pickbtn" id="sp-pick">' + ICON_TARGET + 'Point at it</button>' +
+      '<div class="chip" id="sp-chip"></div>' +
       '<label>What\'s it about?</label><select id="sp-cat">' + opts + '</select>' +
       '<label>What did you notice?</label>' +
       '<textarea id="sp-desc" placeholder="e.g. The ladder on this page is out of date"></textarea>' +
-      '<button type="button" class="pickbtn" id="sp-pick">' + ICON_TARGET + 'Point at it</button>' +
-      '<div class="chip" id="sp-chip"></div>' +
       '<div class="row"><input type="checkbox" id="sp-urgent"><label for="sp-urgent">This is urgent</label></div>' +
       '<div class="row"><input type="checkbox" id="sp-contact"><label for="sp-contact">I\'d like a reply</label></div>' +
       '<div id="sp-contactfields" style="display:none">' +
@@ -282,23 +300,24 @@
         '<label>Your email</label><input id="sp-email" type="email"></div>' +
       '<button class="send" id="sp-send">' + sendLabel + '</button>' +
       '<div class="err" id="sp-err"></div>' +
-      '<p class="foot">Powered by SitePulse' + helpLink + '</p>' +
-    '</div></div>' +
-    '<div class="pbanner" id="sp-pbanner"><span>Tap the thing you\'re talking about</span>' +
-      '<button type="button" class="pcancel" id="sp-pcancel">Cancel</button></div>' +
-    '<div class="sphl" id="sp-hl"></div>';
+      '<p class="foot">Powered by SitePulse' + helpLink + '</p>';
+  }
+  // (Re)mount a fresh, empty form and wire its controls.
+  function mountForm() {
+    picked = null;
+    card.innerHTML = formHTML();
+    $("sp-close").addEventListener("click", closeM);
+    $("sp-contact").addEventListener("change", function (e) {
+      $("sp-contactfields").style.display = e.target.checked ? "block" : "none";
+    });
+    $("sp-pick").addEventListener("click", startPick);
+    $("sp-send").addEventListener("click", submitReport);
+    renderChip();
+  }
 
-  var $ = function (id) { return root.getElementById(id); };
-  var overlay = $("sp-overlay"), card = $("sp-card");
-  function openM() { overlay.classList.add("open"); }
-  function closeM() { overlay.classList.remove("open"); }
-
+  mountForm();
   $("sp-open").addEventListener("click", openM);
-  $("sp-close").addEventListener("click", closeM);
   overlay.addEventListener("click", function (e) { if (e.target === overlay) closeM(); });
-  $("sp-contact").addEventListener("change", function (e) {
-    $("sp-contactfields").style.display = e.target.checked ? "block" : "none";
-  });
 
   // ---- PICK MODE ("Point at it") ---------------------------------
   // Capture-only (v1): records what was tapped (tag/label/context/coords); NO selector
@@ -401,10 +420,9 @@
     $("sp-chg").addEventListener("click", startPick);
     $("sp-rm").addEventListener("click", function () { picked = null; renderChip(); });
   }
-  $("sp-pick").addEventListener("click", startPick);
   $("sp-pcancel").addEventListener("click", function () { endPick(); openM(); });
 
-  $("sp-send").addEventListener("click", function () {
+  function submitReport() {
     var desc = $("sp-desc").value.trim();
     var err = $("sp-err");
     if (!desc) { err.textContent = "Please describe what you noticed."; err.style.display = "block"; return; }
@@ -450,17 +468,25 @@
     }).then(function (res) {
       if (!res.ok) throw new Error(res.j && res.j.error || "Submit failed");
       var ref = (res.j.id || "").slice(0, 8);
+      // Keep a close (X) and a "Report another" so a reviewer can log several issues on
+      // one page. No auto-close -- it stays until they dismiss it or start another.
       card.innerHTML =
+        '<div class="head"><span class="mark">' + SHIELD + '</span>' +
+          '<div><p class="title">' + btnLabel + '</p></div>' +
+          '<button class="x" id="sp-doneclose" aria-label="Close">&times;</button></div>' +
         '<div class="done"><span class="mark">' + SHIELD + '</span>' +
         '<p class="title">Thanks -- we\'ve logged it.</p>' +
         '<p class="sub">' + (payload.contact_requested
           ? "We\'ll be in touch." : "The team will take a look.") +
-        '</p><p class="foot">Reference: ' + ref + '</p></div>';
-      setTimeout(closeM, 2200);
+        '</p><p class="foot">Reference: ' + ref + '</p>' +
+        '<button type="button" class="send" id="sp-again">Report another issue</button>' +
+        '</div>';
+      $("sp-doneclose").addEventListener("click", closeM);
+      $("sp-again").addEventListener("click", mountForm);
     }).catch(function (e) {
       btn.disabled = false; btn.textContent = sendLabel;
       err.textContent = e.message || "Something went wrong. Please try again.";
       err.style.display = "block";
     });
-  });
+  }
 })();
