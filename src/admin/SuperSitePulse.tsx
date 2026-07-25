@@ -6,6 +6,19 @@ import { supabase } from "../lib/supabase";
 // (platform admin: all clubs; club admin: own club). Status changes persist
 // through the fb_update policy. Keys off club_id. No new tables/notifications.
 
+// Element picker (v1 capture-only). Held in element_meta jsonb; all optional.
+// element_selector / element_confidence exist in the schema but are v2 (always
+// null in v1), so the inbox does not read or show them.
+type ElementMeta = {
+  src?: string;
+  href?: string;
+  heading?: string;
+  rect?: { x: number; y: number; w: number; h: number };
+  page?: { w: number; h: number };
+  scroll?: { x: number; y: number };
+  fixed?: boolean;
+};
+
 type Row = {
   id: string;
   club_id: string;
@@ -21,6 +34,9 @@ type Row = {
   browser: string | null;
   os: string | null;
   viewport: string | null;
+  element_tag: string | null;
+  element_label: string | null;
+  element_meta: ElementMeta | null;
   status: string;
   priority: string;
   created_at: string;
@@ -46,7 +62,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 const SELECT_COLS =
   "id,club_id,source,page_url,category,description,urgency_flag,contact_requested," +
-  "submitted_by_name,submitted_by_email,device_type,browser,os,viewport,status,priority,created_at,clubs(name)";
+  "submitted_by_name,submitted_by_email,device_type,browser,os,viewport," +
+  "element_tag,element_label,element_meta,status,priority,created_at,clubs(name)";
 
 export function SuperSitePulse() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -256,6 +273,113 @@ function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }
   );
 }
 
+// ---- Element picker display (Phase D) --------------------------------------
+const TAG_LABEL: Record<string, string> = {
+  img: "image", picture: "image", svg: "image", canvas: "image",
+  video: "video", a: "link", iframe: "embed", button: "button",
+};
+function friendlyTag(t?: string | null) {
+  return (t && (TAG_LABEL[t] || t)) || "element";
+}
+
+function ElIcon({ tag }: { tag?: string | null }) {
+  const t = tag || "";
+  const common = { width: 15, height: 15, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+  if (["img", "picture", "svg", "video", "source", "canvas"].includes(t)) {
+    return (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="8.5" cy="9.5" r="1.6" fill="currentColor" />
+        <path d="M4 18l5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (t === "a") {
+    return (
+      <svg {...common}>
+        <path d="M10 14a4 4 0 0 0 6 .5l2-2a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-6-.5l-2 2A4 4 0 0 0 11.7 17l1-1"
+          fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function rowHasElement(r: Row) {
+  const m = r.element_meta || {};
+  return !!(r.element_tag || r.element_label || m.src || m.href || m.heading);
+}
+
+// A short, exact-ish snippet for Scroll-To-Text-Fragment (#:~:text=). Prefer the
+// element's own text label; fall back to its nearest heading. Skip filename-ish
+// labels (an img's src) since those won't appear as page text.
+function elementSnippet(r: Row): string | null {
+  const m = r.element_meta || {};
+  const label = (r.element_label || "").trim();
+  const texty = label && label !== r.element_tag && !/^\S+\.\w{2,5}$/.test(label);
+  const base = (texty ? label : (m.heading || "")).trim();
+  if (!base) return null;
+  return base.split(/\s+/).slice(0, 8).join(" ").slice(0, 60);
+}
+
+// Open the reported page and, where the browser supports it, jump straight to
+// the element via a text fragment. Falls back to opening the page at the top.
+function openTarget(r: Row) {
+  if (!r.page_url) return;
+  let url = r.page_url;
+  const snip = elementSnippet(r);
+  if (snip) {
+    const frag = ":~:text=" + encodeURIComponent(snip);
+    url += url.includes("#") ? frag : "#" + frag;
+  }
+  window.open(url, "_blank", "noopener");
+}
+
+function positionPct(m: ElementMeta): number | null {
+  if (m.rect && m.page && m.page.h > 0) {
+    return Math.max(0, Math.min(100, Math.round((m.rect.y / m.page.h) * 100)));
+  }
+  return null;
+}
+
+function ElementInfo({ r }: { r: Row }) {
+  if (!rowHasElement(r)) return null;
+  const m = r.element_meta || {};
+  const primary = r.element_label || m.src || friendlyTag(r.element_tag);
+  const pct = positionPct(m);
+  const canJump = !!elementSnippet(r);
+  return (
+    <div style={{ margin: "0 0 10px", padding: "8px 10px", background: "#eef2ff", border: "1px solid #dbe1fb", borderRadius: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <span style={{ display: "flex", color: "#4f46e5", flex: "0 0 auto" }}><ElIcon tag={r.element_tag} /></span>
+        <strong style={{ color: "#3730a3", textTransform: "capitalize" }}>{friendlyTag(r.element_tag)}</strong>
+        <span style={{ color: "#667085", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>· {primary}</span>
+        {m.fixed && <span className="sw-dev-pill" style={{ background: "#e0e7ff", color: "#4338ca" }}>fixed / sticky</span>}
+      </div>
+      <div style={{ fontSize: 12, color: "#667085", marginTop: 3, display: "flex", flexWrap: "wrap", gap: "1px 12px" }}>
+        {m.src && <span>file: {m.src}</span>}
+        {m.href && <span>link: {m.href}</span>}
+        {m.heading && <span>near heading: "{m.heading}"</span>}
+        {pct != null && <span>~{pct}% down the page</span>}
+      </div>
+      {r.page_url && (
+        <button
+          onClick={(e) => { e.stopPropagation(); openTarget(r); }}
+          className="sw-btn sw-btn--ghost"
+          style={{ marginTop: 7, fontSize: 12, padding: "3px 10px" }}
+          title={canJump ? "Opens the page and jumps to the element" : "Opens the page (no text anchor to jump to)"}
+        >
+          Open page {canJump ? "→ jump to element" : ""} ↗
+        </button>
+      )}
+    </div>
+  );
+}
+
 function FeedbackRow({
   r, open, onToggle, onStatus, saving, clubName, fmt,
 }: {
@@ -281,7 +405,14 @@ function FeedbackRow({
           {r.urgency_flag && <span className="sw-dev-pill" style={{ background: "#fee2e2", color: "#b91c1c", marginLeft: 6 }}>Urgent</span>}
         </td>
         <td>{CATEGORIES[r.category] ?? r.category}</td>
-        <td style={{ maxWidth: 360 }}>{r.description.length > 90 ? r.description.slice(0, 90) + "..." : r.description}</td>
+        <td style={{ maxWidth: 360 }}>
+          {rowHasElement(r) && (
+            <span title="A page element is attached" style={{ display: "inline-flex", verticalAlign: "middle", color: "#4f46e5", marginRight: 6 }}>
+              <ElIcon tag={r.element_tag} />
+            </span>
+          )}
+          {r.description.length > 90 ? r.description.slice(0, 90) + "..." : r.description}
+        </td>
         <td style={{ whiteSpace: "nowrap", fontSize: 12.5, color: "#667085" }}>{fmt(r.created_at)}</td>
         <td>{statusSelect}</td>
       </tr>
@@ -289,6 +420,7 @@ function FeedbackRow({
         <tr>
           <td colSpan={5} style={{ background: "#fbfbfc" }}>
             <div style={{ padding: "0.6rem 0.4rem", fontSize: 13, lineHeight: 1.6 }}>
+              <ElementInfo r={r} />
               <div style={{ whiteSpace: "pre-wrap", marginBottom: 8 }}>{r.description}</div>
               {r.page_url && (
                 <div><b>Page:</b> <a href={r.page_url} target="_blank" rel="noreferrer">{r.page_url}</a></div>
