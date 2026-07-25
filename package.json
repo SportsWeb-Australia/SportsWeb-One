@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:ingest": "supabase functions deploy sitepulse-ingest --project-ref uzibfawcwoapfbigpzum"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
