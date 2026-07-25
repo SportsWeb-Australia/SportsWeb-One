@@ -66,6 +66,14 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
   }, [collapsed]);
   const [savingAccount, setSavingAccount] = useState<string | null>(null);
 
+  // Copy a club's UUID (used as data-club-id when embedding the SitePulse widget).
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copyId = async (id: string) => {
+    try { await navigator.clipboard.writeText(id); } catch { /* clipboard blocked */ }
+    setCopiedId(id);
+    setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1400);
+  };
+
   // Create-club form
   const [creating, setCreating] = useState(false);
   const [slugDirty, setSlugDirty] = useState(false);
@@ -219,6 +227,13 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
               onClick={() => setOnboardId((id) => (id === club.id ? null : club.id))}
             >
               {onboardId === club.id ? "Hide onboarding" : "Onboard →"}
+            </button>
+            <button
+              className="sw-openadmin"
+              title={`Copy club ID (data-club-id for SitePulse):\n${club.id}`}
+              onClick={() => copyId(club.id)}
+            >
+              {copiedId === club.id ? "Copied ✓" : "Copy ID"}
             </button>
           </div>
         </td>
