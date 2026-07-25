@@ -21,7 +21,26 @@ so updating it updates every embedding site at once.
 
 ---
 
-## Add it to a site
+## First — get the club's UUID
+
+`data-club-id` is the one value you must supply, and it must be a real row in the
+`clubs` table. Get it once per club, either way:
+
+**Supabase SQL editor** (project `sportsweb-one`):
+
+```sql
+-- list all, or filter by name
+select id, name from clubs where name ilike '%chadstone%';
+```
+
+Copy the `id` from the matching row (e.g. `ddba4ef9-54ad-4127-a601-1e82a2a15976`).
+
+**Supabase Table editor:** open project `sportsweb-one` → **Table editor** →
+`clubs`, find the club by name, and copy its `id` cell.
+
+> No club row yet? The site needs a `clubs` record first — create it before embedding.
+
+## Then — add it to a site
 
 Paste this just before `</body>` on every page you want covered:
 
