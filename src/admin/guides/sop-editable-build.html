@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en-AU" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOP · Build an Editable Site — SportsWeb / Business One</title>
+<style>
+  :root{
+    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
+    --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
+    --line:#dbe2df; --line-soft:#e8edea;
+    --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
+    --signal:#a8641a; --signal-wash:#f8ede0;
+    --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
+    --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:1160px; --rail:236px; --r:10px; --r-sm:7px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
+    --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628;
+    --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113;
+    --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
+    --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628;
+    --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113;
+    --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+  }
+  :root[data-theme="light"]{
+    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
+    --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
+    --line:#dbe2df; --line-soft:#e8edea;
+    --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
+    --signal:#a8641a; --signal-wash:#f8ede0;
+    --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  a{color:var(--accent-ink)}
+  code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
+  .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
+  .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
+  .brand .mark{width:30px;height:30px;flex:none;border-radius:7px;background:var(--accent);position:relative;overflow:hidden}
+  .brand .mark::before,.brand .mark::after{content:"";position:absolute;top:-20%;height:140%;width:22%;background:var(--surface);transform:skewX(-16deg)}
+  .brand .mark::before{left:26%}.brand .mark::after{left:56%;background:color-mix(in srgb,var(--surface) 55%,var(--accent))}
+  .brand b{font-size:.92rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand span{font-family:var(--font-mono);font-size:.66rem;color:var(--ink-soft);letter-spacing:.04em}
+  .top-actions{margin-left:auto;display:flex;gap:.4rem}
+  .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
+  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0;max-height:calc(100vh - 80px);overflow:auto}
+  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
+  nav.toc ol{list-style:none;margin:0;padding:0}
+  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem;transition:color .15s}
+  nav.toc a:hover{color:var(--ink)}
+  nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
+  main{min-width:0;padding-bottom:5rem}
+  .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
+  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r-sm);background:var(--accent-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem;align-items:flex-start}
+  .hero .directive b{color:var(--accent-ink)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
+  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
+  .chip b{color:var(--ink);font-weight:600}
+  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
+  h2.sec{font-size:1.02rem;letter-spacing:.01em;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
+  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
+  .phase{position:relative;padding:1.3rem 0 1.3rem 3.4rem;border-top:1px solid var(--line-soft)}
+  .phase:first-of-type{border-top:0}
+  .phase .num{position:absolute;left:0;top:1.3rem;width:2.4rem;height:2.4rem;border-radius:9px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:1rem;color:var(--accent-ink)}
+  .phase h3{margin:.15rem 0 .2rem;font-size:1.12rem;letter-spacing:-.01em}
+  .phase .purpose{margin:0 0 .7rem;color:var(--ink-soft);font-size:.95rem}
+  .phase ul{margin:.4rem 0 0;padding-left:1.1rem}.phase li{margin:.35rem 0}
+  .gate{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--stop);border:1px solid var(--stop);border-radius:4px;padding:.08rem .4rem;margin-left:.5rem;vertical-align:middle}
+  .code{position:relative;margin:.9rem 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+  .code.prompt{border-color:color-mix(in srgb,var(--signal) 55%,var(--line))}
+  .code-head{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
+  .code.prompt .code-head{background:var(--signal-wash)}
+  .code-head .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .code.prompt .code-head .tag{color:var(--signal)}
+  .copy{font:inherit;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.28rem .6rem;border-radius:5px;transition:all .15s;margin-left:auto}
+  .copy:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .copy.done{border-color:var(--ok);color:var(--ok)}
+  pre{margin:0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+  .fill{color:var(--signal);font-weight:600}
+  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem;align-items:flex-start}
+  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
+  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
+  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
+  table.map{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.5rem}
+  table.map th,table.map td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.map th{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
+  table.map td code{background:none;border:0;padding:0;color:var(--accent-ink);font-size:.92em}
+  table.map tr td:first-child{white-space:nowrap}
+  ul.checks{list-style:none;margin:.5rem 0 0;padding:0}
+  ul.checks li{display:flex;gap:.6rem;align-items:flex-start;padding:.42rem 0;border-top:1px solid var(--line-soft);font-size:.92rem}
+  ul.checks li:first-child{border-top:0}
+  ul.checks .box{flex:none;width:1.15rem;height:1.15rem;border:1.5px solid var(--accent);border-radius:4px;margin-top:.15rem}
+  .tablewrap{overflow-x:auto}
+  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
+  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}section.block,.phase{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="mark" aria-hidden="true"></div>
+      <div style="min-width:0"><b>SW1 · Operations Runbook</b><br><span>SportsWeb One / Business One</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">◐ Theme</button>
+      <button class="btn" onclick="window.print()" type="button">⎙ Print</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents">
+    <p class="lab">Contents</p>
+    <ol>
+      <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+      <li><a href="#contract"><span class="n">1</span>Read contract</a></li>
+      <li><a href="#keys"><span class="n">2</span>Content-key map</a></li>
+      <li><a href="#publish"><span class="n">3</span>Publish gate</a></li>
+      <li><a href="#arch"><span class="n">4</span>Architecture</a></li>
+      <li><a href="#storage"><span class="n">5</span>Images</a></li>
+      <li><a href="#never"><span class="n">✕</span>Do not</a></li>
+      <li><a href="#verify"><span class="n">✓</span>Verify</a></li>
+      <li><a href="#files"><span class="n">▤</span>Files</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">Standard Operating Procedure · Editable Site (build)</p>
+      <h1>Build a site the client edits themselves — through the platform, not the code.</h1>
+      <p class="lede">A database-driven <b>Astro</b> site that <b>reads</b> the SportsWeb One / Business One database and renders it. The platform editor <b>writes</b> the content; the site holds no editing UI and never writes. Edit in the editor → publish → the site reflects it on the next request.</p>
+      <div class="directive"><span aria-hidden="true">◆</span><div><b>The one rule that makes it work.</b> Read from the <b>same tables, columns and content-keys the editor already writes</b> — never invent your own, never hardcode editable content. Static config is the fallback only. Break the contract and the site stops being editable.</div></div>
+      <div class="meta-row">
+        <span class="chip">Stack&nbsp;<b>Astro SSR</b></span>
+        <span class="chip">Host&nbsp;<b>Vercel or Cloudflare</b></span>
+        <span class="chip">Proven on&nbsp;<b>Dookie United</b></span>
+        <span class="chip">Law&nbsp;<b>S1–S20</b></span>
+      </div>
+    </div>
+
+    <section class="block" id="run">
+      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste. It reads this SOP + the standards, confirms the plan once, then builds.</p>
+      <div class="code prompt">
+        <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
+<pre id="k-run">You're Codey. Build an editable, database-driven site per the SportsWeb One / Business One
+Editable Site SOP (~/Developer/sportsweb-standards/SPORTSWEB-EDITABLE-SITE-SOP.md), law
+SPORTSWEB-WEB-STANDARDS.md (S1–S20).
+
+Client/club: {{NAME}}   club_id: {{UUID}}   Supabase project: {{PROJECT_REF}}
+Design/variant: {{match the live platform render — confirm via ?club=<slug>}}
+Host: {{Vercel}} | {{Cloudflare}} (Astro SSR either way — keep the data layer runtime-neutral).
+
+The platform editor already writes this client's content to Supabase in a fixed shape. READ from
+that same shape — do NOT invent tables, columns or content-key names, do NOT hardcode editable
+content, do NOT build any editing UI. Static config is the DB-first FALLBACK only. Confirm the plan
+in one short message (repo name, page map, tables/keys you'll read, the design source you found),
+then go. Report repo + live URL.</pre>
+      </div>
+    </section>
+
+    <section class="block" id="contract">
+      <h2 class="sec"><span class="k">READ</span> The read contract</h2>
+      <p style="margin-top:0;color:var(--ink-soft)">All reads are <code>.eq('club_id', CLUB_ID)</code> and, for content tables, <code>.eq('status','published')</code>. <b>Column spellings are British</b> — <code>primary_colour</code> / <code>secondary_colour</code> / <code>tertiary_colour</code>.</p>
+      <div class="tablewrap"><table class="map">
+        <thead><tr><th>Table</th><th>Use · order</th></tr></thead>
+        <tbody>
+          <tr><td><code>clubs</code></td><td>Identity + brand colours (one row)</td></tr>
+          <tr><td><code>club_content</code></td><td>Editable page text + image URLs (key/value — see map)</td></tr>
+          <tr><td><code>news</code></td><td>Published, order <code>published_at</code> desc</td></tr>
+          <tr><td><code>events</code></td><td>Published, upcoming by <code>event_date</code></td></tr>
+          <tr><td><code>sponsors</code></td><td>Published, order <code>display_order</code></td></tr>
+          <tr><td><code>teams</code></td><td>Published, order <code>display_order</code></td></tr>
+          <tr><td><code>matches</code> · <code>ladder</code></td><td>Order <code>match_date</code> · <code>position</code></td></tr>
+          <tr><td><code>people</code></td><td>Committee: <code>is_public = true</code> only</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="block" id="keys">
+      <h2 class="sec"><span class="k">KEYS</span> The <code>club_content</code> key map</h2>
+      <p style="margin-top:0;color:var(--ink-soft)">Key/value, upsert on <code>club_id,content_key</code>. Read each key; fall back to the static default if absent. <b>Never rename or invent keys</b> — the editor writes these exact names.</p>
+      <div class="tablewrap"><table class="map">
+        <thead><tr><th>content_key</th><th>Renders as</th></tr></thead>
+        <tbody>
+          <tr><td><code>hero.eyebrow / .title / .subtitle</code></td><td>Homepage hero copy</td></tr>
+          <tr><td><code>hero.image / .video</code></td><td>Hero background media (full URL)</td></tr>
+          <tr><td><code>branding.logo</code></td><td>Club / business logo (URL)</td></tr>
+          <tr><td><code>president.name / .role / .body.0 / .signoff / .portrait</code></td><td>Welcome block</td></tr>
+          <tr><td><code>join.heading / .blurb</code></td><td>Join / CTA block</td></tr>
+          <tr><td><code>about.body.0 / about.photo</code></td><td>About opening + photo</td></tr>
+          <tr><td><code>footer.acknowledgement</code></td><td>Acknowledgement of Country</td></tr>
+          <tr><td><code>footer.logo.0 / .1 / .2</code></td><td>Footer logos / flags (URLs)</td></tr>
+          <tr><td><code>contact.email / .phone / .address / .instagram / .facebook</code></td><td>Contact + site-wide</td></tr>
+          <tr><td><code>page.{page}.eyebrow / .title / .intro</code></td><td>Per-page banner (about, contact, news, events, teams, fixtures, sponsors, documents, register)</td></tr>
+          <tr><td><code>site.variant</code></td><td>Design variant (clamp to allowed set)</td></tr>
+          <tr><td><code>news.mode</code></td><td><code>news</code> | <code>both</code> | <code>social</code></td></tr>
+        </tbody>
+      </table></div>
+      <p style="color:var(--ink-soft);font-size:.88rem"><code>.N</code> suffixes are array slots. Brand colours are <b>not</b> in <code>club_content</code> — they're on the <code>clubs</code> row (written by the <code>set_club_colours</code> RPC); derive theme tokens from them.</p>
+    </section>
+
+    <section class="block" id="publish">
+      <h2 class="sec"><span class="k">GATE</span> The publish gate — the #1 gotcha</h2>
+      <div class="callout stop"><span class="ic">!</span><div>Every public-read RLS policy on <code>clubs / news / sponsors / events / teams / club_content</code> requires <b><code>clubs.website_status = 'published'</code></b>. While the club is <b>draft</b>, the anon key reads <b>nothing</b> → the site correctly shows the <b>static fallback</b>. The editor's <b>“Publish site”</b> (the <code>set_website_status</code> RPC) flips it, and live data + every edit flow immediately.</div></div>
+      <p style="color:var(--ink-soft)">So a freshly-built editable site looks complete (fallback) but isn't DB-driven for the public <b>until published</b>. There is <b>no <code>public_club_content</code> RPC</b> — the public path is <b>direct selects gated by that RLS</b>. A no-login draft preview is available at <code>/?preview=&lt;token&gt;</code> (“Share draft for review”).</p>
+    </section>
+
+    <section class="block" id="arch">
+      <h2 class="sec"><span class="k">HOW</span> Architecture — Business-One-ready</h2>
+      <div class="phase"><div class="num">SSR</div>
+        <h3>Astro server-rendered, host-swappable</h3>
+        <ul>
+          <li><code>output:'server'</code>; adapter per host (<code>@astrojs/vercel</code> or <code>@astrojs/cloudflare</code>).</li>
+          <li><b>Runtime-neutral data layer</b>: <code>@supabase/supabase-js</code> with <code>persistSession:false, autoRefreshToken:false</code> (no localStorage/timers) → runs on Cloudflare Workers unchanged. A host swap is one adapter line.</li>
+        </ul>
+      </div>
+      <div class="phase"><div class="num">DB</div>
+        <h3>DB-first, static fallback</h3>
+        <ul>
+          <li>A <code>loadClub()</code> reads the tables/keys above and merges onto a static config; anything the DB hasn't supplied falls back to the static value, so the site is always complete.</li>
+          <li>Brand colours injected on <code>&lt;html&gt;</code> as <code>--club-ink/paper/accent/silver</code>; <code>data-variant</code> selects the surface mapping. Reuse the platform <code>tokens/base/blocks</code> CSS where the design must match.</li>
+          <li>Per-page SEO + connected JSON-LD per the standards (S4/S5/S6).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="block" id="storage">
+      <h2 class="sec"><span class="k">MEDIA</span> Images / storage</h2>
+      <ul style="color:var(--ink-soft)">
+        <li>Bucket <code>club-media</code> (public read); path <code>{clubId}/{folder}/{filename}</code>; folders: <code>hero</code>, <code>brand</code>, <code>people</code>, <code>about</code>, <code>footer</code>.</li>
+        <li>Image values in <code>club_content</code> and the content tables are already <b>full public URLs</b> — just render them. The site never uploads; the editor handles that.</li>
+      </ul>
+    </section>
+
+    <section class="block" id="never">
+      <h2 class="sec"><span class="k">STOP</span> Do NOT (keeps the editor compatible)</h2>
+      <ul class="checks">
+        <li><span class="box" aria-hidden="true"></span><div>Create new tables or rename columns.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Invent new <code>content_key</code> names or change existing ones.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Change the storage bucket or path convention.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Hardcode editable content into components.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Build editing UI — that stays in the platform.</div></li>
+      </ul>
+    </section>
+
+    <section class="block" id="verify">
+      <h2 class="sec"><span class="k">CHECK</span> Verify before “done”</h2>
+      <ul class="checks">
+        <li><span class="box" aria-hidden="true"></span><div>Every page renders from Supabase (published rows); static fallback where the DB is empty.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div><b>The editable test:</b> edit a value in the editor → <b>Publish</b> → refresh → the change shows. (While draft, the fallback is correct.)</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Images load from <code>club-media</code> URLs; zero emoji; internal links resolve; production 200s; branded 404.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Runtime-neutral loader confirmed (no window/localStorage/Node built-ins) — host is swappable.</div></li>
+      </ul>
+    </section>
+
+    <section class="block" id="files">
+      <h2 class="sec"><span class="k">REF</span> Files &amp; where things live</h2>
+      <div class="tablewrap"><table class="map">
+        <thead><tr><th>File</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><code>SPORTSWEB-EDITABLE-SITE-SOP.md</code></td><td>The procedure this guide renders — the authoritative text.</td></tr>
+          <tr><td><code>SPORTSWEB-WEB-STANDARDS.md</code></td><td>Shared law S1–S20. On any conflict, this wins.</td></tr>
+          <tr><td><code>SportsWeb-Australia/dookie-united-website</code></td><td>The proven reference implementation of this pattern.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="color:var(--ink-soft);font-size:.85rem;margin-top:1rem">Standard location: <code>~/Developer/sportsweb-standards/</code> (source SOPs) · <code>~/Developer/sportsweb-standards/sw1-guides/</code> (these HTML guides). Companion: the <b>SW1 Editor — manager how-to</b> guide.</p>
+    </section>
+  </main>
+</div>
+
+<footer class="foot">SW1 Operations Runbook · Editable Site SOP (build) · access: you + the SW1 manager only. Source of truth = the standards repo, not memory.</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  btn&&btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var next=cur==='dark'?'light':(cur==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark'));
+    root.setAttribute('data-theme',next);
+  });
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var el=document.getElementById(b.getAttribute('data-copy'));if(!el)return;
+      navigator.clipboard&&navigator.clipboard.writeText(el.innerText).then(function(){
+        var old=b.textContent;b.textContent='✓ Copied';b.classList.add('done');
+        setTimeout(function(){b.textContent=old;b.classList.remove('done');},1600);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
