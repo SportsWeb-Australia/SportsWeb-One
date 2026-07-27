@@ -415,6 +415,13 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
             <small>No feedback yet - share the review link above.</small>
           ) : (
             <>
+              {onOpenInbox && (
+                <div style={{ margin: "6px 0 2px" }}>
+                  <button type="button" className="sw-btn" onClick={onOpenInbox}>
+                    Open in inbox for triage &rarr;
+                  </button>
+                </div>
+              )}
               <div className="sw1-onboard-answers" style={{ marginTop: 8 }}>
                 {feedback.map((f) => (
                   <div key={f.id} className="sw1-onboard-kv" style={{ alignItems: "start" }}>
@@ -451,13 +458,6 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
                   </div>
                 ))}
               </div>
-              {onOpenInbox && (
-                <div style={{ marginTop: 10 }}>
-                  <button type="button" className="sw-btn sw-btn--ghost" onClick={onOpenInbox}>
-                    Open in inbox for triage &rarr;
-                  </button>
-                </div>
-              )}
             </>
           ))}
         </div>
