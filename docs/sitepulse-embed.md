@@ -86,10 +86,30 @@ That's the whole integration. A floating **Feedback** button appears bottom-righ
 
 ## Using the element picker
 
-Inside the form, **"Point at it"** lets the reviewer tap the exact thing they mean
-(a logo, heading, button, link). It captures the element in human terms — tag, a
-readable label, nearest heading, and coordinates — and attaches it to the report.
-Pointing is always optional; a plain typed comment still submits.
+Inside the form, **"Point at it"** lets the reviewer show exactly what they mean.
+Two ways to pick — pointing is always optional, and a plain typed comment still
+submits either way:
+
+- **Tap an element** (a logo, heading, button, link) → pins the whole element.
+- **Click-drag to highlight specific text** → pins just that phrase, not the whole
+  paragraph. Ideal for "this one word is wrong" (e.g. a spelling fix inside a long
+  block). Desktop mouse-drag selects; a plain mobile scroll is ignored.
+
+Either way it captures the pick in human terms — tag, a readable label (the element's
+text/alt, or the exact highlighted phrase), the nearest heading, and coordinates — and
+attaches it to the report. In the inbox it appears above the description, and
+**"Open page → jump to element"** scrolls straight to it (landing on the exact phrase
+for a text pick).
+
+**Other form behaviours worth knowing:**
+- **Multiple reports per page** — after sending, a **"Report another issue"** button
+  returns a fresh form, so a reviewer can log many items without reloading.
+- The thanks screen has a **close (X)** and doesn't auto-dismiss.
+- **"Point at it" sits first**, above the category, so the intended order reads
+  point → categorise → describe.
+
+*(Widget behaviour as of the v1 element picker; deploys via the shared hosted file —
+see "how to deploy" in `docs/sitepulse-deploy.md`.)*
 
 ---
 
