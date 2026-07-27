@@ -52,7 +52,12 @@ type FeedbackRow = {
   element_tag: string | null;
   element_label: string | null;
   element_meta: ElementMeta;
+  device_type: string | null;
+  browser: string | null;
+  os: string | null;
+  viewport: string | null;
 };
+const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 // Friendly names for the pointed-at element's tag.
 const FB_TAG: Record<string, string> = {
   img: "image", picture: "image", svg: "image", canvas: "image",
@@ -118,7 +123,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
         supabase.from("clubs").select("onboarding_drive_url,preview_token").eq("id", club.id).maybeSingle(),
         supabase
           .from("sitepulse_feedback")
-          .select("id,category,description,urgency_flag,status,created_at,element_tag,element_label,element_meta")
+          .select("id,category,description,urgency_flag,status,created_at,element_tag,element_label,element_meta,device_type,browser,os,viewport")
           .eq("club_id", club.id)
           .order("created_at", { ascending: false })
           .limit(100),
@@ -426,6 +431,11 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
                           {f.element_meta?.heading && (
                             <span style={{ color: "#8a94a6" }}>near "{f.element_meta.heading}"</span>
                           )}
+                        </div>
+                      )}
+                      {(f.device_type || f.browser) && (
+                        <div style={{ marginTop: 3, fontSize: 11.5, color: "#8a94a6" }}>
+                          {[titleCase(f.device_type), f.browser, f.os, f.viewport].filter(Boolean).join(" · ")}
                         </div>
                       )}
                     </span>
