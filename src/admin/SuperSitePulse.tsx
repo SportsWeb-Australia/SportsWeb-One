@@ -1,22 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { supabase } from "../lib/supabase";
 
 // SitePulse super-admin inbox: read + triage captured website feedback.
 // Reads sitepulse_feedback via the app's supabase client; RLS scopes rows
 // (platform admin: all clubs; club admin: own club). Status changes persist
-// through the fb_update policy. Keys off club_id. No new tables/notifications.
+// through the fb_update policy. Feedback is grouped into collapsible per-club
+// sections (collapsed by default). Client-visible replies surface on the club's
+// public status page (sitepulse_public_status RPC).
 
-// Element picker (v1 capture-only). Held in element_meta jsonb; all optional.
-// element_selector / element_confidence exist in the schema but are v2 (always
-// null in v1), so the inbox does not read or show them.
 type ElementMeta = {
-  src?: string;
-  href?: string;
-  heading?: string;
+  src?: string; href?: string; heading?: string;
   rect?: { x: number; y: number; w: number; h: number };
   page?: { w: number; h: number };
   scroll?: { x: number; y: number };
   fixed?: boolean;
+  is_text?: boolean;
+  selected_text?: string;
 };
 
 type Row = {
@@ -56,14 +55,36 @@ const STATUSES = [
 ];
 const STATUS_LABEL: Record<string, string> = {
   new: "New", needs_review: "Needs review", accepted: "Accepted", in_progress: "In progress",
-  waiting_on_club: "Waiting on club", waiting_on_sportsweb: "Waiting on SportsWeb",
+  waiting_on_club: "Waiting on club", waiting_on_sportsweb: "Waiting on us",
   resolved: "Resolved", rejected: "Rejected", archived: "Archived",
 };
+const STATUS_STYLE: Record<string, { color: string; bg: string; bd: string }> = {
+  new: { color: "#1d4ed8", bg: "#eff4ff", bd: "#c7dafe" },
+  needs_review: { color: "#7c3aed", bg: "#f4effe", bd: "#e2d5fb" },
+  accepted: { color: "#0369a1", bg: "#eff8ff", bd: "#cbe6fb" },
+  in_progress: { color: "#b45309", bg: "#fdf4e7", bd: "#f5e2c2" },
+  waiting_on_club: { color: "#4f46e5", bg: "#eef0fe", bd: "#d7dbfb" },
+  waiting_on_sportsweb: { color: "#0f766e", bg: "#effcf9", bd: "#c5ede6" },
+  resolved: { color: "#15803d", bg: "#e9f6ee", bd: "#c6e8d2" },
+  rejected: { color: "#b91c1c", bg: "#fdecec", bd: "#f4cccc" },
+  archived: { color: "#64748b", bg: "#f1f5f9", bd: "#dbe2ea" },
+};
+const CLOSED = ["resolved", "rejected", "archived"];
+
+// palette
+const INK = "#14181f", MUTED = "#667085", FAINT = "#8a94a6", LINE = "#e6e8ee",
+  LINE2 = "#eef0f4", SURFACE = "#ffffff", SURFACE2 = "#f7f8fa", INDIGO = "#4f46e5";
+const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "");
 
 const SELECT_COLS =
   "id,club_id,source,page_url,category,description,urgency_flag,contact_requested," +
   "submitted_by_name,submitted_by_email,device_type,browser,os,viewport," +
   "element_tag,element_label,element_meta,status,priority,created_at,clubs(name)";
+
+const inputStyle: CSSProperties = {
+  padding: "8px 11px", borderRadius: 9, border: `1px solid ${LINE}`, fontSize: 14,
+  background: SURFACE, color: INK,
+};
 
 export function SuperSitePulse() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -71,6 +92,7 @@ export function SuperSitePulse() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const [fClub, setFClub] = useState("");
   const [fStatus, setFStatus] = useState("");
@@ -108,6 +130,19 @@ export function SuperSitePulse() {
     (!q || r.description.toLowerCase().includes(q))
   ), [rows, fClub, fStatus, fCategory, q]);
 
+  // Group filtered feedback by club → collapsible sections.
+  const groups = useMemo(() => {
+    const m = new Map<string, Row[]>();
+    for (const r of filtered) { const a = m.get(r.club_id) ?? []; a.push(r); m.set(r.club_id, a); }
+    return [...m.entries()]
+      .map(([cid, rs]) => ({ cid, name: rs[0].clubs?.name ?? cid.slice(0, 8), rows: rs }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [filtered]);
+
+  const anyFilter = !!(q || fStatus || fCategory || fClub);
+  const toggleClub = (cid: string) =>
+    setExpanded((s) => { const n = new Set(s); n.has(cid) ? n.delete(cid) : n.add(cid); return n; });
+
   const setStatus = async (r: Row, status: string) => {
     if (!supabase || status === r.status) return;
     setSaving(r.id); setError(null);
@@ -120,7 +155,7 @@ export function SuperSitePulse() {
   };
 
   const fmt = (d: string) => {
-    try { return new Date(d).toLocaleString("en-AU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+    try { return new Date(d).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
     catch { return d; }
   };
 
@@ -129,7 +164,7 @@ export function SuperSitePulse() {
       <header className="sw-admin-head">
         <div>
           <h1>SitePulse</h1>
-          <p>Website feedback and issue reports from club sites. Read, filter and triage.</p>
+          <p>Website feedback from club sites, grouped by club. Open a club to triage and reply.</p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <button className="sw-btn sw-btn--ghost" onClick={load}>Refresh</button>
@@ -138,52 +173,177 @@ export function SuperSitePulse() {
 
       {error && <div className="sw-comms-result err">{error}</div>}
 
-      {/* Filters */}
       {!loading && rows.length > 0 && (
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "0 0 1rem" }}>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search descriptions..."
-            style={{ flex: "1 1 220px", minWidth: 180, padding: "8px 12px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }} />
-          <select value={fClub} onChange={(e) => setFClub(e.target.value)} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }}>
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search descriptions…"
+            style={{ ...inputStyle, flex: "1 1 220px", minWidth: 180 }} />
+          <select value={fClub} onChange={(e) => setFClub(e.target.value)} style={inputStyle}>
             <option value="">All clubs</option>
             {clubOptions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
           </select>
-          <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }}>
+          <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={inputStyle}>
             <option value="">All statuses</option>
             {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
           </select>
-          <select value={fCategory} onChange={(e) => setFCategory(e.target.value)} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d7dbe3", fontSize: 14 }}>
+          <select value={fCategory} onChange={(e) => setFCategory(e.target.value)} style={inputStyle}>
             <option value="">All categories</option>
             {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          <span style={{ fontSize: 12.5, color: "#8a94a6", marginLeft: "auto" }}>
+          <span style={{ fontSize: 12.5, color: FAINT, marginLeft: "auto" }}>
             {filtered.length} of {rows.length}
           </span>
         </div>
       )}
 
       {loading ? (
-        <p className="sw-muted">Loading feedback...</p>
+        <p className="sw-muted">Loading feedback…</p>
       ) : rows.length === 0 ? (
         <p className="sw-muted">No feedback yet.</p>
       ) : filtered.length === 0 ? (
         <p className="sw-muted">No feedback matches these filters.</p>
       ) : (
-        <div className="sw-super-table-wrap">
-          <table className="sw-admin-table">
-            <thead>
-              <tr><th>Club</th><th>Category</th><th>Summary</th><th>When</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              {filtered.map((r) => (
-                <FeedbackRow
-                  key={r.id} r={r} open={openId === r.id}
-                  onToggle={() => setOpenId((id) => (id === r.id ? null : r.id))}
-                  onStatus={(s) => setStatus(r, s)} saving={saving === r.id}
-                  clubName={clubName(r)} fmt={fmt}
-                />
-              ))}
-            </tbody>
-          </table>
+        <div style={{ display: "grid", gap: 12 }}>
+          {groups.map((g) => (
+            <ClubSection
+              key={g.cid} name={g.name} rows={g.rows}
+              open={expanded.has(g.cid) || anyFilter}
+              onToggle={() => toggleClub(g.cid)}
+              openId={openId} setOpenId={setOpenId}
+              onStatus={setStatus} saving={saving} fmt={fmt}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Pill({ color, bg, children }: { color: string; bg: string; children: ReactNode }) {
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, color, background: bg, borderRadius: 999, padding: "2px 9px", whiteSpace: "nowrap" }}>
+      {children}
+    </span>
+  );
+}
+
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
+      style={{ flex: "0 0 auto", transition: "transform .18s ease", transform: open ? "rotate(90deg)" : "none", color: FAINT }}>
+      <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ClubSection({
+  name, rows, open, onToggle, openId, setOpenId, onStatus, saving, fmt,
+}: {
+  name: string; rows: Row[]; open: boolean; onToggle: () => void;
+  openId: string | null; setOpenId: (fn: (id: string | null) => string | null) => void;
+  onStatus: (r: Row, s: string) => void; saving: string | null; fmt: (d: string) => string;
+}) {
+  const total = rows.length;
+  const openCount = rows.filter((r) => !CLOSED.includes(r.status)).length;
+  const urgent = rows.filter((r) => r.urgency_flag && !CLOSED.includes(r.status)).length;
+  return (
+    <section style={{ border: `1px solid ${LINE}`, borderRadius: 14, background: SURFACE, overflow: "hidden", boxShadow: "0 1px 2px rgba(20,24,31,.04)" }}>
+      <button onClick={onToggle}
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 15px",
+          background: open ? SURFACE2 : SURFACE, border: 0, borderBottom: open ? `1px solid ${LINE}` : "0", cursor: "pointer", textAlign: "left" }}>
+        <Chevron open={open} />
+        <strong style={{ fontSize: 15, color: INK }}>{name}</strong>
+        <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {urgent > 0 && <Pill color="#b91c1c" bg="#fdecec">{urgent} urgent</Pill>}
+          <Pill color={openCount ? "#1d4ed8" : "#15803d"} bg={openCount ? "#eff4ff" : "#e9f6ee"}>
+            {openCount ? `${openCount} open` : "all done"}
+          </Pill>
+          <span style={{ color: FAINT, fontSize: 12.5, fontVariantNumeric: "tabular-nums" }}>{total} total</span>
+        </span>
+      </button>
+      {open && (
+        <div style={{ padding: "8px 10px 12px", display: "grid", gap: 8 }}>
+          {rows.map((r) => (
+            <ItemCard key={r.id} r={r} open={openId === r.id}
+              onToggle={() => setOpenId((id) => (id === r.id ? null : r.id))}
+              onStatus={(s) => onStatus(r, s)} saving={saving === r.id} fmt={fmt} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function StatusControl({ value, onChange, saving }: { value: string; onChange: (s: string) => void; saving: boolean }) {
+  const s = STATUS_STYLE[value] ?? STATUS_STYLE.new;
+  return (
+    <select value={value} disabled={saving} onClick={(e) => e.stopPropagation()} onChange={(e) => onChange(e.target.value)}
+      style={{ fontSize: 12.5, fontWeight: 600, padding: "5px 9px", borderRadius: 8,
+        border: `1px solid ${s.bd}`, background: s.bg, color: s.color, cursor: "pointer" }}>
+      {STATUSES.map((st) => <option key={st} value={st} style={{ background: "#fff", color: INK }}>{STATUS_LABEL[st]}</option>)}
+    </select>
+  );
+}
+
+function ItemCard({
+  r, open, onToggle, onStatus, saving, fmt,
+}: {
+  r: Row; open: boolean; onToggle: () => void; onStatus: (s: string) => void; saving: boolean; fmt: (d: string) => string;
+}) {
+  const desc = r.description.length > 150 && !open ? r.description.slice(0, 150) + "…" : r.description;
+  return (
+    <div style={{ border: `1px solid ${LINE2}`, borderRadius: 11, background: open ? SURFACE2 : SURFACE, overflow: "hidden" }}>
+      <div onClick={onToggle} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "11px 13px", cursor: "pointer" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".03em", textTransform: "uppercase", color: MUTED, background: SURFACE2, border: `1px solid ${LINE}`, borderRadius: 6, padding: "2px 7px" }}>
+              {CATEGORIES[r.category] ?? r.category}
+            </span>
+            {r.urgency_flag && <Pill color="#b91c1c" bg="#fdecec">Urgent</Pill>}
+            {rowHasElement(r) && (
+              <span title="A page element is attached" style={{ display: "inline-flex", color: INDIGO }}>
+                <ElIcon tag={r.element_tag} />
+              </span>
+            )}
+            {r.device_type && (
+              <span title={[r.device_type, r.browser, r.os, r.viewport].filter(Boolean).join(" · ")}
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: MUTED, background: SURFACE2, border: `1px solid ${LINE}`, borderRadius: 6, padding: "2px 7px" }}>
+                <DeviceIcon type={r.device_type} />{titleCase(r.device_type)}
+              </span>
+            )}
+            <span style={{ marginLeft: "auto", fontSize: 12, color: FAINT, whiteSpace: "nowrap" }}>{fmt(r.created_at)}</span>
+          </div>
+          <div style={{ fontSize: 14, color: INK, whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{desc}</div>
+        </div>
+        <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: 9 }}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <StatusControl value={r.status} onChange={onStatus} saving={saving} />
+          </div>
+          <Chevron open={open} />
+        </div>
+      </div>
+
+      {open && (
+        <div style={{ padding: "2px 13px 14px", fontSize: 13, lineHeight: 1.6, color: INK }}>
+          <ElementInfo r={r} />
+          {r.page_url && (
+            <div style={{ color: MUTED }}><b>Page:</b>{" "}
+              <a href={r.page_url} target="_blank" rel="noreferrer">{r.page_url}</a></div>
+          )}
+          <div style={{ color: MUTED }}>
+            <b>Source:</b> {r.source} · <b>Priority:</b> {r.priority}
+          </div>
+          {(r.device_type || r.browser) && (
+            <div style={{ color: FAINT, fontSize: 12.5, marginTop: 2 }}>
+              {[r.device_type, r.browser, r.os, r.viewport].filter(Boolean).join(" · ")}
+            </div>
+          )}
+          {r.contact_requested && (
+            <div style={{ marginTop: 4, color: MUTED }}>
+              <b>Reply requested:</b> {r.submitted_by_name || "(no name)"}
+              {r.submitted_by_email ? ` <${r.submitted_by_email}>` : ""}
+            </div>
+          )}
+          <Comments feedbackId={r.id} clubId={r.club_id} />
         </div>
       )}
     </div>
@@ -192,12 +352,14 @@ export function SuperSitePulse() {
 
 type Comment = { id: string; author_type: string; body: string; visibility: string; created_at: string };
 
-// Internal notes on a feedback row. cm_select/cm_insert RLS: platform admins see
-// and add all; internal notes are never shown to the person who submitted feedback.
+// Notes + client replies on a feedback item. Internal notes stay internal;
+// "Reply to client" posts a client_visible comment that shows on the club's
+// public status page (sitepulse_public_status RPC reads the latest one).
 function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState("");
+  const [visibility, setVisibility] = useState<"internal" | "client_visible">("internal");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -223,7 +385,7 @@ function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }
     setSaving(true); setErr(null);
     const { data, error } = await supabase
       .from("sitepulse_comments")
-      .insert({ feedback_id: feedbackId, club_id: clubId, author_type: "team", visibility: "internal", body })
+      .insert({ feedback_id: feedbackId, club_id: clubId, author_type: "team", visibility, body })
       .select("id,author_type,body,visibility,created_at")
       .single();
     setSaving(false);
@@ -236,44 +398,61 @@ function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }
     try { return new Date(d).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
     catch { return d; }
   };
+  const toClient = visibility === "client_visible";
 
   return (
-    <div style={{ marginTop: 12, borderTop: "1px solid #e4e4e7", paddingTop: 10 }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase", color: "#2563eb", marginBottom: 6 }}>Internal notes</div>
+    <div style={{ marginTop: 12, borderTop: `1px solid ${LINE}`, paddingTop: 10 }}>
+      <div style={{ fontSize: 11, letterSpacing: ".05em", textTransform: "uppercase", color: MUTED, marginBottom: 6 }}>Notes &amp; replies</div>
       {loading ? (
-        <div className="sw-muted" style={{ fontSize: 12.5 }}>Loading notes...</div>
+        <div className="sw-muted" style={{ fontSize: 12.5 }}>Loading…</div>
       ) : comments.length === 0 ? (
-        <div className="sw-muted" style={{ fontSize: 12.5, marginBottom: 6 }}>No internal notes yet.</div>
+        <div className="sw-muted" style={{ fontSize: 12.5, marginBottom: 6 }}>No notes yet.</div>
       ) : (
-        <ul style={{ listStyle: "none", margin: "0 0 8px", padding: 0 }}>
-          {comments.map((c) => (
-            <li key={c.id} style={{ fontSize: 12.5, padding: "5px 0", borderBottom: "1px solid #f1f5f9" }}>
-              <span style={{ whiteSpace: "pre-wrap" }}>{c.body}</span>
-              <span style={{ color: "#8a94a6", marginLeft: 8 }}>
-                {c.visibility === "internal" ? "internal" : "client-visible"} &middot; {fmt(c.created_at)}
-              </span>
-            </li>
-          ))}
+        <ul style={{ listStyle: "none", margin: "0 0 10px", padding: 0, display: "grid", gap: 6 }}>
+          {comments.map((c) => {
+            const cv = c.visibility === "client_visible";
+            return (
+              <li key={c.id} style={{ fontSize: 12.8, padding: "8px 10px", borderRadius: 8,
+                background: cv ? "#eef6ff" : SURFACE2, border: `1px solid ${cv ? "#cfe4fb" : LINE}` }}>
+                <span style={{ whiteSpace: "pre-wrap" }}>{c.body}</span>
+                <div style={{ marginTop: 3, fontSize: 11, color: cv ? "#1d4ed8" : FAINT, fontWeight: 600 }}>
+                  {cv ? "Sent to client" : "Internal"} · {fmt(c.created_at)}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
+
+      <div style={{ display: "inline-flex", padding: 2, gap: 2, background: SURFACE2, border: `1px solid ${LINE}`, borderRadius: 9, marginBottom: 7 }}>
+        {([["internal", "Internal note"], ["client_visible", "Reply to client"]] as const).map(([v, label]) => (
+          <button key={v} type="button" onClick={() => setVisibility(v)}
+            style={{ border: 0, cursor: "pointer", fontSize: 12.5, fontWeight: 600, padding: "4px 11px", borderRadius: 7,
+              background: visibility === v ? (v === "client_visible" ? "#1d4ed8" : "#fff") : "transparent",
+              color: visibility === v ? (v === "client_visible" ? "#fff" : INK) : MUTED,
+              boxShadow: visibility === v && v === "internal" ? "0 1px 2px rgba(0,0,0,.08)" : "none" }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Add an internal note (not shown to the person who reported it)..."
+        <textarea value={note} onChange={(e) => setNote(e.target.value)}
+          placeholder={toClient ? "Write a reply the club will see on their status page…" : "Add an internal note (never shown to the club)…"}
           rows={2}
-          style={{ flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 8, border: "1px solid #d7dbe3", resize: "vertical" }}
-        />
-        <button className="sw-btn sw-btn--ghost" disabled={saving || !note.trim()} onClick={add}>
-          {saving ? "Adding..." : "Add note"}
+          style={{ flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 8, resize: "vertical",
+            border: `1px solid ${toClient ? "#cfe4fb" : LINE}`, background: toClient ? "#f6fbff" : SURFACE, color: INK }} />
+        <button className={toClient ? "sw-btn" : "sw-btn sw-btn--ghost"} disabled={saving || !note.trim()} onClick={add}>
+          {saving ? "Saving…" : toClient ? "Send reply" : "Add note"}
         </button>
       </div>
+      {toClient && <div style={{ fontSize: 11.5, color: FAINT, marginTop: 4 }}>Appears on the club's status page as “Our note”.</div>}
       {err && <div className="sw1-onboard-err" style={{ marginTop: 4 }}>{err}</div>}
     </div>
   );
 }
 
-// ---- Element picker display (Phase D) --------------------------------------
+// ---- Element picker display --------------------------------------------------
 const TAG_LABEL: Record<string, string> = {
   img: "image", picture: "image", svg: "image", canvas: "image",
   video: "video", a: "link", iframe: "embed", button: "button",
@@ -302,9 +481,32 @@ function ElIcon({ tag }: { tag?: string | null }) {
       </svg>
     );
   }
+  // Generic "pinned element" — a crosshair (not a square, which read as a checkbox).
   return (
     <svg {...common}>
-      <rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function DeviceIcon({ type }: { type?: string | null }) {
+  const common = { width: 12, height: 12, viewBox: "0 0 24 24", "aria-hidden": true } as const;
+  if (type === "mobile") {
+    return (
+      <svg {...common}>
+        <rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M11 18h2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (type === "tablet") {
+    return <svg {...common}><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" /></svg>;
+  }
+  return (
+    <svg {...common}>
+      <rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M9 20h6M12 16v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -314,9 +516,6 @@ function rowHasElement(r: Row) {
   return !!(r.element_tag || r.element_label || m.src || m.href || m.heading);
 }
 
-// A short, exact-ish snippet for Scroll-To-Text-Fragment (#:~:text=). Prefer the
-// element's own text label; fall back to its nearest heading. Skip filename-ish
-// labels (an img's src) since those won't appear as page text.
 function elementSnippet(r: Row): string | null {
   const m = r.element_meta || {};
   const label = (r.element_label || "").trim();
@@ -326,8 +525,6 @@ function elementSnippet(r: Row): string | null {
   return base.split(/\s+/).slice(0, 8).join(" ").slice(0, 60);
 }
 
-// Open the reported page and, where the browser supports it, jump straight to
-// the element via a text fragment. Falls back to opening the page at the top.
 function openTarget(r: Row) {
   if (!r.page_url) return;
   let url = r.page_url;
@@ -353,90 +550,28 @@ function ElementInfo({ r }: { r: Row }) {
   const pct = positionPct(m);
   const canJump = !!elementSnippet(r);
   return (
-    <div style={{ margin: "0 0 10px", padding: "8px 10px", background: "#eef2ff", border: "1px solid #dbe1fb", borderRadius: 8 }}>
+    <div style={{ margin: "8px 0 10px", padding: "9px 11px", background: "#eef2ff", border: "1px solid #dbe1fb", borderRadius: 9 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-        <span style={{ display: "flex", color: "#4f46e5", flex: "0 0 auto" }}><ElIcon tag={r.element_tag} /></span>
+        <span style={{ display: "flex", color: INDIGO, flex: "0 0 auto" }}><ElIcon tag={r.element_tag} /></span>
         <strong style={{ color: "#3730a3", textTransform: "capitalize" }}>{friendlyTag(r.element_tag)}</strong>
-        <span style={{ color: "#667085", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>· {primary}</span>
-        {m.fixed && <span className="sw-dev-pill" style={{ background: "#e0e7ff", color: "#4338ca" }}>fixed / sticky</span>}
+        <span style={{ color: MUTED, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          · {m.is_text ? `“${primary}”` : primary}
+        </span>
+        {m.fixed && <Pill color="#4338ca" bg="#e0e7ff">fixed / sticky</Pill>}
       </div>
-      <div style={{ fontSize: 12, color: "#667085", marginTop: 3, display: "flex", flexWrap: "wrap", gap: "1px 12px" }}>
+      <div style={{ fontSize: 12, color: MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "1px 12px" }}>
         {m.src && <span>file: {m.src}</span>}
         {m.href && <span>link: {m.href}</span>}
         {m.heading && <span>near heading: "{m.heading}"</span>}
         {pct != null && <span>~{pct}% down the page</span>}
       </div>
       {r.page_url && (
-        <button
-          onClick={(e) => { e.stopPropagation(); openTarget(r); }}
-          className="sw-btn sw-btn--ghost"
-          style={{ marginTop: 7, fontSize: 12, padding: "3px 10px" }}
-          title={canJump ? "Opens the page and jumps to the element" : "Opens the page (no text anchor to jump to)"}
-        >
+        <button onClick={(e) => { e.stopPropagation(); openTarget(r); }}
+          className="sw-btn sw-btn--ghost" style={{ marginTop: 8, fontSize: 12, padding: "3px 10px" }}
+          title={canJump ? "Opens the page and jumps to the element" : "Opens the page (no text anchor to jump to)"}>
           Open page {canJump ? "→ jump to element" : ""} ↗
         </button>
       )}
     </div>
-  );
-}
-
-function FeedbackRow({
-  r, open, onToggle, onStatus, saving, clubName, fmt,
-}: {
-  r: Row; open: boolean; onToggle: () => void; onStatus: (s: string) => void;
-  saving: boolean; clubName: string; fmt: (d: string) => string;
-}) {
-  const statusSelect = (
-    <select
-      value={r.status}
-      disabled={saving}
-      onClick={(e) => e.stopPropagation()}
-      onChange={(e) => onStatus(e.target.value)}
-      style={{ fontSize: 12.5, padding: "4px 6px", borderRadius: 6 }}
-    >
-      {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
-    </select>
-  );
-  return (
-    <>
-      <tr onClick={onToggle} style={{ cursor: "pointer" }}>
-        <td>
-          <strong>{clubName}</strong>
-          {r.urgency_flag && <span className="sw-dev-pill" style={{ background: "#fee2e2", color: "#b91c1c", marginLeft: 6 }}>Urgent</span>}
-        </td>
-        <td>{CATEGORIES[r.category] ?? r.category}</td>
-        <td style={{ maxWidth: 360 }}>
-          {rowHasElement(r) && (
-            <span title="A page element is attached" style={{ display: "inline-flex", verticalAlign: "middle", color: "#4f46e5", marginRight: 6 }}>
-              <ElIcon tag={r.element_tag} />
-            </span>
-          )}
-          {r.description.length > 90 ? r.description.slice(0, 90) + "..." : r.description}
-        </td>
-        <td style={{ whiteSpace: "nowrap", fontSize: 12.5, color: "#667085" }}>{fmt(r.created_at)}</td>
-        <td>{statusSelect}</td>
-      </tr>
-      {open && (
-        <tr>
-          <td colSpan={5} style={{ background: "#fbfbfc" }}>
-            <div style={{ padding: "0.6rem 0.4rem", fontSize: 13, lineHeight: 1.6 }}>
-              <ElementInfo r={r} />
-              <div style={{ whiteSpace: "pre-wrap", marginBottom: 8 }}>{r.description}</div>
-              {r.page_url && (
-                <div><b>Page:</b> <a href={r.page_url} target="_blank" rel="noreferrer">{r.page_url}</a></div>
-              )}
-              <div><b>Source:</b> {r.source} &middot; <b>Category:</b> {CATEGORIES[r.category] ?? r.category} &middot; <b>Priority:</b> {r.priority}</div>
-              {r.contact_requested && (
-                <div><b>Reply requested:</b> {r.submitted_by_name || "(no name)"}{r.submitted_by_email ? ` <${r.submitted_by_email}>` : ""}</div>
-              )}
-              <div style={{ color: "#667085" }}>
-                {[r.device_type, r.browser, r.os, r.viewport].filter(Boolean).join(" &middot; ").replace(/&middot;/g, "·")}
-              </div>
-              <Comments feedbackId={r.id} clubId={r.club_id} />
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
   );
 }

@@ -91,6 +91,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
 
   // Website check: shareable draft-review link (reuses PR #9 preview_token +
   // rotate_club_preview_token) and this club's returning SitePulse feedback.
+  const [showFeedback, setShowFeedback] = useState(false);
   const [previewToken, setPreviewToken] = useState<string | null>(null);
   const [copiedPreview, setCopiedPreview] = useState(false);
   const [rotating, setRotating] = useState(false);
@@ -388,25 +389,33 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           <small>Send this to the club so they can review their draft and leave feedback - no login needed. This is the same link the "Feedback" button rides on in draft.</small>
         </label>
 
-        {/* Returning feedback (read-only; triage in the inbox) */}
+        {/* Returning feedback (read-only; triage in the inbox) — its own collapsible section */}
         <div className="sw-admin-field sw1-onboard-row">
-          <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <button type="button" onClick={() => setShowFeedback((v) => !v)}
+            style={{ width: "100%", display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap",
+              background: "#f7f8fa", border: "1px solid #e6e8ee", borderRadius: 10, padding: "11px 13px",
+              cursor: "pointer", textAlign: "left", fontWeight: 600, fontSize: 14, color: "#14181f" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"
+              style={{ flex: "0 0 auto", color: "#8a94a6", transition: "transform .18s ease", transform: showFeedback ? "rotate(90deg)" : "none" }}>
+              <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             Review feedback
             {!loading && feedback.length > 0 && (
               <span style={{ fontSize: 12, fontWeight: 700, background: "#eff4ff", color: "#2563eb", borderRadius: 20, padding: "2px 10px" }}>
-                {feedback.length} item{feedback.length !== 1 ? "s" : ""} from the club's review
-                {openFeedback > 0 ? ` - ${openFeedback} open` : ""}
+                {feedback.length} item{feedback.length !== 1 ? "s" : ""}
+                {openFeedback > 0 ? ` · ${openFeedback} open` : ""}
               </span>
             )}
-          </span>
+            <span style={{ marginLeft: "auto", fontSize: 12.5, color: "#8a94a6" }}>{showFeedback ? "Hide" : "Show"}</span>
+          </button>
 
-          {loading ? (
+          {showFeedback && (loading ? (
             <small>Loading feedback...</small>
           ) : feedback.length === 0 ? (
             <small>No feedback yet - share the review link above.</small>
           ) : (
             <>
-              <div className="sw1-onboard-answers" style={{ marginTop: 6 }}>
+              <div className="sw1-onboard-answers" style={{ marginTop: 8 }}>
                 {feedback.map((f) => (
                   <div key={f.id} className="sw1-onboard-kv" style={{ alignItems: "start" }}>
                     <span className="k">
@@ -450,7 +459,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
                 </div>
               )}
             </>
-          )}
+          ))}
         </div>
       </div>
     </section>
