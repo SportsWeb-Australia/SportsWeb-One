@@ -38,6 +38,10 @@ const STATUS_LABEL: Record<string, string> = {
 
 // SitePulse feedback shown in the Website check section (read-only; triage lives
 // in the SuperSitePulse inbox). Labels mirror the widget/inbox vocabulary.
+type ElementMeta = {
+  src?: string; href?: string; heading?: string;
+  is_text?: boolean; selected_text?: string;
+} | null;
 type FeedbackRow = {
   id: string;
   category: string;
@@ -45,7 +49,16 @@ type FeedbackRow = {
   urgency_flag: boolean;
   status: string;
   created_at: string;
+  element_tag: string | null;
+  element_label: string | null;
+  element_meta: ElementMeta;
 };
+// Friendly names for the pointed-at element's tag.
+const FB_TAG: Record<string, string> = {
+  img: "image", picture: "image", svg: "image", canvas: "image",
+  video: "video", a: "link", iframe: "embed", button: "button",
+};
+const fbTag = (t?: string | null) => (t && (FB_TAG[t] || t)) || "element";
 const FB_CATEGORY: Record<string, string> = {
   spelling: "Spelling or wording", broken_link: "Broken link", incorrect_info: "Incorrect information",
   missing_info: "Missing information", image_logo: "Image or logo issue", mobile_display: "Looks wrong on mobile",
@@ -105,7 +118,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
         supabase.from("clubs").select("onboarding_drive_url,preview_token").eq("id", club.id).maybeSingle(),
         supabase
           .from("sitepulse_feedback")
-          .select("id,category,description,urgency_flag,status,created_at")
+          .select("id,category,description,urgency_flag,status,created_at,element_tag,element_label,element_meta")
           .eq("club_id", club.id)
           .order("created_at", { ascending: false })
           .limit(100),
@@ -399,7 +412,23 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
                         {fmt(f.created_at)} &middot; {FB_STATUS[f.status] ?? f.status}
                       </small>
                     </span>
-                    <span className="v">{f.description}</span>
+                    <span className="v">
+                      {f.description}
+                      {(f.element_tag || f.element_label) && (
+                        <div style={{ marginTop: 4, fontSize: 12, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "baseline" }}>
+                          <span style={{ fontWeight: 600, color: "#4f46e5" }}>Pointed at:</span>
+                          <span style={{ background: "#eef0fe", color: "#3730a3", borderRadius: 6, padding: "0 6px", textTransform: "capitalize" }}>{fbTag(f.element_tag)}</span>
+                          {f.element_label && (
+                            <span style={{ color: "#475569" }}>
+                              {f.element_meta?.is_text ? `“${f.element_label}”` : f.element_label}
+                            </span>
+                          )}
+                          {f.element_meta?.heading && (
+                            <span style={{ color: "#8a94a6" }}>near "{f.element_meta.heading}"</span>
+                          )}
+                        </div>
+                      )}
+                    </span>
                   </div>
                 ))}
               </div>
