@@ -98,6 +98,7 @@ export function SuperSitePulse() {
   const [fStatus, setFStatus] = useState("");
   const [fCategory, setFCategory] = useState("");
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"priority" | "newest" | "oldest">("priority");
 
   const load = async () => {
     if (!supabase) { setError("Supabase not configured."); setLoading(false); return; }
@@ -130,14 +131,30 @@ export function SuperSitePulse() {
     (!q || r.description.toLowerCase().includes(q))
   ), [rows, fClub, fStatus, fCategory, q]);
 
-  // Group filtered feedback by club → collapsible sections.
+  // Sort within each club section. Default "priority": urgent, then reply-requested,
+  // then the rest, then closed — oldest first within each tier so nothing goes stale.
+  const sorted = useMemo(() => {
+    const rank = (r: Row) =>
+      CLOSED.includes(r.status) ? 3 : r.urgency_flag ? 0 : r.contact_requested ? 1 : 2;
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      if (sortBy === "newest") return b.created_at.localeCompare(a.created_at);
+      if (sortBy === "oldest") return a.created_at.localeCompare(b.created_at);
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return a.created_at.localeCompare(b.created_at); // oldest first within a tier
+    });
+    return arr;
+  }, [filtered, sortBy]);
+
+  // Group by club → collapsible sections (rows keep the sorted order).
   const groups = useMemo(() => {
     const m = new Map<string, Row[]>();
-    for (const r of filtered) { const a = m.get(r.club_id) ?? []; a.push(r); m.set(r.club_id, a); }
+    for (const r of sorted) { const a = m.get(r.club_id) ?? []; a.push(r); m.set(r.club_id, a); }
     return [...m.entries()]
       .map(([cid, rs]) => ({ cid, name: rs[0].clubs?.name ?? cid.slice(0, 8), rows: rs }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [filtered]);
+  }, [sorted]);
 
   const anyFilter = !!(q || fStatus || fCategory || fClub);
   const toggleClub = (cid: string) =>
@@ -188,6 +205,11 @@ export function SuperSitePulse() {
           <select value={fCategory} onChange={(e) => setFCategory(e.target.value)} style={inputStyle}>
             <option value="">All categories</option>
             {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} style={inputStyle} title="Sort order">
+            <option value="priority">Priority — urgent &amp; replies first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="newest">Newest first</option>
           </select>
           <span style={{ fontSize: 12.5, color: FAINT, marginLeft: "auto" }}>
             {filtered.length} of {rows.length}
