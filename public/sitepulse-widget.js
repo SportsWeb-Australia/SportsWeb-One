@@ -349,7 +349,12 @@
   function setCrosshair(on) {
     if (on) {
       crossStyle = document.createElement("style");
-      crossStyle.textContent = "*{cursor:crosshair !important}";
+      // Crosshair cursor + recolour the native text selection to the SitePulse red
+      // (match the element highlight) instead of the browser's default blue, while picking.
+      crossStyle.textContent =
+        "*{cursor:crosshair !important}" +
+        "::selection{background:rgba(214,50,47,.32);color:inherit}" +
+        "::-moz-selection{background:rgba(214,50,47,.32);color:inherit}";
       document.head.appendChild(crossStyle);
     } else if (crossStyle) {
       crossStyle.remove();
