@@ -175,6 +175,24 @@
     m.fixed = (pos === "fixed" || pos === "sticky");
     return m;
   }
+  // Meta for a drag-selected text range: the containing element's context, but the
+  // rect is the SELECTION's own box (document-relative), plus a flag + the exact text
+  // so the inbox can show the phrase and "Open page" jumps straight to it.
+  function metaForSelection(sel, el, text) {
+    var m = metaFor(el);
+    try {
+      var r = sel.getRangeAt(0).getBoundingClientRect();
+      if (r && (r.width || r.height)) {
+        var sx = window.pageXOffset || document.documentElement.scrollLeft || 0;
+        var sy = window.pageYOffset || document.documentElement.scrollTop || 0;
+        m.rect = { x: Math.round(r.left + sx), y: Math.round(r.top + sy),
+                   w: Math.round(r.width), h: Math.round(r.height) };
+      }
+    } catch (e) { /* keep the element rect */ }
+    m.is_text = true;
+    m.selected_text = text.slice(0, 500);
+    return m;
+  }
 
   var css =
     ':host{all:initial}' +
@@ -267,7 +285,7 @@
     '<button class="btn" id="sp-open" aria-label="' + btnLabel + '">' +
       SHIELD + '<span class="btn-label">' + btnLabel + '</span></button>' +
     '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card"></div></div>' +
-    '<div class="pbanner" id="sp-pbanner"><span>Tap the thing you\'re talking about</span>' +
+    '<div class="pbanner" id="sp-pbanner"><span>Tap an element &mdash; or drag to highlight specific text</span>' +
       '<button type="button" class="pcancel" id="sp-pcancel">Cancel</button></div>' +
     '<div class="sphl" id="sp-hl"></div>';
 
@@ -325,7 +343,7 @@
   var picked = null;         // { tag, label, meta } or null
   var pickActive = false;
   var downX = 0, downY = 0;  // pointerdown position -> tap vs scroll discrimination
-  var pending = false, lastPt = null;
+  var pending = false, lastPt = null, lastButtons = 0;
   var crossStyle = null;
 
   function setCrosshair(on) {
@@ -356,17 +374,42 @@
   function onMove(e) {
     if (!pickActive) return;
     lastPt = { x: e.clientX, y: e.clientY };
+    lastButtons = e.buttons;
     if (pending) return;
     pending = true;
     requestAnimationFrame(function () {
       pending = false;
+      // While dragging (button held) the reviewer is selecting text or scrolling --
+      // drop the element box so only the native text highlight shows. Hover redraws it.
+      if (lastButtons) { positionHighlight(null); return; }
       positionHighlight(targetAt(lastPt.x, lastPt.y));
     });
   }
   function onDown(e) { downX = e.clientX; downY = e.clientY; }
   function onUp(e) {
     if (!pickActive) return;
-    // A drag/scroll gesture (moved > ~10px) is not a tap -- leave pick mode running.
+    // Drag-to-select specific text: if the reviewer highlighted a phrase, pin exactly
+    // that text -- ideal for "this one word is wrong" inside a big paragraph. Desktop
+    // mouse-drag selects natively; on touch a plain drag scrolls (handled below).
+    var sel = window.getSelection ? window.getSelection() : null;
+    var selText = sel && !sel.isCollapsed ? sel.toString().replace(/\s+/g, " ").trim() : "";
+    if (selText) {
+      var node = sel.anchorNode;
+      var container = node && (node.nodeType === 3 ? node.parentElement : node);
+      // Ignore selections inside our own widget UI.
+      if (!container || container === host || host.contains(container)) { sel.removeAllRanges(); return; }
+      e.preventDefault(); e.stopPropagation();
+      swallowNextClick();
+      picked = {
+        tag: container.tagName ? container.tagName.toLowerCase() : "text",
+        label: selText.slice(0, 200),
+        meta: metaForSelection(sel, container, selText)
+      };
+      sel.removeAllRanges();   // clear the page's own highlight so nothing lingers
+      endPick(); openM(); renderChip();
+      return;
+    }
+    // A plain drag/scroll gesture (moved > ~10px, no text selected) is not a tap.
     if (Math.abs(e.clientX - downX) > 10 || Math.abs(e.clientY - downY) > 10) return;
     var el = targetAt(e.clientX, e.clientY);
     if (!el) return;
