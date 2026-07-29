@@ -102,6 +102,15 @@
   footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
   @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
   @media print{header.top,nav.toc,.top-actions{display:none!important}.wrap{display:block}body{background:#fff}section.block,.step{break-inside:avoid}}
+  /* ---------- flow diagram ---------- */
+  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
+  .fnode{flex:none;width:118px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
+  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
+  .fnode b{font-size:.83rem;line-height:1.15}
+  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
+  .fnode.go{border-color:var(--ok)}.fnode.go .fn{color:var(--ok);border-color:var(--ok)}
+  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
 </style>
 </head>
 <body>
@@ -121,6 +130,7 @@
   <nav class="toc" aria-label="Contents">
     <p class="lab">Steps</p>
     <ol>
+      <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
       <li><a href="#s1"><span class="n">1</span>Sign in &amp; pick the site</a></li>
       <li><a href="#s2"><span class="n">2</span>Open the editor</a></li>
       <li><a href="#s3"><span class="n">3</span>Pick a style</a></li>
@@ -145,6 +155,25 @@
         <span class="chip">Live after&nbsp;<b>Publish + reload</b></span>
       </div>
     </div>
+
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
+      <div class="flowwrap"><div class="flow">
+        <div class="fnode"><span class="fn">1</span><b>Sign in</b><span>pick the site</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">2</span><b>Edit</b><span>words in cards</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">3</span><b>Style</b><span>pick a look</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">4</span><b>Images</b><span>frame + upload</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">5</span><b>Preview</b><span>check it</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">6</span><b>Share</b><span>draft link</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode go"><span class="fn">7</span><b>Publish</b><span>goes live</span></div>
+      </div></div>
+    </section>
 
     <section class="block">
       <h2 class="sec"><span class="k">STEPS</span> Editing, start to finish</h2>

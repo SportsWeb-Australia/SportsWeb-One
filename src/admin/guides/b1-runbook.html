@@ -80,6 +80,21 @@
   .keys b{color:var(--accent-ink);font-family:var(--font-mono)}
   footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.4rem 3rem;color:var(--ink-faint);font-size:.82rem;font-style:italic;border-top:1px solid var(--line)}
   @media print{header.top,.top-actions{display:none!important}body{background:#fff}}
+  /* ---------- flow diagram + plain-English (ELI12) ---------- */
+  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.6rem 0}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
+  .fnode{flex:none;width:126px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .65rem;display:flex;flex-direction:column;gap:.2rem}
+  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
+  .fnode b{font-family:var(--font-serif);font-size:.9rem;line-height:1.12}
+  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
+  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
+  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
+  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
+  ol.plain{margin:.6rem 0;padding-left:1.6rem}
+  ol.plain li{margin:.6rem 0;font-size:1rem}
+  ol.plain li b{font-weight:600}
+  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
+  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -92,6 +107,32 @@
   <span class="badge">Preview · temporary — hosted in SW1 until Business One ships</span>
   <h1>Business One — building &amp; migrating business sites.</h1>
   <p class="lede">The business-site sibling of SportsWeb One. Same architecture and standards; a different content model — business pages, not club pages. This is the reference until Business One stands up its own editor.</p>
+
+  <div class="rule orn">§ · §</div>
+
+  <p class="label">The map</p>
+  <h2>The flow at a glance</h2>
+  <div class="flowwrap"><div class="flow">
+    <div class="fnode"><span class="fn">1</span><b>Pick pages</b><span>Home · Services · Work…</span></div>
+    <div class="fconn">→</div>
+    <div class="fnode"><span class="fn">2</span><b>Fill</b><span>real words + photos</span></div>
+    <div class="fconn">→</div>
+    <div class="fnode"><span class="fn">3</span><b>Model</b><span>editable content</span></div>
+    <div class="fconn">→</div>
+    <div class="fnode gate"><span class="fn">!</span><b>Publish gate</b><span>private till live</span></div>
+    <div class="fconn">→</div>
+    <div class="fnode go"><span class="fn">✓</span><b>Editable</b><span>owner edits it</span></div>
+  </div></div>
+
+  <p class="label">Plain English</p>
+  <h2>In plain English</h2>
+  <ol class="plain">
+    <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>Pick the pages a business needs</b> — Home, About, Services, Our Work, Reviews, Contact.</li>
+    <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span><b>Fill them with real words and photos</b> — never made-up.</li>
+    <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>The content lives in a tidy box</b> so it can be edited later without code.</li>
+    <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Nothing's public until someone hits Publish.</b></li>
+    <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span><b>Result: the business owner edits their own site.</b></li>
+  </ol>
 
   <div class="rule orn">§ · §</div>
 

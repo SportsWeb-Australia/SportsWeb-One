@@ -176,6 +176,13 @@
   .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
   .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
   .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
+  /* ---------- plain-English (ELI12) ---------- */
+  ol.plain{margin:.6rem 0;padding-left:1.6rem}
+  ol.plain li{margin:.6rem 0;font-size:.97rem}
+  ol.plain li b{font-weight:600}
+  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
+  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
   @media print{
     header.top,nav.toc,.top-actions,.copy{display:none!important}
     .wrap{display:block}body{background:#fff}
@@ -207,6 +214,8 @@
     <ol>
       <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
       <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
+      <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
+      <li><a href="#gexport"><span class="n">↧</span>Google export</a></li>
       <li><a href="#p0"><span class="n">0</span>SEO baseline</a></li>
       <li><a href="#p1"><span class="n">1</span>Content + images</a></li>
       <li><a href="#embed"><span class="n">◆</span>Embedded code</a></li>
@@ -256,6 +265,9 @@ Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
 Stack/host: Astro, Business-One-ready (content collections), deployed on Vercel.
 SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
 Google Business Profile [ ] · registrar/DNS [ ] · a backlink tool [ ].
+ATTACHED — my Search Console exports (Performance → Pages + Queries; Indexing → Pages). USE these
+CSV/Sheet files as the authoritative URL + ranking list for the 301 map: every page in them must get
+a matching new page (301'd if the URL changes). Cross-check against a crawl of the live site.
 
 This is a live cutover, so the goal is zero traffic loss: capture the SEO baseline FIRST,
 rebuild at parity-or-better, map every old URL 1:1, and don't touch DNS without my sign-off.
@@ -290,6 +302,51 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
         <div class="fconn">→</div>
         <div class="fnode"><span class="fn">7</span><b>Watch</b><span>2–4 wks vs baseline</span></div>
       </div></div>
+    </section>
+
+    <!-- PLAIN ENGLISH -->
+    <section class="block" id="plain">
+      <h2 class="sec"><span class="k">ELI12</span> In plain English — the whole job</h2>
+      <p style="color:var(--ink-soft);margin-top:0">The same steps as the diagram, said simply, with the copy-paste bits pointed out. The whole thing starts by pasting the <b>Kickoff prompt</b> (top) into a fresh chat — that runs all of this.</p>
+      <ol class="plain">
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>Write down your winning pages.</b> Find every page Google already sends visitors to, so we lose none. <span class="tool">Tool: export from Search Console (next section)</span></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Copy the old site.</b> Save all the words and pictures off the old site — including every slideshow picture — so nothing's left behind. <span class="tool">Prompt: “Harvest content + assets” (Phase 1)</span></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b>Grab the working bits.</b> Contact forms, maps, booking buttons — keep them working. <span class="tool">Prompt: “Inventory &amp; carry embeds” (Embedded code)</span></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Build the new site.</b> Same info, but faster and tidier, and the way Google likes.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>Checkpoint — don't press go yet.</b> Make sure every important page is on the new site and just as good.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Show you first.</b> Put it somewhere private so you can check it before the world sees it.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Flip the switch.</b> Point your web address at the new site and send old links to the right new pages. <span class="tool">You do the DNS change, from the records Codey gives you</span></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b>Fix the map.</b> Make Google Maps and your business listing point to the new site.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Watch the numbers.</b> For a few weeks, check your visitors kept coming.</li>
+      </ol>
+    </section>
+
+    <!-- GOOGLE EXPORT -->
+    <section class="block" id="gexport">
+      <h2 class="sec"><span class="k">HOW-TO</span> Getting your Google numbers out</h2>
+      <p style="color:var(--ink-soft);margin-top:0">This is step 1 above. No passwords — you export two files and hand them over.</p>
+      <div class="flowwrap"><div class="flow">
+        <div class="fnode"><span class="fn">1</span><b>Open</b><span>search.google.com/ search-console</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">2</span><b>Pick site</b><span>your domain in the list</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">3</span><b>Performance</b><span>set “Last 12 months”</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">4</span><b>Export</b><span>Pages + Queries</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">5</span><b>Indexing → Pages</b><span>Export URL list</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode go"><span class="fn">✓</span><b>Send to Codey</b><span>paste / drop the files</span></div>
+      </div></div>
+      <ol class="plain">
+        <li><b>Go to</b> search.google.com/search-console and sign in — that's <em>you</em>, not Codey.</li>
+        <li><b>Click your website</b> in the list at the top.</li>
+        <li><b>Click “Performance”</b> on the left, then set the date to <b>Last 12 months</b>.</li>
+        <li><b>Hit “Export”</b> (top-right) → Google Sheets or CSV. That's your best <b>pages</b> and the <b>words</b> people searched to find you.</li>
+        <li><b>Click “Indexing → Pages”</b>, then Export — the full list of pages Google knows about.</li>
+        <li><b>Send those files to Codey</b> (paste or drop them in the chat). Done — no passwords, just files.</li>
+      </ol>
+      <div class="callout note"><span class="ic">i</span><div>Even though a lapsed site is offline, its Search Console history is still there — so grab this <b>today</b>, before you lose access to the account.</div></div>
     </section>
 
     <!-- PHASES -->

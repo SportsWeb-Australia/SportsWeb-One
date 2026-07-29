@@ -92,6 +92,21 @@
   footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono)}
   @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
   @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}}
+  /* ---------- flow diagram + plain-English (ELI12) ---------- */
+  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
+  .fnode{flex:none;width:122px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
+  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
+  .fnode b{font-size:.83rem;line-height:1.15}
+  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
+  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
+  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
+  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
+  ol.plain{margin:.6rem 0;padding-left:1.6rem}
+  ol.plain li{margin:.6rem 0;font-size:.97rem}
+  ol.plain li b{font-weight:600}
+  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
+  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -103,6 +118,8 @@
 <div class="wrap">
   <nav class="toc" aria-label="Contents"><p class="lab">Contents</p><ol>
     <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+    <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
+    <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
     <li><a href="#axes"><span class="n">◆</span>The two axes</a></li>
     <li><a href="#content"><span class="n">1</span>Content source</a></li>
     <li><a href="#design"><span class="n">2</span>Design source</a></li>
@@ -141,6 +158,35 @@ the in-app browser; never invent facts or testimonials. Synthesise a NEW design 
 design source — don't 1:1 copy a competitor, no lifted brands/assets. Confirm the derived plan
 (design tokens/type, page set, content source, 301 map if any), then build. Report repo + URL.</pre>
       </div>
+    </section>
+
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
+      <div class="flowwrap"><div class="flow">
+        <div class="fnode"><span class="fn">1</span><b>Content</b><span>old site or brief</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">2</span><b>Design</b><span>copy · mix · screenshots</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">3</span><b>System</b><span>colours · type · layout</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">4</span><b>Build</b><span>Astro · SEO · schema</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode gate"><span class="fn">◆</span><b>If old site</b><span>301 its URLs</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode go"><span class="fn">✓</span><b>Live</b><span>keeps earned traffic</span></div>
+      </div></div>
+    </section>
+
+    <section class="block" id="plain">
+      <h2 class="sec"><span class="k">ELI12</span> In plain English</h2>
+      <ol class="plain">
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Decide where the words come from</b> — an old site (we copy them) or a fresh brief.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Decide where the look comes from</b> — copy one site, mix a few, or from screenshots you like.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><b>Turn that into a simple design recipe</b> — colours, fonts, layout.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Build it properly</b> — fast and findable.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>If there was an old site, still save its Google pages</b> so we don't lose visitors.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Result: a brand-new site</b> that keeps any traffic you'd already earned.</li>
+      </ol>
     </section>
 
     <section class="block" id="axes">

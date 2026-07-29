@@ -113,7 +113,22 @@
   .tablewrap{overflow-x:auto}
   footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
   @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
-  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}section.block,.phase{break-inside:avoid}}
+  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}section.block,.phase{break-inside:avoid}.flow{flex-wrap:wrap}}
+  /* ---------- flow diagram + plain-English (ELI12) ---------- */
+  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
+  .fnode{flex:none;width:122px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
+  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
+  .fnode b{font-size:.83rem;line-height:1.15}
+  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
+  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
+  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
+  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
+  ol.plain{margin:.6rem 0;padding-left:1.6rem}
+  ol.plain li{margin:.6rem 0;font-size:.97rem}
+  ol.plain li b{font-weight:600}
+  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
+  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -134,6 +149,8 @@
     <p class="lab">Contents</p>
     <ol>
       <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+      <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
+      <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
       <li><a href="#contract"><span class="n">1</span>Read contract</a></li>
       <li><a href="#keys"><span class="n">2</span>Content-key map</a></li>
       <li><a href="#publish"><span class="n">3</span>Publish gate</a></li>
@@ -179,6 +196,35 @@ content, do NOT build any editing UI. Static config is the DB-first FALLBACK onl
 in one short message (repo name, page map, tables/keys you'll read, the design source you found),
 then go. Report repo + live URL.</pre>
       </div>
+    </section>
+
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
+      <div class="flowwrap"><div class="flow">
+        <div class="fnode"><span class="fn">1</span><b>Point at DB</b><span>club_id + keys</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">2</span><b>Read</b><span>tables + content-keys</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">3</span><b>Fallback</b><span>DB-first, static default</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">4</span><b>Build</b><span>pages · SEO · schema</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode gate"><span class="fn">!</span><b>Publish gate</b><span>website_status</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode go"><span class="fn">✓</span><b>Editable</b><span>client edits, no code</span></div>
+      </div></div>
+    </section>
+
+    <section class="block" id="plain">
+      <h2 class="sec"><span class="k">ELI12</span> In plain English</h2>
+      <ol class="plain">
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></span><b>The site reads its words from a shared box (the database).</b> Nothing is baked in.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 2.8 12V4a1.2 1.2 0 0 1 1.2-1.2H12a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg></span><b>We only use the box's existing labels.</b> Never invent new ones — that breaks the editor.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>If a label's empty, the site shows tidy default text</b> — so it always looks finished.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>We build the pages properly</b> — fast and findable.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Nothing shows to the public until someone hits Publish.</b> Until then it's private.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span><b>Result: the club or business edits their own site</b> in the editor — no code.</li>
+      </ol>
     </section>
 
     <section class="block" id="contract">
