@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { recentMessages, messagingBalance, type RecentMessage, type SmsBalance } from "../lib/superAdmin";
 import { checkProviders, type ProviderStatus } from "../lib/comms";
 import { platformRetention, type PlatformRetention } from "../lib/retention";
+import { getMigrationProgress, type MigrationProgress } from "../lib/siteMigrations";
 
 const MSG_PROVIDERS: { key: keyof ProviderStatus; name: string; manage: string; manageLabel: string; report: string }[] = [
   { key: "sms", name: "SMS · ClickSend", manage: "https://dashboard.clicksend.com/account/billing", manageLabel: "Add credit ↗", report: "https://dashboard.clicksend.com/reports/sms" },
@@ -168,17 +169,25 @@ export function PlatformDashboard({
   const [balance, setBalance] = useState<SmsBalance | null>(null);
   const [recent, setRecent] = useState<RecentMessage[]>([]);
   const [retention, setRetention] = useState<PlatformRetention | null>(null);
+  const [migProg, setMigProg] = useState<MigrationProgress | null>(null);
 
   useEffect(() => {
     if (scope === "mine") return;
     let live = true;
     (async () => {
-      const [p, b, r, ret] = await Promise.all([checkProviders(), messagingBalance(), recentMessages(8), platformRetention()]);
+      const [p, b, r, ret, mig] = await Promise.all([
+        checkProviders(),
+        messagingBalance(),
+        recentMessages(8),
+        platformRetention(),
+        getMigrationProgress(),
+      ]);
       if (!live) return;
       setProviders(p);
       setBalance(b);
       setRecent(r);
       setRetention(ret);
+      setMigProg(mig);
     })();
     return () => {
       live = false;
@@ -378,6 +387,33 @@ export function PlatformDashboard({
                 {d.modules_enabled} enabled across {d.clubs_total} {d.clubs_total === 1 ? "club" : "clubs"}.
               </p>
             </div>
+            {migProg && migProg.total > 0 && (
+              <button
+                type="button"
+                onClick={() => go("__super_migrations")}
+                style={{ ...card, textAlign: "left", cursor: "pointer", font: "inherit", color: "inherit" }}
+                title="Open Site Migrations"
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                  <span style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em" }}>
+                    Site migrations
+                  </span>
+                  <span style={{ fontWeight: 700, color: "#2563eb", fontSize: 14 }}>
+                    {migProg.pct_complete ?? 0}%
+                  </span>
+                </div>
+                <div style={{ fontSize: "1.35rem", fontWeight: 700, margin: "6px 0 8px", color: "#11161f" }}>
+                  {migProg.completed} of {migProg.total} club sites migrated
+                </div>
+                <div style={{ height: 8, borderRadius: 999, background: "#eef0f3", overflow: "hidden" }}>
+                  <div style={{ width: `${migProg.pct_complete ?? 0}%`, height: "100%", background: "#2563eb" }} />
+                </div>
+                <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "#667085" }}>
+                  {migProg.in_progress} in progress · {migProg.migrations} migration
+                  {migProg.migrations === 1 ? "" : "s"} · {migProg.greenfield} green-field
+                </p>
+              </button>
+            )}
             <div style={{ ...card, gridColumn: "1 / -1" }}>
               <div style={{ fontSize: 12, color: "#667085", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 10 }}>
                 Clubs by plan

@@ -12,6 +12,18 @@
 // ============================================================================
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import {
+  getClubMigration,
+  startMigration,
+  setStep as setMigrationStep,
+  stepProgress,
+  STATUS_LABEL as MIG_STATUS_LABEL,
+  type MigrationBoardRow,
+  type MigrationFlow,
+  type StepKey,
+} from "../lib/siteMigrations";
+import { getPlatformDoc, type PlatformDoc } from "../lib/platformDocs";
+import { SopViewer } from "./SopViewer";
 
 // Deployed onboarding-form host. Set VITE_ONBOARDING_URL in Vercel; the fallback
 // keeps local/preview builds working out of the box.
@@ -98,6 +110,16 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
   const [shareErr, setShareErr] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
 
+  // Hosting & DNS: the club's site_migrations record + the migration SOP.
+  const [mig, setMig] = useState<MigrationBoardRow | null>(null);
+  const [showHosting, setShowHosting] = useState(false);
+  const [sopDoc, setSopDoc] = useState<PlatformDoc | null>(null);
+  const [busyStep, setBusyStep] = useState<StepKey | null>(null);
+  const [hostDomain, setHostDomain] = useState("");
+  const [hostFlow, setHostFlow] = useState<MigrationFlow>("greenfield");
+  const [startingHost, setStartingHost] = useState(false);
+  const [hostErr, setHostErr] = useState<string | null>(null);
+
   // Link auto-fills with THIS club's id AND its upload drive (if set) - the form
   // reads both from the URL, so the club gets its own drive + submissions return linked.
   const link =
@@ -113,7 +135,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
         setLoading(false);
         return;
       }
-      const [subRes, clubRes, fbRes] = await Promise.all([
+      const [subRes, clubRes, fbRes, migRow] = await Promise.all([
         supabase
           .from("club_onboarding")
           .select("id,status,submitted_at,created_at,contact_name,contact_email,answers")
@@ -128,6 +150,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           .eq("club_id", club.id)
           .order("created_at", { ascending: false })
           .limit(100),
+        getClubMigration(club.id),
       ]);
       if (!alive) return;
       setSub((subRes.data as Submission) ?? null);
@@ -136,6 +159,8 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
       setSavedDrive(d);
       setPreviewToken((clubRes.data?.preview_token as string) ?? null);
       setFeedback((fbRes.data as FeedbackRow[]) ?? []);
+      setMig(migRow);
+      if (migRow) setHostDomain(migRow.domain);
       setLoading(false);
     })();
     return () => {
@@ -143,8 +168,39 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
     };
   }, [club.id]);
 
+  // Load the migration SOP the first time the Hosting & DNS panel is opened.
+  useEffect(() => {
+    if (showHosting && !sopDoc) getPlatformDoc("migrate-vercel-to-cloudflare").then(setSopDoc);
+  }, [showHosting, sopDoc]);
+
   const submitted = !!sub;
   const actioned = sub?.status === "actioned";
+
+  // Create this club's site_migrations record (onboarding is the entry point).
+  const startHosting = async () => {
+    if (!hostDomain.trim()) {
+      setHostErr("Enter the club's domain first.");
+      return;
+    }
+    setStartingHost(true);
+    setHostErr(null);
+    const { row, error } = await startMigration(club.id, hostDomain, hostFlow, null);
+    setStartingHost(false);
+    if (error || !row) {
+      setHostErr(error ?? "Could not start.");
+      return;
+    }
+    setMig(await getClubMigration(club.id));
+  };
+
+  const toggleMigStep = async (key: StepKey, done: boolean) => {
+    if (!mig) return;
+    setBusyStep(key);
+    setMig({ ...mig, steps: { ...mig.steps, [key]: done } }); // optimistic
+    const error = await setMigrationStep(club.id, key, done);
+    setBusyStep(null);
+    if (error) setMig(await getClubMigration(club.id)); // reconcile on error
+  };
 
   const copy = async (text: string, what: "id" | "link") => {
     try {
@@ -232,6 +288,10 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
     { label: "Send the onboarding link to the club (or fill it in for them)" },
     { label: "Club submits the onboarding form", done: submitted },
     { label: "Review the submission and seed the site (fill-empty)", done: actioned },
+    {
+      label: "Hosting & DNS — deploy to Cloudflare, point DNS (email untouched)",
+      done: mig?.status === "complete",
+    },
     { label: "Build & preview -> approve -> publish. Club is live." },
   ];
 
@@ -418,7 +478,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           ) : (
             <>
               {onOpenInbox && (
-                <div style={{ margin: "6px 0 2px" }}>
+                <div style={{ margin: "6px 0 2px", display: "flex", justifyContent: "flex-end" }}>
                   <button type="button" className="sw-btn" onClick={onOpenInbox}>
                     Open in inbox for triage &rarr;
                   </button>
@@ -463,6 +523,62 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
             </>
           ))}
         </div>
+      </div>
+      {/* HOSTING & DNS — the club's site migration, tracked in site_migrations */}
+      <div className="sw1-onboard-websitecheck" style={{ marginTop: 20, borderTop: "1px solid #e4e4e7", paddingTop: 16 }}>
+        <h4 className="sw1-onboard-title" style={{ fontSize: "1.02rem", margin: "0 0 4px" }}>Hosting &amp; DNS</h4>
+        <p className="sw-admin-note" style={{ margin: "0 0 10px" }}>
+          Deploy this club's site to Cloudflare Pages and point DNS at VentraIP. Club email is never
+          touched. Tracked as one record in Site Migrations.
+        </p>
+
+        {loading ? (
+          <small>Checking hosting status…</small>
+        ) : !mig ? (
+          <div className="sw1-onboard-field" style={{ flexWrap: "wrap", gap: 8 }}>
+            <input
+              value={hostDomain}
+              placeholder="theclub.com.au"
+              onChange={(e) => setHostDomain(e.target.value)}
+              style={{ minWidth: 180 }}
+            />
+            <select value={hostFlow} onChange={(e) => setHostFlow(e.target.value as MigrationFlow)}>
+              <option value="greenfield">Green-field (new on Cloudflare)</option>
+              <option value="migration">Migration (from Vercel)</option>
+            </select>
+            <button type="button" className="sw-btn" disabled={startingHost} onClick={startHosting}>
+              {startingHost ? "Starting…" : "Start hosting setup"}
+            </button>
+            {hostErr && <small className="sw1-onboard-err" style={{ flexBasis: "100%" }}>{hostErr}</small>}
+          </div>
+        ) : (
+          <>
+            <div className={`sw1-onboard-status is-in`} style={{ marginBottom: 10 }}>
+              <span>
+                <strong>{MIG_STATUS_LABEL[mig.status]}</strong>
+                {" — "}
+                {(() => {
+                  const p = stepProgress(mig.steps, mig.flow);
+                  return `${p.done}/${p.total} steps`;
+                })()}
+                {" · "}
+                {mig.flow === "greenfield" ? "green-field" : "migration"}
+              </span>
+              <button type="button" className="sw-btn sw-btn--ghost" onClick={() => setShowHosting((v) => !v)}>
+                {showHosting ? "Hide SOP" : "Open migration SOP"}
+              </button>
+            </div>
+            {showHosting && sopDoc && (
+              <SopViewer
+                doc={sopDoc}
+                contextLabel="Opened from onboarding step: Hosting & DNS"
+                migration={mig}
+                onToggleStep={toggleMigStep}
+                busyStep={busyStep}
+              />
+            )}
+          </>
+        )}
       </div>
     </section>
   );

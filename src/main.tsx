@@ -8,6 +8,7 @@ import "./styles/base.css";
 import "./styles/blocks.css";
 import "./sections/sections.css";
 import "./admin/composer.css";
+import "./styles/migrations.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
