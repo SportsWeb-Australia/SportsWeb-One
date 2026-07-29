@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en-AU" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Business One — Runbook (preview)</title>
+<style>
+  :root{
+    --paper:#f6f2ea; --surface:#fffdf8; --surface-2:#efe7d8;
+    --ink:#1d1710; --ink-soft:#5c5346; --ink-faint:#938876;
+    --line:#e4dccb; --line-soft:#efe8da;
+    --accent:#8a2b3b; --accent-ink:#6f2130; --accent-wash:#f3e5e3;
+    --signal:#8a6d2c; --signal-wash:#f1ead6;
+    --ok:#4a7a4e; --stop:#a33028; --stop-wash:#f5e5e0;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+    --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:760px; --r:10px; --r-sm:7px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#16120c; --surface:#1e1811; --surface-2:#271f14; --ink:#efe6d5; --ink-soft:#b3a892; --ink-faint:#847a67;
+    --line:#2f2718; --line-soft:#241d12; --accent:#d16576; --accent-ink:#e6a0ab; --accent-wash:#2a1a1c;
+    --signal:#c9a85f; --signal-wash:#241d10; --ok:#7bb07e; --stop:#d98a7f; --stop-wash:#2a1815;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#16120c; --surface:#1e1811; --surface-2:#271f14; --ink:#efe6d5; --ink-soft:#b3a892; --ink-faint:#847a67;
+    --line:#2f2718; --line-soft:#241d12; --accent:#d16576; --accent-ink:#e6a0ab; --accent-wash:#2a1a1c;
+    --signal:#c9a85f; --signal-wash:#241d10; --ok:#7bb07e; --stop:#d98a7f; --stop-wash:#2a1815;
+  }
+  :root[data-theme="light"]{
+    --paper:#f6f2ea; --surface:#fffdf8; --surface-2:#efe7d8; --ink:#1d1710; --ink-soft:#5c5346; --ink-faint:#938876;
+    --line:#e4dccb; --line-soft:#efe8da; --accent:#8a2b3b; --accent-ink:#6f2130; --accent-wash:#f3e5e3;
+    --signal:#8a6d2c; --signal-wash:#f1ead6; --ok:#4a7a4e; --stop:#a33028; --stop-wash:#f5e5e0;
+  }
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16.5px;line-height:1.66;-webkit-font-smoothing:antialiased}
+  .label{font-family:var(--font-serif);font-variant:small-caps;letter-spacing:.08em;font-size:.9rem;color:var(--accent-ink);font-weight:600}
+  a{color:var(--accent-ink)}
+  code{font-family:var(--font-mono);font-size:.84em;background:var(--surface-2);padding:.08em .38em;border-radius:4px}
+  header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.4rem;display:flex;align-items:center;gap:1rem}
+  .brand{display:flex;align-items:center;gap:.7rem}
+  .brand .mark{width:30px;height:30px;flex:none;border-radius:50%;background:var(--accent);color:var(--surface);display:grid;place-items:center;font-family:var(--font-serif);font-weight:700;font-size:1rem}
+  .brand b{font-family:var(--font-serif);font-size:1rem;letter-spacing:.01em}
+  .brand span{font-size:.66rem;color:var(--ink-soft);font-variant:small-caps;letter-spacing:.06em}
+  .top-actions{margin-left:auto;display:flex;gap:.4rem}
+  .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:100px;transition:border-color .15s,color .15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.4rem 5rem}
+  .badge{display:inline-block;font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--signal);border:1px solid var(--signal);border-radius:100px;padding:.2rem .6rem;margin-top:2.4rem}
+  h1{font-family:var(--font-serif);font-size:clamp(2rem,1.4rem+2.7vw,3.1rem);line-height:1.06;letter-spacing:-.01em;font-weight:700;margin:1rem 0 .5rem;text-wrap:balance}
+  .lede{font-size:1.14rem;color:var(--ink-soft);margin:0}
+  .rule{height:1px;background:var(--line);margin:2.4rem 0;border:0}
+  .rule.orn{height:auto;background:none;text-align:center;color:var(--accent);font-family:var(--font-serif);letter-spacing:.5em;margin:2.6rem 0}
+  h2{font-family:var(--font-serif);font-size:1.5rem;font-weight:700;letter-spacing:-.005em;margin:2.6rem 0 .3rem;text-wrap:balance}
+  h2 .no{color:var(--accent);font-size:1rem;font-variant:normal;margin-right:.5rem}
+  h3{font-family:var(--font-serif);font-size:1.12rem;margin:1.6rem 0 .3rem}
+  p{margin:.5rem 0}
+  .muted{color:var(--ink-soft)}
+  .callout{border:1px solid var(--line);border-left-width:3px;border-radius:var(--r-sm);padding:.85rem 1.05rem;margin:1.2rem 0;font-size:.96rem;background:var(--surface)}
+  .callout.accent{border-left-color:var(--accent);background:var(--accent-wash)}
+  .callout.stop{border-left-color:var(--stop);background:var(--stop-wash)}
+  .callout.brass{border-left-color:var(--signal);background:var(--signal-wash)}
+  .callout b{color:var(--accent-ink)}
+  .tablewrap{overflow-x:auto;margin:1rem 0}
+  table{width:100%;border-collapse:collapse;font-size:.92rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-family:var(--font-serif);font-variant:small-caps;letter-spacing:.06em;font-size:.9rem;color:var(--accent-ink);background:var(--surface-2)}
+  tr:last-child td{border-bottom:0}
+  td b{font-weight:600}
+  td code,td .kk{font-family:var(--font-mono);font-size:.82em;color:var(--signal)}
+  ul.clean{margin:.6rem 0;padding-left:1.15rem}ul.clean li{margin:.35rem 0}
+  .pageset li b{font-family:var(--font-serif);font-size:1.02em}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.1rem 0}@media(max-width:640px){.cards{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:1rem 1.1rem}
+  .card h3{margin:.1rem 0 .3rem}.card p{font-size:.92rem;color:var(--ink-soft);margin:.2rem 0}
+  .card .k{font-family:var(--font-mono);font-size:.68rem;color:var(--signal)}
+  .keys{font-family:var(--font-mono);font-size:.82rem;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:.7rem .9rem;margin:.6rem 0;line-height:1.9;color:var(--ink-soft);overflow-x:auto}
+  .keys b{color:var(--accent-ink);font-family:var(--font-mono)}
+  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.4rem 3rem;color:var(--ink-faint);font-size:.82rem;font-style:italic;border-top:1px solid var(--line)}
+  @media print{header.top,.top-actions{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand"><div class="mark" aria-hidden="true">B1</div><div><b>Business One</b><br><span>Runbook · reference</span></div></div>
+  <div class="top-actions"><button class="btn" id="themeBtn" type="button">◐ Theme</button><button class="btn" onclick="window.print()" type="button">Print</button></div>
+</div></header>
+
+<main>
+  <span class="badge">Preview · temporary — hosted in SW1 until Business One ships</span>
+  <h1>Business One — building &amp; migrating business sites.</h1>
+  <p class="lede">The business-site sibling of SportsWeb One. Same architecture and standards; a different content model — business pages, not club pages. This is the reference until Business One stands up its own editor.</p>
+
+  <div class="rule orn">§ · §</div>
+
+  <p class="label">01 — What changes</p>
+  <h2><span class="no">01</span>How Business One differs</h2>
+  <p class="muted">Same machinery as SportsWeb One — Astro SSR, database-first with a static fallback, a runtime-neutral loader, the <code>website_status='published'</code> publish gate, a public media bucket. What changes is the <b>content model</b>: business pages and collections, business design language (never fixtures, ladders, president's welcome or “join the club”).</p>
+
+  <p class="label">02 — The page set</p>
+  <h2><span class="no">02</span>Standard business pages</h2>
+  <p class="muted">The default multi-page set — drop what a business doesn't need. Every page answers real questions in real HTML (S6), carries per-page SEO + schema (S4/S5), and uses real CTAs (S12).</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Page</th><th>Contains</th><th>Schema</th></tr></thead>
+    <tbody>
+      <tr><td><b>Home</b></td><td>Hero (what you do + area + CTA), services snapshot, why-us / trust, featured work, testimonials, service area, quote CTA</td><td><span class="kk">WebPage · LocalBusiness</span></td></tr>
+      <tr><td><b>About</b></td><td>Story, principal / team, years &amp; experience, credentials &amp; licences, values</td><td><span class="kk">AboutPage · Person</span></td></tr>
+      <tr><td><b>Services</b></td><td>Overview + a section (or page) per service answering the S6 ten questions</td><td><span class="kk">Service</span></td></tr>
+      <tr><td><b>Our Work</b></td><td>Real case studies (name, location, problem, scope, materials, solution, outcome, photos) + gallery</td><td><span class="kk">CreativeWork</span></td></tr>
+      <tr><td><b>Reviews</b></td><td>Real testimonials with names (visible content)</td><td><span class="kk">— no self-serving rating</span></td></tr>
+      <tr><td><b>Contact / Quote</b></td><td>Quote form (real endpoint), phone/email, hours, <b>embedded map + directions</b>, NAP, service area</td><td><span class="kk">ContactPage</span></td></tr>
+      <tr><td><b>Optional</b></td><td>Pricing / Packages · FAQ (genuine Q&amp;A) · genuine Location pages</td><td><span class="kk">Offer · FAQPage</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout brass"><b style="color:var(--signal)">Single-page option.</b> Small trades often want a one-pager: the same sections as anchor blocks on one route. Keep every fact in real HTML, use real <code>mailto:</code>/<code>tel:</code> CTAs, and — if it replaces an old multi-URL site — 301 the old server-visible URLs while keeping matching section <code>id</code>s (S9). Default to genuine multi-page where there's enough real content (S3).</div>
+
+  <p class="label">03 — The editable model</p>
+  <h2><span class="no">03</span>Editable content model</h2>
+  <p class="muted">Analogous to SW1's key/value + content tables, business-shaped. Final names land with Business One's schema — keep to this shape.</p>
+  <h3>Text &amp; media keys</h3>
+  <div class="keys"><b>hero.eyebrow</b> · <b>hero.title</b> · <b>hero.subtitle</b> · <b>hero.image</b> · <b>branding.logo</b> · <b>about.body.0</b> · <b>about.photo</b> · <b>why.*</b> · <b>contact.email</b> · <b>contact.phone</b> · <b>contact.address</b> · <b>contact.hours</b> · <b>contact.map</b> · <b>footer.*</b> · <b>site.variant</b> · <b>page.{page}.eyebrow/.title/.intro</b></div>
+  <h3>Collections <span class="muted" style="font-size:.85rem">(kept out of components — S18/S19, so B1 can source them later)</span></h3>
+  <ul class="clean muted">
+    <li><b>services</b> — name, summary, detail, who-for, process, pricing factors, area, image</li>
+    <li><b>projects</b> — name, location, date, client type, problem, scope, materials, solution, outcome, images, testimonial, related service/location</li>
+    <li><b>testimonials</b> — name, role/business, quote</li>
+    <li><b>team</b> — name, role, bio, credentials, photo</li>
+  </ul>
+  <p class="muted">Brand colours on the business record via a gated RPC. <b>Publish gate identical to SW1</b> — nothing is public until <code>website_status='published'</code>.</p>
+
+  <p class="label">04 — Building one</p>
+  <h2><span class="no">04</span>How to build a Business One site</h2>
+  <div class="cards">
+    <div class="card"><span class="k">NEW BUILD</span><h3>Build from scratch</h3><p>New design, new structure. Content from an old site (if any) and/or design from inspiration sites + screenshots.</p><p class="muted">→ <code>SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md</code></p></div>
+    <div class="card"><span class="k">LIVE CUTOVER</span><h3>Migrate a live site</h3><p>Replace an existing business site without losing earned traffic — baseline → parity → cutover → watch.</p><p class="muted">→ <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code></p></div>
+  </div>
+  <div class="callout accent"><b>Local &amp; maps matter most for trades (S7).</b> Keep NAP identical across the site, the schema and the Google Business Profile; set <code>areaServed</code>; embed a map with directions; update the GBP website link on cutover. Only build a location page where real local evidence exists — no thin suburb pages.</div>
+  <p class="muted">Editable wiring follows <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> with the business model above instead of the club one. Deploy on Vercel (business playbook) or Cloudflare — provider-neutral (S17).</p>
+
+  <div class="rule"></div>
+  <div class="callout stop"><b style="color:var(--stop)">Guardrails.</b> Never invent content, logos, testimonials, credentials, reviews or stats — record gaps as <code>[CLIENT TO SUPPLY]</code>. Inspiration is patterns, never a competitor's brand or assets. Never touch a live domain/DNS without sign-off. If replacing a live site, its earned SEO is a deliverable — inventory + 301 it.</div>
+</main>
+
+<footer class="foot">Business One Runbook (preview) — source: BUSINESS-ONE-RUNBOOK.md, SPORTSWEB-BUSINESS-SITE-PLAYBOOK.md, and the shared standards S1–S20. Removed from SW1 once Business One ships its own editor.</footer>
+
+<script>
+(function(){var root=document.documentElement,btn=document.getElementById('themeBtn');
+btn&&btn.addEventListener('click',function(){var c=root.getAttribute('data-theme');root.setAttribute('data-theme',c==='dark'?'light':(c==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark')));});})();
+</script>
+</body>
+</html>

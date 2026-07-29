@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-AU" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SOP · Build from Scratch — SportsWeb / Business One</title>
+<style>
+  :root{
+    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
+    --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
+    --line:#dbe2df; --line-soft:#e8edea;
+    --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
+    --signal:#a8641a; --signal-wash:#f8ede0;
+    --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
+    --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:1160px; --rail:236px; --r:10px; --r-sm:7px;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226; --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628; --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113; --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226; --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628; --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113; --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+  }
+  :root[data-theme="light"]{
+    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0; --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
+    --line:#dbe2df; --line-soft:#e8edea; --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
+    --signal:#a8641a; --signal-wash:#f8ede0; --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
+  }
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  a{color:var(--accent-ink)}
+  code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
+  .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
+  .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
+  .brand .mark{width:30px;height:30px;flex:none;border-radius:7px;background:var(--accent);position:relative;overflow:hidden}
+  .brand .mark::before,.brand .mark::after{content:"";position:absolute;top:-20%;height:140%;width:22%;background:var(--surface);transform:skewX(-16deg)}
+  .brand .mark::before{left:26%}.brand .mark::after{left:56%;background:color-mix(in srgb,var(--surface) 55%,var(--accent))}
+  .brand b{font-size:.92rem;letter-spacing:-.01em;white-space:nowrap}
+  .brand span{font-family:var(--font-mono);font-size:.66rem;color:var(--ink-soft);letter-spacing:.04em}
+  .top-actions{margin-left:auto;display:flex;gap:.4rem}
+  .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
+  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0}
+  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
+  nav.toc ol{list-style:none;margin:0;padding:0}
+  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem}
+  nav.toc a:hover{color:var(--ink)}nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
+  main{min-width:0;padding-bottom:5rem}
+  .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
+  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r-sm);background:var(--accent-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem}
+  .hero .directive b{color:var(--accent-ink)}
+  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
+  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
+  .chip b{color:var(--ink);font-weight:600}
+  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
+  h2.sec{font-size:1.02rem;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
+  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:1.1rem 1.2rem}
+  .card .axis{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
+  .card h3{margin:.3rem 0 .6rem;font-size:1.1rem}
+  .card h4{margin:.9rem 0 .2rem;font-size:.92rem;color:var(--accent-ink)}
+  .card p{margin:.2rem 0;color:var(--ink-soft);font-size:.9rem}
+  .card ul{margin:.3rem 0 0;padding-left:1.1rem}.card li{margin:.28rem 0;font-size:.9rem;color:var(--ink-soft)}
+  .phase{position:relative;padding:1.1rem 0 1.1rem 3.4rem;border-top:1px solid var(--line-soft)}.phase:first-of-type{border-top:0}
+  .phase .num{position:absolute;left:0;top:1.1rem;width:2.4rem;height:2.4rem;border-radius:9px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;color:var(--accent-ink)}
+  .phase h3{margin:.1rem 0 .2rem;font-size:1.05rem}.phase p{margin:0;color:var(--ink-soft);font-size:.93rem}
+  .code{margin:.9rem 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+  .code.prompt{border-color:color-mix(in srgb,var(--signal) 55%,var(--line))}
+  .code-head{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
+  .code.prompt .code-head{background:var(--signal-wash)}
+  .code-head .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
+  .copy{font:inherit;font-family:var(--font-mono);font-size:.68rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.28rem .6rem;border-radius:5px;margin-left:auto}
+  .copy:hover{border-color:var(--accent);color:var(--accent-ink)}.copy.done{border-color:var(--ok);color:var(--ok)}
+  pre{margin:0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+  .fill{color:var(--signal);font-weight:600}
+  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem}
+  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
+  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
+  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
+  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono)}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
+  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand"><div class="mark" aria-hidden="true"></div><div style="min-width:0"><b>SW1 · Operations Runbook</b><br><span>SportsWeb One / Business One</span></div></div>
+  <div class="top-actions"><button class="btn" id="themeBtn" type="button">◐ Theme</button><button class="btn" onclick="window.print()" type="button">⎙ Print</button></div>
+</div></header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents"><p class="lab">Contents</p><ol>
+    <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+    <li><a href="#axes"><span class="n">◆</span>The two axes</a></li>
+    <li><a href="#content"><span class="n">1</span>Content source</a></li>
+    <li><a href="#design"><span class="n">2</span>Design source</a></li>
+    <li><a href="#process"><span class="n">→</span>Process</a></li>
+    <li><a href="#single"><span class="n">▤</span>Single vs multi-page</a></li>
+    <li><a href="#guard"><span class="n">✕</span>Guardrails</a></li>
+  </ol></nav>
+
+  <main>
+    <div class="hero">
+      <p class="eyebrow">Standard Operating Procedure · Build from Scratch</p>
+      <h1>Build a new site — content from an old site if there is one, design from anything that inspires it.</h1>
+      <p class="lede">For a fresh build (new design, new structure) rather than a like-for-like copy. Two things are decided <b>independently</b>: where the <b>content</b> comes from, and where the <b>design</b> comes from. Works for both club and business sites.</p>
+      <div class="directive"><span aria-hidden="true">◆</span><div><b>Content and design are separate choices.</b> You can harvest content from an old site <em>and</em> synthesise a brand-new design from three sites the client screenshotted — mix freely. <b>If an old site exists, its earned SEO is still a deliverable</b> — inventory the URLs and 301-map them even on a full redesign.</div></div>
+      <div class="meta-row"><span class="chip">Content&nbsp;<b>old site or brief</b></span><span class="chip">Design&nbsp;<b>replicate / inspire / screenshots</b></span><span class="chip">Stack&nbsp;<b>Astro</b></span><span class="chip">Law&nbsp;<b>S1–S20</b></span></div>
+    </div>
+
+    <section class="block" id="run">
+      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste.</p>
+      <div class="code prompt"><div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
+<pre id="k-run">You're Codey. Build a NEW site per the Build-from-Scratch SOP
+(~/Developer/sportsweb-standards/SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md), law
+SPORTSWEB-WEB-STANDARDS.md (S1–S20).
+
+Client: {{NAME}}    Type: {{sports club | business}}
+CONTENT source: {{old site at OLD_URL}} | {{client brief — no old site}}
+DESIGN source: {{replicate SITE_URL}} | {{inspiration: URL1, URL2, URL3}}
+               | {{screenshots attached}} | {{from the brand's logo/collateral}}
+Host: {{Vercel | Cloudflare}} (Astro).
+
+Decide content and design independently. If an old site exists, ALSO inventory its URLs and
+build the 1:1 301 map so earned SEO transfers (Migration Phase 0). Harvest real content via
+the in-app browser; never invent facts or testimonials. Synthesise a NEW design system from the
+design source — don't 1:1 copy a competitor, no lifted brands/assets. Confirm the derived plan
+(design tokens/type, page set, content source, 301 map if any), then build. Report repo + URL.</pre>
+      </div>
+    </section>
+
+    <section class="block" id="axes">
+      <h2 class="sec"><span class="k">CHOOSE</span> The two axes — decided separately</h2>
+      <div class="grid2">
+        <div class="card" id="content">
+          <span class="axis">Axis 1</span>
+          <h3>Where the content comes from</h3>
+          <h4>An old site exists</h4>
+          <p>Harvest it — don't re-key by hand. Render each page in the in-app browser, <code>get_page_text</code>, scroll + sweep the DOM/network for images across all hosts. Mine every real fact into <code>CONTENT-BRIEF.md</code>, then <b>improve</b> it (seek real experience, credentials, process, pricing factors, proof). Gaps → <code>[CLIENT TO SUPPLY]</code>.</p>
+          <h4>No old site</h4>
+          <p>Work from the client brief into <code>CONTENT-BRIEF.md</code>; everything unknown is a clearly-marked placeholder. Never fabricate facts, testimonials or stats.</p>
+        </div>
+        <div class="card" id="design">
+          <span class="axis">Axis 2</span>
+          <h3>Where the design comes from</h3>
+          <ul>
+            <li><b>Replicate one live site</b> — read its CSS (tokens, type, spacing) and rebuild it clean, one direction.</li>
+            <li><b>Inspiration from N sites</b> — capture what works across several, then <b>synthesise a NEW system</b>; don't copy any one 1:1, never lift a competitor's brand or assets.</li>
+            <li><b>From screenshots</b> — read the images: sample the palette, read the type feel, layout and mood; ask for the source URL when a still misses hover/gallery states.</li>
+            <li><b>From the brand</b> — palette from the logo (colour-count the PNG) + collateral; fonts to match the sector tone.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout note"><span class="ic">i</span><div>Record the derived design system (4–6 colours, 2–3 type roles, a layout concept) in <code>CONTENT-BRIEF.md</code> <b>before</b> building — the same way whatever the design source was.</div></div>
+    </section>
+
+    <section class="block" id="process">
+      <h2 class="sec"><span class="k">FLOW</span> Process</h2>
+      <div class="phase"><div class="num">1</div><h3>Capture design sources → derive the system</h3><p>Replicate target, inspiration sites, or screenshots → 4–6 colours, 2–3 type roles, a layout concept. Record it.</p></div>
+      <div class="phase"><div class="num">2</div><h3>Build the content brief</h3><p>Old-site harvest or client brief → <code>CONTENT-BRIEF.md</code>; flag conflicts + gaps, never invent (S1/S2).</p></div>
+      <div class="phase"><div class="num">3</div><h3>If an old site exists — inventory + 301 map</h3><p>Run Migration Phase 0 in parallel (URL inventory + 1:1 301 map) so earned SEO transfers even on a redesign. See the Live-Site Migration SOP.</p></div>
+      <div class="phase"><div class="num">4</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). Content in Astro collections (S18).</p></div>
+      <div class="phase"><div class="num">5</div><h3>Stage → sign-off → deploy → cut over</h3><p>Staging noindex (S10) → sign-off → deploy → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16).</p></div>
+    </section>
+
+    <section class="block" id="single">
+      <h2 class="sec"><span class="k">SHAPE</span> Single-page vs multi-page</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Small businesses/trades sometimes want a <b>one-pager</b>. Allowed, deliberately: build the standard sections as anchor blocks on one route, but keep every essential fact in real HTML (not only widgets), use real <code>mailto:</code>/<code>tel:</code> CTAs (S12), and — if it replaces an old multi-URL site — 301 the old server-visible URLs while keeping matching section <code>id</code>s so old fragment links still land (S9). Default to genuine multi-page (S3) where there's enough real content.</p>
+    </section>
+
+    <section class="block" id="guard">
+      <h2 class="sec"><span class="k">STOP</span> Guardrails</h2>
+      <div class="callout stop"><span class="ic">!</span><div>Never invent content, logos, testimonials, credentials, reviews or stats. Never clone a competitor's brand or site — <b>inspiration is patterns, not assets</b>. Never touch a live domain/DNS without sign-off. If you're replacing a live site, the earned SEO is a first-class deliverable — inventory + 301 it, don't lose it.</div></div>
+      <p style="color:var(--ink-soft);font-size:.85rem">Source: <code>SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md</code> · companions: <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code>, <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>, <code>SPORTSWEB-WEB-STANDARDS.md</code>.</p>
+    </section>
+  </main>
+</div>
+<footer class="foot">SW1 Operations Runbook · Build-from-Scratch SOP · access: platform admins only.</footer>
+<script>
+(function(){var root=document.documentElement,btn=document.getElementById('themeBtn');
+btn&&btn.addEventListener('click',function(){var c=root.getAttribute('data-theme');root.setAttribute('data-theme',c==='dark'?'light':(c==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark')));});
+document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click',function(){var el=document.getElementById(b.getAttribute('data-copy'));if(!el)return;navigator.clipboard&&navigator.clipboard.writeText(el.innerText).then(function(){var o=b.textContent;b.textContent='✓ Copied';b.classList.add('done');setTimeout(function(){b.textContent=o;b.classList.remove('done');},1600);});});});})();
+</script>
+</body>
+</html>
