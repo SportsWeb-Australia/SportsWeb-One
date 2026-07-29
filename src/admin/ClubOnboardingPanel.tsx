@@ -244,67 +244,16 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
         {loading ? (
           <span>Checking onboarding status...</span>
         ) : submitted ? (
-          <>
-            <span>
-              <strong>{STATUS_LABEL[sub!.status] ?? sub!.status}</strong>
-              {" - submitted "}
-              {fmt(sub!.submitted_at ?? sub!.created_at)}
-              {sub!.contact_name ? ` by ${sub!.contact_name}` : ""}
-            </span>
-            <button type="button" className="sw-btn sw-btn--ghost" onClick={() => setShowDetails((v) => !v)}>
-              {showDetails ? "Hide details" : "View submitted details"}
-            </button>
-          </>
+          <span>
+            <strong>{STATUS_LABEL[sub!.status] ?? sub!.status}</strong>
+            {" - submitted "}
+            {fmt(sub!.submitted_at ?? sub!.created_at)}
+            {sub!.contact_name ? ` by ${sub!.contact_name}` : ""}
+          </span>
         ) : (
           <span>Not submitted yet - send the club their onboarding link below.</span>
         )}
       </div>
-
-      {/* SUBMITTED ANSWERS + UPLOADED FILES (inline drill-down) */}
-      {submitted && showDetails && (
-        <div className="sw1-onboard-answers">
-          {(sub!.answers?.sections ?? []).length === 0 && (
-            <small>No structured answers captured.</small>
-          )}
-          {(sub!.answers?.sections ?? []).map((s: any, i: number) => (
-            <div key={i} className="sw1-onboard-ansec">
-              <h4>{s.section}</h4>
-              {(s.fields ?? []).map((f: any, j: number) => (
-                <div key={j} className="sw1-onboard-kv">
-                  <span className="k">{f.label}</span>
-                  <span className="v">{f.value}</span>
-                </div>
-              ))}
-              {(s.choices ?? []).length > 0 && (
-                <div className="sw1-onboard-chips">
-                  {s.choices.map((c: string, k: number) => (
-                    <span key={k}>{c}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-          {(sub!.answers?.uploads ?? []).length > 0 && (
-            <div className="sw1-onboard-ansec">
-              <h4>Uploaded files</h4>
-              {sub!.answers.uploads.map((u: any, i: number) => (
-                <div key={i} className="sw1-onboard-kv">
-                  <span className="k">{u.label}</span>
-                  <span className="v">
-                    {u.path ? (
-                      <button type="button" className="sw-btn sw-btn--ghost" onClick={() => openFile(u.path)}>
-                        {u.name} &darr;
-                      </button>
-                    ) : (
-                      <em>{u.name} - {u.error || "not uploaded"}</em>
-                    )}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* PROGRESS CHECKLIST */}
       <ol className="sw1-onboard-steps">
@@ -364,7 +313,60 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           </a>
         </div>
         <small>Send this to the club - their submission comes back linked to this club automatically.</small>
+        {submitted && (
+          <div className="sw1-onboard-submitted">
+            <button type="button" className="sw-btn sw-btn--ghost" onClick={() => setShowDetails((v) => !v)}>
+              {showDetails ? "Hide submitted details" : "View submitted details"}
+            </button>
+          </div>
+        )}
       </label>
+
+      {/* SUBMITTED ANSWERS + UPLOADED FILES (inline drill-down) */}
+      {submitted && showDetails && (
+        <div className="sw1-onboard-answers">
+          {(sub!.answers?.sections ?? []).length === 0 && (
+            <small>No structured answers captured.</small>
+          )}
+          {(sub!.answers?.sections ?? []).map((s: any, i: number) => (
+            <div key={i} className="sw1-onboard-ansec">
+              <h4>{s.section}</h4>
+              {(s.fields ?? []).map((f: any, j: number) => (
+                <div key={j} className="sw1-onboard-kv">
+                  <span className="k">{f.label}</span>
+                  <span className="v">{f.value}</span>
+                </div>
+              ))}
+              {(s.choices ?? []).length > 0 && (
+                <div className="sw1-onboard-chips">
+                  {s.choices.map((c: string, k: number) => (
+                    <span key={k}>{c}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          {(sub!.answers?.uploads ?? []).length > 0 && (
+            <div className="sw1-onboard-ansec">
+              <h4>Uploaded files</h4>
+              {sub!.answers.uploads.map((u: any, i: number) => (
+                <div key={i} className="sw1-onboard-kv">
+                  <span className="k">{u.label}</span>
+                  <span className="v">
+                    {u.path ? (
+                      <button type="button" className="sw-btn sw-btn--ghost" onClick={() => openFile(u.path)}>
+                        {u.name} &darr;
+                      </button>
+                    ) : (
+                      <em>{u.name} - {u.error || "not uploaded"}</em>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* WEBSITE CHECK - draft-review link + returning SitePulse feedback */}
       <div className="sw1-onboard-websitecheck" style={{ marginTop: 20, borderTop: "1px solid #e4e4e7", paddingTop: 16 }}>
