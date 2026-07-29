@@ -19,7 +19,7 @@ import b1 from "./guides/b1-runbook.html?raw";
 type Guide = { key: string; group: string; label: string; blurb: string; html: string };
 
 const GUIDES: Guide[] = [
-  { key: "migration", group: "SportsWeb One", label: "Live-Site Migration", blurb: "Move a live site to a rebuilt Astro site on Vercel without losing earned traffic.", html: migration },
+  { key: "migration", group: "SportsWeb One", label: "Live-Site Migration", blurb: "Move a live site to a rebuilt Astro site (Cloudflare or Vercel) without losing earned traffic.", html: migration },
   { key: "editable", group: "SportsWeb One", label: "Build an Editable Site", blurb: "Build a DB-driven site edited through this platform (read contract + publish gate).", html: editableBuild },
   { key: "scratch", group: "SportsWeb One", label: "Build from Scratch", blurb: "New build: content from an old site if any, design from inspiration sites + screenshots.", html: scratch },
   { key: "editor", group: "SportsWeb One", label: "Editor — How-To", blurb: "Step-by-step of this editor for you and the manager: edit, preview, publish.", html: editor },

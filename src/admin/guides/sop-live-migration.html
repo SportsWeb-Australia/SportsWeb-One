@@ -183,6 +183,22 @@
   .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
   .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
+  /* ---------- summary card + attach hint ---------- */
+  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
+  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
+  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
+  .summary .r.stuck .l{color:var(--stop)}
+  .summary .r .v{flex:1;min-width:0}
+  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
+  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
+  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
+  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
+  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
+  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
+  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
+  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
+  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
   @media print{
     header.top,nav.toc,.top-actions,.copy{display:none!important}
     .wrap{display:block}body{background:#fff}
@@ -212,9 +228,10 @@
   <nav class="toc" aria-label="Contents">
     <p class="lab">Phases</p>
     <ol>
-      <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
       <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
-      <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
+      <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
+      <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
       <li><a href="#gexport"><span class="n">↧</span>Google export</a></li>
       <li><a href="#p0"><span class="n">0</span>SEO baseline</a></li>
       <li><a href="#p1"><span class="n">1</span>Content + images</a></li>
@@ -234,56 +251,35 @@
     <div class="hero">
       <p class="eyebrow">Standard Operating Procedure · Live-Site Migration</p>
       <h1>Move a live site to a new build — without losing the traffic it already earns.</h1>
-      <p class="lede">For migrating an existing website (with real SEO equity) to a rebuilt <b>Astro</b> site on <b>Vercel</b>, left ready to wire into <b>Business One</b>. The prime directive is a clean cutover that carries every earned ranking across intact.</p>
+      <p class="lede">For migrating an existing website (with real SEO equity) to a rebuilt <b>Astro</b> site on <b>Cloudflare or Vercel</b>, left ready to wire into <b>Business One</b>. The prime directive is a clean cutover that carries every earned ranking across intact.</p>
       <div class="directive">
         <span aria-hidden="true">⚑</span>
         <div><b>Prime directive — zero traffic loss.</b> Capture the SEO baseline <b>first</b>, rebuild at parity-or-better, map every old URL 1-to-1, and never touch DNS without sign-off. A ranking that drops on cutover is the one failure this SOP exists to prevent.</div>
       </div>
       <div class="meta-row">
-        <span class="chip">Stack&nbsp;<b>Astro · Vercel</b></span>
+        <span class="chip">Stack&nbsp;<b>Astro · Cloudflare/Vercel</b></span>
         <span class="chip">Later&nbsp;<b>Business One DB</b></span>
         <span class="chip">Law&nbsp;<b>Web-Standards S1–S20</b></span>
         <span class="chip">Access&nbsp;<b>You + SW1 manager</b></span>
       </div>
     </div>
 
-    <!-- RUN -->
-    <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a job — paste this into a fresh chat</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Open a new Claude Code chat, fill the <span class="fill">highlighted</span> fields, and paste. It reads the SOP and the standards, confirms the plan once, then works Phase&nbsp;0 → 7.</p>
-      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
-      <div class="code prompt">
-        <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
-<pre id="k-run">You're Codey. Run the SportsWeb / Business One Live-Site Migration SOP
-(~/Developer/sportsweb-standards/SPORTSWEB-LIVE-MIGRATION-SOP.md) end to end, and treat
-~/Developer/sportsweb-standards/SPORTSWEB-WEB-STANDARDS.md (S1–S20) as pass/fail law.
-
-Live site to migrate (SEO SOURCE — preserve its equity): {{LIVE_URL}}
-Target design: {{same as existing, improved}} | {{new design at DESIGN_URL}}
-               | {{new design — inspiration sites/screenshots (see Build from Scratch)}}
-Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
-Stack/host: Astro, Business-One-ready (content collections), deployed on Vercel.
-SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
-Google Business Profile [ ] · registrar/DNS [ ] · a backlink tool [ ].
-If I've ticked Search Console, its exports are attached (Performance → Pages + Queries; Indexing →
-Pages) — USE those CSV/Sheet files as the authoritative URL + ranking list for the 301 map (every
-page must get a matching new page, 301'd if the URL changes). If not attached, reconstruct the list
-from a crawl + a site: search + the Wayback Machine.
-
-This is a live cutover, so the goal is zero traffic loss: capture the SEO baseline FIRST,
-rebuild at parity-or-better, map every old URL 1:1, and don't touch DNS without my sign-off.
-Confirm the derived plan in one short message (repo name, page + URL inventory, the 301 map
-skeleton, what SEO access I gave you, same-domain vs new-domain), then go. Deploy to a
-*.vercel.app staging URL (noindex) for my review and hand me the exact DNS records for cutover.
-Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-live runbook.</pre>
+    <!-- SUMMARY -->
+    <section class="block" id="summary">
+      <h2 class="sec"><span class="k">TL;DR</span> At a glance</h2>
+      <div class="summary">
+        <div class="r"><span class="l">Objective</span><span class="v">Move your website to a faster new one and keep every visitor Google already sends you.</span></div>
+        <div class="r"><span class="l">Process</span><span class="v">You hand Codey two Google files + one prompt → Codey copies your old site &amp; builds the new one → you preview it → you flip the web address → we watch the visitors for a few weeks.</span></div>
+        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · your two Search Console files (<a href="#gexport">how to get them ↓</a>). Codey does the building.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">A cleaner, faster site on the same web address, with your Google visitors kept.</span></div>
+        <div class="r stuck"><span class="l">If stuck</span><span class="v">Old site won't open? Codey grabs a saved copy (Wayback) + your Google files. Visitors drop after the switch? Tell Codey — it re-checks and fixes the page it broke.</span></div>
       </div>
-      <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap. <b>No logins are shared</b> — you <em>export</em> the reports (Performance → top pages + queries; Indexing/Pages → indexed URLs) and paste them in; Codey never signs into your Google account, and you make the DNS change yourself from the records it hands you.</div></div>
     </section>
 
     <!-- FLOW -->
     <section class="block" id="flow">
       <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Left to right — the whole job. The one hard stop is the <b>parity gate</b>: nothing cuts over until every earning URL is matched-or-better and 301-mapped.</p>
+      <p style="color:var(--ink-soft);margin-top:0">Left to right — the whole job. The one hard stop is the <b>parity gate</b>: nothing goes live until every page Google sends visitors to is on the new site and just as good.</p>
       <div class="flowwrap"><div class="flow">
         <div class="fnode"><span class="fn">0</span><b>Baseline</b><span>URLs + 301 skeleton</span></div>
         <div class="fconn">→</div>
@@ -305,20 +301,63 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
       </div></div>
     </section>
 
-    <!-- PLAIN ENGLISH -->
+    <!-- RUN -->
+    <section class="block" id="run">
+      <h2 class="sec"><span class="k">RUN</span> Start a job — paste this into a fresh chat</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Open a new Claude Code chat, fill the <span class="fill">highlighted</span> fields, and paste. It reads the SOP and the standards, confirms the plan once, then works Phase&nbsp;0 → 7.</p>
+      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
+      <p class="usage"><b>When</b> to start the whole job — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, drop your Google files on the message box, paste this under them, fill the blanks, press Enter.</p>
+      <div class="code prompt">
+        <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
+<pre id="k-run">You're Codey. Run the SportsWeb / Business One Live-Site Migration SOP
+(~/Developer/sportsweb-standards/SPORTSWEB-LIVE-MIGRATION-SOP.md) end to end, and treat
+~/Developer/sportsweb-standards/SPORTSWEB-WEB-STANDARDS.md (S1–S20) as pass/fail law.
+
+Live site to migrate (SEO SOURCE — preserve its equity): {{LIVE_URL}}
+Target design: {{same as existing, improved}} | {{new design at DESIGN_URL}}
+               | {{new design — inspiration sites/screenshots (see Build from Scratch)}}
+Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
+Stack/host: Astro, Business-One-ready (content collections). Host: {{Cloudflare}} | {{Vercel}}.
+SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
+Google Business Profile [ ] · registrar/DNS [ ] · a backlink tool [ ].
+If I've ticked Search Console, its exports are attached (Performance → Pages + Queries; Indexing →
+Pages) — USE those CSV/Sheet files as the authoritative URL + ranking list for the 301 map (every
+page must get a matching new page, 301'd if the URL changes). If not attached, reconstruct the list
+from a crawl + a site: search + the Wayback Machine.
+
+This is a live cutover, so the goal is zero traffic loss: capture the SEO baseline FIRST,
+rebuild at parity-or-better, map every old URL 1:1, and don't touch DNS without my sign-off.
+Confirm the derived plan in one short message (repo name, page + URL inventory, the 301 map
+skeleton, what SEO access I gave you, same-domain vs new-domain), then go. Deploy to a
+*.vercel.app staging URL (noindex) for my review and hand me the exact DNS records for cutover.
+Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-live runbook.</pre>
+      </div>
+      <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap. <b>No logins are shared</b> — you <em>export</em> the reports (Performance → top pages + queries; Indexing/Pages → indexed URLs) and paste them in; Codey never signs into your Google account, and you make the DNS change yourself from the records it hands you.</div></div>
+    </section>
+
+    <!-- START HERE -->
     <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> In plain English — the whole job</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The same steps as the diagram, said simply, with the copy-paste bits pointed out. The whole thing starts by pasting the <b>Kickoff prompt</b> (top) into a fresh chat — that runs all of this.</p>
+      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who auto">Codey does this</span> is automatic once you send the prompt.</p>
       <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>Write down your winning pages.</b> Find every page Google already sends visitors to, so we lose none. <span class="tool">Tool: export from Search Console (next section)</span></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Copy the old site.</b> Save all the words and pictures off the old site — including every slideshow picture — so nothing's left behind. <span class="tool">Prompt: “Harvest content + assets” (Phase 1)</span></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b>Grab the working bits.</b> Contact forms, maps, booking buttons — keep them working. <span class="tool">Prompt: “Inventory &amp; carry embeds” (Embedded code)</span></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Build the new site.</b> Same info, but faster and tidier, and the way Google likes.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>Checkpoint — don't press go yet.</b> Make sure every important page is on the new site and just as good.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Show you first.</b> Put it somewhere private so you can check it before the world sees it.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Flip the switch.</b> Point your web address at the new site and send old links to the right new pages. <span class="tool">You do the DNS change, from the records Codey gives you</span></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b>Fix the map.</b> Make Google Maps and your business listing point to the new site.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Watch the numbers.</b> For a few weeks, check your visitors kept coming.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>Get your Google visitor list.</b> <span class="who you">You do this</span><br>Google keeps a record of which of your pages people find and click. We need it so we lose none — it's two small files you download (no passwords, no coding). <b>See exactly how:</b> <a href="#gexport">Getting your Google numbers out ↓</a> (6 clicks).</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b>Open a new chat and give Codey the files.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. Put your two Google files into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them.
+          <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop the two files right on it, then go to the next step.</div></div>
+        </li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and click its <b>Copy</b> button. Paste it into the chat <em>under</em> your files, fill the one or two blanks (like which website), and press Enter. That single message tells Codey to do everything below.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Codey copies your old site.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — into the new site. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b>Codey keeps the working buttons.</b> <span class="who auto">Codey does this</span><br>Your contact form, map and “get a quote” button get carried across so they still work. If any needs a new setting, Codey tells you exactly what.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>Codey builds it and checks every page.</b> <span class="who auto">Codey does this</span><br>It rebuilds everything cleanly, then checks that <b>every page Google sends visitors to is on the new site and just as good.</b> It won't go live until this passes — this is the safety gate.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Look at the private preview.</b> <span class="who you">You do this</span><br>Codey sends a link only you can see. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Flip the web address to the new site.</b> <span class="who you">You do this</span><br>Codey gives you the exact settings to change at your web-address provider — copy-and-paste lines. <b>Always check with Carson first.</b> This is the switch that puts the new site live.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b>Point Google Maps at the new site.</b> <span class="who you">You do this</span> <span class="who auto">Codey preps it</span><br>Your business also shows on <b>Google Maps</b> (your “Google Business Profile”). Open it and change the <b>website link</b> there to your new address; check your name, address and phone match the site exactly. Codey gives you the exact details to paste. <b>What to look for:</b> the “Website” button on your Maps listing should open the new site.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Watch the visitors for a few weeks.</b> <span class="who auto">Codey watches + tells you</span><br>For 2–4 weeks we compare your numbers to the list from step 1. What to look for:
+          <ul>
+            <li>Numbers stay level or go up → all good, you're done.</li>
+            <li>One page's visitors drop and don't recover → tell Codey; it re-checks that page's old→new link and fixes it.</li>
+            <li>Any “page not found (404)” errors → Codey finds these and points the old link at the right new page for you.</li>
+          </ul>
+        </li>
       </ol>
     </section>
 
@@ -376,6 +415,7 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
           <li><b>Images</b> → they're injected by JS from CDNs. Render + scroll the page through, sweep the DOM for real URLs across <em>all</em> hosts (<code>img.currentSrc||img.src</code> + computed <code>background-image</code>); network-request capture is the fallback. Gallery/lightbox originals often can't be scraped — ask the client, never substitute a stranger's photo.</li>
           <li>Re-process to the media budget: AVIF/WebP, explicit <code>width</code>/<code>height</code>, hero ≤ 200 KB, real <code>alt</code>.</li>
         </ul>
+        <p class="usage"><b>When</b> Codey already does this from the Kickoff prompt — use this only to run just the “copy the old site” step on its own. <b>How</b> click Copy and paste it to Codey.</p>
         <div class="code prompt">
           <div class="code-head"><span class="tag">◆ Prompt — harvest content + assets</span><button class="copy" data-copy="k-harvest">Copy</button></div>
 <pre id="k-harvest">Harvest {{OLD_SITE_URL}} with the in-app browser (Claude in Chrome). For every page:
@@ -390,7 +430,14 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
    Wayback Machine (web.archive.org) or ask the client — never substitute a stranger's photo.
 Re-process images to the media budget (AVIF/WebP, width/height, hero ≤ 200 KB, real alt).</pre>
         </div>
-        <div class="callout stop"><span class="ic">!</span><div><b>By exception — original offline / host lapsing.</b> If the live site is down or its host is being switched off (e.g. a lapsed domain): harvest from a working mirror/subdomain and/or the <b>Wayback Machine</b>, <b>self-host every asset</b> so nothing points at the dying host, and rebuild the old-URL list for the 301 map from <b>Google Search Console</b> + a <code>site:</code> search + Wayback — you can't crawl a site that's down.</div></div>
+        <div class="callout stop"><span class="ic">!</span><div><b>If your old site is offline (like Geelong):</b> you don't need to remember any of this — <b>copy the block below and paste it into Codey together with the Kickoff prompt.</b></div></div>
+        <div class="code prompt">
+          <div class="code-head"><span class="tag">◆ Paste this too — only if the old site is offline</span><button class="copy" data-copy="k-offline">Copy</button></div>
+<pre id="k-offline">My old site is offline. Harvest from the working subdomain/mirror I gave you and the Wayback
+Machine (web.archive.org). SELF-HOST every asset — download all images, slideshow photos, logos
+and files into the repo so nothing points at the dead host. Rebuild the old-URL list for the 301
+map from my attached Search Console files + a site: search + Wayback.</pre>
+        </div>
       </div>
 
       <!-- EMBED -->
@@ -398,6 +445,7 @@ Re-process images to the media budget (AVIF/WebP, width/height, hero ≤ 200 KB,
         <div class="num">◆</div>
         <h3>Embedded code — forms, widgets &amp; third-party embeds</h3>
         <p class="purpose">The part most migrations quietly break. Old sites carry <b>live form endpoints, booking/quote widgets, maps, review &amp; social feeds, chat, analytics/pixels</b>. These must be carried across deliberately — a form that silently posts nowhere is a lost lead.</p>
+        <p class="usage"><b>When</b> Codey already does this from the Kickoff prompt — use this to check the forms/widgets on their own. <b>How</b> click Copy, paste it to Codey, then paste the old site's embed code into the box below and point Codey at it.</p>
         <div class="code prompt">
           <div class="code-head"><span class="tag">◆ Prompt — inventory &amp; carry embeds</span><button class="copy" data-copy="k-embed">Copy</button></div>
 <pre id="k-embed">On the old site, find EVERY embedded form, widget, iframe, script and third-party embed.
@@ -412,13 +460,10 @@ until a real endpoint is supplied use mailto:/tel: or a clearly-labelled preview
 Flag anything that needs a new account, key, or domain allow-listing before go-live.</pre>
         </div>
         <div class="paste">
-          <div class="lab"><span aria-hidden="true">▤</span> Paste the old site's embed code here — one slot per job</div>
-          <textarea spellcheck="false" placeholder="&lt;!-- geelongbricklaying.com.au — paste the real form / widget / map embed code here, ready to hand to Codey --&gt;
-
-&lt;!-- e.g. contact form snippet + its action endpoint --&gt;
-&lt;!-- e.g. Google Map embed iframe --&gt;
-&lt;!-- e.g. review widget script --&gt;"></textarea>
-          <p class="hint">This is your working slot when running a migration — drop the incoming site's real embed code in, then point Codey at it. (A hosted copy of this guide won't save what you type; keep the code with the job's brief.)</p>
+          <div class="lab"><span aria-hidden="true">▤</span> Got a form, map or widget to keep? Here's exactly what to do</div>
+          <p style="margin:.35rem 0;font-size:.95rem"><b>1.</b> Grab the embed code from the old site — the little snippet for the form / map / widget. Or use the code you already have (like your Geelong form).</p>
+          <p style="margin:.35rem 0;font-size:.95rem"><b>2.</b> Paste it straight into your chat with Codey and say: <em>“here's the form/map to keep — wire it into the new site exactly as-is.”</em> That's it — Codey does the rest.</p>
+          <p class="hint" style="margin-top:.55rem">Embed code looks like one of these, so you know what to grab:<br><code>&lt;form action="…"&gt;…&lt;/form&gt;</code> · <code>&lt;iframe src="google.com/maps…"&gt;</code> · <code>&lt;script src="…widget…"&gt;</code></p>
         </div>
       </div>
 
@@ -461,7 +506,7 @@ Flag anything that needs a new account, key, or domain allow-listing before go-l
         <h3>Cutover runbook <span class="gate">you run DNS, Codey preps everything</span></h3>
         <p class="purpose">The go-live sequence. Codey prepares; you execute the DNS change.</p>
         <ul>
-          <li><b>Same domain (safest, default):</b> point the domain at Vercel; ship the production <code>vercel.json</code> redirects (<code>"permanent": true</code>) + headers; flip noindex → index,follow; real <code>robots.txt</code> + production <code>sitemap.xml</code>. No Change-of-Address needed.</li>
+          <li><b>Same domain (safest, default):</b> point the domain at your host (<b>Cloudflare Pages</b> or Vercel); ship that host's redirects + headers (Cloudflare: <code>_redirects</code> / <code>_headers</code>; Vercel: <code>vercel.json</code> redirects with <code>"permanent": true</code>); flip noindex → index,follow; real <code>robots.txt</code> + production <code>sitemap.xml</code>. No Change-of-Address needed.</li>
           <li><b>New domain:</b> all of the above <b>plus</b> a GSC <b>Change of Address</b>, and keep the old domain live serving its 301s so equity transfers.</li>
           <li><b>On go-live:</b> verify in GSC + Bing, submit the sitemap to both, IndexNow ping; confirm a sampled set of old→new returns <b>301</b>, canonicals return 200, and the branded 404 renders.</li>
         </ul>
