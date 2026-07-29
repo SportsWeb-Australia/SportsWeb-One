@@ -512,6 +512,39 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   margin-bottom: 12px;
 }
+.sw1-mig-verify {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.sw1-mig-verifyhint {
+  font-size: 12px;
+  color: var(--mig-muted);
+}
+.sw1-mig-verifyres {
+  align-self: stretch;
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 13.5px;
+  border: 1px solid var(--mig-line);
+}
+.sw1-mig-verifyres.is-ok {
+  background: #eef7f0;
+  border-color: #bfe3c9;
+}
+.sw1-mig-verifyres.is-no {
+  background: var(--mig-amberbg);
+  border-color: #f2dcae;
+}
+.sw1-mig-verifyres ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.sw1-mig-verifyres li {
+  margin: 2px 0;
+}
 
 /* Responsive: stack the board into cards on narrow screens. */
 @media (max-width: 640px) {

@@ -201,6 +201,30 @@ export async function setStatus(clubId: string, status: MigrationStatus): Promis
   return error ? error.message : null;
 }
 
+export interface VerifyResult {
+  ok: boolean;
+  verified: boolean;
+  live_verified_set: boolean;
+  domain?: string;
+  step_error?: string | null;
+  checks?: {
+    www: { ok: boolean; status?: number; cloudflare?: boolean; error?: string; hint?: string };
+    root_redirect: { ok: boolean; status?: number; redirected?: boolean; error?: string; hint?: string };
+  };
+  error?: string;
+}
+
+/** Phase 2: run the live-verify edge function for a club (checks www HTTPS on
+ *  Cloudflare + bare-domain redirect; ticks live_verified on success). */
+export async function verifyMigration(clubId: string): Promise<VerifyResult> {
+  if (!supabase) return { ok: false, verified: false, live_verified_set: false, error: "Supabase not configured." };
+  const { data, error } = await supabase.functions.invoke("verify-site-migration", {
+    body: { club_id: clubId },
+  });
+  if (error) return { ok: false, verified: false, live_verified_set: false, error: error.message };
+  return data as VerifyResult;
+}
+
 /** Free-text fields + the email safety gate — direct update, RLS-guarded to
  *  platform admins. Only the provided keys are written. */
 export async function updateMigrationFields(

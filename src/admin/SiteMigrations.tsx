@@ -21,6 +21,8 @@ import {
   setStep,
   setStatus,
   updateMigrationFields,
+  verifyMigration,
+  type VerifyResult,
   stepsForFlow,
   stepProgress,
   STATUS_ORDER,
@@ -339,6 +341,8 @@ function MigrationDrawer({
   const [msg, setMsg] = useState<string | null>(null);
   const [showSop, setShowSop] = useState(false);
   const [doc, setDoc] = useState<PlatformDoc | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
 
   // editable free-text fields
   const [pagesProject, setPagesProject] = useState(row.pages_project ?? "");
@@ -394,6 +398,15 @@ function MigrationDrawer({
       await reload();
       flash(error);
     }
+  };
+
+  const runVerify = async () => {
+    setVerifying(true);
+    setVerifyResult(null);
+    const r = await verifyMigration(row.club_id);
+    setVerifying(false);
+    setVerifyResult(r);
+    if (r.live_verified_set) await reload(); // picks up the ticked live_verified step
   };
 
   const saveFields = async () => {
@@ -489,6 +502,36 @@ function MigrationDrawer({
               </label>
             );
           })}
+        </div>
+        <div className="sw1-mig-verify">
+          <button type="button" className="sw-btn sw-btn--ghost" disabled={verifying} onClick={runVerify}>
+            {verifying ? "Checking live site…" : "Verify live now"}
+          </button>
+          <span className="sw1-mig-verifyhint">
+            Checks www is on Cloudflare over HTTPS and the bare domain redirects to www; ticks
+            “Verify live” automatically when both pass.
+          </span>
+          {verifyResult && (
+            <div className={`sw1-mig-verifyres ${verifyResult.verified ? "is-ok" : "is-no"}`}>
+              {verifyResult.error ? (
+                <strong>Couldn’t run the check: {verifyResult.error}</strong>
+              ) : (
+                <>
+                  <strong>
+                    {verifyResult.verified
+                      ? verifyResult.live_verified_set
+                        ? "✓ Live and verified — step ticked."
+                        : "✓ Live and verified."
+                      : "Not fully live yet."}
+                  </strong>
+                  <ul>
+                    <li>{verifyResult.checks?.www.ok ? "✓" : "✗"} {verifyResult.checks?.www.hint}</li>
+                    <li>{verifyResult.checks?.root_redirect.ok ? "✓" : "✗"} {verifyResult.checks?.root_redirect.hint}</li>
+                  </ul>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
