@@ -230,6 +230,7 @@
     <section class="block" id="run">
       <h2 class="sec"><span class="k">RUN</span> Start a job — paste this into a fresh chat</h2>
       <p style="color:var(--ink-soft);margin-top:0">Open a new Claude Code chat, fill the <span class="fill">highlighted</span> fields, and paste. It reads the SOP and the standards, confirms the plan once, then works Phase&nbsp;0 → 7.</p>
+      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
       <div class="code prompt">
         <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
 <pre id="k-run">You're Codey. Run the SportsWeb / Business One Live-Site Migration SOP
@@ -238,6 +239,7 @@
 
 Live site to migrate (SEO SOURCE — preserve its equity): {{LIVE_URL}}
 Target design: {{same as existing, improved}} | {{new design at DESIGN_URL}}
+               | {{new design — inspiration sites/screenshots (see Build from Scratch)}}
 Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
 Stack/host: Astro, Business-One-ready (content collections), deployed on Vercel.
 SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
