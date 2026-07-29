@@ -116,7 +116,7 @@ export function SuperSitePulse() {
     // Pending client replies per club (drives the "Send update (N)" button).
     const { data: pend } = await supabase
       .from("sitepulse_comments").select("club_id")
-      .eq("visibility", "client_visible").is("emailed_at", null);
+      .eq("visibility", "client_visible").eq("author_type", "team").is("emailed_at", null);
     const m = new Map<string, number>();
     for (const c of (pend ?? []) as { club_id: string }[]) m.set(c.club_id, (m.get(c.club_id) ?? 0) + 1);
     setPendingByClub(m);
@@ -474,13 +474,18 @@ function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }
       ) : (
         <ul style={{ listStyle: "none", margin: "0 0 10px", padding: 0, display: "grid", gap: 6 }}>
           {comments.map((c) => {
+            const fromClub = c.author_type === "club";
             const cv = c.visibility === "client_visible";
+            const label = fromClub ? "From the club" : cv ? "Sent to client" : "Internal";
+            const bg = fromClub ? "#f0fdf4" : cv ? "#eef6ff" : SURFACE2;
+            const bd = fromClub ? "#c7ead6" : cv ? "#cfe4fb" : LINE;
+            const lc = fromClub ? "#15803d" : cv ? "#1d4ed8" : FAINT;
             return (
               <li key={c.id} style={{ fontSize: 12.8, padding: "8px 10px", borderRadius: 8,
-                background: cv ? "#eef6ff" : SURFACE2, border: `1px solid ${cv ? "#cfe4fb" : LINE}` }}>
+                background: bg, border: `1px solid ${bd}` }}>
                 <span style={{ whiteSpace: "pre-wrap" }}>{c.body}</span>
-                <div style={{ marginTop: 3, fontSize: 11, color: cv ? "#1d4ed8" : FAINT, fontWeight: 600 }}>
-                  {cv ? "Sent to client" : "Internal"} · {fmt(c.created_at)}
+                <div style={{ marginTop: 3, fontSize: 11, color: lc, fontWeight: 600 }}>
+                  {label} · {fmt(c.created_at)}
                 </div>
               </li>
             );

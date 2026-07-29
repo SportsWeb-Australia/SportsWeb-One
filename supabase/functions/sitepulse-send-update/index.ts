@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
   const { data: pending } = await svc
     .from("sitepulse_comments")
     .select("id, body, feedback_id")
-    .eq("club_id", clubId).eq("visibility", "client_visible").is("emailed_at", null)
+    .eq("club_id", clubId).eq("visibility", "client_visible").eq("author_type", "team").is("emailed_at", null)
     .order("created_at", { ascending: true });
   const items = pending ?? [];
   if (preview) return json({ ok: true, pending: items.length });
