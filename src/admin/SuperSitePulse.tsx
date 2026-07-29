@@ -99,6 +99,9 @@ export function SuperSitePulse() {
   const [fCategory, setFCategory] = useState("");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"priority" | "newest" | "oldest">("priority");
+  const [pendingByClub, setPendingByClub] = useState<Map<string, number>>(new Map());
+  const [sendingClub, setSendingClub] = useState<string | null>(null);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
 
   const load = async () => {
     if (!supabase) { setError("Supabase not configured."); setLoading(false); return; }
@@ -110,7 +113,32 @@ export function SuperSitePulse() {
       .limit(300);
     if (err) { setError(err.message); setRows([]); }
     else setRows((data as unknown as Row[]) ?? []);
+    // Pending client replies per club (drives the "Send update (N)" button).
+    const { data: pend } = await supabase
+      .from("sitepulse_comments").select("club_id")
+      .eq("visibility", "client_visible").is("emailed_at", null);
+    const m = new Map<string, number>();
+    for (const c of (pend ?? []) as { club_id: string }[]) m.set(c.club_id, (m.get(c.club_id) ?? 0) + 1);
+    setPendingByClub(m);
     setLoading(false);
+  };
+
+  const sendUpdate = async (cid: string, clubNm: string) => {
+    if (!supabase) return;
+    setSendingClub(cid); setSendMsg(null);
+    const { data, error: err } = await supabase.functions.invoke("sitepulse-send-update", { body: { club_id: cid } });
+    setSendingClub(null);
+    if (err) { setSendMsg(`Couldn't send to ${clubNm}: ${err.message}`); return; }
+    const res = (data ?? {}) as { ok?: boolean; sent?: number; error?: string; result?: { status?: number } };
+    if (res.ok && (res.sent ?? 0) > 0) {
+      setSendMsg(`Sent ${res.sent} update${res.sent === 1 ? "" : "s"} to ${clubNm}.`);
+      setPendingByClub((mp) => { const n = new Map(mp); n.delete(cid); return n; });
+    } else if (res.error === "no-recipient") {
+      setSendMsg(`No contact email on file for ${clubNm} — add one to send updates.`);
+    } else {
+      const st = res.result?.status;
+      setSendMsg(`Couldn't send to ${clubNm}${st === 429 ? " — email credit exhausted (top up ZeptoMail)" : ""}. Replies stay queued.`);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -189,6 +217,7 @@ export function SuperSitePulse() {
       </header>
 
       {error && <div className="sw-comms-result err">{error}</div>}
+      {sendMsg && <div className="sw-comms-result">{sendMsg}</div>}
 
       {!loading && rows.length > 0 && (
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", margin: "0 0 1rem" }}>
@@ -232,6 +261,9 @@ export function SuperSitePulse() {
               onToggle={() => toggleClub(g.cid)}
               openId={openId} setOpenId={setOpenId}
               onStatus={setStatus} saving={saving} fmt={fmt}
+              pending={pendingByClub.get(g.cid) ?? 0}
+              onSend={() => sendUpdate(g.cid, g.name)}
+              sending={sendingClub === g.cid}
             />
           ))}
         </div>
@@ -258,30 +290,40 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 function ClubSection({
-  name, rows, open, onToggle, openId, setOpenId, onStatus, saving, fmt,
+  name, rows, open, onToggle, openId, setOpenId, onStatus, saving, fmt, pending, onSend, sending,
 }: {
   name: string; rows: Row[]; open: boolean; onToggle: () => void;
   openId: string | null; setOpenId: (fn: (id: string | null) => string | null) => void;
   onStatus: (r: Row, s: string) => void; saving: string | null; fmt: (d: string) => string;
+  pending: number; onSend: () => void; sending: boolean;
 }) {
   const total = rows.length;
   const openCount = rows.filter((r) => !CLOSED.includes(r.status)).length;
   const urgent = rows.filter((r) => r.urgency_flag && !CLOSED.includes(r.status)).length;
   return (
     <section style={{ border: `1px solid ${LINE}`, borderRadius: 14, background: SURFACE, overflow: "hidden", boxShadow: "0 1px 2px rgba(20,24,31,.04)" }}>
-      <button onClick={onToggle}
-        style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "13px 15px",
-          background: open ? SURFACE2 : SURFACE, border: 0, borderBottom: open ? `1px solid ${LINE}` : "0", cursor: "pointer", textAlign: "left" }}>
-        <Chevron open={open} />
-        <strong style={{ fontSize: 15, color: INK }}>{name}</strong>
-        <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-          {urgent > 0 && <Pill color="#b91c1c" bg="#fdecec">{urgent} urgent</Pill>}
-          <Pill color={openCount ? "#1d4ed8" : "#15803d"} bg={openCount ? "#eff4ff" : "#e9f6ee"}>
-            {openCount ? `${openCount} open` : "all done"}
-          </Pill>
-          <span style={{ color: FAINT, fontSize: 12.5, fontVariantNumeric: "tabular-nums" }}>{total} total</span>
-        </span>
-      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 15px",
+        background: open ? SURFACE2 : SURFACE, borderBottom: open ? `1px solid ${LINE}` : "0" }}>
+        <div onClick={onToggle} style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, cursor: "pointer" }}>
+          <Chevron open={open} />
+          <strong style={{ fontSize: 15, color: INK }}>{name}</strong>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+            {urgent > 0 && <Pill color="#b91c1c" bg="#fdecec">{urgent} urgent</Pill>}
+            <Pill color={openCount ? "#1d4ed8" : "#15803d"} bg={openCount ? "#eff4ff" : "#e9f6ee"}>
+              {openCount ? `${openCount} open` : "all done"}
+            </Pill>
+            <span style={{ color: FAINT, fontSize: 12.5, fontVariantNumeric: "tabular-nums" }}>{total} total</span>
+          </span>
+        </div>
+        {pending > 0 && (
+          <button type="button" className="sw-btn" disabled={sending}
+            onClick={(e) => { e.stopPropagation(); onSend(); }}
+            style={{ fontSize: 12.5, padding: "5px 11px", whiteSpace: "nowrap", flex: "0 0 auto" }}
+            title="Email all queued replies to this club as one update">
+            {sending ? "Sending…" : `Send update (${pending})`}
+          </button>
+        )}
+      </div>
       {open && (
         <div style={{ padding: "8px 10px 12px", display: "grid", gap: 8 }}>
           {rows.map((r) => (
@@ -465,10 +507,10 @@ function Comments({ feedbackId, clubId }: { feedbackId: string; clubId: string }
           style={{ flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 8, resize: "vertical",
             border: `1px solid ${toClient ? "#cfe4fb" : LINE}`, background: toClient ? "#f6fbff" : SURFACE, color: INK }} />
         <button className={toClient ? "sw-btn" : "sw-btn sw-btn--ghost"} disabled={saving || !note.trim()} onClick={add}>
-          {saving ? "Saving…" : toClient ? "Send reply" : "Add note"}
+          {saving ? "Saving…" : toClient ? "Queue reply" : "Add note"}
         </button>
       </div>
-      {toClient && <div style={{ fontSize: 11.5, color: FAINT, marginTop: 4 }}>Appears on the club's status page as “Our note”.</div>}
+      {toClient && <div style={{ fontSize: 11.5, color: FAINT, marginTop: 4 }}>Shows on the club's status page now; goes out in the next “Send update” email.</div>}
       {err && <div className="sw1-onboard-err" style={{ marginTop: 4 }}>{err}</div>}
     </div>
   );
