@@ -178,6 +178,9 @@
   .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
   .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
   .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
+  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
+  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
   /* ---------- plain-English (ELI12) ---------- */
   ol.plain{margin:.6rem 0;padding-left:1.6rem}
@@ -284,27 +287,27 @@
     <!-- FLOW -->
     <section class="block" id="flow">
       <h2 class="sec"><span class="k">MAP</span> Your 10 steps, start to finish</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic · <span class="who signoff">Carson OK</span> = needs Carson's sign-off first.</p>
+      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic · <span class="who signoff">Carson OK</span> = needs Carson's sign-off first. <b>Tap any box</b> to jump straight to that step.</p>
       <div class="flowwrap"><div class="flow">
-        <div class="fnode you"><span class="fn">1</span><b>Get Google files</b><span>2 files</span></div>
+        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Get Google files</b><span>2 files</span></a>
         <div class="fconn">→</div>
-        <div class="fnode you"><span class="fn">2</span><b>Open chat, add files</b><span>drop them in</span></div>
+        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Open chat, add files</b><span>drop them in</span></a>
         <div class="fconn">→</div>
-        <div class="fnode you"><span class="fn">3</span><b>Paste the prompt</b><span>press Enter</span></div>
+        <a class="fnode you" href="#w3"><span class="fn">3</span><b>Paste the prompt</b><span>press Enter</span></a>
         <div class="fconn">→</div>
-        <div class="fnode bot"><span class="fn">4</span><b>Codey copies site</b><span>words + pics</span></div>
+        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey copies site</b><span>words + pics</span></a>
         <div class="fconn">→</div>
-        <div class="fnode bot"><span class="fn">5</span><b>Codey keeps buttons</b><span>forms · maps</span></div>
+        <a class="fnode bot" href="#w5"><span class="fn">5</span><b>Codey keeps buttons</b><span>forms · maps</span></a>
         <div class="fconn">→</div>
-        <div class="fnode bot"><span class="fn">6</span><b>Codey builds + checks</b><span>the safety gate</span></div>
+        <a class="fnode bot" href="#w6"><span class="fn">6</span><b>Codey builds + checks</b><span>the safety gate</span></a>
         <div class="fconn">→</div>
-        <div class="fnode you"><span class="fn">7</span><b>You preview</b><span>say “yes, go”</span></div>
+        <a class="fnode you" href="#w7"><span class="fn">7</span><b>You preview</b><span>say “yes, go”</span></a>
         <div class="fconn">→</div>
-        <div class="fnode signoff"><span class="fn">8</span><b>Flip web address</b><span>Carson OK first</span></div>
+        <a class="fnode signoff" href="#w8"><span class="fn">8</span><b>Flip web address</b><span>Carson OK first</span></a>
         <div class="fconn">→</div>
-        <div class="fnode you"><span class="fn">9</span><b>Fix Google Map</b><span>new link</span></div>
+        <a class="fnode you" href="#w9"><span class="fn">9</span><b>Fix Google Map</b><span>new link</span></a>
         <div class="fconn">→</div>
-        <div class="fnode bot"><span class="fn">10</span><b>Watch visitors</b><span>2–4 weeks</span></div>
+        <a class="fnode bot" href="#w10"><span class="fn">10</span><b>Watch visitors</b><span>2–4 weeks</span></a>
       </div></div>
     </section>
 
@@ -347,18 +350,18 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
       <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
       <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who auto">Codey does this</span> is automatic once you send the prompt.</p>
       <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>Get your Google visitor list.</b> <span class="who you">You do this</span><br>Google keeps a record of which of your pages people find and click. We need it so we lose none — it's two small files you download (no passwords, no coding). <b>See exactly how:</b> <a href="#gexport">Getting your Google numbers out ↓</a> (6 clicks).</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b>Open a new chat and give Codey the files.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. Put your two Google files into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them.
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b id="w1">Get your Google visitor list.</b> <span class="who you">You do this</span><br>Google keeps a record of which of your pages people find and click. We need it so we lose none — it's two small files you download (no passwords, no coding). <b>See exactly how:</b> <a href="#gexport">Getting your Google numbers out ↓</a> (6 clicks).</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b id="w2">Open a new chat and give Codey the files.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. Put your two Google files into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them.
           <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop the two files right on it, then go to the next step.</div></div>
         </li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and click its <b>Copy</b> button. Paste it into the chat <em>under</em> your files, fill the one or two blanks (like which website), and press Enter. That single message tells Codey to do everything below.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Codey copies your old site.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — into the new site. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b>Codey keeps the working buttons.</b> <span class="who auto">Codey does this</span><br>Your contact form, map and “get a quote” button get carried across so they still work. If any needs a new setting, Codey tells you exactly what.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>Codey builds it and checks every page.</b> <span class="who auto">Codey does this</span><br>It rebuilds everything cleanly, then checks that <b>every page Google sends visitors to is on the new site and just as good.</b> It won't go live until this passes — this is the safety gate.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Look at the private preview.</b> <span class="who you">You do this</span><br>Codey sends a link only you can see. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Flip the web address to the new site.</b> <span class="who you">You do this</span> <span class="who signoff">Carson OK first</span><br>Codey gives you the exact settings to change at your web-address provider — copy-and-paste lines. <b>Always get Carson's OK before you change these</b> — it's the one truly irreversible bit. This is the switch that puts the new site live.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b>Point Google Maps at the new site.</b> <span class="who you">You do this</span> <span class="who auto">Codey preps it</span><br>Your business also shows on <b>Google Maps</b> (your “Google Business Profile”). Open it and change the <b>website link</b> there to your new address; check your name, address and phone match the site exactly. Codey gives you the exact details to paste. <b>What to look for:</b> the “Website” button on your Maps listing should open the new site.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Watch the visitors for a few weeks.</b> <span class="who auto">Codey watches + tells you</span><br>For 2–4 weeks we compare your numbers to the list from step 1. What to look for:
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w3">Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and click its <b>Copy</b> button. Paste it into the chat <em>under</em> your files, fill the one or two blanks (like which website), and press Enter. That single message tells Codey to do everything below.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b id="w4">Codey copies your old site.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — into the new site. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b id="w5">Codey keeps the working buttons.</b> <span class="who auto">Codey does this</span><br>Your contact form, map and “get a quote” button get carried across so they still work. If any needs a new setting, Codey tells you exactly what.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b id="w6">Codey builds it and checks every page.</b> <span class="who auto">Codey does this</span><br>It rebuilds everything cleanly, then checks that <b>every page Google sends visitors to is on the new site and just as good.</b> It won't go live until this passes — this is the safety gate.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w7">Look at the private preview.</b> <span class="who you">You do this</span><br>Codey sends a link only you can see. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w8">Flip the web address to the new site.</b> <span class="who you">You do this</span> <span class="who signoff">Carson OK first</span><br>Codey gives you the exact settings to change at your web-address provider — copy-and-paste lines. <b>Always get Carson's OK before you change these</b> — it's the one truly irreversible bit. This is the switch that puts the new site live.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b id="w9">Point Google Maps at the new site.</b> <span class="who you">You do this</span> <span class="who auto">Codey preps it</span><br>Your business also shows on <b>Google Maps</b> (your “Google Business Profile”). Open it and change the <b>website link</b> there to your new address; check your name, address and phone match the site exactly. Codey gives you the exact details to paste. <b>What to look for:</b> the “Website” button on your Maps listing should open the new site.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b id="w10">Watch the visitors for a few weeks.</b> <span class="who auto">Codey watches + tells you</span><br>For 2–4 weeks we compare your numbers to the list from step 1. What to look for:
           <ul>
             <li>Numbers stay level or go up → all good, you're done.</li>
             <li>One page's visitors drop and don't recover → tell Codey; it re-checks that page's old→new link and fixes it.</li>
