@@ -190,5 +190,6 @@
 (function(){var root=document.documentElement,btn=document.getElementById('themeBtn');
 btn&&btn.addEventListener('click',function(){var c=root.getAttribute('data-theme');root.setAttribute('data-theme',c==='dark'?'light':(c==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark')));});})();
 </script>
+<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var el=document.getElementById(a.getAttribute("href").slice(1));if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}});</script>
 </body>
 </html>
