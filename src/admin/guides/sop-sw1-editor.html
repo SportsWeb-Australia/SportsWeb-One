@@ -110,7 +110,28 @@
   .fnode b{font-size:.83rem;line-height:1.15}
   .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
   .fnode.go{border-color:var(--ok)}.fnode.go .fn{color:var(--ok);border-color:var(--ok)}
+  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
+  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
+  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
+  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
+  /* ---------- summary card ---------- */
+  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
+  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
+  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
+  .summary .r.stuck .l{color:var(--stop)}
+  .summary .r .v{flex:1;min-width:0}
+  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
+  /* ---------- actor tags + usage ---------- */
+  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
+  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
+  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
+  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
+  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
 </style>
 </head>
 <body>
@@ -130,6 +151,7 @@
   <nav class="toc" aria-label="Contents">
     <p class="lab">Steps</p>
     <ol>
+      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
       <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
       <li><a href="#s1"><span class="n">1</span>Sign in &amp; pick the site</a></li>
       <li><a href="#s2"><span class="n">2</span>Open the editor</a></li>
@@ -156,22 +178,37 @@
       </div>
     </div>
 
+    <!-- SUMMARY -->
+    <section class="block" id="summary">
+      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
+      <div class="summary">
+        <div class="r"><span class="l">Objective</span><span class="v">Edit and publish a site's content yourself — no code.</span></div>
+        <div class="r"><span class="l">Process</span><span class="v">Sign in → edit each card → pick a style → add images → preview → share a draft → publish.</span></div>
+        <div class="r"><span class="l">Resources</span><span class="v">Your SW1 login · the site's words + photos.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">Your changes live on the public site.</span></div>
+        <div class="r stuck"><span class="l">If stuck</span><span class="v">A change not showing? Reload the public site. Not visible to anyone yet? You haven't hit Publish.</span></div>
+      </div>
+    </section>
+
     <section class="block" id="flow">
       <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
+      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the steps below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">System</span> = SW1 handles it automatically. <b>Tap any box</b> to jump to that step.</p>
       <div class="flowwrap"><div class="flow">
-        <div class="fnode"><span class="fn">1</span><b>Sign in</b><span>pick the site</span></div>
+        <a class="fnode you" href="#s1"><span class="fn">1</span><b>Sign in</b><span>pick the site</span></a>
         <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">2</span><b>Edit</b><span>words in cards</span></div>
+        <a class="fnode you" href="#s2"><span class="fn">2</span><b>Open editor</b><span>section cards</span></a>
         <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">3</span><b>Style</b><span>pick a look</span></div>
+        <a class="fnode you" href="#s3"><span class="fn">3</span><b>Style</b><span>pick a look</span></a>
         <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">4</span><b>Images</b><span>frame + upload</span></div>
+        <a class="fnode you" href="#s4"><span class="fn">4</span><b>Edit content</b><span>words in cards</span></a>
         <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">5</span><b>Preview</b><span>check it</span></div>
+        <a class="fnode you" href="#s5"><span class="fn">5</span><b>Images</b><span>frame + upload</span></a>
         <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">6</span><b>Share</b><span>draft link</span></div>
+        <a class="fnode you" href="#s6"><span class="fn">6</span><b>Preview</b><span>check it</span></a>
         <div class="fconn">→</div>
-        <div class="fnode go"><span class="fn">7</span><b>Publish</b><span>goes live</span></div>
+        <a class="fnode you" href="#s7"><span class="fn">7</span><b>Share</b><span>draft link</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#s8"><span class="fn">8</span><b>Publish</b><span>goes live</span></a>
       </div></div>
     </section>
 
@@ -180,25 +217,25 @@
 
       <div class="step" id="s1">
         <div class="num">1</div>
-        <h3>Sign in and pick the site</h3>
+        <h3>Sign in and pick the site <span class="who you">You</span></h3>
         <p>Log in to the SW1 admin (enter your 2-factor code if prompted). If you manage more than one club or business, choose the one you're working on so the editor points at the right site.</p>
       </div>
 
       <div class="step" id="s2">
         <div class="num">2</div>
-        <h3>Open the website editor</h3>
+        <h3>Open the website editor <span class="who you">You</span></h3>
         <p>Go to <span class="ui">Edit website</span>. Sections are stacked as cards — open one at a time and work through them. Use <span class="ui">Preview site →</span> (top right) at any point to open the site in a new tab and check your changes.</p>
       </div>
 
       <div class="step" id="s3">
         <div class="num">3</div>
-        <h3>Pick a style (optional)</h3>
+        <h3>Pick a style (optional) <span class="who you">You</span></h3>
         <p>Under <span class="ui">Website style</span>, choose a look — <b>Heritage, Broadcast, Arena, Classic</b> and its presets. It applies live and saves straight away. <span class="ui">News &amp; social</span> below it sets whether the site shows written news, a social feed, or both.</p>
       </div>
 
       <div class="step" id="s4">
         <div class="num">4</div>
-        <h3>Edit the content</h3>
+        <h3>Edit the content <span class="who you">You</span></h3>
         <p>Open each card, change the fields, then press its <span class="ui">Save</span> button — a small <b>“Saved.”</b> confirms it. <b>Leave any field blank to use the built-in default.</b> The cards:</p>
         <div class="tablewrap"><table class="map">
           <thead><tr><th>Card</th><th>What it controls</th></tr></thead>
@@ -219,26 +256,28 @@
 
       <div class="step" id="s5">
         <div class="num">5</div>
-        <h3>Add or change images</h3>
+        <h3>Add or change images <span class="who you">You</span> <span class="who bot">System</span></h3>
         <p>Any image field opens a <b>framing tool</b> — drag to position and set the crop, then confirm. The picture uploads to your site's media automatically and the recommended size is shown under each field (e.g. hero ≈ 1920×1080, logo ≈ 512×512). No files to manage by hand.</p>
+        <p class="usage"><b>Who</b> you pick + frame; the system uploads &amp; processes · <b>When</b> whenever a photo needs changing · <b>How</b> click the image field, drag to set the crop, confirm — it saves itself.</p>
       </div>
 
       <div class="step" id="s6">
         <div class="num">6</div>
-        <h3>See your changes</h3>
+        <h3>See your changes <span class="who you">You</span></h3>
         <p>Edits save to the site immediately. Open <span class="ui">Preview site →</span> (or reload the public site) to see them. If a change doesn't show, reload the page.</p>
       </div>
 
       <div class="step" id="s7">
         <div class="num">7</div>
-        <h3>Share a draft for review</h3>
+        <h3>Share a draft for review <span class="who you">You</span></h3>
         <p>Under the publish control, <span class="ui">Share draft for review</span> gives you a link (<code>/?preview=…</code>) anyone can open <b>without logging in</b> to view the draft read-only and leave feedback. Use <span class="ui">Copy</span> to share it, or <span class="ui">Regenerate</span> to kill the old link.</p>
       </div>
 
       <div class="step" id="s8">
         <div class="num">8</div>
-        <h3>Publish</h3>
+        <h3>Publish <span class="who you">You</span></h3>
         <p>When it's ready, press <span class="ui">Publish site</span> and confirm — the status pill flips <span class="pill draft">Draft</span> → <span class="pill pub">Published&nbsp;✓</span> and the site goes live to the public. <span class="ui">Unpublish</span> takes it back to draft (private) any time.</p>
+        <p class="usage"><b>Who</b> you · <b>When</b> when it's ready to go live · <b>How</b> click <span class="ui">Publish site</span>, confirm — the pill flips to Published and the site is live.</p>
         <div class="callout ok"><span class="ic">✓</span><div>This is the switch that makes everything live. Until a site is <b>Published</b>, visitors see only its built-in defaults — your edited content appears the moment you publish.</div></div>
       </div>
     </section>

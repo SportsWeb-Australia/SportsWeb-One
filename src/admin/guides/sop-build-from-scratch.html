@@ -107,6 +107,32 @@
   ol.plain li b{font-weight:600}
   .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
   .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
+  /* actor-coloured flow nodes + tappable boxes */
+  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
+  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
+  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
+  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  /* summary card + attach hint + who tags + usage line */
+  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
+  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
+  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
+  .summary .r.stuck .l{color:var(--stop)}
+  .summary .r .v{flex:1;min-width:0}
+  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
+  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
+  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
+  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
+  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
+  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
+  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
+  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
+  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
+  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
 </style>
 </head>
 <body>
@@ -117,9 +143,10 @@
 
 <div class="wrap">
   <nav class="toc" aria-label="Contents"><p class="lab">Contents</p><ol>
-    <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
-    <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
-    <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
+    <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
+    <li><a href="#flow"><span class="n">▸</span>Your 6 steps</a></li>
+    <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
+    <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
     <li><a href="#axes"><span class="n">◆</span>The two axes</a></li>
     <li><a href="#content"><span class="n">1</span>Content source</a></li>
     <li><a href="#design"><span class="n">2</span>Design source</a></li>
@@ -137,10 +164,43 @@
       <div class="meta-row"><span class="chip">Content&nbsp;<b>old site or brief</b></span><span class="chip">Design&nbsp;<b>replicate / inspire / screenshots</b></span><span class="chip">Stack&nbsp;<b>Astro</b></span><span class="chip">Law&nbsp;<b>S1–S20</b></span></div>
     </div>
 
+    <!-- SUMMARY -->
+    <section class="block" id="summary">
+      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
+      <div class="summary">
+        <div class="r"><span class="l">Objective</span><span class="v">Build a brand-new site — content from an old site if there is one, design from anything that inspires it.</span></div>
+        <div class="r"><span class="l">Process</span><span class="v">Tell Codey where the content comes from + where the design comes from → (if there's an old site) Codey saves its pages so old links still work → Codey studies what's ranking and builds it better → you preview → deploy.</span></div>
+        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · old site URL (if any) · a couple of inspiration site URLs or screenshots · Codey does the build.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">A brand-new site that keeps any earned traffic (if it replaced one) and aims to out-rank by being more complete than what ranks now.</span></div>
+        <div class="r stuck"><span class="l">If stuck</span><span class="v">No old content? Use a client brief + clearly-marked placeholders — never invent. Design unclear? Give Codey a couple of inspiration URLs or screenshots.</span></div>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> Your 6 steps, start to finish</h2>
+      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic · <span class="who signoff">Carson OK</span> = needs Carson's sign-off first. <b>Tap any box</b> to jump straight to that step.</p>
+      <div class="flowwrap"><div class="flow">
+        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Gather inputs</b><span>old URL · inspiration</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Open chat, add screenshots</b><span>drop them in</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w3"><span class="fn">3</span><b>Paste the prompt</b><span>content + design</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey studies + builds better</b><span>beats what ranks</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w5"><span class="fn">5</span><b>You preview</b><span>say “yes, go”</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode signoff" href="#w6"><span class="fn">6</span><b>Deploy / cut over</b><span>Carson OK if live</span></a>
+      </div></div>
+    </section>
+
+    <!-- RUN -->
     <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste.</p>
+      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat <span class="who you">You do this</span></h2>
+      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste. Codey reads the SOP and the standards, confirms the plan once, then builds Phase&nbsp;1 → 5.</p>
       <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
+      <p class="usage"><b>Who</b> you (or the SW1 manager). <b>When</b> to start the whole build — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, drop any inspiration screenshots on the message box, paste this under them, fill the blanks, press Enter.</p>
       <div class="code prompt"><div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
 <pre id="k-run">You're Codey. Build a NEW site per the Build-from-Scratch SOP
 (~/Developer/sportsweb-standards/SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md), law
@@ -152,45 +212,40 @@ DESIGN source: {{replicate SITE_URL}} | {{inspiration: URL1, URL2, URL3}}
                | {{screenshots attached}} | {{from the brand's logo/collateral}}
 Host: {{Vercel | Cloudflare}} (Astro).
 
-Decide content and design independently. If an old site exists, ALSO inventory its URLs and
+Decide content and design independently. BEFORE building, research the current top-ranking
+pages for this business's target keywords and build something more complete and better-structured
+than them — this is pass/fail (Standards S4). If an old site exists, ALSO inventory its URLs and
 build the 1:1 301 map so earned SEO transfers (Migration Phase 0). Harvest real content via
 the in-app browser; never invent facts or testimonials. Synthesise a NEW design system from the
 design source — don't 1:1 copy a competitor, no lifted brands/assets. Confirm the derived plan
-(design tokens/type, page set, content source, 301 map if any), then build. Report repo + URL.</pre>
+(design tokens/type, page set, content source, the competitors you'll beat, 301 map if any),
+then build. Report repo + URL.</pre>
       </div>
     </section>
 
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
-      <div class="flowwrap"><div class="flow">
-        <div class="fnode"><span class="fn">1</span><b>Content</b><span>old site or brief</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">2</span><b>Design</b><span>copy · mix · screenshots</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">3</span><b>System</b><span>colours · type · layout</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">4</span><b>Build</b><span>Astro · SEO · schema</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode gate"><span class="fn">◆</span><b>If old site</b><span>301 its URLs</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode go"><span class="fn">✓</span><b>Live</b><span>keeps earned traffic</span></div>
-      </div></div>
-    </section>
-
+    <!-- START HERE -->
     <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> In plain English</h2>
+      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who auto">Codey does this</span> is automatic once you send the prompt.</p>
       <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b>Decide where the words come from</b> — an old site (we copy them) or a fresh brief.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b>Decide where the look comes from</b> — copy one site, mix a few, or from screenshots you like.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><b>Turn that into a simple design recipe</b> — colours, fonts, layout.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>Build it properly</b> — fast and findable.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b>If there was an old site, still save its Google pages</b> so we don't lose visitors.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b>Result: a brand-new site</b> that keeps any traffic you'd already earned.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b id="w1">Gather your two inputs.</b> <span class="who you">You do this</span><br>Two things to collect first — no passwords, no coding:
+          <ul>
+            <li><b>The words (content).</b> If there's an <b>old site</b>, just have its web address ready — Codey copies the words and pictures across. <b>No old site?</b> A short brief is fine; Codey marks anything missing as “[client to supply]” rather than making it up.</li>
+            <li><b>The look (design).</b> Find a <b>couple of websites you like the look of</b> (copy their addresses) <em>or</em> take <b>screenshots</b> of designs that inspire you. Codey builds a fresh look from these — it never copies anyone 1-to-1. <b>See the choices:</b> <a href="#axes">the two axes ↓</a>.</li>
+          </ul>
+        </li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b id="w2">Open a new chat and add your screenshots.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. If you have inspiration <b>screenshots</b>, put them into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them. Only have website addresses, not screenshots? Skip straight to the next step — you'll type the addresses into the prompt.
+          <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop your screenshots right on it, then go to the next step.</div></div>
+        </li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w3">Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and <b>fill in the blanks first</b> — the two that matter are <em>where the content comes from</em> (old site address or “client brief”) and <em>where the design comes from</em> (the website addresses or “screenshots attached”). Then click <b>Copy</b>, paste it into the chat <em>under</em> your screenshots, and press Enter. That single message tells Codey to do everything below.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span><b id="w4">Codey studies the top-ranking pages, then builds it better.</b> <span class="who auto">Codey does this</span><br>This is the important part. Before building, <b>Codey looks up the pages that currently rank at the top of Google</b> for what this business does, sees what they cover, and then builds a <b>more complete, faster, better-organised version</b> — the goal is to out-rank them, not just match them. <b>This is now a must in our standards (S4).</b> Along the way it also copies any old-site words and pictures, and — if there was an old site — <b>saves its Google pages so old links keep working</b>. Just watch; Codey asks you only if a real fact or photo is missing (it never invents one).</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w5">Look at the private preview.</b> <span class="who you">You do this</span><br>Codey deploys a link only you can see (on <b>Cloudflare</b> or <b>Vercel</b>) and sends it to you. Open it and click around. Something wrong? Tell Codey in plain words (“the logo's too big”, “the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w6">Deploy — and cut over if it replaces a live site.</b> <span class="who you">You do this</span> <span class="who signoff">Carson OK if live</span><br>Codey puts the finished site live. <b>Brand-new address, no old site?</b> It just goes live — nothing more to do. <b>Replacing a website that's already live?</b> Codey hands you the exact web-address settings to change (copy-and-paste lines) — and <b>you get Carson's OK before changing them</b>, because flipping the web address is the one truly irreversible bit. <b>What to look for:</b> the address opens the new site, and any old links still land on the matching new page.</li>
       </ol>
     </section>
 
     <section class="block" id="axes">
-      <h2 class="sec"><span class="k">CHOOSE</span> The two axes — decided separately</h2>
+      <h2 class="sec"><span class="k">CHOOSE</span> The two axes — decided separately <span class="who you">You choose</span> <span class="who bot">Codey builds</span></h2>
       <div class="grid2">
         <div class="card" id="content">
           <span class="axis">Axis 1</span>
@@ -215,21 +270,23 @@ design source — don't 1:1 copy a competitor, no lifted brands/assets. Confirm 
     </section>
 
     <section class="block" id="process">
-      <h2 class="sec"><span class="k">FLOW</span> Process</h2>
+      <h2 class="sec"><span class="k">SPINE</span> Under the hood — what Codey does <span class="who bot">Codey</span></h2>
+      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> works through all of this for you</b> — you don't do any of it by hand. It's here so you (or a developer) can see what's happening. The bits that need <span class="who you">you</span> or <span class="who signoff">Carson's OK</span> are the numbered steps in <a href="#plain">Start here ↑</a>.</p>
       <div class="phase"><div class="num">1</div><h3>Capture design sources → derive the system</h3><p>Replicate target, inspiration sites, or screenshots → 4–6 colours, 2–3 type roles, a layout concept. Record it.</p></div>
       <div class="phase"><div class="num">2</div><h3>Build the content brief</h3><p>Old-site harvest or client brief → <code>CONTENT-BRIEF.md</code>; flag conflicts + gaps, never invent (S1/S2).</p></div>
       <div class="phase"><div class="num">3</div><h3>If an old site exists — inventory + 301 map</h3><p>Run Migration Phase 0 in parallel (URL inventory + 1:1 301 map) so earned SEO transfers even on a redesign. See the Live-Site Migration SOP.</p></div>
-      <div class="phase"><div class="num">4</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). Content in Astro collections (S18).</p></div>
-      <div class="phase"><div class="num">5</div><h3>Stage → sign-off → deploy → cut over</h3><p>Staging noindex (S10) → sign-off → deploy → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16).</p></div>
+      <div class="phase"><div class="num">4</div><h3>Research the top-ranking pages, then beat them <span class="who bot">Codey</span></h3><p><b>Before writing pages,</b> Codey studies the pages currently ranking for the target keywords and builds something more complete and better-structured — out-ranking, not matching, is the bar (<b>S4, pass/fail</b>).</p></div>
+      <div class="phase"><div class="num">5</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). Content in Astro collections (S18).</p></div>
+      <div class="phase"><div class="num">6</div><h3>Stage → sign-off → deploy → cut over <span class="who you">You + Carson OK</span></h3><p>Staging noindex (S10) → sign-off → deploy on <b>Cloudflare or Vercel</b> → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16). <b>You run the DNS change with Carson's OK</b> — Codey never touches a live domain.</p></div>
     </section>
 
     <section class="block" id="single">
-      <h2 class="sec"><span class="k">SHAPE</span> Single-page vs multi-page</h2>
+      <h2 class="sec"><span class="k">SHAPE</span> Single-page vs multi-page <span class="who you">Your call</span></h2>
       <p style="color:var(--ink-soft);margin-top:0">Small businesses/trades sometimes want a <b>one-pager</b>. Allowed, deliberately: build the standard sections as anchor blocks on one route, but keep every essential fact in real HTML (not only widgets), use real <code>mailto:</code>/<code>tel:</code> CTAs (S12), and — if it replaces an old multi-URL site — 301 the old server-visible URLs while keeping matching section <code>id</code>s so old fragment links still land (S9). Default to genuine multi-page (S3) where there's enough real content.</p>
     </section>
 
     <section class="block" id="guard">
-      <h2 class="sec"><span class="k">STOP</span> Guardrails</h2>
+      <h2 class="sec"><span class="k">STOP</span> Guardrails <span class="who bot">Codey obeys</span></h2>
       <div class="callout stop"><span class="ic">!</span><div>Never invent content, logos, testimonials, credentials, reviews or stats. Never clone a competitor's brand or site — <b>inspiration is patterns, not assets</b>. Never touch a live domain/DNS without sign-off. If you're replacing a live site, the earned SEO is a first-class deliverable — inventory + 301 it, don't lose it.</div></div>
       <p style="color:var(--ink-soft);font-size:.85rem">Source: <code>SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md</code> · companions: <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code>, <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>, <code>SPORTSWEB-WEB-STANDARDS.md</code>.</p>
     </section>

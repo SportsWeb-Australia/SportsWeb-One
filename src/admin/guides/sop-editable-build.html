@@ -129,6 +129,32 @@
   ol.plain li b{font-weight:600}
   .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
   .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* ---------- actor-coloured flow nodes (linked) ---------- */
+  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
+  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
+  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
+  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
+  /* ---------- summary card + attach hint + actor tags ---------- */
+  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
+  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
+  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
+  .summary .r.stuck .l{color:var(--stop)}
+  .summary .r .v{flex:1;min-width:0}
+  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
+  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
+  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
+  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
+  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
+  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
+  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
+  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
+  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
+  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
+  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
 </style>
 </head>
 <body>
@@ -148,9 +174,10 @@
   <nav class="toc" aria-label="Contents">
     <p class="lab">Contents</p>
     <ol>
-      <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
-      <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
-      <li><a href="#plain"><span class="n">☺</span>In plain English</a></li>
+      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
+      <li><a href="#flow"><span class="n">▸</span>Your 7 steps</a></li>
+      <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
+      <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
       <li><a href="#contract"><span class="n">1</span>Read contract</a></li>
       <li><a href="#keys"><span class="n">2</span>Content-key map</a></li>
       <li><a href="#publish"><span class="n">3</span>Publish gate</a></li>
@@ -176,10 +203,45 @@
       </div>
     </div>
 
+    <!-- SUMMARY -->
+    <section class="block" id="summary">
+      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
+      <div class="summary">
+        <div class="r"><span class="l">Objective</span><span class="v">Build a site the client edits themselves through the platform — no code.</span></div>
+        <div class="r"><span class="l">Process</span><span class="v">Point Codey at the club/business + its database → Codey builds the site reading that data → you check the preview → you publish in the editor → the owner edits it anytime.</span></div>
+        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (<a href="#run">below ↓</a>) · the <code>club_id</code> + Supabase project · Codey does the build.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">A live site whose content the owner edits in the SW1 / Business One editor; edits show on the next page load.</span></div>
+        <div class="r stuck"><span class="l">If stuck</span><span class="v">Nothing showing to the public? Check the site is <b>Published</b> (<a href="#publish"><code>website_status='published'</code></a>). An editor change not appearing? The build is reading the wrong tables/keys — it must use the <a href="#contract">exact ones the editor writes</a>, never its own.</span></div>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> Your 7 steps, start to finish</h2>
+      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic. <b>Tap any box</b> to jump straight to that step.</p>
+      <div class="flowwrap"><div class="flow">
+        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Open a chat</b><span>fresh Codey chat</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Paste the prompt</b><span>fill club_id, Enter</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode bot" href="#w3"><span class="fn">3</span><b>Codey builds it</b><span>reads the database</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey checks pages</b><span>static fallback</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w5"><span class="fn">5</span><b>You preview</b><span>click around</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w6"><span class="fn">6</span><b>Publish it</b><span>in the editor</span></a>
+        <div class="fconn">→</div>
+        <a class="fnode you" href="#w7"><span class="fn">7</span><b>Owner edits</b><span>anytime, no code</span></a>
+      </div></div>
+    </section>
+
+    <!-- RUN -->
     <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat</h2>
+      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat <span class="who you">You do this</span></h2>
       <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste. It reads this SOP + the standards, confirms the plan once, then builds.</p>
       <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
+      <p class="usage"><b>Who</b> you (or the SW1 manager). <b>When</b> to start the whole build — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, paste it in, fill the <code>club_id</code> + Supabase project, press Enter.</p>
       <div class="code prompt">
         <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
 <pre id="k-run">You're Codey. Build an editable, database-driven site per the SportsWeb One / Business One
@@ -198,37 +260,26 @@ then go. Report repo + live URL.</pre>
       </div>
     </section>
 
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
-      <div class="flowwrap"><div class="flow">
-        <div class="fnode"><span class="fn">1</span><b>Point at DB</b><span>club_id + keys</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">2</span><b>Read</b><span>tables + content-keys</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">3</span><b>Fallback</b><span>DB-first, static default</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">4</span><b>Build</b><span>pages · SEO · schema</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode gate"><span class="fn">!</span><b>Publish gate</b><span>website_status</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode go"><span class="fn">✓</span><b>Editable</b><span>client edits, no code</span></div>
-      </div></div>
-    </section>
-
+    <!-- START HERE -->
     <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> In plain English</h2>
+      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who bot">Codey does this</span> is automatic once you send the prompt.</p>
       <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></span><b>The site reads its words from a shared box (the database).</b> Nothing is baked in.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 2.8 12V4a1.2 1.2 0 0 1 1.2-1.2H12a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg></span><b>We only use the box's existing labels.</b> Never invent new ones — that breaks the editor.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b>If a label's empty, the site shows tidy default text</b> — so it always looks finished.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b>We build the pages properly</b> — fast and findable.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b>Nothing shows to the public until someone hits Publish.</b> Until then it's private.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span><b>Result: the club or business edits their own site</b> in the editor — no code.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><b id="w1">Open a chat.</b> <span class="who you">You do this</span><br>Open a fresh Claude Code chat — a brand-new, empty conversation. That's where Codey does the work. Nothing to install; just start a new chat.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w2">Paste the Kickoff prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and click the <b>Copy</b> button. Paste it into the chat, <b>fill in the <code>club_id</code></b> (and the Supabase project) where it asks, then press Enter. That one message tells Codey to do everything below.
+          <div class="attach"><span class="ai">◆</span><div>The <code>club_id</code> is the club/business's ID in the SW1 platform — paste it exactly. Without it Codey can't find the right content.</div></div>
+        </li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></span><b id="w3">Codey builds it, reading the database.</b> <span class="who bot">Codey does this</span><br>Codey builds the whole site, pulling every word and picture from the <b>shared database</b> the editor writes to — nothing is baked into the code. Just watch. It only ever reads the <a href="#contract">exact tables and labels the editor already uses</a>, so your future edits keep working.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b id="w4">Codey checks every page renders.</b> <span class="who bot">Codey does this</span><br>Codey builds each page properly (fast, findable) and checks they all render. Where a piece of content isn't filled in yet, the page shows <b>tidy default text</b> (the <a href="#publish">static fallback</a>) so it always looks finished — never blank.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w5">Look at the preview.</b> <span class="who you">You do this</span><br>Codey gives you a link. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Move to publishing. <b>What to look for:</b> every page opens, the logo and colours are right, the menu links all work.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w6">Publish it in the editor.</b> <span class="who you">You do this</span><br>In the SW1 / Business One editor, hit <b>Publish</b> — until you do, the site is private and the public sees only the default text. Publishing is the switch that turns on the live data. (This is the <a href="#publish">publish gate</a> — the #1 thing people forget.)</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><b id="w7">The owner edits the content anytime.</b> <span class="who you">Owner does this</span><br>Done. The club or business now opens the editor, changes their own words and pictures, and the site shows it on the <b>next page load</b> — no code, no developer, no rebuild. <b>What to look for:</b> edit a value → Publish → refresh the page → the change is there.</li>
       </ol>
     </section>
 
     <section class="block" id="contract">
-      <h2 class="sec"><span class="k">READ</span> The read contract</h2>
+      <h2 class="sec"><span class="k">READ</span> The read contract <span class="who bot">Codey</span></h2>
+      <div class="callout note"><span class="ic">i</span><div><b>Codey does this for you — you don't do it by hand.</b> This is the exact shape Codey reads from so your future edits keep working. It's here so you (or a developer) can see what's under the hood.</div></div>
       <p style="margin-top:0;color:var(--ink-soft)">All reads are <code>.eq('club_id', CLUB_ID)</code> and, for content tables, <code>.eq('status','published')</code>. <b>Column spellings are British</b> — <code>primary_colour</code> / <code>secondary_colour</code> / <code>tertiary_colour</code>.</p>
       <div class="tablewrap"><table class="map">
         <thead><tr><th>Table</th><th>Use · order</th></tr></thead>
@@ -246,7 +297,7 @@ then go. Report repo + live URL.</pre>
     </section>
 
     <section class="block" id="keys">
-      <h2 class="sec"><span class="k">KEYS</span> The <code>club_content</code> key map</h2>
+      <h2 class="sec"><span class="k">KEYS</span> The <code>club_content</code> key map <span class="who bot">Codey</span></h2>
       <p style="margin-top:0;color:var(--ink-soft)">Key/value, upsert on <code>club_id,content_key</code>. Read each key; fall back to the static default if absent. <b>Never rename or invent keys</b> — the editor writes these exact names.</p>
       <div class="tablewrap"><table class="map">
         <thead><tr><th>content_key</th><th>Renders as</th></tr></thead>
@@ -269,13 +320,14 @@ then go. Report repo + live URL.</pre>
     </section>
 
     <section class="block" id="publish">
-      <h2 class="sec"><span class="k">GATE</span> The publish gate — the #1 gotcha</h2>
+      <h2 class="sec"><span class="k">GATE</span> The publish gate — the #1 gotcha <span class="who bot">Codey builds it</span> <span class="who you">You publish</span></h2>
+      <p style="margin-top:0;color:var(--ink-soft)"><b>Codey wires this up for you — you don't do it by hand.</b> Your one job here is the human step: hit <b>Publish</b> in the editor (<a href="#w6">step 6</a>). Until you do, the public sees the static fallback, which is correct.</p>
       <div class="callout stop"><span class="ic">!</span><div>Every public-read RLS policy on <code>clubs / news / sponsors / events / teams / club_content</code> requires <b><code>clubs.website_status = 'published'</code></b>. While the club is <b>draft</b>, the anon key reads <b>nothing</b> → the site correctly shows the <b>static fallback</b>. The editor's <b>“Publish site”</b> (the <code>set_website_status</code> RPC) flips it, and live data + every edit flow immediately.</div></div>
       <p style="color:var(--ink-soft)">So a freshly-built editable site looks complete (fallback) but isn't DB-driven for the public <b>until published</b>. There is <b>no <code>public_club_content</code> RPC</b> — the public path is <b>direct selects gated by that RLS</b>. A no-login draft preview is available at <code>/?preview=&lt;token&gt;</code> (“Share draft for review”).</p>
     </section>
 
     <section class="block" id="arch">
-      <h2 class="sec"><span class="k">HOW</span> Architecture — Business-One-ready</h2>
+      <h2 class="sec"><span class="k">HOW</span> Architecture — Business-One-ready <span class="who bot">Codey</span></h2>
       <div class="phase"><div class="num">SSR</div>
         <h3>Astro server-rendered, host-swappable</h3>
         <ul>
@@ -294,7 +346,7 @@ then go. Report repo + live URL.</pre>
     </section>
 
     <section class="block" id="storage">
-      <h2 class="sec"><span class="k">MEDIA</span> Images / storage</h2>
+      <h2 class="sec"><span class="k">MEDIA</span> Images / storage <span class="who bot">Codey</span></h2>
       <ul style="color:var(--ink-soft)">
         <li>Bucket <code>club-media</code> (public read); path <code>{clubId}/{folder}/{filename}</code>; folders: <code>hero</code>, <code>brand</code>, <code>people</code>, <code>about</code>, <code>footer</code>.</li>
         <li>Image values in <code>club_content</code> and the content tables are already <b>full public URLs</b> — just render them. The site never uploads; the editor handles that.</li>
@@ -302,7 +354,7 @@ then go. Report repo + live URL.</pre>
     </section>
 
     <section class="block" id="never">
-      <h2 class="sec"><span class="k">STOP</span> Do NOT (keeps the editor compatible)</h2>
+      <h2 class="sec"><span class="k">STOP</span> Do NOT (keeps the editor compatible) <span class="who bot">Codey</span></h2>
       <ul class="checks">
         <li><span class="box" aria-hidden="true"></span><div>Create new tables or rename columns.</div></li>
         <li><span class="box" aria-hidden="true"></span><div>Invent new <code>content_key</code> names or change existing ones.</div></li>
@@ -313,7 +365,8 @@ then go. Report repo + live URL.</pre>
     </section>
 
     <section class="block" id="verify">
-      <h2 class="sec"><span class="k">CHECK</span> Verify before “done”</h2>
+      <h2 class="sec"><span class="k">CHECK</span> Verify before “done” <span class="who bot">Codey</span></h2>
+      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> runs this checklist itself and reports back — you don't tick these off by hand. It's here so you know exactly what “done” means.</b></p>
       <ul class="checks">
         <li><span class="box" aria-hidden="true"></span><div>Every page renders from Supabase (published rows); static fallback where the DB is empty.</div></li>
         <li><span class="box" aria-hidden="true"></span><div><b>The editable test:</b> edit a value in the editor → <b>Publish</b> → refresh → the change shows. (While draft, the fallback is correct.)</div></li>
@@ -324,6 +377,7 @@ then go. Report repo + live URL.</pre>
 
     <section class="block" id="files">
       <h2 class="sec"><span class="k">REF</span> Files &amp; where things live</h2>
+      <p style="color:var(--ink-soft);margin-top:0"><b>Why this is here:</b> you don't need any of this day-to-day. <span class="who bot">Codey</span> reads these; <span class="who you">you</span> don't have to. It's so you (or a developer) can find the real source files if something ever needs changing.</p>
       <div class="tablewrap"><table class="map">
         <thead><tr><th>File</th><th>What it is</th></tr></thead>
         <tbody>
