@@ -159,9 +159,9 @@
     <div class="hero">
       <p class="eyebrow">Standard Operating Procedure · Build from Scratch</p>
       <h1>Build a new site — content from an old site if there is one, design from anything that inspires it.</h1>
-      <p class="lede">For a fresh build (new design, new structure) rather than a like-for-like copy. Two things are decided <b>independently</b>: where the <b>content</b> comes from, and where the <b>design</b> comes from. Works for both club and business sites.</p>
+      <p class="lede">For a fresh build (new design, new structure) rather than a like-for-like copy. Two things are decided <b>independently</b>: where the <b>content</b> comes from, and where the <b>design</b> comes from. Works for both club and business sites. <b>However they're sourced, the finished site is an editable SW1/B1 tenant on Cloudflare</b> — it reads the database and the owner edits it through the platform.</p>
       <div class="directive"><span aria-hidden="true">◆</span><div><b>Content and design are separate choices.</b> You can harvest content from an old site <em>and</em> synthesise a brand-new design from three sites the client screenshotted — mix freely. <b>If an old site exists, its earned SEO is still a deliverable</b> — inventory the URLs and 301-map them even on a full redesign.</div></div>
-      <div class="meta-row"><span class="chip">Content&nbsp;<b>old site or brief</b></span><span class="chip">Design&nbsp;<b>replicate / inspire / screenshots</b></span><span class="chip">Stack&nbsp;<b>Astro</b></span><span class="chip">Law&nbsp;<b>S1–S20</b></span></div>
+      <div class="meta-row"><span class="chip">Content&nbsp;<b>old site or brief</b></span><span class="chip">Design&nbsp;<b>replicate / inspire / screenshots</b></span><span class="chip">Stack&nbsp;<b>Astro · Cloudflare</b></span><span class="chip">Editable&nbsp;<b>reads SW1/B1 DB</b></span><span class="chip">Law&nbsp;<b>S1–S20</b></span></div>
     </div>
 
     <!-- SUMMARY -->
@@ -171,7 +171,7 @@
         <div class="r"><span class="l">Objective</span><span class="v">Build a brand-new site — content from an old site if there is one, design from anything that inspires it.</span></div>
         <div class="r"><span class="l">Process</span><span class="v">Tell Codey where the content comes from + where the design comes from → (if there's an old site) Codey saves its pages so old links still work → Codey studies what's ranking and builds it better → you preview → deploy.</span></div>
         <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · old site URL (if any) · a couple of inspiration site URLs or screenshots · Codey does the build.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">A brand-new site that keeps any earned traffic (if it replaced one) and aims to out-rank by being more complete than what ranks now.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">A brand-new site that keeps any earned traffic (if it replaced one), aims to out-rank by being more complete than what ranks now — and that <b>the owner edits themselves in SW1/B1</b>, no developer.</span></div>
         <div class="r stuck"><span class="l">If stuck</span><span class="v">No old content? Use a client brief + clearly-marked placeholders — never invent. Design unclear? Give Codey a couple of inspiration URLs or screenshots.</span></div>
       </div>
     </section>
@@ -276,8 +276,8 @@ then build. Report repo + URL.</pre>
       <div class="phase"><div class="num">2</div><h3>Build the content brief</h3><p>Old-site harvest or client brief → <code>CONTENT-BRIEF.md</code>; flag conflicts + gaps, never invent (S1/S2).</p></div>
       <div class="phase"><div class="num">3</div><h3>If an old site exists — inventory + 301 map</h3><p>Run Migration Phase 0 in parallel (URL inventory + 1:1 301 map) so earned SEO transfers even on a redesign. See the Live-Site Migration SOP.</p></div>
       <div class="phase"><div class="num">4</div><h3>Research the top-ranking pages, then beat them <span class="who bot">Codey</span></h3><p><b>Before writing pages,</b> Codey studies the pages currently ranking for the target keywords and builds something more complete and better-structured — out-ranking, not matching, is the bar (<b>S4, pass/fail</b>).</p></div>
-      <div class="phase"><div class="num">5</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). Content in Astro collections (S18).</p></div>
-      <div class="phase"><div class="num">6</div><h3>Stage → sign-off → deploy → cut over <span class="who you">You + Carson OK</span></h3><p>Staging noindex (S10) → sign-off → deploy on <b>Cloudflare or Vercel</b> → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16). <b>You run the DNS change with Carson's OK</b> — Codey never touches a live domain.</p></div>
+      <div class="phase"><div class="num">5</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). <b>Build it editable (default):</b> content loaded into the SW1/B1 editable fields and read via the <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> data layer (Astro SSR, DB-first + static fallback, no editing UI in the site) — anything the model can't hold yet ships as static fallback (S18).</p></div>
+      <div class="phase"><div class="num">6</div><h3>Stage → sign-off → deploy → cut over <span class="who you">You + Carson OK</span></h3><p>Staging noindex (S10) → sign-off → deploy on <b>Cloudflare (default; Vercel optional)</b> → <b>publish the tenant</b> so public reads serve the DB content → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16). <b>You run the DNS change with Carson's OK</b> — Codey never touches a live domain.</p></div>
     </section>
 
     <section class="block" id="single">

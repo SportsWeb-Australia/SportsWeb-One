@@ -197,7 +197,7 @@
       <div class="directive"><span aria-hidden="true">◆</span><div><b>The one rule that makes it work.</b> Read from the <b>same tables, columns and content-keys the editor already writes</b> — never invent your own, never hardcode editable content. Static config is the fallback only. Break the contract and the site stops being editable.</div></div>
       <div class="meta-row">
         <span class="chip">Stack&nbsp;<b>Astro SSR</b></span>
-        <span class="chip">Host&nbsp;<b>Vercel or Cloudflare</b></span>
+        <span class="chip">Host&nbsp;<b>Cloudflare (Vercel optional)</b></span>
         <span class="chip">Proven on&nbsp;<b>Dookie United</b></span>
         <span class="chip">Law&nbsp;<b>S1–S20</b></span>
       </div>
@@ -250,7 +250,7 @@ SPORTSWEB-WEB-STANDARDS.md (S1–S20).
 
 Client/club: {{NAME}}   club_id: {{UUID}}   Supabase project: {{PROJECT_REF}}
 Design/variant: {{match the live platform render — confirm via ?club=<slug>}}
-Host: {{Vercel}} | {{Cloudflare}} (Astro SSR either way — keep the data layer runtime-neutral).
+Host: Cloudflare (default) | {{Vercel}} (Astro SSR either way — keep the data layer runtime-neutral).
 
 The platform editor already writes this client's content to Supabase in a fixed shape. READ from
 that same shape — do NOT invent tables, columns or content-key names, do NOT hardcode editable

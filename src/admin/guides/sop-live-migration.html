@@ -259,14 +259,14 @@
     <div class="hero">
       <p class="eyebrow">Standard Operating Procedure · Live-Site Migration</p>
       <h1>Move a live site to a new build — without losing the traffic it already earns.</h1>
-      <p class="lede">For migrating an existing website (with real SEO equity) to a rebuilt <b>Astro</b> site on <b>Cloudflare or Vercel</b>, left ready to wire into <b>Business One</b>. The prime directive is a clean cutover that carries every earned ranking across intact.</p>
+      <p class="lede">For migrating an existing website (with real SEO equity) to a rebuilt <b>Astro</b> site on <b>Cloudflare</b> (Vercel optional), built as an <b>editable Business One tenant</b> — the finished site <b>reads the SW1/B1 database and the owner edits it through the platform</b> (no code). The prime directive is a clean cutover that carries every earned ranking across intact.</p>
       <div class="directive">
         <span aria-hidden="true">⚑</span>
         <div><b>Prime directive — zero traffic loss.</b> Capture the SEO baseline <b>first</b>, rebuild at parity-or-better, map every old URL 1-to-1, and never touch DNS without sign-off. A ranking that drops on cutover is the one failure this SOP exists to prevent.</div>
       </div>
       <div class="meta-row">
-        <span class="chip">Stack&nbsp;<b>Astro · Cloudflare/Vercel</b></span>
-        <span class="chip">Later&nbsp;<b>Business One DB</b></span>
+        <span class="chip">Stack&nbsp;<b>Astro · Cloudflare</b></span>
+        <span class="chip">Editable&nbsp;<b>reads Business One DB</b></span>
         <span class="chip">Law&nbsp;<b>Web-Standards S1–S20</b></span>
         <span class="chip">Access&nbsp;<b>You + SW1 manager</b></span>
       </div>
@@ -277,9 +277,9 @@
       <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
       <div class="summary">
         <div class="r"><span class="l">Objective</span><span class="v">Move your website to a faster new one and keep every visitor Google already sends you.</span></div>
-        <div class="r"><span class="l">Process</span><span class="v">You hand Codey two Google files + one prompt → Codey copies your old site &amp; builds the new one → you preview it → you flip the web address (the DNS switch) → we watch the visitors for a few weeks.</span></div>
+        <div class="r"><span class="l">Process</span><span class="v">You hand Codey two Google files + one prompt → Codey copies your old site &amp; <b>loads the content into Business One so you can edit it</b>, then builds the new site to read it → you preview it → you flip the web address (the DNS switch) → we watch the visitors for a few weeks.</span></div>
         <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · your two Search Console files (<a href="#gexport">how to get them ↓</a>). Codey does the building.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">A cleaner, faster site on the same web address (same DNS), with your Google visitors kept.</span></div>
+        <div class="r"><span class="l">Outcome</span><span class="v">A cleaner, faster site on the same web address (same DNS), with your Google visitors kept — and <b>you can edit it yourself in Business One</b> anytime, no developer.</span></div>
         <div class="r stuck"><span class="l">If stuck</span><span class="v">Old site won't open? Codey grabs a saved copy (Wayback) + your Google files. Visitors drop after the switch? Tell Codey — it re-checks and fixes the page it broke.</span></div>
       </div>
     </section>
@@ -327,7 +327,11 @@ Live site to migrate (SEO SOURCE — preserve its equity): {{LIVE_URL}}
 Target design: {{same as existing, improved}} | {{new design at DESIGN_URL}}
                | {{new design — inspiration sites/screenshots (see Build from Scratch)}}
 Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
-Stack/host: Astro, Business-One-ready (content collections). Host: {{Cloudflare}} | {{Vercel}}.
+Stack/host: Astro SSR as an EDITABLE Business One tenant — the site READS the SW1/B1 database and the
+owner edits it through the platform editor. Build the data layer per SPORTSWEB-EDITABLE-SITE-SOP.md
+(DB-first with static fallback, RLS-gated, published-gate; don't invent tables/columns/keys). LOAD the
+harvested content into the editable fields so I can edit every part after launch. Host: Cloudflare
+(default) | {{Vercel}}.
 SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
 Google Business Profile [ ] · registrar/DNS [ ] · a backlink tool [ ].
 If I've ticked Search Console, its exports are attached (Performance → Pages + Queries; Indexing →
@@ -339,7 +343,7 @@ This is a live cutover, so the goal is zero traffic loss: capture the SEO baseli
 rebuild at parity-or-better, map every old URL 1:1, and don't touch DNS without my sign-off.
 Confirm the derived plan in one short message (repo name, page + URL inventory, the 301 map
 skeleton, what SEO access I gave you, same-domain vs new-domain), then go. Deploy to a
-*.vercel.app staging URL (noindex) for my review and hand me the exact DNS records for cutover.
+staging URL (noindex — Cloudflare preview by default) for my review and hand me the exact DNS records for cutover.
 Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-live runbook.</pre>
       </div>
       <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap. <b>No logins are shared</b> — you <em>export</em> the reports (Performance → top pages + queries; Indexing/Pages → indexed URLs) and paste them in; Codey never signs into your Google account, and you make the DNS change yourself from the records it hands you.</div></div>
@@ -355,7 +359,7 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
           <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop the two files right on it, then go to the next step.</div></div>
         </li>
         <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w3">Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and <b>fill in the one or two blanks first</b> (like which website) — then click <b>Copy</b>, paste it into the chat <em>under</em> your files, and press Enter. That single message tells Codey to do everything below.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b id="w4">Codey copies your old site.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — into the new site. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
+        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b id="w4">Codey copies your old site — into Business One, so you can edit it.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — and <b>loads them into your Business One content</b> so you (or the SW1 manager) can change any of it later. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
         <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b id="w5">Codey keeps the working buttons.</b> <span class="who auto">Codey does this</span><br>Your contact form, map and “get a quote” button get carried across so they still work. If any needs a new setting, Codey tells you exactly what.</li>
         <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b id="w6">Codey builds it and checks every page.</b> <span class="who auto">Codey does this</span><br>It rebuilds everything cleanly, then checks that <b>every page Google sends visitors to is on the new site and just as good.</b> It won't go live until this passes — this is the safety gate.</li>
         <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w7">Look at the private preview.</b> <span class="who you">You do this</span><br>Codey sends a link only you can see. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
@@ -480,10 +484,10 @@ Flag anything that needs a new account, key, or domain allow-listing before go-l
 
       <div class="phase" id="p2">
         <div class="num">2</div>
-        <h3>Rebuild in Astro — Business-One-ready <span class="who bot">Codey</span></h3>
-        <p class="purpose">Match (or apply the chosen new) design; cleaner, faster, accessible, genuinely multi-page.</p>
+        <h3>Rebuild in Astro as an editable Business One tenant <span class="who bot">Codey</span></h3>
+        <p class="purpose">Match (or apply the chosen new) design; cleaner, faster, accessible, genuinely multi-page — and <b>editable through Business One</b> (default end-state).</p>
         <ul>
-          <li><b>Content in Astro content collections</b> / <code>src/content/</code> + data files, <em>not</em> baked into components — so Business One can source it later without a rebuild (Standards S18).</li>
+          <li><b>Editable &amp; database-driven — data layer per <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>:</b> Astro SSR (<code>output:'server'</code>), adapter per host (<code>@astrojs/cloudflare</code> default; <code>@astrojs/vercel</code> optional), a runtime-neutral <code>loadClub()</code>/<code>loadBusiness()</code> that <b>reads the DB</b> and merges onto a static config (<b>DB-first, static fallback</b>), RLS-gated public reads, published-gate. The harvested content is <b>loaded into the editable fields</b> so the owner edits it; the site holds <b>no editing UI</b> and never writes. Don't invent tables/columns/keys; anything the model can't hold yet ships as static fallback (S18).</li>
           <li>One shared <code>&lt;SeoHead&gt;</code>: unique title + meta + self-referencing absolute canonical + OG/Twitter + the page's JSON-LD (S4). <code>@astrojs/sitemap</code>; minimal client JS.</li>
           <li><b>Connected JSON-LD graph</b> with stable <code>@id</code>s (S5): WebSite + WebPage + the most specific LocalBusiness subtype + Person + Service + BreadcrumbList. <b>No self-serving AggregateRating</b> on the business. AU phone <code>+61…</code>.</li>
           <li><code>llms.txt</code> + facts in real HTML (S6); real CTAs, never <code>href="#"</code> (S12); WCAG 2.2 AA (S13).</li>
