@@ -166,10 +166,21 @@
     .wrap{grid-template-columns:1fr;gap:0}
     nav.toc{display:none}
   }
+  /* ---------- flow diagram ---------- */
+  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.4rem 0}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
+  .fnode{flex:none;width:120px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
+  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
+  .fnode b{font-size:.83rem;line-height:1.15}
+  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
+  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
+  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
+  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
   @media print{
     header.top,nav.toc,.top-actions,.copy{display:none!important}
     .wrap{display:block}body{background:#fff}
     section.block,.phase{break-inside:avoid}
+    .flow{flex-wrap:wrap}
   }
 </style>
 </head>
@@ -195,6 +206,7 @@
     <p class="lab">Phases</p>
     <ol>
       <li><a href="#run"><span class="n">▶</span>Run this SOP</a></li>
+      <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
       <li><a href="#p0"><span class="n">0</span>SEO baseline</a></li>
       <li><a href="#p1"><span class="n">1</span>Content + images</a></li>
       <li><a href="#embed"><span class="n">◆</span>Embedded code</a></li>
@@ -252,7 +264,32 @@ skeleton, what SEO access I gave you, same-domain vs new-domain), then go. Deplo
 *.vercel.app staging URL (noindex) for my review and hand me the exact DNS records for cutover.
 Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-live runbook.</pre>
       </div>
-      <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap.</div></div>
+      <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap. <b>No logins are shared</b> — you <em>export</em> the reports (Performance → top pages + queries; Indexing/Pages → indexed URLs) and paste them in; Codey never signs into your Google account, and you make the DNS change yourself from the records it hands you.</div></div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="block" id="flow">
+      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
+      <p style="color:var(--ink-soft);margin-top:0">Left to right — the whole job. The one hard stop is the <b>parity gate</b>: nothing cuts over until every earning URL is matched-or-better and 301-mapped.</p>
+      <div class="flowwrap"><div class="flow">
+        <div class="fnode"><span class="fn">0</span><b>Baseline</b><span>URLs + 301 skeleton</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">1</span><b>Harvest</b><span>content + self-host assets</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">◆</span><b>Embeds</b><span>forms · widgets · maps</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">2</span><b>Rebuild</b><span>Astro · SEO · schema</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode gate"><span class="fn">3</span><b>Parity gate</b><span>every URL ≥ before</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">4</span><b>Staging</b><span>noindex · sign-off</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode go"><span class="fn">5</span><b>Cutover</b><span>DNS · 301 · sitemaps</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">6</span><b>Maps &amp; local</b><span>GBP · areaServed</span></div>
+        <div class="fconn">→</div>
+        <div class="fnode"><span class="fn">7</span><b>Watch</b><span>2–4 wks vs baseline</span></div>
+      </div></div>
     </section>
 
     <!-- PHASES -->
@@ -281,6 +318,21 @@ Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-li
           <li><b>Images</b> → they're injected by JS from CDNs. Render + scroll the page through, sweep the DOM for real URLs across <em>all</em> hosts (<code>img.currentSrc||img.src</code> + computed <code>background-image</code>); network-request capture is the fallback. Gallery/lightbox originals often can't be scraped — ask the client, never substitute a stranger's photo.</li>
           <li>Re-process to the media budget: AVIF/WebP, explicit <code>width</code>/<code>height</code>, hero ≤ 200 KB, real <code>alt</code>.</li>
         </ul>
+        <div class="code prompt">
+          <div class="code-head"><span class="tag">◆ Prompt — harvest content + assets</span><button class="copy" data-copy="k-harvest">Copy</button></div>
+<pre id="k-harvest">Harvest {{OLD_SITE_URL}} with the in-app browser (Claude in Chrome). For every page:
+1. Open it, get_page_text → mine ALL real content into CONTENT-BRIEF.md (never invent;
+   gaps = [CLIENT TO SUPPLY]; flag old-vs-new conflicts).
+2. Scroll the page fully; sweep the DOM for real image URLs across ALL hosts
+   (img.currentSrc||img.src + computed background-image); network-request capture as fallback.
+   Step through EVERY slideshow/carousel slide and capture each at full resolution.
+3. DOWNLOAD every asset (images, slides, logos, files) INTO the repo and self-host it —
+   never hotlink the old host/CDN.
+4. If a gallery/lightbox original is stuck behind an async API, flag it; recover it from the
+   Wayback Machine (web.archive.org) or ask the client — never substitute a stranger's photo.
+Re-process images to the media budget (AVIF/WebP, width/height, hero ≤ 200 KB, real alt).</pre>
+        </div>
+        <div class="callout stop"><span class="ic">!</span><div><b>By exception — original offline / host lapsing.</b> If the live site is down or its host is being switched off (e.g. a lapsed domain): harvest from a working mirror/subdomain and/or the <b>Wayback Machine</b>, <b>self-host every asset</b> so nothing points at the dying host, and rebuild the old-URL list for the 301 map from <b>Google Search Console</b> + a <code>site:</code> search + Wayback — you can't crawl a site that's down.</div></div>
       </div>
 
       <!-- EMBED -->
