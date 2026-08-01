@@ -1,6 +1,85 @@
-import { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useClub } from "../ClubContext";
+
+/** Flattened, searchable items built from whatever content this club has loaded:
+ *  nav pages, news posts, teams and sponsors. Kept generic so every club gets
+ *  working header search, not just gameday. */
+function useSearchIndex() {
+  const { club } = useClub();
+  return useMemo(() => {
+    const items: { label: string; href: string; kind: string }[] = [];
+    for (const item of club.nav) items.push({ label: item.label, href: item.href, kind: "Page" });
+    for (const p of club.news ?? []) items.push({ label: p.title, href: p.href ?? `/news/${p.slug ?? p.id}`, kind: "News" });
+    for (const group of club.teams ?? [])
+      for (const t of group.teams ?? [])
+        items.push({ label: t.name, href: t.href ?? (t.slug ? `/teams/${t.slug}` : "/teams"), kind: "Team" });
+    for (const s of club.sponsors ?? []) items.push({ label: s.name, href: s.href ?? "/sponsors", kind: "Sponsor" });
+    return items;
+  }, [club]);
+}
+
+function HeaderSearch() {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const index = useSearchIndex();
+  const navigate = useNavigate();
+
+  const results = q.trim()
+    ? index.filter((i) => i.label.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 8)
+    : [];
+
+  const go = (href: string) => {
+    navigate(href);
+    setOpen(false);
+    setQ("");
+  };
+
+  return (
+    <div className="sw-search">
+      <button
+        type="button"
+        className="sw-search-toggle"
+        aria-label="Search"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+      </button>
+      {open && (
+        <div className="sw-search-panel">
+          <input
+            autoFocus
+            type="search"
+            placeholder="Search the site…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && results[0]) go(results[0].href);
+              if (e.key === "Escape") setOpen(false);
+            }}
+          />
+          {results.length > 0 && (
+            <ul className="sw-search-results">
+              {results.map((r) => (
+                <li key={r.kind + r.label}>
+                  <button type="button" onClick={() => go(r.href)}>
+                    <span>{r.label}</span>
+                    <span className="sw-search-kind">{r.kind}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {q.trim() && results.length === 0 && <p className="sw-search-empty">No matches.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Header() {
   const { club } = useClub();
@@ -39,7 +118,9 @@ export function Header() {
             <span className="sw-brand-text">
               <span className="sw-brand-name">{identity.shortName}</span>
               <br />
-              <span className="sw-brand-sub">{identity.sports.join(" · ")}</span>
+              <span className="sw-brand-sub">
+                {[...identity.sports, identity.foundedNote].filter(Boolean).join(" · ")}
+              </span>
             </span>
           </Link>
 
@@ -69,8 +150,10 @@ export function Header() {
             </ul>
           </nav>
 
-          <Link to="/register" className="sw-btn sw-header-cta">
-            Join the club
+          <HeaderSearch />
+
+          <Link to={club.hero.primaryCta?.href ?? "/register"} className="sw-btn sw-header-cta">
+            {club.hero.primaryCta?.label ?? "Join the club"}
           </Link>
 
           <button
@@ -107,8 +190,8 @@ export function Header() {
             </Link>
           )
         )}
-        <Link to="/register" className="sw-btn" onClick={close}>
-          Join the club
+        <Link to={club.hero.primaryCta?.href ?? "/register"} className="sw-btn" onClick={close}>
+          {club.hero.primaryCta?.label ?? "Join the club"}
         </Link>
       </div>
     </>

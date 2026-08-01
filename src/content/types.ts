@@ -328,6 +328,13 @@ export interface ClubConfig {
     caption?: string;
   };
 
+  /** Optional photo strip ("Life at the club"-style). Omit to not render it. */
+  photoStrip?: {
+    eyebrow: string;
+    title: string;
+    images: string[];
+  };
+
   president: {
     name: string;
     role: string;

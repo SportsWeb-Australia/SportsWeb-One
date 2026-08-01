@@ -307,10 +307,10 @@ html:not([data-render="f2"])[data-variant="gameday"] {
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
   --bg: var(--club-paper);
-  --bg-alt: color-mix(in srgb, var(--club-silver) 8%, var(--club-paper));
+  --bg-alt: #f7f4ee;
   --bg-invert: var(--club-ink);
   --surface: var(--club-paper);
-  --surface-2: color-mix(in srgb, var(--club-silver) 8%, var(--club-paper));
+  --surface-2: #f7f4ee;
   --text: color-mix(in srgb, var(--club-ink) 90%, #000000);
   --text-soft: color-mix(in srgb, var(--club-ink) 55%, var(--club-paper));
   --text-invert: var(--club-paper);

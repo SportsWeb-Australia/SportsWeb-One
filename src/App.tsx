@@ -11,6 +11,7 @@ import type { ClubConfig, DesignVariant } from "./content/types";
 
 import { Header } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
+import { BackToTop } from "./components/layout/BackToTop";
 import { MobileTabBar } from "./components/layout/MobileTabBar";
 import { AnnouncementBar } from "./components/blocks/AnnouncementBar";
 import { TrialBanner } from "./components/blocks/TrialBanner";
@@ -289,6 +290,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <BackToTop />
           <MobileTabBar />
           <AppPrompts />
           {/* Public-site feedback widget (SitePulse). Draft -> everyone; published -> admins only. */}

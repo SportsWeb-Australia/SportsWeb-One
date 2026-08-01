@@ -143,6 +143,19 @@ export function SeoManager() {
     },
   };
 
-  useSeo(MAP[pathname] ?? null);
+  // Per-club override: seo.title / seo.description (e.g. "/" -> seo.title,
+  // "/about" -> seo.about.title). Falls back to the generic MAP above.
+  const key = pathname === "/" ? "" : pathname.replace(/^\//, ".");
+  const overrideTitle = club.content?.[`seo${key}.title`];
+  const overrideDescription = club.content?.[`seo${key}.description`];
+  const base = MAP[pathname] ?? null;
+  const resolved: SeoInput | null = base || overrideTitle
+    ? {
+        title: overrideTitle ?? base?.title ?? name,
+        description: overrideDescription ?? base?.description,
+      }
+    : null;
+
+  useSeo(resolved);
   return null;
 }
