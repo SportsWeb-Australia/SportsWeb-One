@@ -175,6 +175,7 @@
     <p class="lab">Contents</p>
     <ol>
       <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
+      <li><a href="#preflight"><span class="n">!</span>Design check</a></li>
       <li><a href="#flow"><span class="n">▸</span>Your 7 steps</a></li>
       <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
       <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
@@ -213,6 +214,13 @@
         <div class="r"><span class="l">Outcome</span><span class="v">A live site whose content the owner edits in the SW1 / Business One editor; edits show on the next page load.</span></div>
         <div class="r stuck"><span class="l">If stuck</span><span class="v">Nothing showing to the public? Check the site is <b>Published</b> (<a href="#publish"><code>website_status='published'</code></a>). An editor change not appearing? The build is reading the wrong tables/keys — it must use the <a href="#contract">exact ones the editor writes</a>, never its own.</span></div>
       </div>
+    </section>
+
+    <!-- PREFLIGHT -->
+    <section class="block" id="preflight">
+      <h2 class="sec"><span class="k">CHECK</span> Before you start — is the design real? <span class="who you">You confirm</span></h2>
+      <div class="callout stop"><span class="ic">!</span><div><b>Learned the hard way on Chadstone Redbacks (Jul 2026):</b> a static "gameday" design build shipped and stayed live for weeks before anyone checked it was an SW1-supported design. It wasn't &mdash; the platform only renders the frozen <code>ALLOWED_VARIANTS</code> set (<code>src/content/allowedVariants.ts</code>: <code>heritage, broadcast, arena, classic, stadium, editorial, momentum, coastal</code>), and "gameday" was unbuilt platform work, not a shippable option.</div></div>
+      <p style="color:var(--ink-soft);margin-top:0">Before Codey writes a single page, confirm the target design is either <b>(a)</b> one of the currently allowed variants above, or <b>(b)</b> an already-completed design-pack port (a matching audit doc exists under <code>docs/</code>). If it's neither, <b>stop and get an explicit decision</b> &mdash; wait for the platform port, pick an existing supported variant, or knowingly ship static with a documented follow-up. Don't let a static stand-in quietly become the deliverable.</p>
     </section>
 
     <!-- FLOW -->
