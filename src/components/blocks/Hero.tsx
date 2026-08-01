@@ -117,7 +117,15 @@ function HeroCopy({ hero, showLede }: { hero: ClubConfig["hero"]; showLede?: boo
   return (
     <>
       <EditableText as="span" className="sw-eyebrow" k="hero.eyebrow" value={hero.eyebrow} />
-      <EditableText as="h1" k="hero.title" value={hero.title} />
+      <h1>
+        <EditableText as="span" k="hero.title" value={hero.title} />
+        {(hero.titleAccent || "") !== "" && (
+          <>
+            {" "}
+            <EditableText as="span" className="sw-hero-title-accent" k="hero.titleAccent" value={hero.titleAccent ?? ""} />
+          </>
+        )}
+      </h1>
       <EditableText as="p" className="sw-hero-sub" k="hero.subtitle" value={hero.subtitle} />
       {showLede && (hero.lede || "") !== "" && (
         <EditableText as="p" className="sw-hero-lede" k="hero.lede" value={hero.lede ?? ""} />

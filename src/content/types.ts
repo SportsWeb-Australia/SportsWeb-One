@@ -293,6 +293,10 @@ export interface ClubConfig {
   hero: {
     eyebrow: string;
     title: string;
+    /** Optional accent-coloured trailing phrase appended to the title, e.g.
+     *  title="The fastest game" + titleAccent="on two feet." (gameday-style
+     *  two-tone headline). Rendered in the variant's accent colour. */
+    titleAccent?: string;
     subtitle: string;
     /** Optional second paragraph below the subtitle (gameday-style two-line lede). */
     lede?: string;

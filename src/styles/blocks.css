@@ -46,10 +46,41 @@
    watermark, navy (not accent-red) Join band, bolder news cards — closing
    the fidelity gap against the ported reference design. */
 [data-variant="gameday"] .sw-brand img { width: 68px; height: 68px; }
-[data-variant="gameday"] .sw-eyebrow { color: #f0afa6; }
-[data-variant="gameday"] .sw-hero-watermark {
-  opacity: 0.16;
-  filter: sepia(1) saturate(6) hue-rotate(-40deg) brightness(0.75);
+/* Eyebrow: body font (not mono), exact peach, tighter tracking than the shared default. */
+[data-variant="gameday"] .sw-eyebrow {
+  color: #f4b6b4;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+/* Watermark crest: plain, very low opacity, no colour filter — the wash below
+   is a separate radial-gradient layer, not a tint on the logo itself. */
+[data-variant="gameday"] .sw-hero-watermark { opacity: 0.07; }
+[data-variant="gameday"] .sw-hero--watermark { position: relative; overflow: hidden; }
+[data-variant="gameday"] .sw-hero--watermark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 82% 120%, rgba(221, 61, 57, 0.32), rgba(0, 0, 0, 0) 55%);
+  pointer-events: none;
+}
+/* Two-tone headline: title stays hero-text, the trailing accent phrase picks up the club accent. */
+[data-variant="gameday"] .sw-hero-title-accent { color: var(--accent); }
+[data-variant="gameday"] .sw-hero--watermark .sw-hero-sub { color: #cdd6f4; font-size: 0.875rem; }
+[data-variant="gameday"] .sw-hero-lede { color: #dde3f5; font-size: 1.125rem; font-weight: 400; }
+/* Buttons: title case body font, not the shared uppercase display-font default. */
+[data-variant="gameday"] .sw-btn {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 1rem;
+  padding: 0.8125rem 1.375rem;
+}
+[data-variant="gameday"] .sw-hero .sw-btn--ghost {
+  --btn-fg: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
 }
 [data-variant="gameday"] .sw-join { background: var(--club-ink); }
 [data-variant="gameday"] .sw-card-tag { font-weight: 700; letter-spacing: 0.1em; }

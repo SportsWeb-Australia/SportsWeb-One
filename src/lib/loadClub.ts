@@ -493,6 +493,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // re-apply whatever the club has edited. Without this, saved text vanishes
       // on the next load.
       if (map["hero.title"]) cfg.hero = { ...cfg.hero, title: map["hero.title"] };
+      if (map["hero.titleAccent"] != null) cfg.hero = { ...cfg.hero, titleAccent: map["hero.titleAccent"] };
       if (map["hero.eyebrow"] != null) cfg.hero = { ...cfg.hero, eyebrow: map["hero.eyebrow"] };
       if (map["hero.subtitle"] != null) cfg.hero = { ...cfg.hero, subtitle: map["hero.subtitle"] };
       if (map["hero.lede"] != null) cfg.hero = { ...cfg.hero, lede: map["hero.lede"] };

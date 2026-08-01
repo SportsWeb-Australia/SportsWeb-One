@@ -322,6 +322,12 @@ then go. Report repo + live URL.</pre>
           <tr><td><code>page.{page}.eyebrow / .title / .intro</code></td><td>Per-page banner (about, contact, news, events, teams, fixtures, sponsors, documents, register)</td></tr>
           <tr><td><code>site.variant</code></td><td>Design variant (clamp to allowed set)</td></tr>
           <tr><td><code>news.mode</code></td><td><code>news</code> | <code>both</code> | <code>social</code></td></tr>
+          <tr><td><code>hero.cta.primary.label / .href, hero.cta.secondary.label / .href</code></td><td>Hero CTA button copy/links</td></tr>
+          <tr><td><code>identity.foundedNote</code></td><td>Header tagline, e.g. "Est. 1960"</td></tr>
+          <tr><td><code>identity.location / identity.sports</code></td><td>Feeds schema <code>address</code>/<code>sport</code> without a <code>sport_type</code> enum migration</td></tr>
+          <tr><td><code>whyUs.* / videoPitch.* / photoStrip.* / teamsTeaser.*</code></td><td>Optional gameday-style sections — see the SOP for the full field list</td></tr>
+          <tr><td><code>nav.item.N.label / .href</code></td><td>Per-club nav order override (only if set — other clubs keep the default)</td></tr>
+          <tr><td><code>seo.title / .description / .image</code>, or <code>seo.{page}.title</code> etc.</td><td>Per-page SEO overrides</td></tr>
         </tbody>
       </table></div>
       <p style="color:var(--ink-soft);font-size:.88rem"><code>.N</code> suffixes are array slots. Brand colours are <b>not</b> in <code>club_content</code> — they're on the <code>clubs</code> row (written by the <code>set_club_colours</code> RPC); derive theme tokens from them.</p>
@@ -349,6 +355,15 @@ then go. Report repo + live URL.</pre>
           <li>A <code>loadClub()</code> reads the tables/keys above and merges onto a static config; anything the DB hasn't supplied falls back to the static value, so the site is always complete.</li>
           <li>Brand colours injected on <code>&lt;html&gt;</code> as <code>--club-ink/paper/accent/silver</code>; <code>data-variant</code> selects the surface mapping. Reuse the platform <code>tokens/base/blocks</code> CSS where the design must match.</li>
           <li>Per-page SEO + connected JSON-LD per the standards (S4/S5/S6).</li>
+        </ul>
+      </div>
+      <div class="phase"><div class="num">SEO</div>
+        <h3>SEO/AEO — build it, don't just cite the standard</h3>
+        <div class="callout stop"><span class="ic">!</span><div><b>Learned the hard way on Chadstone Redbacks (Aug 2026):</b> none of this existed until asked for explicitly. On a multi-tenant platform, S4/S5/S6/S11 must be <b>generated per club, dynamically</b> — hand-writing tags once doesn't satisfy them for every tenant.</div></div>
+        <ul>
+          <li><code>/sitemap.xml</code>, <code>/robots.txt</code>, <code>/llms.txt</code> — resolve the club by host, list its real pages + published news/team/event slugs. <code>robots.txt</code> declares <code>Sitemap:</code> using the request's own host.</li>
+          <li><b>Vercel + Vite/SPA gotcha:</b> a catch-all SPA rewrite swallows these paths before your function runs — add explicit earlier <code>rewrites</code> entries pointing them at their real <code>/api/...</code> paths. If <code>package.json</code> has <code>"type": "module"</code>, <code>api/*.js</code> must use <code>import</code>/<code>export default</code> — CommonJS throws <code>FUNCTION_INVOCATION_FAILED</code> at runtime, not build time. Astro's file-based endpoints don't have this problem.</li>
+          <li>Favicon set from the club's own logo, not the platform default. JSON-LD includes <code>sport</code>/<code>address</code>/<code>telephone</code>/<code>sameAs</code> wherever the data exists. Twitter Card gets <code>title</code>/<code>description</code>/<code>image</code>, not just the card type. <code>og:image</code> is a real photo, not just the logo. Meaningful images get real <code>alt</code> text.</li>
         </ul>
       </div>
     </section>
@@ -380,6 +395,8 @@ then go. Report repo + live URL.</pre>
         <li><span class="box" aria-hidden="true"></span><div><b>The editable test:</b> edit a value in the editor → <b>Publish</b> → refresh → the change shows. (While draft, the fallback is correct.)</div></li>
         <li><span class="box" aria-hidden="true"></span><div>Images load from <code>club-media</code> URLs; zero emoji; internal links resolve; production 200s; branded 404.</div></li>
         <li><span class="box" aria-hidden="true"></span><div>Runtime-neutral loader confirmed (no window/localStorage/Node built-ins) — host is swappable.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div><code>/sitemap.xml</code>, <code>/robots.txt</code>, <code>/llms.txt</code> fetched directly and confirmed real — not a 200 that's secretly the app's fallback page.</div></li>
+        <li><span class="box" aria-hidden="true"></span><div>Favicon is the club's own crest; <code>og:image</code>/<code>twitter:image</code> is a real photo; JSON-LD has <code>sameAs</code>/<code>address</code>/<code>sport</code> where the data exists.</div></li>
       </ul>
     </section>
 
