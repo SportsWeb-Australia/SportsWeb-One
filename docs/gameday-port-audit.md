@@ -155,3 +155,44 @@ two of the §3 guesses:
 5. **Not merged.** Everything above is uncommitted-to-main on branch `gameday-design-pack-audit`.
    Needs a PR + review per this repo's own "never commit direct to main" rule, and Carson should
    actually see it rendered before merge, not just take a written description on faith.
+
+## 9. Update — real Chadstone tenant provisioned + "reads as another template" fixed
+
+Carson's first look: correctly called out that it looked like a reskin of another variant, not a
+distinct design. Root cause: the shared brand-system decorations (`.sw-accent-bars` triple-bar,
+`.sw-eyebrow::before` dash) were rendering on every gameday section — the source design has
+neither. Suppressed both for `[data-variant="gameday"]` only.
+
+**Real tenant:** `club_id 9d118b50-65c7-4300-b595-9d660a1d9d1c`, slug `chadstone-redbacks`, project
+`uzibfawcwoapfbigpzum`. Loaded: hero copy+watermark, about (2 paragraphs), 3 teams/programs, 6 real
+sponsors (logos+links), 5 real news articles, footer acknowledgement+flags, page banners for
+about/contact/news/sponsors/register. All images point at the already-live static site's assets
+(`chadstone-redbacks-website.vercel.app/assets/...`) rather than being re-uploaded to `club-media`
+— fast and correct per the SOP ("full public URLs — just render them"), migrating them into
+`club-media` proper is a non-blocking follow-up.
+
+**Draft-preview gap found:** `?preview=<token>` only surfaces `clubs` + `club_content` (via
+`get_club_by_preview_token` / `get_club_content_by_preview_token`) — there's no equivalent RPC for
+`teams`/`sponsors`/`news`, so those are correctly stored but invisible via the shareable no-login
+preview link. Worked around by setting `website_status='published'` on this tenant directly (safe:
+nothing is deployed anywhere publicly reachable, it only exists in Supabase + a local dev server).
+**Real fix needed later:** either extend the preview RPCs to cover child tables, or accept
+"publish to review" as the actual workflow for now.
+
+**Schema gap found + migration staged (not yet merged to prod):** `sport_type` enum has no
+`'lacrosse'` value → `sportsFromType()` returns `[]` → empty gaps in generic club-description text
+("fields ​ teams..."). Added `'lacrosse'` via `apply_migration` on the `develop` branch
+(`jgziqwowavhuqpbmzxhs`) per the staging-first rule — **needs Carson's explicit merge-to-main
+authorization**, not done unilaterally. Code-side mapping (`case "lacrosse": return ["Lacrosse"]`)
+already added to `loadClub.ts`, ready the moment the migration merges.
+
+**Other real bugs found+fixed while loading real content** (all generic wins, not Chadstone-only):
+`about.body` array-truncation bug, `PresidentWelcome`/`Committee` rendering empty placeholders with
+no data, footer never rendering `footer.logo.N` flags despite the SOP documenting the key,
+literal "IG"/"FB" text instead of real social icons. Full detail in the commit messages on this
+branch.
+
+**Still open:** merge the `lacrosse` enum migration (needs Carson's go-ahead); extend preview RPCs
+for teams/sponsors/news (or formalise "publish to review" as the workflow); Match Centre / Fixtures
+page still shows placeholder (no real fixture data exists to load yet); Astro-side port still not
+started (this is 100% the React admin/preview app).
