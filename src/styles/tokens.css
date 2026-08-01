@@ -298,6 +298,40 @@ html:not([data-render="f2"])[data-variant="coastal"] {
   --section-pad: clamp(4.5rem, 9vw, 8rem);
 }
 
+/* ---------- GAMEDAY (colour-forward dark — header/hero pinned to the club's own
+   ink colour, not a neutral near-black like BROADCAST. Condensed display type,
+   punchy accent CTAs. Ported from the Chadstone Redbacks gameday concept —
+   see docs/gameday-port-audit.md.) ---------- */
+html:not([data-render="f2"])[data-variant="gameday"] {
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --bg: var(--club-paper);
+  --bg-alt: color-mix(in srgb, var(--club-silver) 8%, var(--club-paper));
+  --bg-invert: var(--club-ink);
+  --surface: var(--club-paper);
+  --surface-2: color-mix(in srgb, var(--club-silver) 8%, var(--club-paper));
+  --text: color-mix(in srgb, var(--club-ink) 90%, #000000);
+  --text-soft: color-mix(in srgb, var(--club-ink) 55%, var(--club-paper));
+  --text-invert: var(--club-paper);
+  --border: color-mix(in srgb, var(--club-silver) 30%, var(--club-paper));
+  --hero-bg: var(--club-ink);
+  --hero-text: var(--club-paper);
+  --header-bg: var(--club-ink);
+  --header-text: var(--club-paper);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 14px 34px rgba(0, 0, 0, 0.16);
+  --accent-on-bg: #ffffff;
+  --heading-transform: uppercase;
+  --heading-tracking: 0.01em;
+  --heading-leading: 1.05;
+  --heading-weight: 700;
+  --radius: 10px;
+  --radius-lg: 18px;
+  --hero-align: left;
+  --head-align: left;
+  --section-pad: clamp(3rem, 6vw, 5.5rem);
+}
+
 /* ---- Structural variants: typographic flavour (layout lives in blocks.css) ---- */
 html:not([data-render="f2"])[data-variant="broadsheet"] {
   --font-display: "Playfair Display", Georgia, serif;

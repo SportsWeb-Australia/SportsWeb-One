@@ -302,6 +302,83 @@
   color: var(--hero-text);
 }
 
+/* Watermark hero (gameday): solid hero-bg, large translucent crest instead of
+   photo or diagonal motif; adds an optional second lede paragraph. */
+.sw-hero--watermark { background: var(--hero-bg); color: var(--hero-text); }
+.sw-hero-watermark {
+  position: absolute;
+  right: clamp(-140px, -8vw, -40px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(320px, 42vw, 620px);
+  opacity: 0.08;
+  pointer-events: none;
+}
+.sw-hero--watermark .sw-hero-sub {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  max-width: none;
+  color: color-mix(in srgb, var(--hero-text) 82%, transparent);
+  margin-bottom: 0.75rem;
+}
+.sw-hero-lede {
+  font-size: var(--fs-lead);
+  color: color-mix(in srgb, var(--hero-text) 86%, transparent);
+  max-width: 54ch;
+  margin-bottom: 2rem;
+}
+
+/* WhyUs: icon-card "why this sport" section (ported from gameday, generic). */
+.sw-whyus-head { max-width: 46rem; }
+.sw-whyus-lead {
+  font-size: var(--fs-lead);
+  color: color-mix(in srgb, var(--text-invert) 80%, transparent);
+  margin-top: var(--space-2);
+}
+.sw-whyus-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, 1fr);
+}
+.sw-whyus-card {
+  background: color-mix(in srgb, var(--text-invert) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-invert) 16%, transparent);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.sw-whyus-icon { font-size: 1.75rem; }
+.sw-whyus-card h4 { font-size: 1.15rem; margin: var(--space-1) 0 0.4rem; }
+.sw-whyus-card p {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: color-mix(in srgb, var(--text-invert) 78%, transparent);
+}
+.sw-whyus-cta { margin-top: var(--space-4); }
+@media (max-width: 900px) { .sw-whyus-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 620px) { .sw-whyus-grid { grid-template-columns: 1fr; } }
+
+/* VideoSplit: video-led split section (ported from gameday, composed on MediaEmbed). */
+.sw-videosplit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: center;
+}
+.sw-videosplit-lead {
+  font-size: var(--fs-lead);
+  color: var(--text-soft);
+  margin: var(--space-2) 0 var(--space-3);
+}
+.sw-videosplit-caption {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-top: var(--space-1);
+}
+@media (max-width: 900px) { .sw-videosplit-grid { grid-template-columns: 1fr; } }
+
 /* Classic: centred, editorial composition */
 [data-variant="classic"] .sw-hero-inner { margin-inline: auto; }
 [data-variant="classic"] .sw-hero-sub { margin-inline: auto; }

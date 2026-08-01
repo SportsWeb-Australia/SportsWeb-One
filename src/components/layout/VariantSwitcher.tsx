@@ -10,6 +10,7 @@ const OPTIONS: { id: DesignVariant; label: string }[] = [
   { id: "editorial", label: "Editorial" },
   { id: "momentum", label: "Momentum" },
   { id: "coastal", label: "Coastal" },
+  { id: "gameday", label: "Gameday" },
 ];
 
 /**

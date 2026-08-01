@@ -481,6 +481,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // map the saved overrides onto it here.
       if (map["hero.image"]) cfg.hero = { ...cfg.hero, backgroundImage: map["hero.image"] };
       if (map["hero.video"]) cfg.hero = { ...cfg.hero, video: map["hero.video"] };
+      if (map["hero.watermark"]) cfg.hero = { ...cfg.hero, watermark: map["hero.watermark"] };
       if (map["branding.logo"]) cfg.identity = { ...cfg.identity, logo: map["branding.logo"] };
       // Contact-page overrides (edited under Edit website → Contact).
       if (map["contact.email"]) cfg.contact = { ...cfg.contact, email: map["contact.email"] };
@@ -494,6 +495,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       if (map["hero.title"]) cfg.hero = { ...cfg.hero, title: map["hero.title"] };
       if (map["hero.eyebrow"] != null) cfg.hero = { ...cfg.hero, eyebrow: map["hero.eyebrow"] };
       if (map["hero.subtitle"] != null) cfg.hero = { ...cfg.hero, subtitle: map["hero.subtitle"] };
+      if (map["hero.lede"] != null) cfg.hero = { ...cfg.hero, lede: map["hero.lede"] };
       // President welcome.
       if (map["president.name"] != null) cfg.president = { ...cfg.president, name: map["president.name"] };
       if (map["president.role"] != null) cfg.president = { ...cfg.president, role: map["president.role"] };

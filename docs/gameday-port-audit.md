@@ -97,6 +97,61 @@ breakpoint scale before deciding whether gameday reuses it directly or needs its
 4. **Sponsor markup** — confirmed: use the platform's real `SponsorStrip`/`SponsorPlate` + Sponsors page pattern, not the source mockup's static chips. No open question, just flagging so it isn't re-litigated mid-build.
 5. **`data-variant="gameday"` dark-header handling** — confirm the platform's existing variant/theme system supports a variant-level (not just colour-token) branch for header text colour, or whether this needs a small system extension.
 
-**Not started:** no component code, no `design_key`/variant registration, no `allowedVariants.ts`
-change. This audit is the report; next step is Carson's call on the open questions in §7 before
-any `.astro` file is touched.
+## 8. Update (post-audit build, same session — Carson approved building as a 9th real variant)
+
+Checked the real components before writing anything new (§7's open questions), which corrected
+two of the §3 guesses:
+
+- **`teams-teaser` → reuse `TeamsBlock.tsx` as-is.** Not a new component — its "Pathways" card grid
+  (image/ages/title/blurb, linked, grouped) already does this job. No code needed.
+- **`split` → mostly reuse.** `MediaEmbed.tsx` already handles YouTube/Vimeo/file embeds; only a
+  thin new layout wrapper was needed, not new embed logic.
+- **`edu` → genuinely new**, confirmed nothing matched (`.sw-values` exists but is unused,
+  bordered-list shaped, not icon-card grid).
+
+**Built on branch `gameday-design-pack-audit`:**
+- `tokens.css` — new `[data-variant="gameday"]` block (colour-forward: `--hero-bg`/`--header-bg`
+  pinned to `--club-ink` directly, not a neutral near-black like broadcast; Oswald display, Inter
+  body, matching the source design's actual font choices).
+- `content/types.ts` + `allowedVariants.ts` — `"gameday"` added to `DesignVariant` and
+  `ALLOWED_VARIANTS`. **This makes gameday a real, selectable 9th variant**, not one of the frozen
+  20 (Carson's explicit call — see conversation, not re-litigating the P6 question here).
+- `admin/AdminWebsite.tsx` + `components/layout/VariantSwitcher.tsx` — picker entries added (the
+  admin picker filters its display list by `ALLOWED_VARIANTS`, so both were required for gameday
+  to actually appear as choosable, not just technically allowed).
+- `components/layout/PageHero.tsx` — added to the `HERO_FAMILY` map (`"dark"`, alongside
+  broadcast/matchday) — this is a `Record<DesignVariant, string>`, so every existing per-variant
+  map in the codebase needs the new key or `tsc` fails. Caught this exact class of error via
+  `npm run typecheck` — **run it after any future variant addition**, it's the fastest way to find
+  every place a variant needs registering.
+- `lib/loadClub.ts` + `content/types.ts` — `hero.lede` and `hero.watermark` added as new optional
+  `club_content` keys (extends the SOP's key map — needs reflecting there before this ships).
+- `components/blocks/Hero.tsx` (+ matching CSS in `blocks.css`) — new `HeroWatermark` shape
+  (third hero family alongside the existing motif-led/media-led ones): solid `hero-bg`, large
+  translucent crest watermark instead of a photo, optional second `hero.lede` paragraph below the
+  existing `hero.subtitle`.
+- `components/blocks/WhyUs.tsx` + `content/types.ts` (`whyUs` field) + CSS — new, generic icon-card
+  "why this sport" section, `sw-section--invert` for the colour-forward background (reused existing
+  invert-surface utility, no new background handling needed).
+- `components/blocks/VideoSplit.tsx` + `content/types.ts` (`videoPitch` field) + CSS — new, thin
+  wrapper composing `MediaEmbed` into a two-column copy/video layout.
+- `npm run typecheck` clean against my changes (32 pre-existing errors, unrelated to this work,
+  unchanged before/after; the 1 error I introduced — `PageHero`'s `HERO_FAMILY` map — is fixed).
+
+**Still NOT done — real gaps before this can go live for Chadstone:**
+1. **No visual verification anywhere.** None of this has been rendered — no dev server run, no
+   screenshot, no eyeballing against the approved gameday design. `tsc` passing is not proof it
+   looks right (see the shared engineering conventions: "the API working is not the button
+   working").
+2. **`club_content` key map in `SPORTSWEB-EDITABLE-SITE-SOP.md`** needs `hero.lede`/`hero.watermark`
+   added — not yet done.
+3. **No Astro-side port.** Everything built so far is the **React admin/preview app**
+   (`SportsWeb-One`) — the actual deployed Astro site (the Dookie pattern) still needs `Hero.astro`,
+   a `WhyUs.astro`, `VideoSplit.astro` ported from these, plus `tokens.css`/`blocks.css` copied
+   across (per the established "reused verbatim" sync pattern) before any real site can render
+   gameday.
+4. **No Chadstone `club_id`.** Nothing has been provisioned in Supabase — no tenant exists to
+   actually preview this against real content.
+5. **Not merged.** Everything above is uncommitted-to-main on branch `gameday-design-pack-audit`.
+   Needs a PR + review per this repo's own "never commit direct to main" rule, and Carson should
+   actually see it rendered before merge, not just take a written description on faith.

@@ -16,6 +16,7 @@ const STYLES: { id: DesignVariant; label: string; note: string; sports?: string[
   { id: "editorial", label: "Editorial", note: "Magazine-style overlap." },
   { id: "momentum", label: "Momentum", note: "Diagonal split, energetic." },
   { id: "coastal", label: "Coastal", note: "Airy, light, relaxed." },
+  { id: "gameday", label: "Gameday", note: "Colour-forward dark header/hero, condensed type." },
   { id: "broadsheet", label: "Broadsheet", note: "News-led newspaper front page." },
   { id: "matchday", label: "Matchday", note: "Next match + scores up top." },
   { id: "appshell", label: "App shell", note: "Member-app card feed." },
