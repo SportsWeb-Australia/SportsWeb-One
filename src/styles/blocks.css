@@ -46,13 +46,19 @@
    watermark, navy (not accent-red) Join band, bolder news cards — closing
    the fidelity gap against the ported reference design. */
 [data-variant="gameday"] .sw-brand img { width: 68px; height: 68px; }
-/* Eyebrow: body font (not mono), exact peach, tighter tracking than the shared default. */
+/* Eyebrow: body font (not mono), tighter tracking than the shared default.
+   Red on light sections (matches the accent), peach on dark/invert sections
+   (hero, WhyUs) where red on navy would lack contrast. */
 [data-variant="gameday"] .sw-eyebrow {
-  color: #f4b6b4;
+  color: var(--accent);
   font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
+}
+[data-variant="gameday"] .sw-hero--watermark .sw-eyebrow,
+[data-variant="gameday"] .sw-section--invert .sw-eyebrow {
+  color: #f4b6b4;
 }
 /* Watermark crest: plain, very low opacity, no colour filter — the wash below
    is a separate radial-gradient layer, not a tint on the logo itself. */
@@ -83,6 +89,10 @@
   border-color: #ffffff;
 }
 [data-variant="gameday"] .sw-join { background: var(--club-ink); }
+/* Section headings run smaller/tighter than the shared platform clamp. */
+[data-variant="gameday"] h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 1.75rem); }
+/* Team/program tiles: navy top accent bar, matching the reference cards. */
+[data-variant="gameday"] .sw-tile { border-top: 6px solid var(--club-ink); }
 [data-variant="gameday"] .sw-card-tag { font-weight: 700; letter-spacing: 0.1em; }
 [data-variant="gameday"] .sw-card h3 { font-weight: 700; color: var(--text); }
 [data-variant="gameday"] .sw-card { border-width: 2px; }
