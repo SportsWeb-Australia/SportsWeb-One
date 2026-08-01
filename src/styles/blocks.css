@@ -60,15 +60,26 @@
 [data-variant="gameday"] .sw-section--invert .sw-eyebrow {
   color: #f4b6b4;
 }
+/* WhyUs sits on a lighter navy than the hero — visual separation between
+   the two stacked dark sections, matching the reference. */
+[data-variant="gameday"] .sw-whyus.sw-section--invert {
+  background: color-mix(in srgb, var(--club-ink) 82%, #ffffff);
+}
 /* Watermark crest: plain, very low opacity, no colour filter — the wash below
    is a separate radial-gradient layer, not a tint on the logo itself. */
 [data-variant="gameday"] .sw-hero-watermark { opacity: 0.07; }
 [data-variant="gameday"] .sw-hero--watermark { position: relative; overflow: hidden; }
+/* Corner-anchored wash, not a full-height overlay — on a tall/mobile hero an
+   `inset:0` radial-gradient balloons into a muddy full-bleed purple wash
+   instead of the reference's localised glow near the bottom-right corner. */
 [data-variant="gameday"] .sw-hero--watermark::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 82% 120%, rgba(221, 61, 57, 0.32), rgba(0, 0, 0, 0) 55%);
+  right: 0;
+  bottom: 0;
+  width: min(60%, 640px);
+  height: min(60%, 640px);
+  background: radial-gradient(circle at 100% 100%, rgba(221, 61, 57, 0.32), rgba(0, 0, 0, 0) 70%);
   pointer-events: none;
 }
 /* Two-tone headline: title stays hero-text, the trailing accent phrase picks up the club accent. */
@@ -83,9 +94,14 @@
   font-size: 1rem;
   padding: 0.8125rem 1.375rem;
 }
-[data-variant="gameday"] .sw-hero .sw-btn--ghost {
-  --btn-fg: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
+[data-variant="gameday"] .sw-hero-ctas .sw-btn.sw-btn--ghost {
+  background: #ffffff;
+  color: var(--accent);
+  border-color: #ffffff;
+}
+[data-variant="gameday"] .sw-hero-ctas .sw-btn.sw-btn--ghost:hover {
+  background: #ffffff;
+  color: var(--accent-deep);
   border-color: #ffffff;
 }
 [data-variant="gameday"] .sw-join { background: var(--club-ink); }
