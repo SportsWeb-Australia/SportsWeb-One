@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "redirects": [
     {
       "source": "/home",
