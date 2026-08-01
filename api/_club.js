@@ -1,4 +1,4 @@
-const { createClient } = require("@supabase/supabase-js");
+import { createClient } from "@supabase/supabase-js";
 
 // Same fallback project the client app ships with (src/lib/supabase.ts) —
 // keeps these edge routes working even if the Vercel env vars aren't set.
@@ -6,7 +6,7 @@ const FALLBACK_URL = "https://uzibfawcwoapfbigpzum.supabase.co";
 const FALLBACK_KEY = "sb_publishable_bxaxVOhm9-9wyRrsvJG7Sw_MxAZ-egN";
 const DEFAULT_SLUG = process.env.VITE_CLUB_SLUG || "dookie-united";
 
-const supabase = createClient(
+export const supabase = createClient(
   process.env.VITE_SUPABASE_URL || FALLBACK_URL,
   process.env.VITE_SUPABASE_ANON_KEY || FALLBACK_KEY
 );
@@ -14,7 +14,7 @@ const supabase = createClient(
 /** Resolve which club a request is for, server-side: ?club= override (for
  *  testing on the shared platform host) -> club_domains -> {slug}.sportsweb.com.au
  *  -> DEFAULT_SLUG. Mirrors src/lib/supabase.ts's resolveClubSlug(). */
-async function resolveClub(req) {
+export async function resolveClub(req) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const qClub = url.searchParams.get("club");
   if (qClub) return qClub;
@@ -33,7 +33,7 @@ async function resolveClub(req) {
   return DEFAULT_SLUG;
 }
 
-async function getClubForRequest(req) {
+export async function getClubForRequest(req) {
   const slug = await resolveClub(req);
   const { data: club } = await supabase.from("clubs").select("*").eq("slug", slug).maybeSingle();
   if (!club) return null;
@@ -44,5 +44,3 @@ async function getClubForRequest(req) {
   ]);
   return { club, news: news || [], teams: teams || [], events: events || [] };
 }
-
-module.exports = { supabase, resolveClub, getClubForRequest };

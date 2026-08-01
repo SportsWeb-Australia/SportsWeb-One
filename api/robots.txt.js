@@ -1,4 +1,4 @@
-module.exports = (req, res) => {
+export default (req, res) => {
   const origin = `https://${req.headers.host}`;
   const body = `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${origin}/sitemap.xml\n`;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");

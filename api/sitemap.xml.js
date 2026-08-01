@@ -1,4 +1,4 @@
-const { getClubForRequest } = require("./_club");
+import { getClubForRequest } from "./_club.js";
 
 function slugify(s) {
   return (s || "")
@@ -9,7 +9,7 @@ function slugify(s) {
 
 const STATIC_PATHS = ["/", "/about", "/teams", "/fixtures", "/news", "/events", "/sponsors", "/contact", "/register"];
 
-module.exports = async (req, res) => {
+export default async (req, res) => {
   const origin = `https://${req.headers.host}`;
   const result = await getClubForRequest(req);
 

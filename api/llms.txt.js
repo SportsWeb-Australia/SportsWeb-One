@@ -1,8 +1,8 @@
-const { getClubForRequest } = require("./_club");
+import { getClubForRequest } from "./_club.js";
 
 /** llms.txt (llmstxt.org) — a plain-text map of the site for AI crawlers/answer
  *  engines, parallel to sitemap.xml for search engines. */
-module.exports = async (req, res) => {
+export default async (req, res) => {
   const origin = `https://${req.headers.host}`;
   const result = await getClubForRequest(req);
 

@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/robots.txt", "destination": "/api/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
+    { "source": "/llms.txt", "destination": "/api/llms.txt" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "redirects": [
