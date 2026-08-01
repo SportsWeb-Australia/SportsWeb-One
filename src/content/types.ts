@@ -401,5 +401,7 @@ export interface ClubConfig {
   footer: {
     acknowledgement: string;
     legal: LinkRef[];
+    /** Small flags/logos shown beside the acknowledgement text (e.g. Aboriginal, Torres Strait Islander, Pride flags). Full URLs. */
+    logos?: string[];
   };
 }

@@ -34,6 +34,14 @@
 .sw-accent-bars i:nth-child(2) { background: var(--text); }
 .sw-accent-bars i:nth-child(3) { background: var(--accent); }
 
+/* Gameday opts out of the shared "signature" decorations (diagonal bars,
+   eyebrow dash, chevron rune) — the source design has none of these; keeping
+   them made gameday read as a reskin of the other variants instead of a
+   distinct design. Clean uppercase eyebrow, no icon. */
+[data-variant="gameday"] .sw-accent-bars,
+[data-variant="gameday"] .sw-eyebrow::before,
+[data-variant="gameday"] .sw-chevron { display: none; }
+
 /* ============================================================
    HEADER / NAV
    ============================================================ */
@@ -903,9 +911,18 @@
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--text-invert) 65%, transparent);
   max-width: 80ch;
-  padding-block: 1.5rem;
   line-height: 1.7;
 }
+.sw-ack-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--text-invert) 14%, transparent);
+}
+.sw-ack-flags { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.sw-ack-flags img { width: 40px; height: auto; border-radius: 3px; display: block; }
+@media (max-width: 700px) { .sw-ack-row { flex-direction: column; } }
 .sw-footer-bottom {
   display: flex;
   justify-content: space-between;

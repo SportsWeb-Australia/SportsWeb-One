@@ -506,12 +506,25 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // Join section.
       if (map["join.heading"] != null) cfg.join = { ...cfg.join, heading: map["join.heading"] };
       if (map["join.blurb"] != null) cfg.join = { ...cfg.join, blurb: map["join.blurb"] };
-      // About body.
-      if (map["about.body.0"] != null)
-        cfg.about = { ...cfg.about, body: map["about.body.0"] ? [map["about.body.0"]] : [] };
+      if (map["register.feesNote"] != null) cfg.register = { steps: cfg.register?.steps ?? [], ...cfg.register, feesNote: map["register.feesNote"] };
+      // About body — supports any number of about.body.N paragraphs, not just index 0.
+      if (map["about.body.0"] != null) {
+        const paras: string[] = [];
+        for (let i = 0; map[`about.body.${i}`] != null; i++) {
+          if (map[`about.body.${i}`]) paras.push(map[`about.body.${i}`] as string);
+        }
+        cfg.about = { ...cfg.about, body: paras };
+      }
       // Footer acknowledgement.
       if (map["footer.acknowledgement"] != null)
         cfg.footer = { ...cfg.footer, acknowledgement: map["footer.acknowledgement"] };
+      if (map["footer.logo.0"] != null) {
+        const logos: string[] = [];
+        for (let i = 0; map[`footer.logo.${i}`] != null; i++) {
+          if (map[`footer.logo.${i}`]) logos.push(map[`footer.logo.${i}`] as string);
+        }
+        cfg.footer = { ...cfg.footer, logos };
+      }
     }
 
     // Freeze enforced in code: whatever the legacy sources resolved to (site.variant,
@@ -554,6 +567,7 @@ function sportsFromType(t: string | null | undefined): string[] {
     case "basketball": return ["Basketball"];
     case "rugby_union": return ["Rugby Union"];
     case "rugby_league": return ["Rugby League"];
+    case "lacrosse": return ["Lacrosse"];
     default: return [];
   }
 }
