@@ -21,7 +21,7 @@ export function FeaturedNews({ limit, bare, eyebrow, heading }: Props) {
       {posts.map((post) => (
         <article className="sw-card" key={post.id}>
           <div className="sw-card-media">
-            {post.image ? <img src={post.image} alt="" /> : <Chevron />}
+            {post.image ? <img src={post.image} alt={post.title} /> : <Chevron />}
             <span className="sw-card-tag">{post.category}</span>
           </div>
           <div className="sw-card-body">

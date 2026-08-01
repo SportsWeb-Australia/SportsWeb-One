@@ -18,6 +18,17 @@ function upsertMeta(attr: "name" | "property", key: string, content: string) {
   el.setAttribute("content", content);
 }
 
+function upsertFavicon(href: string) {
+  document.querySelectorAll('link[rel="icon"]').forEach((el) => el.setAttribute("href", href));
+  let apple = document.head.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
+  if (!apple) {
+    apple = document.createElement("link");
+    apple.setAttribute("rel", "apple-touch-icon");
+    document.head.appendChild(apple);
+  }
+  apple.setAttribute("href", href);
+}
+
 function upsertCanonical(href: string) {
   let el = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
   if (!el) {
@@ -50,8 +61,11 @@ export function useSeo(seo: SeoInput | null) {
       upsertMeta("name", "description", seo.description);
       upsertMeta("property", "og:description", seo.description);
     }
+    if (seo.description) upsertMeta("name", "twitter:description", seo.description);
+    upsertMeta("name", "twitter:title", seo.title);
     if (seo.image) {
       upsertMeta("property", "og:image", seo.image);
+      upsertMeta("name", "twitter:image", seo.image);
       upsertMeta("name", "twitter:card", "summary_large_image");
     }
     upsertCanonical(window.location.origin + window.location.pathname);
@@ -70,11 +84,14 @@ export function SeoManager() {
   const league = club.identity.league;
   const sports = club.identity.sports;
   const logo = club.identity.logo || "";
+  const phone = club.contact.phone;
+  const instagram = club.contact.instagram;
+  const facebook = club.contact.facebook;
 
-  // Club-level head: og:site_name, apple title, default og:image, and per-club
-  // JSON-LD — replacing the neutral platform defaults in index.html once a real
-  // club has resolved. (Client-side; non-JS scrapers see the neutral shell until
-  // a per-host edge injection is added — tracked separately.)
+  // Club-level head: og:site_name, apple title, default og:image, favicon, and
+  // per-club JSON-LD — replacing the neutral platform defaults in index.html
+  // once a real club has resolved. (Client-side; non-JS scrapers see the
+  // neutral shell until a per-host edge injection is added — tracked separately.)
   useEffect(() => {
     if (!name) return; // neutral base (emptyClub) not yet resolved: keep platform defaults
     const origin = window.location.origin;
@@ -86,7 +103,11 @@ export function SeoManager() {
     upsertMeta("property", "og:site_name", name);
     upsertMeta("property", "og:image", absLogo);
     upsertMeta("name", "twitter:card", "summary_large_image");
+    // Tab icon: the club's own crest, not the platform default — only when it's
+    // a real uploaded image (not the generic initials-placeholder data URI).
+    if (/^https?:\/\//i.test(logo)) upsertFavicon(logo);
     // (apple-mobile-web-app-title is owned per-club by App.tsx; don't fight it here.)
+    const sameAs = [instagram, facebook].filter(Boolean) as string[];
     const org: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "SportsOrganization",
@@ -97,8 +118,10 @@ export function SeoManager() {
     if (sports && sports.length) org.sport = sports;
     if (league) org.memberOf = { "@type": "SportsOrganization", name: league };
     if (place) org.address = { "@type": "PostalAddress", addressLocality: place, addressCountry: "AU" };
+    if (phone) org.telephone = phone;
+    if (sameAs.length) org.sameAs = sameAs;
     upsertJsonLd("club-jsonld", org);
-  }, [name, place, league, sports, logo]);
+  }, [name, place, league, sports, logo, phone, instagram, facebook]);
 
   const MAP: Record<string, SeoInput> = {
     "/": {
@@ -148,11 +171,13 @@ export function SeoManager() {
   const key = pathname === "/" ? "" : pathname.replace(/^\//, ".");
   const overrideTitle = club.content?.[`seo${key}.title`];
   const overrideDescription = club.content?.[`seo${key}.description`];
+  const overrideImage = club.content?.[`seo${key}.image`] ?? club.content?.["seo.image"];
   const base = MAP[pathname] ?? null;
   const resolved: SeoInput | null = base || overrideTitle
     ? {
         title: overrideTitle ?? base?.title ?? name,
         description: overrideDescription ?? base?.description,
+        image: overrideImage,
       }
     : null;
 

@@ -518,6 +518,11 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       }
       // Header tagline (e.g. "Est. 1960").
       if (map["identity.foundedNote"] != null) cfg.identity = { ...cfg.identity, foundedNote: map["identity.foundedNote"] };
+      // SEO/schema.org fields — location + sports feed the JSON-LD org markup
+      // and aren't otherwise settable for a real (non-demo) club without a
+      // sport_type enum entry, so a direct override is the safe, no-migration path.
+      if (map["identity.location"] != null) cfg.identity = { ...cfg.identity, location: map["identity.location"] };
+      if (map["identity.sports"] != null) cfg.identity = { ...cfg.identity, sports: map["identity.sports"].split(",").map((s) => s.trim()).filter(Boolean) };
       // "Why us" icon-card section (gameday-style; generically usable).
       if (map["whyUs.title"] != null) {
         const items: { icon: string; title: string; body: string }[] = [];

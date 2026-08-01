@@ -19,8 +19,8 @@ export function PhotoStrip() {
           </div>
         </div>
         <div className="sw-photostrip-grid">
-          {photoStrip.images.map((src) => (
-            <img key={src} src={src} alt="" loading="lazy" />
+          {photoStrip.images.map((src, i) => (
+            <img key={src} src={src} alt={`${photoStrip.title} — photo ${i + 1}`} loading="lazy" />
           ))}
         </div>
       </div>

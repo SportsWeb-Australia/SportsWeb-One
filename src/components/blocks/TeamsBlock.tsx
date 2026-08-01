@@ -29,7 +29,7 @@ export function TeamsBlock({ bare, eyebrow, heading, intro, ctaLabel, ctaHref }:
                 href={team.href ?? "/teams"}
                 className="sw-tile"
               >
-                {team.image && <img className="sw-tile-thumb" src={team.image} alt="" loading="lazy" />}
+                {team.image && <img className="sw-tile-thumb" src={team.image} alt={team.name} loading="lazy" />}
                 {team.ages && <span className="sw-tile-ages">{team.ages}</span>}
                 <h4>{team.name}</h4>
                 <p>{team.blurb}</p>
