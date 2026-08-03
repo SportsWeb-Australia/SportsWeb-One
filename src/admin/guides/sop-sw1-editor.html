@@ -1,10 +1,12 @@
+<!-- GENERATED from sportsweb-standards/SPORTSWEB-EDITOR-HOWTO-SOP.md by scripts/generate-guides.mjs — do not hand-edit -->
 <!doctype html>
 <html lang="en-AU" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>How to edit &amp; publish a site — SW1 Editor</title>
+<title>SportsWeb One — Editor How-To — SportsWeb One</title>
 <style>
+
   :root{
     --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
     --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
@@ -14,7 +16,7 @@
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
     --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    --maxw:1160px; --rail:236px; --r:10px; --r-sm:7px;
+    --maxw:900px; --r:10px; --r-sm:7px;
   }
   @media (prefers-color-scheme:dark){:root{
     --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
@@ -40,13 +42,17 @@
     --signal:#a8641a; --signal-wash:#f8ede0;
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
   }
+
+
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
   a{color:var(--accent-ink)}
   code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  pre{margin:1rem 0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);white-space:pre-wrap;word-break:break-word}
+  pre code{background:none;border:0;padding:0;font-size:1em}
+
   header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
   .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
   .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
@@ -59,244 +65,237 @@
   .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
   .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
   .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
-  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0;max-height:calc(100vh - 80px);overflow:auto}
-  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
-  nav.toc ol{list-style:none;margin:0;padding:0}
-  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem;transition:color .15s}
-  nav.toc a:hover{color:var(--ink)}
-  nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
-  main{min-width:0;padding-bottom:5rem}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem 5rem}
+
   .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
-  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
-  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
-  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--stop);border-left-width:4px;border-radius:var(--r-sm);background:var(--stop-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem;align-items:flex-start}
-  .hero .directive b{color:var(--stop)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
-  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
-  .chip b{color:var(--ink);font-weight:600}
-  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
-  h2.sec{font-size:1.02rem;letter-spacing:.01em;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
-  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
-  .step{position:relative;padding:1.3rem 0 1.3rem 3.4rem;border-top:1px solid var(--line-soft)}
-  .step:first-of-type{border-top:0}
-  .step .num{position:absolute;left:0;top:1.3rem;width:2.4rem;height:2.4rem;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:1.05rem}
-  :root[data-theme="dark"] .step .num{color:#08191b}
-  .step h3{margin:.15rem 0 .3rem;font-size:1.12rem;letter-spacing:-.01em}
-  .step p{margin:.3rem 0;color:var(--ink-soft);font-size:.95rem}
-  .step ul{margin:.5rem 0 0;padding-left:1.1rem}.step li{margin:.32rem 0;font-size:.93rem}
-  .step b{color:var(--ink)}
-  .ui{font-family:var(--font-mono);font-size:.82em;background:var(--accent-wash);color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:5px;padding:.06em .45em;white-space:nowrap}
-  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem;align-items:flex-start}
-  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
-  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
-  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
-  .callout.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}.callout.ok .ic{color:var(--ok)}
-  table.map{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:.5rem}
-  table.map th,table.map td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  table.map th{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
-  .pill{display:inline-block;font-family:var(--font-mono);font-size:.7rem;padding:.15rem .5rem;border-radius:100px;border:1px solid;vertical-align:middle}
-  .pill.draft{color:var(--warn);border-color:var(--warn);background:var(--signal-wash)}
-  .pill.pub{color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--surface))}
-  .tablewrap{overflow-x:auto}
-  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
-  @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
-  @media print{header.top,nav.toc,.top-actions{display:none!important}.wrap{display:block}body{background:#fff}section.block,.step{break-inside:avoid}}
-  /* ---------- flow diagram ---------- */
-  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
-  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
-  .fnode{flex:none;width:118px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
-  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
-  .fnode b{font-size:.83rem;line-height:1.15}
-  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
-  .fnode.go{border-color:var(--ok)}.fnode.go .fn{color:var(--ok);border-color:var(--ok)}
-  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
-  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
-  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
-  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
-  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
-  /* ---------- summary card ---------- */
-  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
-  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
-  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
-  .summary .r.stuck .l{color:var(--stop)}
-  .summary .r .v{flex:1;min-width:0}
-  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
-  /* ---------- actor tags + usage ---------- */
-  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
-  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
-  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
-  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
-  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:70ch;margin:0;font-style:italic}
+
+  main .content > h2{font-size:1.5rem;letter-spacing:-.01em;font-weight:700;margin:2.4rem 0 1rem;padding-top:1.8rem;border-top:1px solid var(--line-soft)}
+  main .content > h2:first-child{margin-top:2rem;padding-top:0;border-top:0}
+  main .content > h3{font-size:1.15rem;letter-spacing:-.005em;font-weight:700;margin:1.6rem 0 .7rem}
+  main .content > h4{font-size:1rem;font-weight:700;margin:1.3rem 0 .5rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-family:var(--font-mono);font-size:.78rem}
+  main .content p{margin:.8rem 0;color:var(--ink)}
+  main .content ul,main .content ol{margin:.6rem 0;padding-left:1.4rem}
+  main .content li{margin:.4rem 0}
+  main .content hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+  main .content strong{color:var(--ink);font-weight:700}
+  main .content a{text-decoration:underline;text-underline-offset:2px}
+
+  .tablewrap{overflow-x:auto;margin:1rem 0}
+  table.map{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  table.map th,table.map td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.map th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2)}
+  table.map tbody tr:nth-child(even){background:var(--surface-2)}
+  table.map tbody tr:last-child td{border-bottom:0}
+  table.map td code{font-size:.92em}
+
+  blockquote{border-radius:var(--r);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.95rem;border:1px solid var(--line);border-left-width:4px;background:var(--surface)}
+  blockquote p{margin:.35rem 0}
+  blockquote p:first-child{margin-top:0}
+  blockquote p:last-child{margin-bottom:0}
+  blockquote.note{border-color:var(--accent);background:var(--accent-wash)}
+  blockquote.stop{border-color:var(--stop);background:var(--stop-wash)}
+  blockquote.warn{border-color:var(--warn);background:var(--signal-wash)}
+  blockquote.ok{border-color:var(--ok)}
+
+  @media(max-width:640px){main{padding:0 1rem 3rem}.top-in{padding:.6rem 1rem}}
+  @media print{header.top,.top-actions{display:none!important}body{background:#fff}main .content>h2{break-after:avoid}}
+
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-in">
     <div class="brand"><div class="mark" aria-hidden="true"></div>
-      <div style="min-width:0"><b>SW1 · Manager How-To</b><br><span>SportsWeb One / Business One</span></div>
+      <div style="min-width:0"><b>SW1 Operations Runbook</b><br><span>SportsWeb One</span></div>
     </div>
     <div class="top-actions">
-      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">◐ Theme</button>
-      <button class="btn" onclick="window.print()" type="button">⎙ Print</button>
+      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">&#9680; Theme</button>
+      <button class="btn" onclick="window.print()" type="button">&#9099; Print</button>
     </div>
   </div>
 </header>
 
-<div class="wrap">
-  <nav class="toc" aria-label="Contents">
-    <p class="lab">Steps</p>
-    <ol>
-      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
-      <li><a href="#flow"><span class="n">▸</span>The flow</a></li>
-      <li><a href="#s1"><span class="n">1</span>Sign in &amp; pick the site</a></li>
-      <li><a href="#s2"><span class="n">2</span>Open the editor</a></li>
-      <li><a href="#s3"><span class="n">3</span>Pick a style</a></li>
-      <li><a href="#s4"><span class="n">4</span>Edit content</a></li>
-      <li><a href="#s5"><span class="n">5</span>Add images</a></li>
-      <li><a href="#s6"><span class="n">6</span>See your changes</a></li>
-      <li><a href="#s7"><span class="n">7</span>Share a draft</a></li>
-      <li><a href="#s8"><span class="n">8</span>Publish</a></li>
-      <li><a href="#elsewhere"><span class="n">▤</span>Managed elsewhere</a></li>
-    </ol>
-  </nav>
+<main>
+  <div class="hero">
+    <p class="eyebrow">Standard Operating Procedure</p>
+    <h1>SportsWeb One — Editor How-To</h1>
+    
+  </div>
+  <div class="content">
+<h3>Edit and publish a site&#39;s content — no code, all through the SW1 editor.</h3>
+<p><em>Companion to <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> (which defines the read contract the Builder builds against). Law = <code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20) for anything build-related, but this document itself is not a build SOP — see the audience note below.</em></p>
+<hr>
+<h2>Audience note — this one is for the Club Editor, not the Builder</h2>
+<p>🔴 Every other document in this folder is written <strong>for the Builder</strong> (Carson and SportsWeb
+managers operating Codey) — see <code>engineering-conventions.md</code> §3. <strong>This one is the exception.</strong>
+It is the actual walkthrough shown inside the live SW1 admin panel (Runbooks &amp; SOPs page) to
+<strong>club admins and the SW1 manager using the Club Editor</strong> — the volunteers editing their own
+club&#39;s words, images, and style, not the people building the platform. Keep it written in
+plain English, second person, no build/DB/API language. If you&#39;re here to build or migrate a
+site, use <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> instead — this page only teaches the content-editing
+UI a club admin actually sees.</p>
+<p>This describes the real, single-renderer SW1 editor (<code>sportsweb-one-club-template</code>) — not an
+Astro or Business One (B1) build. B1 does not exist yet; nothing here applies to it.</p>
+<hr>
+<h2>At a glance</h2>
+<div class="tablewrap"><table class="map">
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Objective</strong></td>
+<td>Edit and publish a site&#39;s content yourself — no code.</td>
+</tr>
+<tr>
+<td><strong>Process</strong></td>
+<td>Sign in → edit each card → pick a style → add images → preview → share a draft → publish.</td>
+</tr>
+<tr>
+<td><strong>Resources</strong></td>
+<td>Your SW1 login · the site&#39;s words + photos.</td>
+</tr>
+<tr>
+<td><strong>Outcome</strong></td>
+<td>Your changes go live on the public site.</td>
+</tr>
+<tr>
+<td><strong>If stuck</strong></td>
+<td>A change not showing? Reload the public site. Not visible to anyone yet? You haven&#39;t hit Publish.</td>
+</tr>
+</tbody></table></div>
+<p><strong>Access:</strong> Club Admin or above. <strong>Saves:</strong> per section, immediately. <strong>Live after:</strong> Publish + reload.</p>
+<blockquote class="stop">
+<p>✋ <strong>Nothing goes public until you press Publish.</strong> A site sits in <strong>Draft</strong> until you publish
+it — edits are saved privately and only appear to visitors once the site is <strong>Published ✓</strong>.</p>
+</blockquote>
+<hr>
+<h2>The flow at a glance</h2>
+<p>The whole job, in order — same numbers as the steps below. <strong>You</strong> (or the SW1 manager) do
+every step in this flow; SW1 automatically handles image upload/processing in step 5.</p>
+<ol>
+<li><strong>Sign in</strong> — pick the site</li>
+<li><strong>Open editor</strong> — section cards</li>
+<li><strong>Style</strong> — pick a look</li>
+<li><strong>Edit content</strong> — words in cards</li>
+<li><strong>Images</strong> — frame + upload</li>
+<li><strong>Preview</strong> — check it</li>
+<li><strong>Share</strong> — draft link</li>
+<li><strong>Publish</strong> — goes live</li>
+</ol>
+<hr>
+<h2>Steps — editing, start to finish</h2>
+<h3>1. Sign in and pick the site</h3>
+<p>Log in to the SW1 admin (enter your 2‑factor code if prompted). If you manage more than one
+club or business, choose the one you&#39;re working on so the editor points at the right site.</p>
+<h3>2. Open the website editor</h3>
+<p>Go to <strong>Edit website</strong>. Sections are stacked as cards — open one at a time and work through
+them. Use <strong>Preview site →</strong> (top right) at any point to open the site in a new tab and check
+your changes.</p>
+<h3>3. Pick a style (optional)</h3>
+<p>Under <strong>Website style</strong>, choose a look — <strong>Heritage, Broadcast, Arena, Classic</strong> and its
+presets. It applies live and saves straight away. <strong>News &amp; social</strong> below it sets whether the
+site shows written news, a social feed, or both.</p>
+<h3>4. Edit the content</h3>
+<p>Open each card, change the fields, then press its <strong>Save</strong> button — a small &quot;Saved.&quot; confirms
+it. <strong>Leave any field blank to use the built-in default.</strong> The cards:</p>
+<div class="tablewrap"><table class="map">
+<thead>
+<tr>
+<th>Card</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Homepage hero</td>
+<td>The big banner: small eyebrow line, title, subtitle (keep it short — 140 chars), the hero image, and an optional background video link.</td>
+</tr>
+<tr>
+<td>Club logo &amp; branding</td>
+<td>Your logo/crest (square, transparent PNG works best).</td>
+</tr>
+<tr>
+<td>Brand colours</td>
+<td>Primary (drives the whole site), secondary, tertiary — pick with the swatch or type a <code>#hex</code>.</td>
+</tr>
+<tr>
+<td>President&#39;s welcome</td>
+<td>Name, role, welcome message, sign-off, and portrait photo.</td>
+</tr>
+<tr>
+<td>Join / membership CTA</td>
+<td>The heading + blurb inviting people to get involved.</td>
+</tr>
+<tr>
+<td>About your club</td>
+<td>The opening paragraph and photo on the About page.</td>
+</tr>
+<tr>
+<td>Footer</td>
+<td>Acknowledgement of Country, plus up to three footer logos/flags.</td>
+</tr>
+<tr>
+<td>Contact details</td>
+<td>Email, phone, address, Instagram &amp; Facebook links (used across the site).</td>
+</tr>
+<tr>
+<td>Page headings</td>
+<td>On each page (About, Contact, News…): the banner eyebrow, title and intro line.</td>
+</tr>
+</tbody></table></div>
+<blockquote class="note">
+<p>Each card saves on its own — you don&#39;t lose work moving between them, and you can come back
+any time.</p>
+</blockquote>
+<h3>5. Add or change images</h3>
+<p>Any image field opens a <strong>framing tool</strong> — drag to position and set the crop, then confirm.
+The picture uploads to your site&#39;s media automatically and the recommended size is shown under
+each field (e.g. hero ≈ 1920×1080, logo ≈ 512×512). No files to manage by hand.</p>
+<p><strong>Who:</strong> you pick + frame; the system uploads &amp; processes. <strong>When:</strong> whenever a photo needs
+changing. <strong>How:</strong> click the image field, drag to set the crop, confirm — it saves itself.</p>
+<h3>6. See your changes</h3>
+<p>Edits save to the site immediately. Open <strong>Preview site →</strong> (or reload the public site) to see
+them. If a change doesn&#39;t show, reload the page.</p>
+<h3>7. Share a draft for review</h3>
+<p>Under the publish control, <strong>Share draft for review</strong> gives you a link (<code>/?preview=…</code>) anyone
+can open <strong>without logging in</strong> to view the draft read-only and leave feedback. Use <strong>Copy</strong> to
+share it, or <strong>Regenerate</strong> to kill the old link.</p>
+<h3>8. Publish</h3>
+<p>When it&#39;s ready, press <strong>Publish site</strong> and confirm — the status pill flips <strong>Draft</strong> →
+<strong>Published ✓</strong> and the site goes live to the public. <strong>Unpublish</strong> takes it back to draft
+(private) any time.</p>
+<p><strong>Who:</strong> you. <strong>When:</strong> when it&#39;s ready to go live. <strong>How:</strong> click <strong>Publish site</strong>, confirm —
+the pill flips to Published and the site is live.</p>
+<blockquote class="ok">
+<p>✓ This is the switch that makes everything live. Until a site is <strong>Published</strong>, visitors see
+only its built-in defaults — your edited content appears the moment you publish.</p>
+</blockquote>
+<hr>
+<h2>Managed in their own sections</h2>
+<p>This editor covers page text, images, branding, style and publishing. These live in their own
+admin areas, not here:</p>
+<ul>
+<li><strong>News &amp; events</strong> — added as individual posts/events.</li>
+<li><strong>Sponsors</strong> — the sponsor list and tiers.</li>
+<li><strong>Teams, fixtures &amp; ladder</strong> — squads and the match centre.</li>
+<li><strong>Committee / people</strong> — only people marked public appear on the site.</li>
+</ul>
+<blockquote class="note">
+<p>! <strong>Remember the gate:</strong> editing saves privately. A visitor sees your changes only after the
+site is <strong>Published</strong>. A brand-new site shows its built-in default content publicly until you
+publish the real content.</p>
+</blockquote>
+<hr>
+<p><em>SW1 Manager How-To · Editing &amp; publishing a site · access: you + the SW1 manager only.</em></p>
 
-  <main>
-    <div class="hero">
-      <p class="eyebrow">How-To · Editing a site in SW1</p>
-      <h1>Edit and publish a site — no code, all through the SW1 editor.</h1>
-      <p class="lede">A plain-English walkthrough of the website editor for you and the SW1 manager: change the words and pictures, choose a look, preview, and publish. Everything you edit here saves to that site's content.</p>
-      <div class="directive"><span aria-hidden="true">✋</span><div><b>Nothing goes public until you press Publish.</b> A site sits in <span class="pill draft">Draft</span> until you publish it — edits are saved privately and only appear to visitors once the site is <span class="pill pub">Published&nbsp;✓</span>.</div></div>
-      <div class="meta-row">
-        <span class="chip">Access&nbsp;<b>Club Admin +</b></span>
-        <span class="chip">Saves&nbsp;<b>per section</b></span>
-        <span class="chip">Live after&nbsp;<b>Publish + reload</b></span>
-      </div>
-    </div>
-
-    <!-- SUMMARY -->
-    <section class="block" id="summary">
-      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
-      <div class="summary">
-        <div class="r"><span class="l">Objective</span><span class="v">Edit and publish a site's content yourself — no code.</span></div>
-        <div class="r"><span class="l">Process</span><span class="v">Sign in → edit each card → pick a style → add images → preview → share a draft → publish.</span></div>
-        <div class="r"><span class="l">Resources</span><span class="v">Your SW1 login · the site's words + photos.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">Your changes live on the public site.</span></div>
-        <div class="r stuck"><span class="l">If stuck</span><span class="v">A change not showing? Reload the public site. Not visible to anyone yet? You haven't hit Publish.</span></div>
-      </div>
-    </section>
-
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> The flow at a glance</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the steps below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">System</span> = SW1 handles it automatically. <b>Tap any box</b> to jump to that step.</p>
-      <div class="flowwrap"><div class="flow">
-        <a class="fnode you" href="#s1"><span class="fn">1</span><b>Sign in</b><span>pick the site</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s2"><span class="fn">2</span><b>Open editor</b><span>section cards</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s3"><span class="fn">3</span><b>Style</b><span>pick a look</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s4"><span class="fn">4</span><b>Edit content</b><span>words in cards</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s5"><span class="fn">5</span><b>Images</b><span>frame + upload</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s6"><span class="fn">6</span><b>Preview</b><span>check it</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s7"><span class="fn">7</span><b>Share</b><span>draft link</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#s8"><span class="fn">8</span><b>Publish</b><span>goes live</span></a>
-      </div></div>
-    </section>
-
-    <section class="block">
-      <h2 class="sec"><span class="k">STEPS</span> Editing, start to finish</h2>
-
-      <div class="step" id="s1">
-        <div class="num">1</div>
-        <h3>Sign in and pick the site <span class="who you">You</span></h3>
-        <p>Log in to the SW1 admin (enter your 2-factor code if prompted). If you manage more than one club or business, choose the one you're working on so the editor points at the right site.</p>
-      </div>
-
-      <div class="step" id="s2">
-        <div class="num">2</div>
-        <h3>Open the website editor <span class="who you">You</span></h3>
-        <p>Go to <span class="ui">Edit website</span>. Sections are stacked as cards — open one at a time and work through them. Use <span class="ui">Preview site →</span> (top right) at any point to open the site in a new tab and check your changes.</p>
-      </div>
-
-      <div class="step" id="s3">
-        <div class="num">3</div>
-        <h3>Pick a style (optional) <span class="who you">You</span></h3>
-        <p>Under <span class="ui">Website style</span>, choose a look — <b>Heritage, Broadcast, Arena, Classic</b> and its presets. It applies live and saves straight away. <span class="ui">News &amp; social</span> below it sets whether the site shows written news, a social feed, or both.</p>
-      </div>
-
-      <div class="step" id="s4">
-        <div class="num">4</div>
-        <h3>Edit the content <span class="who you">You</span></h3>
-        <p>Open each card, change the fields, then press its <span class="ui">Save</span> button — a small <b>“Saved.”</b> confirms it. <b>Leave any field blank to use the built-in default.</b> The cards:</p>
-        <div class="tablewrap"><table class="map">
-          <thead><tr><th>Card</th><th>What it controls</th></tr></thead>
-          <tbody>
-            <tr><td>Homepage hero</td><td>The big banner: small eyebrow line, title, subtitle (keep it short — 140 chars), the hero image, and an optional background video link.</td></tr>
-            <tr><td>Club logo &amp; branding</td><td>Your logo/crest (square, transparent PNG works best).</td></tr>
-            <tr><td>Brand colours</td><td>Primary (drives the whole site), secondary, tertiary — pick with the swatch or type a <code>#hex</code>.</td></tr>
-            <tr><td>President's welcome</td><td>Name, role, welcome message, sign-off, and portrait photo.</td></tr>
-            <tr><td>Join / membership CTA</td><td>The heading + blurb inviting people to get involved.</td></tr>
-            <tr><td>About your club</td><td>The opening paragraph and photo on the About page.</td></tr>
-            <tr><td>Footer</td><td>Acknowledgement of Country, plus up to three footer logos/flags.</td></tr>
-            <tr><td>Contact details</td><td>Email, phone, address, Instagram &amp; Facebook links (used across the site).</td></tr>
-            <tr><td>Page headings</td><td>On each page (About, Contact, News…): the banner eyebrow, title and intro line.</td></tr>
-          </tbody>
-        </table></div>
-        <div class="callout note"><span class="ic">i</span><div>Each card saves on its own — you don't lose work moving between them, and you can come back any time.</div></div>
-      </div>
-
-      <div class="step" id="s5">
-        <div class="num">5</div>
-        <h3>Add or change images <span class="who you">You</span> <span class="who bot">System</span></h3>
-        <p>Any image field opens a <b>framing tool</b> — drag to position and set the crop, then confirm. The picture uploads to your site's media automatically and the recommended size is shown under each field (e.g. hero ≈ 1920×1080, logo ≈ 512×512). No files to manage by hand.</p>
-        <p class="usage"><b>Who</b> you pick + frame; the system uploads &amp; processes · <b>When</b> whenever a photo needs changing · <b>How</b> click the image field, drag to set the crop, confirm — it saves itself.</p>
-      </div>
-
-      <div class="step" id="s6">
-        <div class="num">6</div>
-        <h3>See your changes <span class="who you">You</span></h3>
-        <p>Edits save to the site immediately. Open <span class="ui">Preview site →</span> (or reload the public site) to see them. If a change doesn't show, reload the page.</p>
-      </div>
-
-      <div class="step" id="s7">
-        <div class="num">7</div>
-        <h3>Share a draft for review <span class="who you">You</span></h3>
-        <p>Under the publish control, <span class="ui">Share draft for review</span> gives you a link (<code>/?preview=…</code>) anyone can open <b>without logging in</b> to view the draft read-only and leave feedback. Use <span class="ui">Copy</span> to share it, or <span class="ui">Regenerate</span> to kill the old link.</p>
-      </div>
-
-      <div class="step" id="s8">
-        <div class="num">8</div>
-        <h3>Publish <span class="who you">You</span></h3>
-        <p>When it's ready, press <span class="ui">Publish site</span> and confirm — the status pill flips <span class="pill draft">Draft</span> → <span class="pill pub">Published&nbsp;✓</span> and the site goes live to the public. <span class="ui">Unpublish</span> takes it back to draft (private) any time.</p>
-        <p class="usage"><b>Who</b> you · <b>When</b> when it's ready to go live · <b>How</b> click <span class="ui">Publish site</span>, confirm — the pill flips to Published and the site is live.</p>
-        <div class="callout ok"><span class="ic">✓</span><div>This is the switch that makes everything live. Until a site is <b>Published</b>, visitors see only its built-in defaults — your edited content appears the moment you publish.</div></div>
-      </div>
-    </section>
-
-    <section class="block" id="elsewhere">
-      <h2 class="sec"><span class="k">NOTE</span> Managed in their own sections</h2>
-      <p style="margin-top:0;color:var(--ink-soft)">This editor covers page text, images, branding, style and publishing. These live in their own admin areas, not here:</p>
-      <ul style="color:var(--ink-soft)">
-        <li><b>News &amp; events</b> — added as individual posts/events.</li>
-        <li><b>Sponsors</b> — the sponsor list and tiers.</li>
-        <li><b>Teams, fixtures &amp; ladder</b> — squads and the match centre.</li>
-        <li><b>Committee / people</b> — only people marked public appear on the site.</li>
-      </ul>
-      <div class="callout stop"><span class="ic">!</span><div><b>Remember the gate:</b> editing saves privately. A visitor sees your changes only after the site is <b>Published</b>. A brand-new site shows its built-in default content publicly until you publish the real content.</div></div>
-    </section>
-  </main>
-</div>
-
-<footer class="foot">SW1 Manager How-To · Editing &amp; publishing a site · access: you + the SW1 manager only.</footer>
+  </div>
+</main>
 
 <script>
 (function(){
@@ -308,6 +307,5 @@
   });
 })();
 </script>
-<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var el=document.getElementById(a.getAttribute("href").slice(1));if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}});</script>
 </body>
 </html>

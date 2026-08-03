@@ -3,27 +3,26 @@ import migration from "./guides/sop-live-migration.html?raw";
 import editableBuild from "./guides/sop-editable-build.html?raw";
 import scratch from "./guides/sop-build-from-scratch.html?raw";
 import editor from "./guides/sop-sw1-editor.html?raw";
-import b1 from "./guides/b1-runbook.html?raw";
 
 /**
  * Runbooks & SOPs — platform-admin-only reference library.
  *
- * Renders the self-contained HTML how-to guides (authored in
- * ~/Developer/sportsweb-standards/sw1-guides and copied into ./guides) inside an
- * isolated iframe (srcDoc) so each guide keeps its own styling/theme. Reference
+ * Renders the self-contained HTML how-to guides, generated from the canonical
+ * .md sources in ~/Developer/sportsweb-standards into ./guides (see
+ * docs/engineering-conventions.md §5). Never hand-edit these .html files directly.
+ * Isolated iframe (srcDoc) so each guide keeps its own styling/theme. Reference
  * only — no writes, no club data. Gated by can("platform.clubs") in AdminApp.
  *
- * The Business One group is a temporary preview hosted here until Business One
- * ships its own editor; remove that group at that point.
+ * Business One (B1) is a separate, deferred product — see
+ * docs/engineering-conventions.md §2. It does not belong here.
  */
 type Guide = { key: string; group: string; label: string; blurb: string; html: string };
 
 const GUIDES: Guide[] = [
-  { key: "migration", group: "SportsWeb One", label: "Live-Site Migration", blurb: "Move a live site to a rebuilt Astro site (Cloudflare or Vercel) without losing earned traffic.", html: migration },
-  { key: "editable", group: "SportsWeb One", label: "Build an Editable Site", blurb: "Build a DB-driven site edited through this platform (read contract + publish gate).", html: editableBuild },
+  { key: "migration", group: "SportsWeb One", label: "Live-Site Migration", blurb: "Move a live site onto the SW1 renderer without losing earned traffic.", html: migration },
+  { key: "editable", group: "SportsWeb One", label: "Build an Editable Site", blurb: "Onboard a club onto the SW1 renderer (read contract + publish gate).", html: editableBuild },
   { key: "scratch", group: "SportsWeb One", label: "Build from Scratch", blurb: "New build: content from an old site if any, design from inspiration sites + screenshots.", html: scratch },
   { key: "editor", group: "SportsWeb One", label: "Editor — How-To", blurb: "Step-by-step of this editor for you and the manager: edit, preview, publish.", html: editor },
-  { key: "b1", group: "Business One (preview)", label: "Business One Runbook", blurb: "The business-site model: standard pages, editable content model, build & migrate.", html: b1 },
 ];
 
 const GROUPS = GUIDES.reduce<string[]>((acc, g) => (acc.includes(g.group) ? acc : [...acc, g.group]), []);

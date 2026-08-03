@@ -1,10 +1,12 @@
+<!-- GENERATED from sportsweb-standards/SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md by scripts/generate-guides.mjs — do not hand-edit -->
 <!doctype html>
 <html lang="en-AU" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOP · Build from Scratch — SportsWeb / Business One</title>
+<title>SportsWeb One — Build-from-Scratch SOP — SportsWeb One</title>
 <style>
+
   :root{
     --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
     --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
@@ -14,298 +16,184 @@
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
     --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    --maxw:1160px; --rail:236px; --r:10px; --r-sm:7px;
+    --maxw:900px; --r:10px; --r-sm:7px;
   }
   @media (prefers-color-scheme:dark){:root{
-    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226; --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
-    --line:#252d30; --line-soft:#202628; --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
-    --signal:#d3a154; --signal-wash:#2a2113; --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
+    --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628;
+    --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113;
+    --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
   }}
   :root[data-theme="dark"]{
-    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226; --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
-    --line:#252d30; --line-soft:#202628; --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
-    --signal:#d3a154; --signal-wash:#2a2113; --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
+    --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628;
+    --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113;
+    --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
   }
   :root[data-theme="light"]{
-    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0; --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
-    --line:#dbe2df; --line-soft:#e8edea; --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
-    --signal:#a8641a; --signal-wash:#f8ede0; --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
+    --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
+    --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
+    --line:#dbe2df; --line-soft:#e8edea;
+    --accent:#0e7c86; --accent-ink:#0a5a62; --accent-wash:#e4f0f0;
+    --signal:#a8641a; --signal-wash:#f8ede0;
+    --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
   }
-  *{box-sizing:border-box}html{scroll-behavior:smooth}
+
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
-  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   a{color:var(--accent-ink)}
   code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  pre{margin:1rem 0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);white-space:pre-wrap;word-break:break-word}
+  pre code{background:none;border:0;padding:0;font-size:1em}
+
   header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
   .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
   .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
   .brand .mark{width:30px;height:30px;flex:none;border-radius:7px;background:var(--accent);position:relative;overflow:hidden}
   .brand .mark::before,.brand .mark::after{content:"";position:absolute;top:-20%;height:140%;width:22%;background:var(--surface);transform:skewX(-16deg)}
   .brand .mark::before{left:26%}.brand .mark::after{left:56%;background:color-mix(in srgb,var(--surface) 55%,var(--accent))}
-  .brand b{font-size:.92rem;letter-spacing:-.01em;white-space:nowrap}
+  .brand b{font-size:.92rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand span{font-family:var(--font-mono);font-size:.66rem;color:var(--ink-soft);letter-spacing:.04em}
   .top-actions{margin-left:auto;display:flex;gap:.4rem}
   .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
-  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
-  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0}
-  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
-  nav.toc ol{list-style:none;margin:0;padding:0}
-  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem}
-  nav.toc a:hover{color:var(--ink)}nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
-  main{min-width:0;padding-bottom:5rem}
+  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem 5rem}
+
   .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
-  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
-  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
-  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r-sm);background:var(--accent-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem}
-  .hero .directive b{color:var(--accent-ink)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
-  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
-  .chip b{color:var(--ink);font-weight:600}
-  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
-  h2.sec{font-size:1.02rem;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
-  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}@media(max-width:720px){.grid2{grid-template-columns:1fr}}
-  .card{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:1.1rem 1.2rem}
-  .card .axis{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--signal)}
-  .card h3{margin:.3rem 0 .6rem;font-size:1.1rem}
-  .card h4{margin:.9rem 0 .2rem;font-size:.92rem;color:var(--accent-ink)}
-  .card p{margin:.2rem 0;color:var(--ink-soft);font-size:.9rem}
-  .card ul{margin:.3rem 0 0;padding-left:1.1rem}.card li{margin:.28rem 0;font-size:.9rem;color:var(--ink-soft)}
-  .phase{position:relative;padding:1.1rem 0 1.1rem 3.4rem;border-top:1px solid var(--line-soft)}.phase:first-of-type{border-top:0}
-  .phase .num{position:absolute;left:0;top:1.1rem;width:2.4rem;height:2.4rem;border-radius:9px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;color:var(--accent-ink)}
-  .phase h3{margin:.1rem 0 .2rem;font-size:1.05rem}.phase p{margin:0;color:var(--ink-soft);font-size:.93rem}
-  .code{margin:.9rem 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
-  .code.prompt{border-color:color-mix(in srgb,var(--signal) 55%,var(--line))}
-  .code-head{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
-  .code.prompt .code-head{background:var(--signal-wash)}
-  .code-head .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
-  .copy{font:inherit;font-family:var(--font-mono);font-size:.68rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.28rem .6rem;border-radius:5px;margin-left:auto}
-  .copy:hover{border-color:var(--accent);color:var(--accent-ink)}.copy.done{border-color:var(--ok);color:var(--ok)}
-  pre{margin:0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
-  .fill{color:var(--signal);font-weight:600}
-  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem}
-  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
-  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
-  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
-  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono)}
-  @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
-  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}}
-  /* ---------- flow diagram + plain-English (ELI12) ---------- */
-  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
-  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
-  .fnode{flex:none;width:122px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
-  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
-  .fnode b{font-size:.83rem;line-height:1.15}
-  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
-  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
-  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
-  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
-  ol.plain{margin:.6rem 0;padding-left:1.6rem}
-  ol.plain li{margin:.6rem 0;font-size:.97rem}
-  ol.plain li b{font-weight:600}
-  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
-  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
-  /* actor-coloured flow nodes + tappable boxes */
-  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
-  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
-  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
-  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
-  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  /* summary card + attach hint + who tags + usage line */
-  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
-  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
-  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
-  .summary .r.stuck .l{color:var(--stop)}
-  .summary .r .v{flex:1;min-width:0}
-  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
-  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
-  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
-  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
-  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
-  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
-  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
-  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
-  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
-  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:70ch;margin:0;font-style:italic}
+
+  main .content > h2{font-size:1.5rem;letter-spacing:-.01em;font-weight:700;margin:2.4rem 0 1rem;padding-top:1.8rem;border-top:1px solid var(--line-soft)}
+  main .content > h2:first-child{margin-top:2rem;padding-top:0;border-top:0}
+  main .content > h3{font-size:1.15rem;letter-spacing:-.005em;font-weight:700;margin:1.6rem 0 .7rem}
+  main .content > h4{font-size:1rem;font-weight:700;margin:1.3rem 0 .5rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-family:var(--font-mono);font-size:.78rem}
+  main .content p{margin:.8rem 0;color:var(--ink)}
+  main .content ul,main .content ol{margin:.6rem 0;padding-left:1.4rem}
+  main .content li{margin:.4rem 0}
+  main .content hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+  main .content strong{color:var(--ink);font-weight:700}
+  main .content a{text-decoration:underline;text-underline-offset:2px}
+
+  .tablewrap{overflow-x:auto;margin:1rem 0}
+  table.map{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  table.map th,table.map td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.map th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2)}
+  table.map tbody tr:nth-child(even){background:var(--surface-2)}
+  table.map tbody tr:last-child td{border-bottom:0}
+  table.map td code{font-size:.92em}
+
+  blockquote{border-radius:var(--r);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.95rem;border:1px solid var(--line);border-left-width:4px;background:var(--surface)}
+  blockquote p{margin:.35rem 0}
+  blockquote p:first-child{margin-top:0}
+  blockquote p:last-child{margin-bottom:0}
+  blockquote.note{border-color:var(--accent);background:var(--accent-wash)}
+  blockquote.stop{border-color:var(--stop);background:var(--stop-wash)}
+  blockquote.warn{border-color:var(--warn);background:var(--signal-wash)}
+  blockquote.ok{border-color:var(--ok)}
+
+  @media(max-width:640px){main{padding:0 1rem 3rem}.top-in{padding:.6rem 1rem}}
+  @media print{header.top,.top-actions{display:none!important}body{background:#fff}main .content>h2{break-after:avoid}}
+
 </style>
 </head>
 <body>
-<header class="top"><div class="top-in">
-  <div class="brand"><div class="mark" aria-hidden="true"></div><div style="min-width:0"><b>SW1 · Operations Runbook</b><br><span>SportsWeb One / Business One</span></div></div>
-  <div class="top-actions"><button class="btn" id="themeBtn" type="button">◐ Theme</button><button class="btn" onclick="window.print()" type="button">⎙ Print</button></div>
-</div></header>
-
-<div class="wrap">
-  <nav class="toc" aria-label="Contents"><p class="lab">Contents</p><ol>
-    <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
-    <li><a href="#preflight"><span class="n">!</span>Design check</a></li>
-    <li><a href="#flow"><span class="n">▸</span>Your 6 steps</a></li>
-    <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
-    <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
-    <li><a href="#axes"><span class="n">◆</span>The two axes</a></li>
-    <li><a href="#content"><span class="n">1</span>Content source</a></li>
-    <li><a href="#design"><span class="n">2</span>Design source</a></li>
-    <li><a href="#process"><span class="n">→</span>Process</a></li>
-    <li><a href="#single"><span class="n">▤</span>Single vs multi-page</a></li>
-    <li><a href="#guard"><span class="n">✕</span>Guardrails</a></li>
-  </ol></nav>
-
-  <main>
-    <div class="hero">
-      <p class="eyebrow">Standard Operating Procedure · Build from Scratch</p>
-      <h1>Build a new site — content from an old site if there is one, design from anything that inspires it.</h1>
-      <p class="lede">For a fresh build (new design, new structure) rather than a like-for-like copy. Two things are decided <b>independently</b>: where the <b>content</b> comes from, and where the <b>design</b> comes from. Works for both club and business sites. <b>However they're sourced, the finished site is an editable SW1/B1 tenant on Cloudflare</b> — it reads the database and the owner edits it through the platform.</p>
-      <div class="directive"><span aria-hidden="true">◆</span><div><b>Content and design are separate choices.</b> You can harvest content from an old site <em>and</em> synthesise a brand-new design from three sites the client screenshotted — mix freely. <b>If an old site exists, its earned SEO is still a deliverable</b> — inventory the URLs and 301-map them even on a full redesign.</div></div>
-      <div class="meta-row"><span class="chip">Content&nbsp;<b>old site or brief</b></span><span class="chip">Design&nbsp;<b>replicate / inspire / screenshots</b></span><span class="chip">Stack&nbsp;<b>Astro · Cloudflare</b></span><span class="chip">Editable&nbsp;<b>reads SW1/B1 DB</b></span><span class="chip">Law&nbsp;<b>S1–S20</b></span></div>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="mark" aria-hidden="true"></div>
+      <div style="min-width:0"><b>SW1 Operations Runbook</b><br><span>SportsWeb One</span></div>
     </div>
+    <div class="top-actions">
+      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">&#9680; Theme</button>
+      <button class="btn" onclick="window.print()" type="button">&#9099; Print</button>
+    </div>
+  </div>
+</header>
 
-    <!-- SUMMARY -->
-    <section class="block" id="summary">
-      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
-      <div class="summary">
-        <div class="r"><span class="l">Objective</span><span class="v">Build a brand-new site — content from an old site if there is one, design from anything that inspires it.</span></div>
-        <div class="r"><span class="l">Process</span><span class="v">Tell Codey where the content comes from + where the design comes from → (if there's an old site) Codey saves its pages so old links still work → Codey studies what's ranking and builds it better → you preview → deploy.</span></div>
-        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · old site URL (if any) · a couple of inspiration site URLs or screenshots · Codey does the build.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">A brand-new site that keeps any earned traffic (if it replaced one), aims to out-rank by being more complete than what ranks now — and that <b>the owner edits themselves in SW1/B1</b>, no developer.</span></div>
-        <div class="r stuck"><span class="l">If stuck</span><span class="v">No old content? Use a client brief + clearly-marked placeholders — never invent. Design unclear? Give Codey a couple of inspiration URLs or screenshots.</span></div>
-      </div>
-    </section>
+<main>
+  <div class="hero">
+    <p class="eyebrow">Standard Operating Procedure</p>
+    <h1>SportsWeb One — Build-from-Scratch SOP</h1>
+    
+  </div>
+  <div class="content">
+<h3>Onboard a NEW club: content from an old site (if any) and/or design from inspiration sites + screenshots.</h3>
+<p><em>Law = <code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20). Sits alongside <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code> (which is a like-for-like cutover) — this one is for a fresh build, where the design and/or the content come from elsewhere.</em></p>
+<blockquote class="note">
+<p><strong>Written for the Builder, not the Club Editor.</strong> This SOP is for Carson + Codey operating with full API/DB access to onboard a club. It is not the guide a volunteer uses in the platform&#39;s Club Editor to maintain their own content day to day.</p>
+</blockquote>
+<blockquote class="note">
+<p><strong>Default end-state = a fully onboarded club inside the existing SportsWeb One app — not a new repo or deployment.</strong> Every club renders through the one shared app (<code>sportsweb-one-club-template</code>), resolved by domain (<code>src/App.tsx</code>); <a href="../SportsWeb-One/src/sections/PageRenderer.tsx"><code>PageRenderer.tsx</code></a> walks the club&#39;s <code>published_layout</code>/<code>draft_layout</code> fetched via the <code>public_club_page</code> RPC (<a href="../SportsWeb-One/src/sections/usePublicClubPage.ts"><code>usePublicClubPage.ts</code></a>). However the content and design are sourced, the finished result is the club&#39;s content <strong>loaded into the platform&#39;s editable fields</strong> via the admin <strong>Import a club</strong> tool / <a href="../SportsWeb-One/src/admin/SiteMigrations.tsx"><code>SiteMigrations.tsx</code></a>, and the owner edits it through the platform editor from then on. There is no per-club codebase, build, or hosting choice to make. Do not ship content baked into static HTML as the default — that&#39;s not editable by the club.</p>
+<p>🔴 <strong>Before writing any page, run the Pre-flight design check</strong> (<code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> Part 0) — confirm the design is an SW1-supported variant or completed design-pack port. If it isn&#39;t, stop and flag it rather than quietly building a static stand-in. Chadstone Redbacks (Jul 2026) shipped weeks of static &quot;gameday&quot; build on an unported design before this was caught.</p>
+<p>🔴 <strong>SEO/AEO (sitemap.xml, robots.txt, llms.txt, favicon, JSON-LD, Twitter Card) must be built per-club and dynamic</strong> — see <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> Part D&#39;s SEO/AEO subsection. Citing standards S4/S5/S6/S11 isn&#39;t enough; the same tenant shipped weeks without any of this until asked for explicitly (Chadstone Redbacks, Aug 2026).</p>
+</blockquote>
+<p><strong>Use this when</strong> you&#39;re building a new site (new design, new structure) — not replicating one existing site. Two things are decided <strong>independently</strong>: where the <strong>content</strong> comes from, and where the <strong>design</strong> comes from. Pick one option on each axis.</p>
+<hr>
+<h2>Part A — Two axes, decided separately</h2>
+<h3>Axis 1 — CONTENT source</h3>
+<ul>
+<li><strong>Old site exists →</strong> harvest it (do not re-key by hand). Use the Claude-in-Chrome technique (<code>MIGRATE-FROM-EXISTING-SITE-PROMPT.md</code> §2–§3): render each page, <code>get_page_text</code>, scroll + sweep the DOM/network for images across all hosts. Mine every real fact into <code>CONTENT-BRIEF.md</code>. Then <strong>improve</strong> it (S2): for each service/page seek real experience, credentials, process, pricing factors, proof — log gaps as <code>[CLIENT TO SUPPLY]</code>. <strong>Never invent.</strong><ul>
+<li><strong>SEO carry-over (MUST):</strong> an old site — even on a rebrand or new domain — has earned URLs. Inventory them and build the <strong>1-to-1 301 map</strong> so equity transfers. Follow the Migration SOP&#39;s Phase 0 + Phase 5 for the cutover. A fresh design is not an excuse to drop rankings.</li>
+</ul>
+</li>
+<li><strong>No old site →</strong> work from a client brief. Capture what they give you into <code>CONTENT-BRIEF.md</code>; everything unknown is <code>[CLIENT TO SUPPLY]</code>, clearly marked. Ship honest placeholders, never fabricated facts/testimonials/stats (S1).</li>
+</ul>
+<h3>Axis 2 — DESIGN source</h3>
+<ul>
+<li><strong>Replicate one live site →</strong> mirror that site&#39;s design system (read its CSS: tokens, type, spacing, breakpoints) and rebuild it clean. One direction, not variations.</li>
+<li><strong>Inspiration from N reference sites →</strong> open each, capture what works (layout patterns, type pairing, colour mood, section ideas), then <strong>synthesise a NEW design system</strong> — don&#39;t 1:1 copy any one of them, and never lift a competitor&#39;s brand, logo, or copyrighted assets. Record the derived tokens/type/layout in <code>CONTENT-BRIEF.md</code> before building.</li>
+<li><strong>From screenshots →</strong> the client sends images of sites/looks they like. Read them (vision): extract palette (sample the hex), type feel, layout, mood; name the design system from them. Ask for the source URL when the screenshot is partial (galleries/hover states aren&#39;t in a still).</li>
+<li><strong>From the brand itself →</strong> derive the palette from the logo (colour-count the PNG) + any existing collateral; pick fonts that match the sector tone (business playbook §C3).</li>
+</ul>
+<blockquote class="note">
+<p>These combine freely: e.g. <em>content harvested from the old site + design synthesised from three inspiration sites the client screenshotted.</em></p>
+</blockquote>
+<hr>
+<h2>Part B — Process</h2>
+<ol>
+<li><p><strong>Capture design sources first</strong> — replicate target, inspiration sites, or screenshots → derive a <strong>design system</strong> (4–6 colours, 2–3 type roles, layout concept). Record it.</p>
+</li>
+<li><p><strong>Build <code>CONTENT-BRIEF.md</code></strong> from the content source (old-site harvest or client brief); flag conflicts + gaps, never invent (S1/S2).</p>
+</li>
+<li><p><strong>If an old site exists:</strong> run Migration Phase 0 (URL inventory + 301 map skeleton) in parallel — see <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code>.</p>
+</li>
+<li><p><strong>Build</strong> to the standards — real multi-page (or the deliberate single-page option, Part C), per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media budgets (S8), a11y (S13), perf (S14), real CTAs (S12). <strong>Build it editable (default):</strong> load the content into the club&#39;s <strong>editable fields</strong> through the admin <strong>Import a club</strong> / <strong>Site Migrations</strong> tooling, per <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> (content is served back out through the shared app&#39;s <code>PageRenderer</code>, publish-gated, don&#39;t invent tables/columns/content keys). Content the model has no home for yet ships as static fallback (S18) — extend the model, don&#39;t hardcode. Share a <strong>draft preview</strong> (<code>?preview=&lt;token&gt;</code>, noindex) for review — there is no separate preview deployment to stand up.</p>
+<blockquote class="stop">
+<p><strong>🚦 GATE 4→5 — Codey STOPS here and waits for an explicit human GO. This is the only signal that moves the build to deploy.</strong>
+After the preview, Codey does <strong>not</strong> advance on its own judgement. It stays in a review loop: the reviewer (<strong>the super-admin/Carson OR the SportsWeb manager</strong>) checks the preview <strong>on desktop and mobile</strong> and <strong>states exactly what to fix in plain words</strong>; Codey applies each fix and re-shows — repeating until the reviewer is <strong>happy with the fixes</strong>. <strong>Then — and only after they&#39;re happy with the fixes</strong> — the reviewer types the exact words <strong>“Let’s go to step 5 — deploy / go live.”</strong> Those words are the only thing that advances it. <strong>The build is finished when the reviewer says so, never when Codey thinks it looks right.</strong> No deploy, publish, or cutover before that word. (Exception unchanged: flipping DNS on a <strong>live</strong> domain in step 5 needs <strong>Carson’s</strong> OK specifically — the one irreversible action.)
+<strong>⚠ Numbering note for Codey — obey the ACTION, not the bare number.</strong> The reviewer&#39;s step numbers come from the <strong>human guide&#39;s flow</strong> and will <strong>not</strong> match the step numbers in any runbook <em>you</em> generate. Interpret a GO by its stated action — &quot;deploy / go live&quot; — <strong>never</strong> by matching the number to a same-numbered step in your own working list. If the reviewer gives a bare number with no action, <strong>confirm the action in one line before doing anything.</strong>
+<strong>Capture-the-fix rule:</strong> when the reviewer flags the same class of issue more than once, Codey must <strong>write that fix back into this SOP / the standards / the build prompt</strong> (a design token, a content rule, a QA line) so the next build doesn&#39;t repeat it — the reviewer should prompt for this, and Codey should offer it. Recurring manual corrections mean the prompt is missing a rule.</p>
+</blockquote>
+</li>
+<li><p><strong>Draft preview noindex</strong> (S10) → <strong>only after the GATE above</strong> → <strong>publish the club</strong> (the editor&#39;s &quot;Publish site&quot; / <code>set_website_status</code> RPC) so public reads serve the published layout → if the club needs its own custom domain, attach it: <strong>(a)</strong> add the domain to the SW1 Vercel project (there is only one project for the whole platform — no new project per club), <strong>(b)</strong> insert its <code>club_domains</code> row (<code>host → slug</code>, per <code>src/lib/supabase.ts</code>) so the app resolves it to this club → submit sitemaps (S16) → (if replacing an old site) cut over with the 301 map (S9). <strong>You run the DNS change with Carson&#39;s OK — Codey never touches a live domain.</strong></p>
+</li>
+</ol>
+<h2>Part C — Single-page vs multi-page</h2>
+<p>Small businesses/trades sometimes want a <strong>one-pager</strong>. Allowed, deliberately: build the standard sections as anchor blocks on one route, but keep every essential fact in real HTML (not only widgets), real <code>mailto:</code>/<code>tel:</code> CTAs (S12), and — if it replaces an old multi-URL site — 301 the old server-visible URLs and keep matching section <code>id</code>s so old fragment links still land (S9). Default to genuine multi-page (S3) where the business has enough real content for it.</p>
+<h2>Part D — Guardrails</h2>
+<p>Never invent content, logos, testimonials, credentials, reviews or stats (S1). Never clone a competitor&#39;s brand/site — inspiration is patterns, not assets. Never touch a live domain/DNS without sign-off. If replacing a live site, the earned SEO is a first-class deliverable — inventory + 301 it (S9), don&#39;t lose it.</p>
 
-    <!-- PREFLIGHT -->
-    <section class="block" id="preflight">
-      <h2 class="sec"><span class="k">CHECK</span> Before you start — is the design real? <span class="who you">You confirm</span></h2>
-      <div class="callout stop"><span class="ic">!</span><div><b>Learned the hard way on Chadstone Redbacks (Jul 2026):</b> a static "gameday" design build shipped and stayed live for weeks before anyone checked it was an SW1-supported design. It wasn't &mdash; the platform only renders the frozen <code>ALLOWED_VARIANTS</code> set (<code>src/content/allowedVariants.ts</code>: <code>heritage, broadcast, arena, classic, stadium, editorial, momentum, coastal</code>), and "gameday" was unbuilt platform work, not a shippable option.</div></div>
-      <p style="color:var(--ink-soft);margin-top:0">Before Codey writes a single page, confirm the target design is either <b>(a)</b> one of the currently allowed variants above, or <b>(b)</b> an already-completed design-pack port (a matching audit doc exists under <code>docs/</code>). If it's neither, <b>stop and get an explicit decision</b> &mdash; wait for the platform port, pick an existing supported variant, or knowingly ship static with a documented follow-up. Don't let a static stand-in quietly become the deliverable.</p>
-    </section>
+  </div>
+</main>
 
-    <!-- FLOW -->
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> Your 6 steps, start to finish</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic · <span class="who signoff">Carson OK</span> = needs Carson's sign-off first. <b>Tap any box</b> to jump straight to that step.</p>
-      <div class="flowwrap"><div class="flow">
-        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Gather inputs</b><span>old URL · inspiration</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Open chat, add screenshots</b><span>drop them in</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w3"><span class="fn">3</span><b>Paste the prompt</b><span>content + design</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey studies + builds better</b><span>beats what ranks</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w5"><span class="fn">5</span><b>You preview</b><span>say “yes, go”</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode signoff" href="#w6"><span class="fn">6</span><b>Deploy / cut over</b><span>Carson OK if live</span></a>
-      </div></div>
-    </section>
-
-    <!-- RUN -->
-    <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat <span class="who you">You do this</span></h2>
-      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste. Codey reads the SOP and the standards, confirms the plan once, then builds Phase&nbsp;1 → 5.</p>
-      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
-      <p class="usage"><b>Who</b> you (or the SW1 manager). <b>When</b> to start the whole build — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, drop any inspiration screenshots on the message box, paste this under them, fill the blanks, press Enter.</p>
-      <div class="code prompt"><div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
-<pre id="k-run">You're Codey. Build a NEW site per the Build-from-Scratch SOP
-(~/Developer/sportsweb-standards/SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md), law
-SPORTSWEB-WEB-STANDARDS.md (S1–S20).
-
-Client: {{NAME}}    Type: {{sports club | business}}
-CONTENT source: {{old site at OLD_URL}} | {{client brief — no old site}}
-DESIGN source: {{replicate SITE_URL}} | {{inspiration: URL1, URL2, URL3}}
-               | {{screenshots attached}} | {{from the brand's logo/collateral}}
-Host: {{Vercel | Cloudflare}} (Astro).
-
-Decide content and design independently. BEFORE building, research the current top-ranking
-pages for this business's target keywords and build something more complete and better-structured
-than them — this is pass/fail (Standards S4). If an old site exists, ALSO inventory its URLs and
-build the 1:1 301 map so earned SEO transfers (Migration Phase 0). Harvest real content via
-the in-app browser; never invent facts or testimonials. Synthesise a NEW design system from the
-design source — don't 1:1 copy a competitor, no lifted brands/assets. Confirm the derived plan
-(design tokens/type, page set, content source, the competitors you'll beat, 301 map if any),
-then build. Report repo + URL.</pre>
-      </div>
-    </section>
-
-    <!-- START HERE -->
-    <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who auto">Codey does this</span> is automatic once you send the prompt.</p>
-      <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b id="w1">Gather your two inputs.</b> <span class="who you">You do this</span><br>Two things to collect first — no passwords, no coding:
-          <ul>
-            <li><b>The words (content).</b> If there's an <b>old site</b>, just have its web address ready — Codey copies the words and pictures across. <b>No old site?</b> A short brief is fine; Codey marks anything missing as “[client to supply]” rather than making it up.</li>
-            <li><b>The look (design).</b> Find a <b>couple of websites you like the look of</b> (copy their addresses) <em>or</em> take <b>screenshots</b> of designs that inspire you. Codey builds a fresh look from these — it never copies anyone 1-to-1. <b>See the choices:</b> <a href="#axes">the two axes ↓</a>.</li>
-          </ul>
-        </li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b id="w2">Open a new chat and add your screenshots.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. If you have inspiration <b>screenshots</b>, put them into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them. Only have website addresses, not screenshots? Skip straight to the next step — you'll type the addresses into the prompt.
-          <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop your screenshots right on it, then go to the next step.</div></div>
-        </li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w3">Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and <b>fill in the blanks first</b> — the two that matter are <em>where the content comes from</em> (old site address or “client brief”) and <em>where the design comes from</em> (the website addresses or “screenshots attached”). Then click <b>Copy</b>, paste it into the chat <em>under</em> your screenshots, and press Enter. That single message tells Codey to do everything below.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span><b id="w4">Codey studies the top-ranking pages, then builds it better.</b> <span class="who auto">Codey does this</span><br>This is the important part. Before building, <b>Codey looks up the pages that currently rank at the top of Google</b> for what this business does, sees what they cover, and then builds a <b>more complete, faster, better-organised version</b> — the goal is to out-rank them, not just match them. <b>This is now a must in our standards (S4).</b> Along the way it also copies any old-site words and pictures, and — if there was an old site — <b>saves its Google pages so old links keep working</b>. Just watch; Codey asks you only if a real fact or photo is missing (it never invents one).</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w5">Look at the private preview — this is the STOP gate.</b> <span class="who you">You (or the SW manager)</span><br>Codey deploys a link only you can see (on <b>Cloudflare</b>) and <b>stops and waits — it will not go live on its own.</b> Open it and click around <b>on desktop AND phone</b>. Anything wrong? <b>Tell Codey exactly what to fix, in plain words</b> (“the logo's too big on desktop”, “the phone number is old”) — the clearer you are, the fewer rounds it takes. Codey fixes it and shows you again, as many rounds as you need. <b>Then — and only after you're happy with the fixes</b> — you (the super-admin) <b>or the SportsWeb manager</b> type the exact words <b>“Let's go to step 6 — deploy / go live.”</b> Always add the action in brackets like that, so Codey can't confuse it with a differently-numbered step in its own working list. Those words are the <b>only</b> thing that moves it on; the build is finished when <b>you</b> say so, never when Codey decides. (Going live on a real web address in step 6 still needs <b>Carson's</b> OK — that's the one you can't undo.)<br><b>💡 Seeing the same mistake twice?</b> Tell Codey to <b>write that fix into the prompt / the standards</b> (e.g. “add ‘logo max 120px on desktop’ to the brief”) so the <em>next</em> build doesn't repeat it — every job should start better than the last.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w6">Deploy — and cut over if it replaces a live site.</b> <span class="who you">You do this</span> <span class="who signoff">Carson OK if live</span><br>Codey puts the finished site live. <b>Brand-new address, no old site?</b> It just goes live — nothing more to do. <b>Replacing a website that's already live?</b> Codey hands you the exact web-address settings to change — your <b>DNS records</b> (copy-and-paste lines) — and <b>you get Carson's OK before changing them</b>, because flipping the web address (the DNS switch) is the one truly irreversible bit. <b>What to look for:</b> the address opens the new site, and any old links still land on the matching new page.</li>
-      </ol>
-    </section>
-
-    <section class="block" id="axes">
-      <h2 class="sec"><span class="k">CHOOSE</span> The two axes — decided separately <span class="who you">You choose</span> <span class="who bot">Codey builds</span></h2>
-      <div class="grid2">
-        <div class="card" id="content">
-          <span class="axis">Axis 1</span>
-          <h3>Where the content comes from</h3>
-          <h4>An old site exists</h4>
-          <p>Harvest it — don't re-key by hand. Render each page in the in-app browser, <code>get_page_text</code>, scroll + sweep the DOM/network for images across all hosts. Mine every real fact into <code>CONTENT-BRIEF.md</code>, then <b>improve</b> it (seek real experience, credentials, process, pricing factors, proof). Gaps → <code>[CLIENT TO SUPPLY]</code>.</p>
-          <h4>No old site</h4>
-          <p>Work from the client brief into <code>CONTENT-BRIEF.md</code>; everything unknown is a clearly-marked placeholder. Never fabricate facts, testimonials or stats.</p>
-        </div>
-        <div class="card" id="design">
-          <span class="axis">Axis 2</span>
-          <h3>Where the design comes from</h3>
-          <ul>
-            <li><b>Replicate one live site</b> — read its CSS (tokens, type, spacing) and rebuild it clean, one direction.</li>
-            <li><b>Inspiration from N sites</b> — capture what works across several, then <b>synthesise a NEW system</b>; don't copy any one 1:1, never lift a competitor's brand or assets.</li>
-            <li><b>From screenshots</b> — read the images: sample the palette, read the type feel, layout and mood; ask for the source URL when a still misses hover/gallery states.</li>
-            <li><b>From the brand</b> — palette from the logo (colour-count the PNG) + collateral; fonts to match the sector tone.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="callout note"><span class="ic">i</span><div>Record the derived design system (4–6 colours, 2–3 type roles, a layout concept) in <code>CONTENT-BRIEF.md</code> <b>before</b> building — the same way whatever the design source was.</div></div>
-    </section>
-
-    <section class="block" id="process">
-      <h2 class="sec"><span class="k">SPINE</span> Under the hood — what Codey does <span class="who bot">Codey</span></h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> works through all of this for you</b> — you don't do any of it by hand. It's here so you (or a developer) can see what's happening. The bits that need <span class="who you">you</span> or <span class="who signoff">Carson's OK</span> are the numbered steps in <a href="#plain">Start here ↑</a>.</p>
-      <div class="phase"><div class="num">1</div><h3>Capture design sources → derive the system</h3><p>Replicate target, inspiration sites, or screenshots → 4–6 colours, 2–3 type roles, a layout concept. Record it.</p></div>
-      <div class="phase"><div class="num">2</div><h3>Build the content brief</h3><p>Old-site harvest or client brief → <code>CONTENT-BRIEF.md</code>; flag conflicts + gaps, never invent (S1/S2).</p></div>
-      <div class="phase"><div class="num">3</div><h3>If an old site exists — inventory + 301 map</h3><p>Run Migration Phase 0 in parallel (URL inventory + 1:1 301 map) so earned SEO transfers even on a redesign. See the Live-Site Migration SOP.</p></div>
-      <div class="phase"><div class="num">4</div><h3>Research the top-ranking pages, then beat them <span class="who bot">Codey</span></h3><p><b>Before writing pages,</b> Codey studies the pages currently ranking for the target keywords and builds something more complete and better-structured — out-ranking, not matching, is the bar (<b>S4, pass/fail</b>).</p></div>
-      <div class="phase"><div class="num">5</div><h3>Build to the standards</h3><p>Real multi-page (or the deliberate single-page option); per-page SEO + connected JSON-LD (S4/S5), <code>llms.txt</code> (S6), local/maps (S7), media (S8), a11y (S13), perf (S14), real CTAs (S12). <b>Build it editable (default):</b> content loaded into the SW1/B1 editable fields and read via the <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> data layer (Astro SSR, DB-first + static fallback, no editing UI in the site) — anything the model can't hold yet ships as static fallback (S18).</p></div>
-      <div class="phase"><div class="num">6</div><h3>Stage → sign-off → deploy → cut over <span class="who you">You + Carson OK</span></h3><p>Staging noindex (S10) → sign-off → deploy on <b>Cloudflare (default; Vercel optional)</b> → <b>publish the tenant</b> so public reads serve the DB content → if replacing an old site, cut over with the 301 map (S9) + submit sitemaps (S16). <b>You run the DNS change with Carson's OK</b> — Codey never touches a live domain.</p></div>
-    </section>
-
-    <section class="block" id="single">
-      <h2 class="sec"><span class="k">SHAPE</span> Single-page vs multi-page <span class="who you">Your call</span></h2>
-      <p style="color:var(--ink-soft);margin-top:0">Small businesses/trades sometimes want a <b>one-pager</b>. Allowed, deliberately: build the standard sections as anchor blocks on one route, but keep every essential fact in real HTML (not only widgets), use real <code>mailto:</code>/<code>tel:</code> CTAs (S12), and — if it replaces an old multi-URL site — 301 the old server-visible URLs while keeping matching section <code>id</code>s so old fragment links still land (S9). Default to genuine multi-page (S3) where there's enough real content.</p>
-    </section>
-
-    <section class="block" id="guard">
-      <h2 class="sec"><span class="k">STOP</span> Guardrails <span class="who bot">Codey obeys</span></h2>
-      <div class="callout stop"><span class="ic">!</span><div>Never invent content, logos, testimonials, credentials, reviews or stats. Never clone a competitor's brand or site — <b>inspiration is patterns, not assets</b>. Never touch a live domain/DNS without sign-off. If you're replacing a live site, the earned SEO is a first-class deliverable — inventory + 301 it, don't lose it.</div></div>
-      <p style="color:var(--ink-soft);font-size:.85rem">Source: <code>SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md</code> · companions: <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code>, <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>, <code>SPORTSWEB-WEB-STANDARDS.md</code>.</p>
-    </section>
-  </main>
-</div>
-<footer class="foot">SW1 Operations Runbook · Build-from-Scratch SOP · access: platform admins only.</footer>
 <script>
-(function(){var root=document.documentElement,btn=document.getElementById('themeBtn');
-btn&&btn.addEventListener('click',function(){var c=root.getAttribute('data-theme');root.setAttribute('data-theme',c==='dark'?'light':(c==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark')));});
-document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click',function(){var el=document.getElementById(b.getAttribute('data-copy'));if(!el)return;navigator.clipboard&&navigator.clipboard.writeText(el.innerText).then(function(){var o=b.textContent;b.textContent='✓ Copied';b.classList.add('done');setTimeout(function(){b.textContent=o;b.classList.remove('done');},1600);});});});})();
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  btn&&btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var next=cur==='dark'?'light':(cur==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark'));
+    root.setAttribute('data-theme',next);
+  });
+})();
 </script>
-<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var el=document.getElementById(a.getAttribute("href").slice(1));if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}});</script>
 </body>
 </html>
