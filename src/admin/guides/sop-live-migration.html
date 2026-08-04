@@ -1,10 +1,12 @@
+<!-- GENERATED from sportsweb-standards/SPORTSWEB-LIVE-MIGRATION-SOP.md by scripts/generate-guides.mjs — do not hand-edit -->
 <!doctype html>
 <html lang="en-AU" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOP · Live-Site Migration — SportsWeb / Business One</title>
+<title>SportsWeb One — Live-Site Migration SOP — SportsWeb One</title>
 <style>
+
   :root{
     --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
     --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
@@ -14,19 +16,16 @@
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
     --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    --maxw:1160px; --rail:236px;
-    --r:10px; --r-sm:7px;
+    --maxw:900px; --r:10px; --r-sm:7px;
   }
-  @media (prefers-color-scheme:dark){
-    :root{
-      --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
-      --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#6b767120;
-      --ink-faint:#69746f; --line:#252d30; --line-soft:#202628;
-      --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
-      --signal:#d3a154; --signal-wash:#2a2113;
-      --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
-    }
-  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
+    --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
+    --line:#252d30; --line-soft:#202628;
+    --accent:#39b3bc; --accent-ink:#7fd4da; --accent-wash:#132a2c;
+    --signal:#d3a154; --signal-wash:#2a2113;
+    --ok:#57b483; --warn:#d3a154; --stop:#d97b76; --stop-wash:#2a1917;
+  }}
   :root[data-theme="dark"]{
     --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
     --ink:#e7ece9; --ink-soft:#9aa6a1; --ink-faint:#69746f;
@@ -44,23 +43,17 @@
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
   }
 
+
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
-  body{
-    margin:0;background:var(--paper);color:var(--ink);
-    font-family:var(--font-sans);font-size:16px;line-height:1.62;
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  }
-  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   a{color:var(--accent-ink)}
   code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  pre{margin:1rem 0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);white-space:pre-wrap;word-break:break-word}
+  pre code{background:none;border:0;padding:0;font-size:1em}
 
-  /* ---------- top bar ---------- */
-  header.top{
-    position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);
-    backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);
-  }
+  header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
   .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
   .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
   .brand .mark{width:30px;height:30px;flex:none;border-radius:7px;background:var(--accent);position:relative;overflow:hidden}
@@ -69,558 +62,254 @@
   .brand b{font-size:.92rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand span{font-family:var(--font-mono);font-size:.66rem;color:var(--ink-soft);letter-spacing:.04em}
   .top-actions{margin-left:auto;display:flex;gap:.4rem}
-  .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
-    padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
+  .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
   .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
   .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* ---------- shell ---------- */
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;
-    display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
-  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0;max-height:calc(100vh - 80px);overflow:auto}
-  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
-  nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:p}
-  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem;transition:color .15s,border-color .15s}
-  nav.toc a:hover{color:var(--ink)}
-  nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
-  main{min-width:0;padding-bottom:5rem}
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem 5rem}
 
-  /* ---------- hero ---------- */
   .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
-  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
-  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
-  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r-sm);
-    background:var(--accent-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem;align-items:flex-start}
-  .hero .directive b{color:var(--accent-ink)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
-  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
-  .chip b{color:var(--ink);font-weight:600}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:70ch;margin:0;font-style:italic}
 
-  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
-  h2.sec{font-size:1.02rem;letter-spacing:.01em;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
-  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
+  main .content > h2{font-size:1.5rem;letter-spacing:-.01em;font-weight:700;margin:2.4rem 0 1rem;padding-top:1.8rem;border-top:1px solid var(--line-soft)}
+  main .content > h2:first-child{margin-top:2rem;padding-top:0;border-top:0}
+  main .content > h3{font-size:1.15rem;letter-spacing:-.005em;font-weight:700;margin:1.6rem 0 .7rem}
+  main .content > h4{font-size:1rem;font-weight:700;margin:1.3rem 0 .5rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-family:var(--font-mono);font-size:.78rem}
+  main .content p{margin:.8rem 0;color:var(--ink)}
+  main .content ul,main .content ol{margin:.6rem 0;padding-left:1.4rem}
+  main .content li{margin:.4rem 0}
+  main .content hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+  main .content strong{color:var(--ink);font-weight:700}
+  main .content a{text-decoration:underline;text-underline-offset:2px}
 
-  /* ---------- phases ---------- */
-  .phase{position:relative;padding:1.3rem 0 1.3rem 3.4rem;border-top:1px solid var(--line-soft)}
-  .phase:first-of-type{border-top:0}
-  .phase .num{position:absolute;left:0;top:1.3rem;width:2.4rem;height:2.4rem;border-radius:9px;background:var(--surface);border:1px solid var(--line);
-    display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:1rem;color:var(--accent-ink)}
-  .phase h3{margin:.15rem 0 .2rem;font-size:1.12rem;letter-spacing:-.01em}
-  .phase .purpose{margin:0 0 .7rem;color:var(--ink-soft);font-size:.95rem}
-  .phase ul{margin:.4rem 0 0;padding-left:1.1rem}
-  .phase li{margin:.35rem 0}
-  .phase li b{font-weight:600}
-  .gate{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--stop);border:1px solid var(--stop);border-radius:4px;padding:.08rem .4rem;margin-left:.5rem;vertical-align:middle}
+  .tablewrap{overflow-x:auto;margin:1rem 0}
+  table.map{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  table.map th,table.map td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.map th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2)}
+  table.map tbody tr:nth-child(even){background:var(--surface-2)}
+  table.map tbody tr:last-child td{border-bottom:0}
+  table.map td code{font-size:.92em}
 
-  /* ---------- code / prompt blocks ---------- */
-  .code{position:relative;margin:.9rem 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
-  .code.prompt{border-color:color-mix(in srgb,var(--signal) 55%,var(--line))}
-  .code-head{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
-  .code.prompt .code-head{background:var(--signal-wash)}
-  .code-head .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-  .code.prompt .code-head .tag{color:var(--signal)}
-  .code-head .copy{margin-left:auto}
-  .copy{font:inherit;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;cursor:pointer;border:1px solid var(--line);
-    background:var(--surface);color:var(--ink-soft);padding:.28rem .6rem;border-radius:5px;transition:all .15s}
-  .copy:hover{border-color:var(--accent);color:var(--accent-ink)}
-  .copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .copy.done{border-color:var(--ok);color:var(--ok)}
-  pre{margin:0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
-  pre.raw{white-space:pre;word-break:normal}
-  .fill{color:var(--signal);font-weight:600}
+  blockquote{border-radius:var(--r);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.95rem;border:1px solid var(--line);border-left-width:4px;background:var(--surface)}
+  blockquote p{margin:.35rem 0}
+  blockquote p:first-child{margin-top:0}
+  blockquote p:last-child{margin-bottom:0}
+  blockquote.note{border-color:var(--accent);background:var(--accent-wash)}
+  blockquote.stop{border-color:var(--stop);background:var(--stop-wash)}
+  blockquote.warn{border-color:var(--warn);background:var(--signal-wash)}
+  blockquote.ok{border-color:var(--ok)}
 
-  /* ---------- cards / callouts ---------- */
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-  @media(max-width:720px){.grid2{grid-template-columns:1fr}}
-  .card{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:1rem 1.1rem}
-  .card h4{margin:0 0 .5rem;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
-  .card p{margin:.3rem 0;color:var(--ink-soft);font-size:.9rem}
-  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem;align-items:flex-start}
-  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
-  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
-  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
+  @media(max-width:640px){main{padding:0 1rem 3rem}.top-in{padding:.6rem 1rem}}
+  @media print{header.top,.top-actions{display:none!important}body{background:#fff}main .content>h2{break-after:avoid}}
 
-  ul.checks{list-style:none;margin:.5rem 0 0;padding:0}
-  ul.checks li{display:flex;gap:.6rem;align-items:flex-start;padding:.42rem 0;border-top:1px solid var(--line-soft);font-size:.92rem}
-  ul.checks li:first-child{border-top:0}
-  ul.checks .box{flex:none;width:1.15rem;height:1.15rem;border:1.5px solid var(--accent);border-radius:4px;margin-top:.15rem}
-  ul.checks .s{font-family:var(--font-mono);font-size:.66rem;color:var(--accent-ink);border:1px solid var(--line);border-radius:4px;padding:0 .3rem;margin-left:.35rem;flex:none;align-self:center}
-
-  table.files{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:.4rem}
-  table.files th,table.files td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  table.files th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
-  table.files td code{background:none;border:0;padding:0;color:var(--accent-ink)}
-
-  /* ---------- paste zone ---------- */
-  .paste{border:2px dashed color-mix(in srgb,var(--signal) 60%,var(--line));border-radius:var(--r);background:var(--signal-wash);padding:1rem 1.1rem;margin:.9rem 0}
-  .paste .lab{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
-  .paste textarea{width:100%;min-height:120px;resize:vertical;font-family:var(--font-mono);font-size:.8rem;line-height:1.5;
-    border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);padding:.7rem .8rem}
-  .paste textarea:focus-visible{outline:2px solid var(--signal);outline-offset:1px;border-color:var(--signal)}
-  .paste .hint{font-size:.82rem;color:var(--ink-soft);margin:.5rem 0 0}
-
-  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
-
-  @media(max-width:860px){
-    .wrap{grid-template-columns:1fr;gap:0}
-    nav.toc{display:none}
-  }
-  /* ---------- flow diagram ---------- */
-  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.4rem 0}
-  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
-  .fnode{flex:none;width:120px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
-  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
-  .fnode b{font-size:.83rem;line-height:1.15}
-  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
-  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
-  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
-  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
-  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
-  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
-  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
-  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
-  /* ---------- plain-English (ELI12) ---------- */
-  ol.plain{margin:.6rem 0;padding-left:1.6rem}
-  ol.plain li{margin:.6rem 0;font-size:.97rem}
-  ol.plain li b{font-weight:600}
-  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
-  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
-  /* ---------- summary card + attach hint ---------- */
-  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
-  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
-  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
-  .summary .r.stuck .l{color:var(--stop)}
-  .summary .r .v{flex:1;min-width:0}
-  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
-  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
-  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
-  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
-  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
-  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
-  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
-  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
-  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
-  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
-  @media print{
-    header.top,nav.toc,.top-actions,.copy{display:none!important}
-    .wrap{display:block}body{background:#fff}
-    section.block,.phase{break-inside:avoid}
-    .flow{flex-wrap:wrap}
-  }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-in">
-    <div class="brand">
-      <div class="mark" aria-hidden="true"></div>
-      <div style="min-width:0">
-        <b>SW1 · Operations Runbook</b><br>
-        <span>SportsWeb One / Business One</span>
-      </div>
+    <div class="brand"><div class="mark" aria-hidden="true"></div>
+      <div style="min-width:0"><b>SW1 Operations Runbook</b><br><span>SportsWeb One</span></div>
     </div>
     <div class="top-actions">
-      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">◐ Theme</button>
-      <button class="btn" onclick="window.print()" type="button">⎙ Print</button>
+      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">&#9680; Theme</button>
+      <button class="btn" onclick="window.print()" type="button">&#9099; Print</button>
     </div>
   </div>
 </header>
 
-<div class="wrap">
-  <nav class="toc" aria-label="Contents">
-    <p class="lab">Phases</p>
-    <ol>
-      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
-      <li><a href="#flow"><span class="n">▸</span>Your 10 steps</a></li>
-      <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
-      <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
-      <li><a href="#gexport"><span class="n">↧</span>Google export</a></li>
-      <li><a href="#p0"><span class="n">0</span>SEO baseline</a></li>
-      <li><a href="#p1"><span class="n">1</span>Content + images</a></li>
-      <li><a href="#embed"><span class="n">◆</span>Embedded code</a></li>
-      <li><a href="#p2"><span class="n">2</span>Rebuild (Astro)</a></li>
-      <li><a href="#p3"><span class="n">3</span>Parity gate</a></li>
-      <li><a href="#p4"><span class="n">4</span>Staging</a></li>
-      <li><a href="#p5"><span class="n">5</span>Cutover</a></li>
-      <li><a href="#p6"><span class="n">6</span>Maps &amp; local</a></li>
-      <li><a href="#p7"><span class="n">7</span>Post-launch</a></li>
-      <li><a href="#verify"><span class="n">✓</span>Verification</a></li>
-      <li><a href="#files"><span class="n">▤</span>Files</a></li>
-    </ol>
-  </nav>
+<main>
+  <div class="hero">
+    <p class="eyebrow">Standard Operating Procedure</p>
+    <h1>SportsWeb One — Live-Site Migration SOP</h1>
+    
+  </div>
+  <div class="content">
+<h3>Migrate an EXISTING live club website&#39;s content into SportsWeb One <strong>without losing earned traffic or rankings</strong> — the club then edits it through the platform editor.</h3>
+<p><em>Law is <code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20) — on any conflict THAT file wins; this SOP only sequences the migration-specific execution the from-scratch SOP doesn&#39;t. Folds in the content/image-harvest technique from <code>MIGRATE-FROM-EXISTING-SITE-PROMPT.md</code>. <strong>Default end-state = the club onboarded into the existing SportsWeb One app</strong> (the club renders through the one shared app, content read via the <code>public_club_page</code> RPC and walked by <code>PageRenderer.tsx</code>; the owner edits through the platform editor) — the content model is defined once in <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>; this SOP reuses it, it does not re-invent it. There is no new repo and no new hosting decision — content is loaded into the existing app via the admin <strong>Import a club</strong> / <strong>Site Migrations</strong> tooling. Aug 2026.</em></p>
+<blockquote class="note">
+<p><strong>Written for the Builder, not the Club Editor.</strong> This SOP is for Carson + Codey operating with full API/DB access to run a migration. It is not the guide a volunteer uses in the platform&#39;s Club Editor to maintain their own content afterwards.</p>
+</blockquote>
+<p><strong>Use this when:</strong> there is a <strong>live site with existing SEO equity / traffic</strong> to preserve (not a greenfield build). The prime directive is <strong>carry the earned rankings across the cutover</strong> — every ranking signal on the old site must be preserved or improved, and every indexed URL must resolve (200 or one-hop 301). Losing traffic on cutover is the failure mode this SOP exists to prevent.</p>
+<p>🔴 <strong>Before you build anything, run the Pre-flight design check in <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> Part 0</strong> — confirm the target design is an SW1-supported variant or a completed design-pack port. Chadstone Redbacks (Jul 2026) shipped weeks of static &quot;gameday&quot; build before anyone checked this; it wasn&#39;t supported. Don&#39;t repeat it.</p>
+<p>🔴 <strong>SEO/AEO must be built per-club and dynamic, not hand-written once</strong> — <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> Part D&#39;s SEO/AEO subsection covers <code>/sitemap.xml</code>/<code>/robots.txt</code>/<code>/llms.txt</code> resolved by host, favicon, JSON-LD, Twitter Card. Especially load-bearing on a migration: this SOP&#39;s whole point is protecting earned rankings, and a missing per-club sitemap/schema undermines that even when the redirect map (S9) is perfect.</p>
+<hr>
+<h2>Part A — Kickoff prompt (paste ALL of this into a new chat; fill the fields)</h2>
+<blockquote class="note">
+<p>You&#39;re Codey. Run the <strong>SportsWeb One Live-Site Migration SOP</strong>
+(<code>~/Developer/sportsweb-standards/SPORTSWEB-LIVE-MIGRATION-SOP.md</code>) end to end, and treat
+<code>~/Developer/sportsweb-standards/SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20) as pass/fail law.</p>
+<p><strong>Live site to migrate (SEO SOURCE — preserve its equity):</strong> {{LIVE_URL}}
+<strong>Target design:</strong> {{same as existing, improved}} | {{new design at DESIGN_URL}}
+<strong>Domain after cutover:</strong> {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
+<strong>Stack/host:</strong> there is no new repo or deployment — the club renders through the existing
+shared SportsWeb One app (content read via the <code>public_club_page</code> RPC, walked by
+<code>PageRenderer.tsx</code>) and the owner edits it through the platform editor afterwards (content
+model per <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>: DB-first with static fallback, RLS-gated,
+published-gate). Harvested content is <strong>loaded into the platform&#39;s editable fields</strong> via the
+admin <strong>Import a club</strong> / <strong>Site Migrations</strong> tooling (not baked into components).
+<strong>Access I can give you (tick what you have):</strong> Google Search Console ▢ · Google Analytics ▢ ·
+Google Business Profile ▢ · the current registrar/DNS ▢ · a backlink tool ▢. (Missing ones →
+reconstruct best-effort from a crawl + XML sitemap + <code>site:</code> search, and flag the gap.)</p>
+<p>This is a <strong>live cutover</strong>, so the goal is <strong>zero traffic loss</strong>: capture the SEO baseline FIRST,
+rebuild at parity-or-better, map every old URL 1:1, and don&#39;t touch DNS without my sign-off.
+Work Phase 0 → Phase 7 below. Confirm the derived plan in one short message (page + URL
+inventory, the 301 map skeleton, what SEO access I gave you, same-domain vs new-domain), then
+go. Share a <strong>draft preview</strong> (<code>?preview=&lt;token&gt;</code>, noindex) for my review, and hand me the exact
+DNS records for cutover if the club needs its own domain pointed at the app; never change DNS
+yourself. Report the preview URL, the <code>MIGRATION-BASELINE.md</code> + 301 map, confirmation the
+content is loaded into the editable fields (the owner can edit it), and the go-live runbook
+when done.</p>
+</blockquote>
+<p>There is no per-migration repo to name — the migration&#39;s artifact is the <code>MIGRATION-BASELINE.md</code> content file plus its <strong>Site Migrations</strong> admin-panel record (<code>src/admin/SiteMigrations.tsx</code>), which tracks the migration&#39;s status through the platform, not a separate codebase.</p>
+<hr>
+<h2>Part B — The migration spine (Phase 0 → 7). Each phase gates the next.</h2>
+<h3>Phase 0 — SEO baseline &amp; forensics (BEFORE touching or building anything)</h3>
+<p>You cannot preserve what you haven&#39;t measured. Produce <strong><code>MIGRATION-BASELINE.md</code></strong>:</p>
+<ul>
+<li><strong>Full URL inventory</strong> — union of: a scripted/browser crawl of every internal <code>&lt;a&gt;</code>, the old
+<code>sitemap.xml</code>, <code>robots.txt</code>, and (if given) GSC <strong>Pages/Coverage</strong> export + GA <strong>top landing pages</strong>.
+Add a backlink-tool export or <code>site:</code> sweep for pages other sites link to. This list is the
+authority for the 301 map — an indexed URL missing here becomes a lost-traffic 404 at cutover.</li>
+<li><strong>Per-URL snapshot</strong> (table): old URL · current <code>&lt;title&gt;</code> · meta description · <code>&lt;h1&gt;</code> · canonical ·
+word count · existing JSON-LD types · inbound-link/traffic weight (if known) · <strong>→ new route</strong> ·
+<strong>301?</strong>. High-traffic / high-backlink URLs are must-preserve; sort by weight.</li>
+<li><strong>Ranking + query baseline</strong> (if GSC/GA): top queries, top landing pages, current positions,
+monthly clicks — the yardstick you&#39;ll re-check post-cutover (Phase 7).</li>
+<li><strong>Existing structured data, NAP, GBP</strong>: capture current schema, and the exact Name/Address/Phone
+as shown on the site AND on the Google Business Profile — they must stay identical (S7).</li>
+<li><strong>Existing redirects &amp; canonical host</strong>: current www/non-www, http→https, trailing-slash policy —
+preserve the canonical choice unless there&#39;s a reason to change (a host change is itself a migration).</li>
+</ul>
+<h3>Phase 1 — Content &amp; image harvest via Claude-in-Chrome (S1/S2)</h3>
+<p>Builder/Wix/SITE123/TeamApp sites are JS-rendered — <code>curl</code>/WebFetch return almost nothing. Use the
+in-app browser:</p>
+<ul>
+<li><strong>Content →</strong> open each page, <code>get_page_text</code>; mine every hard fact into <strong><code>CONTENT-BRIEF.md</code></strong>
+(services, story/bio, testimonials <strong>with real names</strong>, projects, pricing, hours, contact, socials,
+service areas, acknowledgement). <strong>Never invent</strong> — gaps → <code>[CLIENT TO SUPPLY]</code> (S1). Flag every
+old-vs-new conflict, never silently pick (S2).</li>
+<li><strong>Load it into the platform (this is what makes the site editable).</strong> Seed the harvested facts into the
+SportsWeb One <strong>editable fields / content keys</strong>, via the admin <strong>Import a club</strong> tool where it fits, and
+directly through the content schema in <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> for the rest — do NOT invent
+tables/columns/keys — so the owner can edit every one of them after launch. Content the
+editable model has <strong>no home for yet</strong> ships as <strong>static fallback</strong> (S18) so nothing is lost — extend the
+model later rather than hardcoding. Net: the migrated content is both correct on day one <strong>and</strong> owner-editable.</li>
+<li><strong>Images →</strong> they&#39;re injected by JS from CDNs, not in the HTML. Render + scroll the page through
+(small synchronous <code>scrollTo</code> steps), then sweep the DOM for real URLs across <strong>all</strong> hosts
+(<code>img.currentSrc||img.src</code> + computed <code>background-image</code>); <code>read_network_requests</code> filtered to image
+types is the fallback. <code>curl</code> the URLs. Gallery/lightbox full-size images load from an async API and
+often can&#39;t be scraped — if a key photo is stuck there, ask the client; <strong>never fabricate or
+substitute someone else&#39;s photo</strong>. Genuine gaps → styled brand placeholder, clearly a placeholder.</li>
+<li>Re-process every image to the <strong>S8 media budget</strong> (AVIF/WebP, <code>width</code>/<code>height</code>, hero ≤200 KB,
+descriptive filenames, real <code>alt</code>).</li>
+</ul>
+<h3>Phase 2 — Onboard the club into SportsWeb One as an editable tenant</h3>
+<ul>
+<li>Match (or apply the chosen new) design against an <code>ALLOWED_VARIANTS</code> entry (Part 0 pre-flight check,
+<code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>); cleaner, faster, accessible, genuinely multi-page. There is no
+new codebase to write — the club renders through the existing shared SW1 app.</li>
+<li><strong>Editable, database-driven — load content per <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>&#39;s content model:</strong>
+seed the harvested facts into the club&#39;s content keys / editable fields (RLS-gated public reads,
+published-gate). The app holds <strong>no per-club editing UI</strong> and the migrated content <strong>never writes</strong>
+on its own — editing happens in the platform editor. Do NOT
+bake editable content into components; do NOT invent tables/columns/keys.</li>
+<li>Per-page SEO/schema per the standards: unique title + meta + <strong>self-referencing absolute
+canonical</strong> + OG/Twitter + the page&#39;s JSON-LD (S4), served per-club and dynamically per
+<code>SPORTSWEB-EDITABLE-SITE-SOP.md</code>&#39;s SEO/AEO subsection (<code>/sitemap.xml</code>, <code>/robots.txt</code>, <code>/llms.txt</code>
+resolved by host); minimal client JS (S14).</li>
+<li><strong>Connected JSON-LD graph</strong> with stable <code>@id</code>s (S5): <code>WebSite</code> + <code>WebPage</code>/page + the most specific
+<code>LocalBusiness</code>/<code>Organization</code> subtype + <code>Person</code> + <code>Service</code> + <code>BreadcrumbList</code>; <strong>no self-serving
+<code>AggregateRating</code></strong> on the business. Mark up only visible content; AU phone <code>+61…</code>.</li>
+<li><code>llms.txt</code> + facts in real HTML (S6); S12 CTAs (no <code>href=&quot;#&quot;</code>, real <code>mailto:</code>/<code>tel:</code> until endpoints
+supplied); WCAG 2.2 AA (S13).</li>
+</ul>
+<h3>Phase 3 — SEO parity gate (the &quot;don&#39;t lose rankings&quot; checklist — MUST pass before cutover)</h3>
+<p>For <strong>every</strong> must-preserve URL from Phase 0:</p>
+<ul>
+<li>A new route exists whose <strong>title, <code>&lt;h1&gt;</code>, and content depth are equal or better</strong> than the old page
+(thin→thin is a fail — improve per S2).</li>
+<li>It&#39;s in the <strong>1:1 301 map</strong> (old→new, permanent, one hop). Keep the <strong>same slug</strong> where sensible so
+no redirect is even needed; where the URL must change, 301 it. Fragment-only legacy links: keep the
+same section <code>id</code> + 301 the server-visible query variants (S9 fragment rule).</li>
+<li>Internal links that pointed at the old page now point at the new canonical (no chains).</li>
+<li>Schema, canonical, and NAP carried over. Zero orphans; key pages reachable without JS ≤3 clicks (S3).</li>
+<li>Assets are NOT redirected; every 301 <strong>target returns 200</strong>, not another redirect.</li>
+</ul>
+<h3>Phase 4 — Staging, review &amp; indexation control (S10)</h3>
+<p>There is no separate staging deployment — share the club&#39;s <strong>draft preview</strong> (<code>/?preview=&lt;token&gt;</code>,
+the editor&#39;s &quot;Share draft for review&quot;, per <code>SPORTSWEB-EDITABLE-SITE-SOP.md</code> Part C): the club stays
+<code>draft</code> (<code>website_status</code>) so it renders <strong><code>noindex,nofollow</code></strong>, is out of <code>sitemap.xml</code>, and is
+invisible to the public until published. The draft preview must NOT compete with the live domain
+while it&#39;s still serving the old site.</p>
+<blockquote class="stop">
+<p><strong>🚦 GATE — Codey STOPS here and waits for an explicit human GO before Phase 5. This is the only signal that moves the draft preview to cutover.</strong>
+Codey does <strong>not</strong> advance on its own judgement. It stays in a review loop: the reviewer (<strong>the super-admin/Carson OR the SportsWeb manager</strong>) opens the draft preview, checks it <strong>on desktop and mobile</strong> and against the Phase 3 parity list, and <strong>states exactly what to fix in plain words</strong>; Codey applies each fix and re-shows — repeating until the reviewer is <strong>happy with the fixes</strong>. <strong>Then — and only after they&#39;re happy with the fixes</strong> — the reviewer types the exact words <strong>“Let’s go to Phase 5 — cut over (go live).”</strong> Those words are the only thing that advances it. <strong>The rebuild is finished when the reviewer says so, never when Codey thinks it looks right.</strong> No cutover before that word. And because Phase 5 flips DNS on a <strong>live</strong> domain, the go-live itself needs <strong>Carson’s</strong> OK specifically — the one irreversible action.
+<strong>⚠ Numbering note for Codey — obey the ACTION, not the bare number.</strong> The reviewer&#39;s step numbers come from the <strong>human guide&#39;s flow</strong> (…preview → <strong>cut over / go live</strong> → post-launch watch) and will <strong>not</strong> match the step numbers in any go-live runbook <em>you</em> generate. Interpret a GO by its stated action — &quot;proceed to cut over and take the site live&quot; — <strong>never</strong> by matching the number to a same-numbered step in your own runbook (e.g. don&#39;t read &quot;step 8&quot; as &quot;write the monitoring plan&quot;). If the reviewer gives a bare number with no action, <strong>confirm the action in one line before doing anything.</strong>
+<strong>Capture-the-fix rule:</strong> when the reviewer flags the same class of issue more than once, Codey must <strong>write that fix back into this SOP / the standards / the build prompt</strong> (e.g. a design token, a content rule, a QA line) so the next build doesn&#39;t repeat it — the reviewer should prompt for this, and Codey should offer it. Recurring manual corrections are a signal the prompt is missing a rule.</p>
+</blockquote>
+<h3>Phase 5 — Cutover runbook (Carson executes DNS; Codey prepares everything)</h3>
+<ul>
+<li><strong>Never change DNS/registrar yourself</strong> — hand Carson the exact records.</li>
+<li><strong>Same domain (SEO-safest, default):</strong> point the domain at the shared SW1 app — add it to the one
+SW1 Vercel project and insert its <code>club_domains</code> row (<code>host → slug</code>); ship the 301 map via
+<code>vercel.json</code> <code>redirects</code> on that same project; flip <code>noindex</code> → <code>index,follow</code>; real <code>robots.txt</code>
+(allow + sitemap ref); production <code>sitemap.xml</code>;
+<strong>publish the club</strong> (<code>set_website_status</code> RPC) so public reads serve the published layout. No GSC
+Change-of-Address needed (host change only).</li>
+<li><strong>New domain:</strong> all of the above <strong>plus</strong> GSC <strong>Change of Address</strong> from old→new property, and keep
+the old domain live serving the 301s (don&#39;t drop it) so equity transfers.</li>
+<li><strong>On go-live:</strong> verify the property in <strong>GSC + Bing Webmaster</strong>, submit the sitemap to both, <strong>IndexNow</strong>
+ping; confirm a <strong>sampled set of old→new returns HTTP 301</strong>, canonicals return 200, and the branded
+<strong>404</strong> renders for anything unmapped (S9/S16).</li>
+</ul>
+<h3>Phase 6 — Google Maps / local presence (S7)</h3>
+<ul>
+<li><strong>Google Business Profile:</strong> confirm it&#39;s claimed; make the <strong>NAP identical</strong> to the site and schema;
+update the GBP <strong>website link to the new URL</strong>; align categories/hours/service-area.</li>
+<li><strong>On-site:</strong> <code>LocalBusiness</code> subtype + <code>areaServed</code> + AU phone in schema; an <strong>embedded Google Map +
+directions</strong> on Contact; address privacy for home/service-area businesses (expose <code>areaServed</code>, hide
+street). Only build a genuine <strong>location page</strong> where real local evidence exists — no thin suburb
+pages.</li>
+</ul>
+<h3>Phase 7 — Post-cutover watch (S16) — the proof equity transferred</h3>
+<p>For <strong>2–4 weeks</strong> after go-live, monitor and fix regressions: GSC index coverage + crawl errors,
+<strong>404s</strong>, the <strong>query/landing-page positions vs the Phase 0 baseline</strong>, Core Web Vitals, schema errors,
+broken links. A ranking dip that doesn&#39;t recover = investigate the 301 map / parity, don&#39;t wait. Tag
+which monitoring steps are candidates to <strong>automate inside the platform</strong> (S16/S18).</p>
+<hr>
+<h2>Part C — Verification before &quot;done&quot;</h2>
+<p>Run the full <code>SPORTSWEB-WEB-STANDARDS.md</code> end-checklist (S1–S20) <strong>plus</strong> the migration gate:</p>
+<ol>
+<li><code>MIGRATION-BASELINE.md</code> exists — complete URL inventory + per-URL SEO snapshot + 301 map.</li>
+<li>Every must-preserve URL → a parity-or-better new page (Phase 3), all in the 1:1 301 map.</li>
+<li>Sampled old→new returns <strong>301</strong>; no chains/loops/soft-404s; canonical targets 200; assets not redirected (S9).</li>
+<li>Draft preview is <code>noindex,nofollow</code> + out of sitemap + <code>robots Disallow</code> until the club is published (S10).</li>
+<li>Connected JSON-LD graph validates; no self-serving <code>AggregateRating</code> (S5).</li>
+<li>GBP NAP == site == schema; new URL set in GBP; map embed + <code>areaServed</code> present (S7).</li>
+<li>Go-live runbook prepared: DNS records for Carson, sitemap submit (GSC+Bing), IndexNow, Change-of-Address IF new domain.</li>
+<li>Post-cutover monitoring plan documented against the Phase 0 baseline.</li>
+</ol>
+<h2>Part D — Deliverables</h2>
+<p>The club onboarded into the existing SportsWeb One app — <strong>no new repo, no new host project</strong> —
+content loaded into the platform&#39;s editable fields, the owner can edit every one (the editable test
+passes: edit in the editor → publish → refresh → change shows) · <code>MIGRATION-BASELINE.md</code> (inventory +
+301 map) · <code>CONTENT-BRIEF.md</code> · draft preview URL (noindex) · the DNS + go-live runbook for Carson ·
+post-launch watch list. Never touch the live domain/DNS without sign-off.</p>
 
-  <main>
-    <div class="hero">
-      <p class="eyebrow">Standard Operating Procedure · Live-Site Migration</p>
-      <h1>Move a live site to a new build — without losing the traffic it already earns.</h1>
-      <p class="lede">For migrating an existing website (with real SEO equity) to a rebuilt <b>Astro</b> site on <b>Cloudflare or Vercel</b>, left ready to wire into <b>Business One</b>. The prime directive is a clean cutover that carries every earned ranking across intact.</p>
-      <div class="directive">
-        <span aria-hidden="true">⚑</span>
-        <div><b>Prime directive — zero traffic loss.</b> Capture the SEO baseline <b>first</b>, rebuild at parity-or-better, map every old URL 1-to-1, and never touch DNS without sign-off. A ranking that drops on cutover is the one failure this SOP exists to prevent.</div>
-      </div>
-      <div class="meta-row">
-        <span class="chip">Stack&nbsp;<b>Astro · Cloudflare/Vercel</b></span>
-        <span class="chip">Later&nbsp;<b>Business One DB</b></span>
-        <span class="chip">Law&nbsp;<b>Web-Standards S1–S20</b></span>
-        <span class="chip">Access&nbsp;<b>You + SW1 manager</b></span>
-      </div>
-    </div>
-
-    <!-- SUMMARY -->
-    <section class="block" id="summary">
-      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
-      <div class="summary">
-        <div class="r"><span class="l">Objective</span><span class="v">Move your website to a faster new one and keep every visitor Google already sends you.</span></div>
-        <div class="r"><span class="l">Process</span><span class="v">You hand Codey two Google files + one prompt → Codey copies your old site &amp; builds the new one → you preview it → you flip the web address → we watch the visitors for a few weeks.</span></div>
-        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (below) · your two Search Console files (<a href="#gexport">how to get them ↓</a>). Codey does the building.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">A cleaner, faster site on the same web address, with your Google visitors kept.</span></div>
-        <div class="r stuck"><span class="l">If stuck</span><span class="v">Old site won't open? Codey grabs a saved copy (Wayback) + your Google files. Visitors drop after the switch? Tell Codey — it re-checks and fixes the page it broke.</span></div>
-      </div>
-    </section>
-
-    <!-- FLOW -->
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> Your 10 steps, start to finish</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic · <span class="who signoff">Carson OK</span> = needs Carson's sign-off first. <b>Tap any box</b> to jump straight to that step.</p>
-      <div class="flowwrap"><div class="flow">
-        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Get Google files</b><span>2 files</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Open chat, add files</b><span>drop them in</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w3"><span class="fn">3</span><b>Paste the prompt</b><span>press Enter</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey copies site</b><span>words + pics</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w5"><span class="fn">5</span><b>Codey keeps buttons</b><span>forms · maps</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w6"><span class="fn">6</span><b>Codey builds + checks</b><span>the safety gate</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w7"><span class="fn">7</span><b>You preview</b><span>say “yes, go”</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode signoff" href="#w8"><span class="fn">8</span><b>Flip web address</b><span>Carson OK first</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w9"><span class="fn">9</span><b>Fix Google Map</b><span>new link</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w10"><span class="fn">10</span><b>Watch visitors</b><span>2–4 weeks</span></a>
-      </div></div>
-    </section>
-
-    <!-- RUN -->
-    <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a job — paste this into a fresh chat</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Open a new Claude Code chat, fill the <span class="fill">highlighted</span> fields, and paste. It reads the SOP and the standards, confirms the plan once, then works Phase&nbsp;0 → 7.</p>
-      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
-      <p class="usage"><b>When</b> to start the whole job — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, drop your Google files on the message box, paste this under them, fill the blanks, press Enter.</p>
-      <div class="code prompt">
-        <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
-<pre id="k-run">You're Codey. Run the SportsWeb / Business One Live-Site Migration SOP
-(~/Developer/sportsweb-standards/SPORTSWEB-LIVE-MIGRATION-SOP.md) end to end, and treat
-~/Developer/sportsweb-standards/SPORTSWEB-WEB-STANDARDS.md (S1–S20) as pass/fail law.
-
-Live site to migrate (SEO SOURCE — preserve its equity): {{LIVE_URL}}
-Target design: {{same as existing, improved}} | {{new design at DESIGN_URL}}
-               | {{new design — inspiration sites/screenshots (see Build from Scratch)}}
-Domain after cutover: {{same domain — re-point}} | {{new domain: NEW_DOMAIN}}
-Stack/host: Astro, Business-One-ready (content collections). Host: {{Cloudflare}} | {{Vercel}}.
-SEO access I can give you (tick what you have): Search Console [ ] · Analytics [ ] ·
-Google Business Profile [ ] · registrar/DNS [ ] · a backlink tool [ ].
-If I've ticked Search Console, its exports are attached (Performance → Pages + Queries; Indexing →
-Pages) — USE those CSV/Sheet files as the authoritative URL + ranking list for the 301 map (every
-page must get a matching new page, 301'd if the URL changes). If not attached, reconstruct the list
-from a crawl + a site: search + the Wayback Machine.
-
-This is a live cutover, so the goal is zero traffic loss: capture the SEO baseline FIRST,
-rebuild at parity-or-better, map every old URL 1:1, and don't touch DNS without my sign-off.
-Confirm the derived plan in one short message (repo name, page + URL inventory, the 301 map
-skeleton, what SEO access I gave you, same-domain vs new-domain), then go. Deploy to a
-*.vercel.app staging URL (noindex) for my review and hand me the exact DNS records for cutover.
-Report the repo URL, staging URL, MIGRATION-BASELINE.md + 301 map, and the go-live runbook.</pre>
-      </div>
-      <div class="callout note"><span class="ic">i</span><div><b>The biggest lever is Search Console access.</b> It gives the real top-pages / top-queries / backlink list so the 301 map covers what actually earns traffic. Without it, the URL inventory is reconstructed from a crawl + sitemap + <code>site:</code> search — workable, but flag the gap. <b>No logins are shared</b> — you <em>export</em> the reports (Performance → top pages + queries; Indexing/Pages → indexed URLs) and paste them in; Codey never signs into your Google account, and you make the DNS change yourself from the records it hands you.</div></div>
-    </section>
-
-    <!-- START HERE -->
-    <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who auto">Codey does this</span> is automatic once you send the prompt.</p>
-      <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><path d="M8 12h8M8 16h6"/></svg></span><b id="w1">Get your Google visitor list.</b> <span class="who you">You do this</span><br>Google keeps a record of which of your pages people find and click. We need it so we lose none — it's two small files you download (no passwords, no coding). <b>See exactly how:</b> <a href="#gexport">Getting your Google numbers out ↓</a> (6 clicks).</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg></span><b id="w2">Open a new chat and give Codey the files.</b> <span class="who you">You do this</span><br>Start a fresh Claude Code chat. Put your two Google files into it — <b>drag them onto the message box</b> (the bar at the bottom where you type), or click the <b>paperclip / attach</b> icon and pick them.
-          <div class="attach"><span class="ai">📎</span><div>The message box is the bar at the very bottom of the chat. Drop the two files right on it, then go to the next step.</div></div>
-        </li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w3">Paste the prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and <b>fill in the one or two blanks first</b> (like which website) — then click <b>Copy</b>, paste it into the chat <em>under</em> your files, and press Enter. That single message tells Codey to do everything below.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8L12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span><b id="w4">Codey copies your old site.</b> <span class="who auto">Codey does this</span><br>It opens every page and saves all the words and pictures — including each slideshow photo — into the new site. Just watch. If one photo is locked away where it can't be reached, Codey asks you to send that single photo.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></span><b id="w5">Codey keeps the working buttons.</b> <span class="who auto">Codey does this</span><br>Your contact form, map and “get a quote” button get carried across so they still work. If any needs a new setting, Codey tells you exactly what.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b id="w6">Codey builds it and checks every page.</b> <span class="who auto">Codey does this</span><br>It rebuilds everything cleanly, then checks that <b>every page Google sends visitors to is on the new site and just as good.</b> It won't go live until this passes — this is the safety gate.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w7">Look at the private preview.</b> <span class="who you">You do this</span><br>Codey sends a link only you can see. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Type <b>“yes, go.”</b></li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w8">Flip the web address to the new site.</b> <span class="who you">You do this</span> <span class="who signoff">Carson OK first</span><br>Codey gives you the exact settings to change at your web-address provider — copy-and-paste lines. <b>Always get Carson's OK before you change these</b> — it's the one truly irreversible bit. This is the switch that puts the new site live.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><b id="w9">Point Google Maps at the new site.</b> <span class="who you">You do this</span> <span class="who auto">Codey preps it</span><br>Your business also shows on <b>Google Maps</b> (your “Google Business Profile”). <b>Only if your web address changed</b> (you moved to a new domain): open it and update the <b>website link</b> to the new address. <b>Either way:</b> check your name, address and phone match the site exactly — Codey gives you the exact details to paste. <b>What to look for:</b> the “Website” button on your Maps listing opens the new site.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></span><b id="w10">Watch the visitors for a few weeks.</b> <span class="who auto">Codey watches + tells you</span><br>For 2–4 weeks we compare your numbers to the list from step 1. What to look for:
-          <ul>
-            <li>Numbers stay level or go up → all good, you're done.</li>
-            <li>One page's visitors drop and don't recover → tell Codey; it re-checks that page's old→new link and fixes it.</li>
-            <li>Any “page not found (404)” errors → Codey finds these and points the old link at the right new page for you.</li>
-          </ul>
-        </li>
-      </ol>
-    </section>
-
-    <!-- GOOGLE EXPORT -->
-    <section class="block" id="gexport">
-      <h2 class="sec"><span class="k">HOW-TO</span> Getting your Google numbers out</h2>
-      <p style="color:var(--ink-soft);margin-top:0">This is step 1 above. No passwords — you export two files and hand them over.</p>
-      <div class="flowwrap"><div class="flow">
-        <div class="fnode"><span class="fn">1</span><b>Open</b><span>search.google.com/ search-console</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">2</span><b>Pick site</b><span>your domain in the list</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">3</span><b>Performance</b><span>set “Last 12 months”</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">4</span><b>Export</b><span>Pages + Queries</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode"><span class="fn">5</span><b>Indexing → Pages</b><span>Export URL list</span></div>
-        <div class="fconn">→</div>
-        <div class="fnode go"><span class="fn">✓</span><b>Send to Codey</b><span>paste / drop the files</span></div>
-      </div></div>
-      <ol class="plain">
-        <li><b>Go to</b> search.google.com/search-console and sign in — that's <em>you</em>, not Codey.</li>
-        <li><b>Click your website</b> in the list at the top.</li>
-        <li><b>Click “Performance”</b> on the left, then set the date to <b>Last 12 months</b>.</li>
-        <li><b>Hit “Export”</b> (top-right) → Google Sheets or CSV. That's your best <b>pages</b> and the <b>words</b> people searched to find you.</li>
-        <li><b>Click “Indexing → Pages”</b>, then Export — the full list of pages Google knows about.</li>
-        <li><b>Send those files to Codey</b> (paste or drop them in the chat). Done — no passwords, just files.</li>
-      </ol>
-      <div class="callout note"><span class="ic">i</span><div>Even though a lapsed site is offline, its Search Console history is still there — so grab this <b>today</b>, before you lose access to the account.</div></div>
-    </section>
-
-    <!-- PHASES -->
-    <section class="block" id="phases">
-      <h2 class="sec"><span class="k">SPINE</span> The migration, phase by phase</h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> works through all of this for you</b> — you don't do any of it by hand. It's here so you (or a developer) can see what's happening under the hood. The bits that need <span class="who you">you</span> or <span class="who signoff">Carson's OK</span> are the numbered steps in <a href="#plain">Start here ↑</a>. For Phase 7 below: Codey watches the numbers automatically and messages you only if a page needs fixing — you don't sit and check dashboards.</p>
-
-      <div class="phase" id="p0">
-        <div class="num">0</div>
-        <h3>SEO baseline &amp; forensics <span class="gate">before you build anything</span> <span class="who bot">Codey</span></h3>
-        <p class="purpose">You can't preserve what you didn't measure. This produces <code>MIGRATION-BASELINE.md</code> — the authority for the whole cutover.</p>
-        <ul>
-          <li><b>Full URL inventory</b> — union of a crawl of every internal link, the old <code>sitemap.xml</code> + <code>robots.txt</code>, and (if given) the GSC Pages export + GA top landing pages, plus a backlink/<code>site:</code> sweep. An indexed URL missing here becomes a lost-traffic 404 on cutover.</li>
-          <li><b>Per-URL snapshot</b> — a table: old URL · title · meta · H1 · canonical · word count · existing schema types · traffic/backlink weight · → new route · 301? Sort by weight; the heavy ones are must-preserve.</li>
-          <li><b>Ranking + query baseline</b> — top queries, positions, monthly clicks. This is the yardstick you re-check in Phase 7.</li>
-          <li><b>Structured data, NAP &amp; GBP</b> — capture the current schema and the exact Name / Address / Phone as shown on the site <em>and</em> the Google Business Profile.</li>
-          <li><b>Canonical host &amp; existing redirects</b> — www vs non-www, http→https, trailing-slash policy. Preserve the choice unless a change is intended.</li>
-        </ul>
-      </div>
-
-      <div class="phase" id="p1">
-        <div class="num">1</div>
-        <h3>Content &amp; image harvest — via Claude-in-Chrome <span class="who bot">Codey</span></h3>
-        <p class="purpose">Builder / Wix / SITE123 / TeamApp sites are JS-rendered — <code>curl</code> returns almost nothing. Use the in-app browser.</p>
-        <ul>
-          <li><b>Content</b> → open each page, <code>get_page_text</code>; mine every hard fact into <code>CONTENT-BRIEF.md</code> (services, story, testimonials <em>with real names</em>, projects, pricing, hours, contact, socials, service areas). Never invent — gaps become <code>[CLIENT TO SUPPLY]</code>. Flag every old-vs-new conflict, never silently pick.</li>
-          <li><b>Images</b> → they're injected by JS from CDNs. Render + scroll the page through, sweep the DOM for real URLs across <em>all</em> hosts (<code>img.currentSrc||img.src</code> + computed <code>background-image</code>); network-request capture is the fallback. Gallery/lightbox originals often can't be scraped — ask the client, never substitute a stranger's photo.</li>
-          <li>Re-process to the media budget: AVIF/WebP, explicit <code>width</code>/<code>height</code>, hero ≤ 200 KB, real <code>alt</code>.</li>
-        </ul>
-        <p class="usage"><b>Optional — you normally won't need this.</b> The Kickoff prompt already copies the whole site. Only use this if Codey missed something and you want it to re-do just the copy step. <b>Who</b> you · <b>How</b> click Copy, paste to Codey.</p>
-        <div class="code prompt">
-          <div class="code-head"><span class="tag">◆ Prompt — harvest content + assets</span><button class="copy" data-copy="k-harvest">Copy</button></div>
-<pre id="k-harvest">Harvest {{OLD_SITE_URL}} with the in-app browser (Claude in Chrome). For every page:
-1. Open it, get_page_text → mine ALL real content into CONTENT-BRIEF.md (never invent;
-   gaps = [CLIENT TO SUPPLY]; flag old-vs-new conflicts).
-2. Scroll the page fully; sweep the DOM for real image URLs across ALL hosts
-   (img.currentSrc||img.src + computed background-image); network-request capture as fallback.
-   Step through EVERY slideshow/carousel slide and capture each at full resolution.
-3. DOWNLOAD every asset (images, slides, logos, files) INTO the repo and self-host it —
-   never hotlink the old host/CDN.
-4. If a gallery/lightbox original is stuck behind an async API, flag it; recover it from the
-   Wayback Machine (web.archive.org) or ask the client — never substitute a stranger's photo.
-Re-process images to the media budget (AVIF/WebP, width/height, hero ≤ 200 KB, real alt).</pre>
-        </div>
-        <div class="callout stop"><span class="ic">!</span><div><b>If your old site is offline (like Geelong):</b> you don't need to remember any of this — <b>copy the block below and paste it into Codey together with the Kickoff prompt.</b></div></div>
-        <div class="code prompt">
-          <div class="code-head"><span class="tag">◆ Paste this too — only if the old site is offline</span><button class="copy" data-copy="k-offline">Copy</button></div>
-<pre id="k-offline">My old site is offline. Harvest from the working subdomain/mirror I gave you and the Wayback
-Machine (web.archive.org). SELF-HOST every asset — download all images, slideshow photos, logos
-and files into the repo so nothing points at the dead host. Rebuild the old-URL list for the 301
-map from my attached Search Console files + a site: search + Wayback.</pre>
-        </div>
-      </div>
-
-      <!-- EMBED -->
-      <div class="phase" id="embed">
-        <div class="num">◆</div>
-        <h3>Embedded code — forms, widgets &amp; third-party embeds <span class="who bot">Codey</span></h3>
-        <p class="purpose">The part most migrations quietly break. Old sites carry <b>live form endpoints, booking/quote widgets, maps, review &amp; social feeds, chat, analytics/pixels</b>. These must be carried across deliberately — a form that silently posts nowhere is a lost lead.</p>
-        <p class="usage"><b>Optional — you normally won't need this.</b> The Kickoff prompt already carries the forms/widgets across. Only use this to re-check them on their own. <b>Who</b> you · <b>How</b> click Copy, paste to Codey.</p>
-        <div class="code prompt">
-          <div class="code-head"><span class="tag">◆ Prompt — inventory &amp; carry embeds</span><button class="copy" data-copy="k-embed">Copy</button></div>
-<pre id="k-embed">On the old site, find EVERY embedded form, widget, iframe, script and third-party embed.
-List each with: what it does, the exact embed/snippet, and (for forms) the real POST
-action/endpoint or the provider. Categories to check: contact/quote/booking forms,
-maps, review widgets (e.g. Elfsight), social feeds, live chat, analytics + ad pixels,
-fonts, cookie/consent banners.
-
-Carry anything that must keep working across VERBATIM — especially form endpoints and
-booking links. NEVER invent an endpoint or POST to a made-up URL (Web-Standards S12);
-until a real endpoint is supplied use mailto:/tel: or a clearly-labelled preview form.
-Flag anything that needs a new account, key, or domain allow-listing before go-live.</pre>
-        </div>
-        <div class="paste">
-          <div class="lab"><span aria-hidden="true">▤</span> Got a form, map or widget to keep? Here's exactly what to do</div>
-          <p style="margin:.35rem 0;font-size:.95rem"><b>1.</b> Grab the embed code from the old site — the little snippet for the form / map / widget. Or use the code you already have (like your Geelong form).</p>
-          <p style="margin:.35rem 0;font-size:.95rem"><b>2.</b> Paste it straight into your chat with Codey and say: <em>“here's the form/map to keep — wire it into the new site exactly as-is.”</em> That's it — Codey does the rest.</p>
-          <p class="hint" style="margin-top:.55rem">Embed code looks like one of these, so you know what to grab:<br><code>&lt;form action="…"&gt;…&lt;/form&gt;</code> · <code>&lt;iframe src="google.com/maps…"&gt;</code> · <code>&lt;script src="…widget…"&gt;</code></p>
-        </div>
-      </div>
-
-      <div class="phase" id="p2">
-        <div class="num">2</div>
-        <h3>Rebuild in Astro — Business-One-ready <span class="who bot">Codey</span></h3>
-        <p class="purpose">Match (or apply the chosen new) design; cleaner, faster, accessible, genuinely multi-page.</p>
-        <ul>
-          <li><b>Content in Astro content collections</b> / <code>src/content/</code> + data files, <em>not</em> baked into components — so Business One can source it later without a rebuild (Standards S18).</li>
-          <li>One shared <code>&lt;SeoHead&gt;</code>: unique title + meta + self-referencing absolute canonical + OG/Twitter + the page's JSON-LD (S4). <code>@astrojs/sitemap</code>; minimal client JS.</li>
-          <li><b>Connected JSON-LD graph</b> with stable <code>@id</code>s (S5): WebSite + WebPage + the most specific LocalBusiness subtype + Person + Service + BreadcrumbList. <b>No self-serving AggregateRating</b> on the business. AU phone <code>+61…</code>.</li>
-          <li><code>llms.txt</code> + facts in real HTML (S6); real CTAs, never <code>href="#"</code> (S12); WCAG 2.2 AA (S13).</li>
-        </ul>
-      </div>
-
-      <div class="phase" id="p3">
-        <div class="num">3</div>
-        <h3>SEO parity gate <span class="gate">must pass before cutover</span> <span class="who bot">Codey</span></h3>
-        <p class="purpose">For every must-preserve URL from Phase 0 — the checklist that stops rankings dropping.</p>
-        <ul>
-          <li>A new route exists whose <b>title, H1 and content depth are equal or better</b> than the old page (thin → thin is a fail).</li>
-          <li>It's in the <b>1-to-1 301 map</b> (permanent, one hop). Keep the <b>same slug</b> where sensible so no redirect is even needed; 301 only where the URL must change.</li>
-          <li>Internal links point at the new canonical (no chains). Schema, canonical &amp; NAP carried. Zero orphans; key pages reachable without JS in ≤ 3 clicks.</li>
-          <li>Assets are <em>not</em> redirected; every 301 target returns <b>200</b>, not another redirect.</li>
-        </ul>
-      </div>
-
-      <div class="phase" id="p4">
-        <div class="num">4</div>
-        <h3>Staging &amp; indexation control <span class="who bot">Codey</span> <span class="who signoff">You sign off</span></h3>
-        <p class="purpose">Deploy to a <code>*.vercel.app</code> preview that can never compete with the live domain.</p>
-        <ul>
-          <li><b>noindex,nofollow</b> header + meta, out of <code>sitemap.xml</code>, preview <code>robots.txt Disallow: /</code>, Deployment Protection on (S10).</li>
-          <li><b>You + Carson sign off on parity here</b> before any cutover — a human opens the staging preview and approves. <span class="who signoff">You / Carson OK</span></li>
-        </ul>
-      </div>
-
-      <div class="phase" id="p5">
-        <div class="num">5</div>
-        <h3>Cutover runbook <span class="gate">you run DNS, Codey preps everything</span> <span class="who bot">Codey preps</span> <span class="who signoff">You + Carson OK</span></h3>
-        <p class="purpose">The go-live sequence. Codey prepares; you execute the DNS change.</p>
-        <ul>
-          <li><b>Same domain (safest, default):</b> point the domain at your host (<b>Cloudflare Pages</b> or Vercel); ship that host's redirects + headers (Cloudflare: <code>_redirects</code> / <code>_headers</code>; Vercel: <code>vercel.json</code> redirects with <code>"permanent": true</code>); flip noindex → index,follow; real <code>robots.txt</code> + production <code>sitemap.xml</code>. No Change-of-Address needed.</li>
-          <li><b>New domain:</b> all of the above <b>plus</b> a GSC <b>Change of Address</b>, and keep the old domain live serving its 301s so equity transfers.</li>
-          <li><b>On go-live:</b> verify in GSC + Bing, submit the sitemap to both, IndexNow ping; confirm a sampled set of old→new returns <b>301</b>, canonicals return 200, and the branded 404 renders.</li>
-        </ul>
-        <div class="callout stop"><span class="ic">✋</span><div><b><span class="who bot">Codey</span> never changes DNS — a human does.</b> Codey hands <b>you</b> the exact records to enter; <b>you</b> (<span class="who you">You</span>) make the change at the web-address provider, and only with <b>Carson's OK</b> first (<span class="who signoff">Carson OK</span>). Nothing touches the live domain automatically.</div></div>
-      </div>
-
-      <div class="phase" id="p6">
-        <div class="num">6</div>
-        <h3>Google Maps &amp; local presence <span class="who you">You</span> <span class="who bot">Codey preps</span></h3>
-        <p class="purpose">Local ranking rides on consistency between the site, the schema and the Google Business Profile.</p>
-        <ul>
-          <li><b>Google Business Profile:</b> confirm it's claimed; make the <b>NAP identical</b> to the site + schema; update the GBP <b>website link to the new URL</b>; align categories, hours and service area.</li>
-          <li><b>On-site:</b> LocalBusiness subtype + <code>areaServed</code> + AU phone in schema; an embedded Google Map + directions on Contact; address privacy for home/service-area businesses.</li>
-          <li>Only build a genuine location page where real local evidence exists — <b>no thin suburb pages</b> (S7).</li>
-        </ul>
-        <div class="callout note"><span class="ic">i</span><div><b>Don't skip citations — a big local-SEO lever, especially for trades.</b> A “citation” is just your business <b>Name, Address &amp; Phone (NAP)</b> listed on other sites — Google Business Profile, Bing Places, Apple Maps, plus AU directories (True Local, Yellow Pages, Yelp) and trade ones (hipages, Houzz, Airtasker). Google trusts you more when these <b>match exactly everywhere</b>, so more “near me” customers find you. Old or mismatched details quietly cost you rankings.</div></div>
-        <p class="usage"><b>Who</b> you (Codey preps the exact NAP + directory list + description). <b>When</b> after go-live (this is Phase 6). <b>How</b> pick ONE exact NAP and use it identically everywhere (site, schema, every listing); claim Google Business Profile first, then work down the list. Copy the prompt below and paste it to Codey:</p>
-        <div class="code prompt">
-          <div class="code-head"><span class="tag">◆ Prompt — citations / NAP</span><button class="copy" data-copy="k-citations">Copy</button></div>
-<pre id="k-citations">Give me my business's exact Name, Address and Phone (NAP) to use everywhere, a checklist of the
-top AU directories to list my business on (Google Business Profile first, then Bing Places, Apple
-Maps, True Local, Yellow Pages, Yelp, plus my trade's directories), and one short business
-description I can paste into each so every listing matches.</pre>
-        </div>
-      </div>
-
-      <div class="phase" id="p7">
-        <div class="num">7</div>
-        <h3>Post-cutover watch — the proof equity transferred <span class="who bot">Codey</span></h3>
-        <p class="purpose">For 2–4 weeks after go-live, watch and fix regressions against the Phase 0 baseline.</p>
-        <p class="usage"><b>Who</b> <span class="who bot">Codey</span> (automatic — no prompt needed). <b>When</b> the 2–4 weeks after go-live. <b>How</b> Codey watches the numbers and messages you <em>only</em> if a page needs fixing — you don't sit and check dashboards.</p>
-        <ul>
-          <li>Monitor GSC index coverage + crawl errors, <b>404s</b>, query/landing positions vs baseline, Core Web Vitals, schema errors, broken links.</li>
-          <li>A dip that doesn't recover → investigate the 301 map / parity, don't wait.</li>
-          <li>Tag which monitoring steps are candidates to <b>automate inside Business One</b>.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- VERIFY -->
-    <section class="block" id="verify">
-      <h2 class="sec"><span class="k">CHECK</span> Verification before “done”</h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> runs this whole checklist itself — no separate prompt (the Kickoff prompt already covers it) — and reports the results back to you when it finishes, before it ever says the job is done.</b> You don't tick these off by hand; it's here so you know exactly what “done” means. Codey checks the full standards (S1–S20) <b>plus</b> this migration gate:</p>
-      <ul class="checks">
-        <li><span class="box" aria-hidden="true"></span><div><code>MIGRATION-BASELINE.md</code> exists — complete URL inventory + per-URL SEO snapshot + 301 map.<span class="s">P0</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Every must-preserve URL → a parity-or-better new page, all in the 1-to-1 301 map.<span class="s">P3</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Sampled old→new returns <b>301</b>; no chains/loops/soft-404s; canonical targets 200; assets not redirected.<span class="s">S9</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Every embedded form/widget carried; forms hit a real endpoint (never an invented one).<span class="s">◆</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Staging is noindex,nofollow + out of sitemap + <code>robots Disallow</code> until sign-off.<span class="s">S10</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Connected JSON-LD validates; no self-serving AggregateRating.<span class="s">S5</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>GBP NAP == site == schema; new URL set in GBP; map embed + <code>areaServed</code> present.<span class="s">S7</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Go-live runbook prepared: DNS records for you, sitemap submit (GSC + Bing), IndexNow, Change-of-Address if new domain.<span class="s">P5</span></div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Post-cutover monitoring plan documented against the Phase 0 baseline.<span class="s">P7</span></div></li>
-      </ul>
-    </section>
-
-    <!-- FILES -->
-    <section class="block" id="files">
-      <h2 class="sec"><span class="k">REF</span> Files &amp; where things live</h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b>Why this is here:</b> you don't need any of this day-to-day — it's so you (or a developer) can find the real source files if something ever needs changing or double-checking, and so nobody works from a stale copy. <span class="who bot">Codey</span> reads these; <span class="who you">you</span> don't have to.</p>
-      <table class="files">
-        <thead><tr><th>File</th><th>What it is</th></tr></thead>
-        <tbody>
-          <tr><td><code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code></td><td>The procedure this guide renders — the authoritative text.</td></tr>
-          <tr><td><code>SPORTSWEB-WEB-STANDARDS.md</code></td><td>Shared law S1–S20 (SEO, schema, 301, local, a11y, perf). On any conflict, this wins.</td></tr>
-          <tr><td><code>SPORTSWEB-BUSINESS-SITE-PLAYBOOK.md</code></td><td>The Astro/Vercel business build the rebuild follows.</td></tr>
-          <tr><td><code>MIGRATE-FROM-EXISTING-SITE-PROMPT.md</code></td><td>The Claude-in-Chrome content + image harvest technique (Phase 1).</td></tr>
-          <tr><td><code>MIGRATION-BASELINE.md</code></td><td>Produced per job — URL inventory + per-URL SEO snapshot + 301 map.</td></tr>
-          <tr><td><code>CONTENT-BRIEF.md</code></td><td>Produced per job — all mined real content + <code>[CLIENT TO SUPPLY]</code> gaps.</td></tr>
-        </tbody>
-      </table>
-      <p style="color:var(--ink-soft);font-size:.85rem;margin-top:1rem">Standard location: <code>~/Developer/sportsweb-standards/</code> (source SOPs) · <code>~/Developer/sportsweb-standards/sw1-guides/</code> (these HTML guides).</p>
-    </section>
-  </main>
-</div>
-
-<footer class="foot">
-  SW1 Operations Runbook · Live-Site Migration SOP · access: you + the SW1 manager only. Source of truth = the standards repo, not memory.
-</footer>
+  </div>
+</main>
 
 <script>
 (function(){
-  // theme toggle
   var root=document.documentElement, btn=document.getElementById('themeBtn');
   btn&&btn.addEventListener('click',function(){
     var cur=root.getAttribute('data-theme');
     var next=cur==='dark'?'light':(cur==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark'));
     root.setAttribute('data-theme',next);
   });
-  // copy buttons
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click',function(){
-      var el=document.getElementById(b.getAttribute('data-copy'));
-      if(!el)return;
-      var txt=el.innerText;
-      navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){
-        var old=b.textContent;b.textContent='✓ Copied';b.classList.add('done');
-        setTimeout(function(){b.textContent=old;b.classList.remove('done');},1600);
-      });
-    });
-  });
 })();
 </script>
-<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var el=document.getElementById(a.getAttribute("href").slice(1));if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}});</script>
 </body>
 </html>

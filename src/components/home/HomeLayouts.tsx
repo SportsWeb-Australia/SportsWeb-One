@@ -11,6 +11,11 @@ import { FeaturedNews } from "../blocks/FeaturedNews";
 import { NewsSlot } from "../blocks/NewsSlot";
 import { QuickLinks } from "../blocks/QuickLinks";
 import { JoinCTA } from "../blocks/JoinCTA";
+import { WhyUs } from "../blocks/WhyUs";
+import { VideoSplit } from "../blocks/VideoSplit";
+import { TeamsBlock } from "../blocks/TeamsBlock";
+import { PhotoStrip } from "../blocks/PhotoStrip";
+import { SponsorMarquee } from "../blocks/SponsorMarquee";
 import type { ClubConfig, DesignVariant, NewsPost } from "../../content/types";
 
 function newsHref(p: NewsPost) {
@@ -1483,7 +1488,30 @@ function Classic({ club }: { club: ClubConfig }) {
   );
 }
 
+/** Gameday home layout — colour-forward, no Join CTA band and no Match Centre
+ *  placeholder on the homepage (mirrors the ported reference design's stack). */
+function Gameday({ club }: { club: ClubConfig }) {
+  const c = club.content ?? {};
+  return (
+    <>
+      <Hero />
+      <QuickLinks />
+      <FeaturedNews limit={5} eyebrow={c["news.teaser.eyebrow"]} heading={c["news.teaser.heading"]} />
+      <WhyUs />
+      <VideoSplit />
+      <TeamsBlock
+        eyebrow={c["teamsTeaser.eyebrow"]}
+        heading={c["teamsTeaser.heading"]}
+        intro={c["teamsTeaser.intro"]}
+      />
+      <PhotoStrip />
+      <SponsorMarquee />
+    </>
+  );
+}
+
 const LAYOUTS: Partial<Record<DesignVariant, () => ReactNode>> = {
+  gameday: () => { const { club } = useClub(); return <Gameday club={club} />; },
   broadsheet: Broadsheet,
   matchday: Matchday,
   appshell: AppShell,

@@ -34,6 +34,165 @@
 .sw-accent-bars i:nth-child(2) { background: var(--text); }
 .sw-accent-bars i:nth-child(3) { background: var(--accent); }
 
+/* Gameday opts out of the shared "signature" decorations (diagonal bars,
+   eyebrow dash, chevron rune) — the source design has none of these; keeping
+   them made gameday read as a reskin of the other variants instead of a
+   distinct design. Clean uppercase eyebrow, no icon. */
+[data-variant="gameday"] .sw-accent-bars,
+[data-variant="gameday"] .sw-eyebrow::before,
+[data-variant="gameday"] .sw-chevron { display: none; }
+
+/* Gameday: bigger header crest, peach-tinted eyebrow, red-tinted hero
+   watermark, navy (not accent-red) Join band, bolder news cards — closing
+   the fidelity gap against the ported reference design. */
+[data-variant="gameday"] .sw-brand img { width: 68px; height: 68px; }
+/* Eyebrow: body font (not mono), tighter tracking than the shared default.
+   Red on light sections (matches the accent), peach on dark/invert sections
+   (hero, WhyUs) where red on navy would lack contrast. */
+[data-variant="gameday"] .sw-eyebrow {
+  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+[data-variant="gameday"] .sw-hero--watermark .sw-eyebrow,
+[data-variant="gameday"] .sw-section--invert .sw-eyebrow {
+  color: #f4b6b4;
+}
+/* WhyUs sits on a lighter navy than the hero — visual separation between
+   the two stacked dark sections, matching the reference. */
+[data-variant="gameday"] .sw-whyus.sw-section--invert {
+  background: color-mix(in srgb, var(--club-ink) 82%, #ffffff);
+}
+/* Watermark crest: plain, very low opacity, no colour filter — the wash below
+   is a separate radial-gradient layer, not a tint on the logo itself. */
+[data-variant="gameday"] .sw-hero-watermark { opacity: 0.07; }
+[data-variant="gameday"] .sw-hero--watermark { position: relative; overflow: hidden; }
+/* Corner-anchored wash, not a full-height overlay — on a tall/mobile hero an
+   `inset:0` radial-gradient balloons into a muddy full-bleed purple wash
+   instead of the reference's localised glow near the bottom-right corner. */
+[data-variant="gameday"] .sw-hero--watermark::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(60%, 640px);
+  height: min(60%, 640px);
+  background: radial-gradient(circle at 100% 100%, rgba(221, 61, 57, 0.32), rgba(0, 0, 0, 0) 70%);
+  pointer-events: none;
+}
+/* Two-tone headline: title stays hero-text, the trailing accent phrase picks up the club accent. */
+[data-variant="gameday"] .sw-hero-title-accent { color: var(--accent); }
+[data-variant="gameday"] .sw-hero--watermark .sw-hero-sub { color: #cdd6f4; font-size: 0.875rem; }
+[data-variant="gameday"] .sw-hero-lede { color: #dde3f5; font-size: 1.125rem; font-weight: 400; }
+/* Buttons: title case body font, not the shared uppercase display-font default. */
+[data-variant="gameday"] .sw-btn {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 1rem;
+  padding: 0.8125rem 1.375rem;
+}
+[data-variant="gameday"] .sw-hero-ctas .sw-btn.sw-btn--ghost {
+  background: #ffffff;
+  color: var(--accent);
+  border-color: #ffffff;
+}
+[data-variant="gameday"] .sw-hero-ctas .sw-btn.sw-btn--ghost:hover {
+  background: #ffffff;
+  color: var(--accent-deep);
+  border-color: #ffffff;
+}
+[data-variant="gameday"] .sw-join { background: var(--club-ink); }
+/* Section headings run smaller/tighter than the shared platform clamp. */
+[data-variant="gameday"] h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 1.75rem); }
+/* Team/program tiles: navy top accent bar, matching the reference cards. */
+[data-variant="gameday"] .sw-tile { border-top: 6px solid var(--club-ink); }
+[data-variant="gameday"] .sw-card-tag { font-weight: 700; letter-spacing: 0.1em; }
+[data-variant="gameday"] .sw-card h3 { font-weight: 700; color: var(--text); }
+[data-variant="gameday"] .sw-card { border-width: 2px; }
+/* Gameday nav runs longer (8 items + search + CTA) — tighten to fit. */
+[data-variant="gameday"] .sw-nav ul { gap: 0; flex-wrap: nowrap; }
+[data-variant="gameday"] .sw-nav-link { padding: 0.55rem 0.55rem; font-size: 0.88rem; white-space: nowrap; }
+[data-variant="gameday"] .sw-header-cta { padding: 0.6rem 1rem; white-space: nowrap; }
+
+/* ============================================================
+   HEADER SEARCH
+   ============================================================ */
+.sw-search { position: relative; display: flex; align-items: center; }
+.sw-search-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 50%; border: none;
+  background: transparent; color: inherit; cursor: pointer;
+}
+.sw-search-toggle:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+.sw-search-panel {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 40;
+  width: min(320px, 80vw); background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.6rem;
+}
+.sw-search-panel input {
+  width: 100%; padding: 0.55rem 0.7rem; border-radius: calc(var(--radius) - 4px);
+  border: 1px solid var(--border); font: inherit; background: var(--bg);
+  color: var(--text);
+}
+.sw-search-results { list-style: none; margin: 0.4rem 0 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.sw-search-results button {
+  display: flex; justify-content: space-between; gap: 0.6rem; width: 100%;
+  text-align: left; padding: 0.5rem 0.4rem; border: none; background: none;
+  cursor: pointer; border-radius: 6px; color: var(--text); font: inherit;
+}
+.sw-search-results button:hover { background: var(--bg-alt); }
+.sw-search-kind { color: var(--text-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.sw-search-empty { margin: 0.4rem 0 0; color: var(--text-soft); font-size: 0.9rem; }
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+.sw-back-to-top {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 50;
+  width: 46px; height: 46px; border-radius: 50%; border: none;
+  background: var(--accent); color: #fff; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.sw-back-to-top[data-visible="true"] { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.sw-back-to-top:hover { filter: brightness(0.92); }
+
+/* ============================================================
+   PHOTO STRIP
+   ============================================================ */
+.sw-photostrip-head { margin-bottom: 1.5rem; }
+.sw-photostrip-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+}
+.sw-photostrip-grid img {
+  width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-lg);
+}
+@media (max-width: 700px) {
+  .sw-photostrip-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   SPONSOR MARQUEE (auto-scrolling logo carousel)
+   ============================================================ */
+.sw-sponsor-marquee { overflow: hidden; }
+.sw-sponsor-marquee .sw-eyebrow { display: block; margin-bottom: 1.25rem; }
+.sw-sponsor-marquee-track { width: 100%; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.sw-sponsor-marquee-row {
+  display: flex; align-items: center; gap: 3.5rem; width: max-content;
+  animation: sw-marquee 28s linear infinite;
+}
+.sw-sponsor-marquee-track:hover .sw-sponsor-marquee-row { animation-play-state: paused; }
+.sw-sponsor-marquee-row img { height: 64px; width: auto; object-fit: contain; flex-shrink: 0; }
+@keyframes sw-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ============================================================
    HEADER / NAV
    ============================================================ */
@@ -301,6 +460,83 @@
   border-color: var(--hero-text);
   color: var(--hero-text);
 }
+
+/* Watermark hero (gameday): solid hero-bg, large translucent crest instead of
+   photo or diagonal motif; adds an optional second lede paragraph. */
+.sw-hero--watermark { background: var(--hero-bg); color: var(--hero-text); }
+.sw-hero-watermark {
+  position: absolute;
+  right: clamp(-140px, -8vw, -40px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(320px, 42vw, 620px);
+  opacity: 0.08;
+  pointer-events: none;
+}
+.sw-hero--watermark .sw-hero-sub {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  max-width: none;
+  color: color-mix(in srgb, var(--hero-text) 82%, transparent);
+  margin-bottom: 0.75rem;
+}
+.sw-hero-lede {
+  font-size: var(--fs-lead);
+  color: color-mix(in srgb, var(--hero-text) 86%, transparent);
+  max-width: 54ch;
+  margin-bottom: 2rem;
+}
+
+/* WhyUs: icon-card "why this sport" section (ported from gameday, generic). */
+.sw-whyus-head { max-width: 46rem; }
+.sw-whyus-lead {
+  font-size: var(--fs-lead);
+  color: color-mix(in srgb, var(--text-invert) 80%, transparent);
+  margin-top: var(--space-2);
+}
+.sw-whyus-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, 1fr);
+}
+.sw-whyus-card {
+  background: color-mix(in srgb, var(--text-invert) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-invert) 16%, transparent);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.sw-whyus-icon { font-size: 1.75rem; }
+.sw-whyus-card h4 { font-size: 1.15rem; margin: var(--space-1) 0 0.4rem; }
+.sw-whyus-card p {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: color-mix(in srgb, var(--text-invert) 78%, transparent);
+}
+.sw-whyus-cta { margin-top: var(--space-4); }
+@media (max-width: 900px) { .sw-whyus-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 620px) { .sw-whyus-grid { grid-template-columns: 1fr; } }
+
+/* VideoSplit: video-led split section (ported from gameday, composed on MediaEmbed). */
+.sw-videosplit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: center;
+}
+.sw-videosplit-lead {
+  font-size: var(--fs-lead);
+  color: var(--text-soft);
+  margin: var(--space-2) 0 var(--space-3);
+}
+.sw-videosplit-caption {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-top: var(--space-1);
+}
+@media (max-width: 900px) { .sw-videosplit-grid { grid-template-columns: 1fr; } }
 
 /* Classic: centred, editorial composition */
 [data-variant="classic"] .sw-hero-inner { margin-inline: auto; }
@@ -826,9 +1062,18 @@
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--text-invert) 65%, transparent);
   max-width: 80ch;
-  padding-block: 1.5rem;
   line-height: 1.7;
 }
+.sw-ack-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--text-invert) 14%, transparent);
+}
+.sw-ack-flags { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.sw-ack-flags img { width: 40px; height: auto; border-radius: 3px; display: block; }
+@media (max-width: 700px) { .sw-ack-row { flex-direction: column; } }
 .sw-footer-bottom {
   display: flex;
   justify-content: space-between;
@@ -1459,7 +1704,7 @@
   .sw-header-cta { display: inline-flex; flex-shrink: 0; }
   .sw-burger { display: none; }
   .sw-grid { grid-template-columns: repeat(3, 1fr); }
-  .sw-quicklinks .sw-container { grid-template-columns: repeat(4, 1fr); }
+  .sw-quicklinks .sw-container { grid-template-columns: repeat(var(--ql-count, 4), 1fr); }
   .sw-welcome-grid { grid-template-columns: 320px 1fr; }
   .sw-sponsor-row.silver { grid-template-columns: repeat(4, 1fr); }
   .sw-footer-top { grid-template-columns: 1.4fr 1fr 1fr 1.2fr; }

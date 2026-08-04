@@ -481,6 +481,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // map the saved overrides onto it here.
       if (map["hero.image"]) cfg.hero = { ...cfg.hero, backgroundImage: map["hero.image"] };
       if (map["hero.video"]) cfg.hero = { ...cfg.hero, video: map["hero.video"] };
+      if (map["hero.watermark"]) cfg.hero = { ...cfg.hero, watermark: map["hero.watermark"] };
       if (map["branding.logo"]) cfg.identity = { ...cfg.identity, logo: map["branding.logo"] };
       // Contact-page overrides (edited under Edit website → Contact).
       if (map["contact.email"]) cfg.contact = { ...cfg.contact, email: map["contact.email"] };
@@ -492,8 +493,55 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // re-apply whatever the club has edited. Without this, saved text vanishes
       // on the next load.
       if (map["hero.title"]) cfg.hero = { ...cfg.hero, title: map["hero.title"] };
+      if (map["hero.titleAccent"] != null) cfg.hero = { ...cfg.hero, titleAccent: map["hero.titleAccent"] };
       if (map["hero.eyebrow"] != null) cfg.hero = { ...cfg.hero, eyebrow: map["hero.eyebrow"] };
       if (map["hero.subtitle"] != null) cfg.hero = { ...cfg.hero, subtitle: map["hero.subtitle"] };
+      if (map["hero.lede"] != null) cfg.hero = { ...cfg.hero, lede: map["hero.lede"] };
+      if (map["hero.cta.primary.label"] != null || map["hero.cta.primary.href"] != null) {
+        const prev = cfg.hero.primaryCta ?? { label: "", href: "/register" };
+        cfg.hero = {
+          ...cfg.hero,
+          primaryCta: {
+            label: (map["hero.cta.primary.label"] as string | undefined) ?? prev.label,
+            href: (map["hero.cta.primary.href"] as string | undefined) ?? prev.href,
+          },
+        };
+      }
+      if (map["hero.cta.secondary.label"] != null || map["hero.cta.secondary.href"] != null) {
+        const prev = cfg.hero.secondaryCta ?? { label: "", href: "/about" };
+        cfg.hero = {
+          ...cfg.hero,
+          secondaryCta: {
+            label: (map["hero.cta.secondary.label"] as string | undefined) ?? prev.label,
+            href: (map["hero.cta.secondary.href"] as string | undefined) ?? prev.href,
+          },
+        };
+      }
+      // Header tagline (e.g. "Est. 1960").
+      if (map["identity.foundedNote"] != null) cfg.identity = { ...cfg.identity, foundedNote: map["identity.foundedNote"] };
+      // SEO/schema.org fields — location + sports feed the JSON-LD org markup
+      // and aren't otherwise settable for a real (non-demo) club without a
+      // sport_type enum entry, so a direct override is the safe, no-migration path.
+      if (map["identity.location"] != null) cfg.identity = { ...cfg.identity, location: map["identity.location"] };
+      if (map["identity.sports"] != null) cfg.identity = { ...cfg.identity, sports: map["identity.sports"].split(",").map((s) => s.trim()).filter(Boolean) };
+      // "Why us" icon-card section (gameday-style; generically usable).
+      if (map["whyUs.title"] != null) {
+        const items: { icon: string; title: string; body: string }[] = [];
+        for (let i = 0; map[`whyUs.item.${i}.title`] != null; i++) {
+          items.push({
+            icon: map[`whyUs.item.${i}.icon`] ?? "",
+            title: map[`whyUs.item.${i}.title`] ?? "",
+            body: map[`whyUs.item.${i}.body`] ?? "",
+          });
+        }
+        cfg.whyUs = {
+          eyebrow: map["whyUs.eyebrow"] ?? "",
+          title: map["whyUs.title"],
+          body: map["whyUs.body"] ?? undefined,
+          items,
+          cta: map["whyUs.cta.label"] != null ? { label: map["whyUs.cta.label"], href: map["whyUs.cta.href"] ?? "/about" } : undefined,
+        };
+      }
       // President welcome.
       if (map["president.name"] != null) cfg.president = { ...cfg.president, name: map["president.name"] };
       if (map["president.role"] != null) cfg.president = { ...cfg.president, role: map["president.role"] };
@@ -504,12 +552,54 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       // Join section.
       if (map["join.heading"] != null) cfg.join = { ...cfg.join, heading: map["join.heading"] };
       if (map["join.blurb"] != null) cfg.join = { ...cfg.join, blurb: map["join.blurb"] };
-      // About body.
-      if (map["about.body.0"] != null)
-        cfg.about = { ...cfg.about, body: map["about.body.0"] ? [map["about.body.0"]] : [] };
+      if (map["register.feesNote"] != null) cfg.register = { steps: cfg.register?.steps ?? [], ...cfg.register, feesNote: map["register.feesNote"] };
+      // About body — supports any number of about.body.N paragraphs, not just index 0.
+      if (map["about.body.0"] != null) {
+        const paras: string[] = [];
+        for (let i = 0; map[`about.body.${i}`] != null; i++) {
+          if (map[`about.body.${i}`]) paras.push(map[`about.body.${i}`] as string);
+        }
+        cfg.about = { ...cfg.about, body: paras };
+      }
       // Footer acknowledgement.
       if (map["footer.acknowledgement"] != null)
         cfg.footer = { ...cfg.footer, acknowledgement: map["footer.acknowledgement"] };
+      // Video-led split section (gameday-style).
+      if (map["videoPitch.videoUrl"] != null) {
+        cfg.videoPitch = {
+          eyebrow: map["videoPitch.eyebrow"] ?? "",
+          title: map["videoPitch.title"] ?? "",
+          body: map["videoPitch.body"] ?? "",
+          videoUrl: map["videoPitch.videoUrl"],
+          caption: map["videoPitch.caption"] ?? undefined,
+          cta: map["videoPitch.cta.label"] != null ? { label: map["videoPitch.cta.label"], href: map["videoPitch.cta.href"] ?? "/register" } : undefined,
+        };
+      }
+      // Photo strip ("Life at the club"-style).
+      if (map["photoStrip.image.0"] != null) {
+        const images: string[] = [];
+        for (let i = 0; map[`photoStrip.image.${i}`] != null; i++) {
+          if (map[`photoStrip.image.${i}`]) images.push(map[`photoStrip.image.${i}`] as string);
+        }
+        cfg.photoStrip = { eyebrow: map["photoStrip.eyebrow"] ?? "", title: map["photoStrip.title"] ?? "", images };
+      }
+      // Per-club nav order/labels override (nav.item.N.label / nav.item.N.href).
+      // Only applies to clubs that set it — every other club keeps the platform
+      // default nav from the base config untouched.
+      if (map["nav.item.0.label"] != null) {
+        const items: { label: string; href: string }[] = [];
+        for (let i = 0; map[`nav.item.${i}.label`] != null; i++) {
+          items.push({ label: map[`nav.item.${i}.label`] as string, href: map[`nav.item.${i}.href`] ?? "/" });
+        }
+        cfg.nav = items;
+      }
+      if (map["footer.logo.0"] != null) {
+        const logos: string[] = [];
+        for (let i = 0; map[`footer.logo.${i}`] != null; i++) {
+          if (map[`footer.logo.${i}`]) logos.push(map[`footer.logo.${i}`] as string);
+        }
+        cfg.footer = { ...cfg.footer, logos };
+      }
     }
 
     // Freeze enforced in code: whatever the legacy sources resolved to (site.variant,
@@ -552,6 +642,7 @@ function sportsFromType(t: string | null | undefined): string[] {
     case "basketball": return ["Basketball"];
     case "rugby_union": return ["Rugby Union"];
     case "rugby_league": return ["Rugby League"];
+    case "lacrosse": return ["Lacrosse"];
     default: return [];
   }
 }

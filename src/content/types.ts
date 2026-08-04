@@ -19,6 +19,7 @@ export type DesignVariant =
   | "editorial"
   | "momentum"
   | "coastal"
+  | "gameday"
   | "broadsheet"
   | "matchday"
   | "appshell"
@@ -292,17 +293,51 @@ export interface ClubConfig {
   hero: {
     eyebrow: string;
     title: string;
+    /** Optional accent-coloured trailing phrase appended to the title, e.g.
+     *  title="The fastest game" + titleAccent="on two feet." (gameday-style
+     *  two-tone headline). Rendered in the variant's accent colour. */
+    titleAccent?: string;
     subtitle: string;
+    /** Optional second paragraph below the subtitle (gameday-style two-line lede). */
+    lede?: string;
     primaryCta: LinkRef;
     secondaryCta?: LinkRef;
     /** Optional background image under /public. Motif renders if absent. */
     backgroundImage?: string;
+    /** Optional large decorative crest/logo watermark behind the hero copy (gameday-style). Distinct from backgroundImage — this sits translucent over the hero-bg colour, not a photo. */
+    watermark?: string;
     /** Optional hero video (mp4/webm) for media-led designs; poster shown first. */
     video?: string;
     poster?: string;
   };
 
   quickLinks: LinkRef[];
+
+  /** Optional "why this sport / why us" icon-card section (gameday-style; generically useful beyond gameday). Omit the block entirely to not render it. */
+  whyUs?: {
+    eyebrow: string;
+    title: string;
+    body?: string;
+    items: { icon: string; title: string; body: string }[];
+    cta?: LinkRef;
+  };
+
+  /** Optional video-led split section: copy/CTA one side, an embedded video the other. Omit to not render it. */
+  videoPitch?: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    cta?: LinkRef;
+    videoUrl: string;
+    caption?: string;
+  };
+
+  /** Optional photo strip ("Life at the club"-style). Omit to not render it. */
+  photoStrip?: {
+    eyebrow: string;
+    title: string;
+    images: string[];
+  };
 
   president: {
     name: string;
@@ -377,5 +412,7 @@ export interface ClubConfig {
   footer: {
     acknowledgement: string;
     legal: LinkRef[];
+    /** Small flags/logos shown beside the acknowledgement text (e.g. Aboriginal, Torres Strait Islander, Pride flags). Full URLs. */
+    logos?: string[];
   };
 }

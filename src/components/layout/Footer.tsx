@@ -51,19 +51,36 @@ export function Footer() {
             <div className="sw-footer-socials" style={{ marginTop: "1rem" }}>
               {contact.instagram && (
                 <a href={contact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  IG
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M17.2 6.8h.01" />
+                  </svg>
                 </a>
               )}
               {contact.facebook && (
                 <a href={contact.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  FB
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H8v-2.9h2.4V9.8c0-2.4 1.4-3.7 3.6-3.7.7 0 1.6.1 2 .2v2.3h-1.2c-1.2 0-1.5.7-1.5 1.5v1.7H16l-.4 2.9h-2.3v7A10 10 0 0 0 22 12Z" />
+                  </svg>
                 </a>
               )}
             </div>
           </div>
         </div>
 
-        <EditableText as="p" className="sw-ack" k="footer.acknowledgement" value={footer.acknowledgement} />
+        {(footer.acknowledgement || (footer.logos && footer.logos.length > 0)) && (
+          <div className="sw-ack-row">
+            {footer.logos && footer.logos.length > 0 && (
+              <div className="sw-ack-flags" aria-hidden="true">
+                {footer.logos.map((src, i) => (
+                  <img key={i} src={src} alt="" />
+                ))}
+              </div>
+            )}
+            <EditableText as="p" className="sw-ack" k="footer.acknowledgement" value={footer.acknowledgement} />
+          </div>
+        )}
 
         <div className="sw-footer-bottom">
           <span>

@@ -5,7 +5,7 @@ export function QuickLinks() {
   const { club } = useClub();
   return (
     <nav className="sw-quicklinks" aria-label="Quick links">
-      <div className="sw-container">
+      <div className="sw-container" style={{ ["--ql-count" as string]: club.quickLinks.length }}>
         {club.quickLinks.map((l) => (
           <SmartLink key={l.label} href={l.href} className="sw-quicklink">
             {l.label}

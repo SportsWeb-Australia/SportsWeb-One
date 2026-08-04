@@ -15,6 +15,7 @@ export const ALLOWED_VARIANTS: DesignVariant[] = [
   "editorial",
   "momentum",
   "coastal",
+  "gameday",
 ];
 
 /** The fallback when a resolved variant is not allowed (or missing). Classic itself. */

@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /admin
-
-# No Sitemap line: one static file can't serve every club domain correctly.
-# Per-club sitemaps need per-host generation (a Vercel edge route) -- tracked separately.

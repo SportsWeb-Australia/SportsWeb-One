@@ -1,10 +1,12 @@
+<!-- GENERATED from sportsweb-standards/SPORTSWEB-EDITABLE-SITE-SOP.md by scripts/generate-guides.mjs — do not hand-edit -->
 <!doctype html>
 <html lang="en-AU" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOP · Build an Editable Site — SportsWeb / Business One</title>
+<title>SportsWeb One — Editable Site SOP (build) — SportsWeb One</title>
 <style>
+
   :root{
     --paper:#f5f7f6; --surface:#ffffff; --surface-2:#eef2f0;
     --ink:#15191c; --ink-soft:#586069; --ink-faint:#8b949a;
@@ -14,7 +16,7 @@
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
     --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    --maxw:1160px; --rail:236px; --r:10px; --r-sm:7px;
+    --maxw:900px; --r:10px; --r-sm:7px;
   }
   @media (prefers-color-scheme:dark){:root{
     --paper:#0e1113; --surface:#161a1d; --surface-2:#1c2226;
@@ -40,13 +42,17 @@
     --signal:#a8641a; --signal-wash:#f8ede0;
     --ok:#2e7d52; --warn:#a8641a; --stop:#b23b3b; --stop-wash:#f7e7e6;
   }
+
+
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
   a{color:var(--accent-ink)}
   code{font-family:var(--font-mono);font-size:.86em;background:var(--surface-2);padding:.08em .38em;border-radius:4px;border:1px solid var(--line-soft)}
+  pre{margin:1rem 0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);white-space:pre-wrap;word-break:break-word}
+  pre code{background:none;border:0;padding:0;font-size:1em}
+
   header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
   .top-in{max-width:var(--maxw);margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem}
   .brand{display:flex;align-items:center;gap:.7rem;min-width:0}
@@ -59,339 +65,258 @@
   .btn{font:inherit;font-size:.8rem;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.4rem .7rem;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:.4rem;transition:border-color .15s,color .15s}
   .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
   .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem;display:grid;grid-template-columns:var(--rail) 1fr;gap:2.6rem;align-items:start}
-  nav.toc{position:sticky;top:70px;align-self:start;padding:1.4rem 0;max-height:calc(100vh - 80px);overflow:auto}
-  nav.toc .lab{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 .6rem}
-  nav.toc ol{list-style:none;margin:0;padding:0}
-  nav.toc a{display:flex;gap:.6rem;align-items:baseline;text-decoration:none;color:var(--ink-soft);font-size:.82rem;padding:.3rem 0;border-left:2px solid transparent;padding-left:.7rem;transition:color .15s}
-  nav.toc a:hover{color:var(--ink)}
-  nav.toc a .n{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-ink);width:1.1rem;flex:none}
-  main{min-width:0;padding-bottom:5rem}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 1.5rem 5rem}
+
   .hero{padding:3rem 0 2rem;border-bottom:1px solid var(--line)}
-  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.02;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
-  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:60ch;margin:0}
-  .hero .directive{margin-top:1.4rem;padding:.9rem 1.1rem;border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r-sm);background:var(--accent-wash);color:var(--ink);font-size:.95rem;display:flex;gap:.7rem;align-items:flex-start}
-  .hero .directive b{color:var(--accent-ink)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
-  .chip{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.03em;padding:.3rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--ink-soft);background:var(--surface)}
-  .chip b{color:var(--ink);font-weight:600}
-  section.block{padding:2.2rem 0;border-bottom:1px solid var(--line-soft)}
-  h2.sec{font-size:1.02rem;letter-spacing:.01em;margin:0 0 1rem;display:flex;align-items:center;gap:.6rem}
-  h2.sec .k{font-family:var(--font-mono);font-size:.72rem;color:var(--signal);border:1px solid var(--signal);border-radius:5px;padding:.05rem .4rem;letter-spacing:.05em}
-  .phase{position:relative;padding:1.3rem 0 1.3rem 3.4rem;border-top:1px solid var(--line-soft)}
-  .phase:first-of-type{border-top:0}
-  .phase .num{position:absolute;left:0;top:1.3rem;width:2.4rem;height:2.4rem;border-radius:9px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:1rem;color:var(--accent-ink)}
-  .phase h3{margin:.15rem 0 .2rem;font-size:1.12rem;letter-spacing:-.01em}
-  .phase .purpose{margin:0 0 .7rem;color:var(--ink-soft);font-size:.95rem}
-  .phase ul{margin:.4rem 0 0;padding-left:1.1rem}.phase li{margin:.35rem 0}
-  .gate{display:inline-block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--stop);border:1px solid var(--stop);border-radius:4px;padding:.08rem .4rem;margin-left:.5rem;vertical-align:middle}
-  .code{position:relative;margin:.9rem 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
-  .code.prompt{border-color:color-mix(in srgb,var(--signal) 55%,var(--line))}
-  .code-head{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
-  .code.prompt .code-head{background:var(--signal-wash)}
-  .code-head .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
-  .code.prompt .code-head .tag{color:var(--signal)}
-  .copy{font:inherit;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.04em;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);padding:.28rem .6rem;border-radius:5px;transition:all .15s;margin-left:auto}
-  .copy:hover{border-color:var(--accent);color:var(--accent-ink)}
-  .copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .copy.done{border-color:var(--ok);color:var(--ok)}
-  pre{margin:0;padding:.9rem 1rem;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
-  .fill{color:var(--signal);font-weight:600}
-  .callout{border-radius:var(--r);padding:.85rem 1rem;margin:1rem 0;font-size:.92rem;border:1px solid var(--line);border-left-width:4px;display:flex;gap:.7rem;align-items:flex-start}
-  .callout .ic{flex:none;font-family:var(--font-mono);font-weight:700}
-  .callout.stop{border-color:var(--stop);background:var(--stop-wash)}.callout.stop .ic{color:var(--stop)}
-  .callout.note{border-color:var(--accent);background:var(--accent-wash)}.callout.note .ic{color:var(--accent-ink)}
-  table.map{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.5rem}
-  table.map th,table.map td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
-  table.map th{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint)}
-  table.map td code{background:none;border:0;padding:0;color:var(--accent-ink);font-size:.92em}
-  table.map tr td:first-child{white-space:nowrap}
-  ul.checks{list-style:none;margin:.5rem 0 0;padding:0}
-  ul.checks li{display:flex;gap:.6rem;align-items:flex-start;padding:.42rem 0;border-top:1px solid var(--line-soft);font-size:.92rem}
-  ul.checks li:first-child{border-top:0}
-  ul.checks .box{flex:none;width:1.15rem;height:1.15rem;border:1.5px solid var(--accent);border-radius:4px;margin-top:.15rem}
-  .tablewrap{overflow-x:auto}
-  footer.foot{max-width:var(--maxw);margin:0 auto;padding:2rem 1.5rem 4rem;color:var(--ink-faint);font-size:.8rem;font-family:var(--font-mono);letter-spacing:.02em}
-  @media(max-width:860px){.wrap{grid-template-columns:1fr;gap:0}nav.toc{display:none}}
-  @media print{header.top,nav.toc,.top-actions,.copy{display:none!important}.wrap{display:block}body{background:#fff}section.block,.phase{break-inside:avoid}.flow{flex-wrap:wrap}}
-  /* ---------- flow diagram + plain-English (ELI12) ---------- */
-  .flowwrap{overflow-x:auto;padding:.3rem 0 .7rem;margin:.5rem 0}
-  .flow{display:flex;align-items:stretch;gap:0;min-width:max-content}
-  .fnode{flex:none;width:122px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:.55rem .6rem;display:flex;flex-direction:column;gap:.2rem}
-  .fnode .fn{font-family:var(--font-mono);font-size:.72rem;width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink);border:1px solid var(--line)}
-  .fnode b{font-size:.83rem;line-height:1.15}
-  .fnode span{font-size:.68rem;color:var(--ink-soft);line-height:1.22}
-  .fnode.gate{border-color:var(--stop)}.fnode.gate .fn{color:var(--stop);border-color:var(--stop)}
-  .fnode.go{border-color:var(--signal)}.fnode.go .fn{color:var(--signal);border-color:var(--signal)}
-  .fconn{flex:none;align-self:center;color:var(--ink-faint);font-family:var(--font-mono);padding:0 .3rem}
-  ol.plain{margin:.6rem 0;padding-left:1.6rem}
-  ol.plain li{margin:.6rem 0;font-size:.97rem}
-  ol.plain li b{font-weight:600}
-  .pic{display:inline-flex;vertical-align:-.28em;width:1.35em;height:1.35em;margin-right:.4em;color:var(--accent-ink)}
-  .pic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  /* ---------- actor-coloured flow nodes (linked) ---------- */
-  .fnode.you{border-color:var(--signal)}.fnode.you .fn{color:var(--signal);border-color:var(--signal)}
-  .fnode.bot{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}.fnode.bot .fn{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-  .fnode.signoff{border-color:var(--stop)}.fnode.signoff .fn{color:var(--stop);border-color:var(--stop)}
-  a.fnode{text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
-  a.fnode:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
-  a.fnode:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .tool{display:inline-block;font-family:var(--font-mono);font-size:.66rem;background:var(--signal-wash);color:var(--signal);border:1px solid color-mix(in srgb,var(--signal) 40%,transparent);border-radius:5px;padding:.12rem .45rem;margin-top:.25rem}
-  /* ---------- summary card + attach hint + actor tags ---------- */
-  .summary{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:1rem 1.15rem;margin:1.2rem 0;display:flex;flex-direction:column;gap:.55rem}
-  .summary .r{display:flex;gap:.85rem;font-size:.96rem;align-items:baseline}
-  .summary .r .l{flex:none;width:88px;font-family:var(--font-mono);font-size:.63rem;letter-spacing:.07em;text-transform:uppercase;color:var(--accent-ink);padding-top:.15rem}
-  .summary .r.stuck .l{color:var(--stop)}
-  .summary .r .v{flex:1;min-width:0}
-  @media(max-width:560px){.summary .r{flex-direction:column;gap:.15rem}.summary .r .l{width:auto}}
-  .attach{display:flex;gap:.6rem;align-items:flex-start;border:1px dashed color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-wash);border-radius:var(--r-sm);padding:.55rem .75rem;margin:.5rem 0 .1rem;font-size:.9rem;color:var(--ink)}
-  .attach .ai{flex:none;font-size:1.05rem;line-height:1}
-  .who{display:inline-block;font-family:var(--font-mono);font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border-radius:100px;padding:.12rem .5rem;margin-left:.15rem;white-space:nowrap}
-  .who.you{color:var(--signal);border:1px solid var(--signal);background:var(--signal-wash)}
-  .who.auto{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.bot{color:var(--accent-ink);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-wash)}
-  .who.signoff{color:var(--stop);border:1px solid var(--stop);background:var(--stop-wash)}
-  ol.plain li ul{margin:.35rem 0 0;padding-left:1.1rem}
-  ol.plain li ul li{margin:.25rem 0;font-size:.92rem}
-  .usage{font-size:.86rem;color:var(--ink-soft);margin:.4rem 0 .2rem;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:.45rem .7rem;line-height:1.5}
-  .usage b{color:var(--accent-ink);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;margin-right:.2rem}
+  .eyebrow{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .hero h1{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:.7rem 0 .6rem;text-wrap:balance}
+  .hero .lede{font-size:1.08rem;color:var(--ink-soft);max-width:70ch;margin:0;font-style:italic}
+
+  main .content > h2{font-size:1.5rem;letter-spacing:-.01em;font-weight:700;margin:2.4rem 0 1rem;padding-top:1.8rem;border-top:1px solid var(--line-soft)}
+  main .content > h2:first-child{margin-top:2rem;padding-top:0;border-top:0}
+  main .content > h3{font-size:1.15rem;letter-spacing:-.005em;font-weight:700;margin:1.6rem 0 .7rem}
+  main .content > h4{font-size:1rem;font-weight:700;margin:1.3rem 0 .5rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-family:var(--font-mono);font-size:.78rem}
+  main .content p{margin:.8rem 0;color:var(--ink)}
+  main .content ul,main .content ol{margin:.6rem 0;padding-left:1.4rem}
+  main .content li{margin:.4rem 0}
+  main .content hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+  main .content strong{color:var(--ink);font-weight:700}
+  main .content a{text-decoration:underline;text-underline-offset:2px}
+
+  .tablewrap{overflow-x:auto;margin:1rem 0}
+  table.map{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  table.map th,table.map td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.map th{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);background:var(--surface-2)}
+  table.map tbody tr:nth-child(even){background:var(--surface-2)}
+  table.map tbody tr:last-child td{border-bottom:0}
+  table.map td code{font-size:.92em}
+
+  blockquote{border-radius:var(--r);padding:.85rem 1.1rem;margin:1.1rem 0;font-size:.95rem;border:1px solid var(--line);border-left-width:4px;background:var(--surface)}
+  blockquote p{margin:.35rem 0}
+  blockquote p:first-child{margin-top:0}
+  blockquote p:last-child{margin-bottom:0}
+  blockquote.note{border-color:var(--accent);background:var(--accent-wash)}
+  blockquote.stop{border-color:var(--stop);background:var(--stop-wash)}
+  blockquote.warn{border-color:var(--warn);background:var(--signal-wash)}
+  blockquote.ok{border-color:var(--ok)}
+
+  @media(max-width:640px){main{padding:0 1rem 3rem}.top-in{padding:.6rem 1rem}}
+  @media print{header.top,.top-actions{display:none!important}body{background:#fff}main .content>h2{break-after:avoid}}
+
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-in">
     <div class="brand"><div class="mark" aria-hidden="true"></div>
-      <div style="min-width:0"><b>SW1 · Operations Runbook</b><br><span>SportsWeb One / Business One</span></div>
+      <div style="min-width:0"><b>SW1 Operations Runbook</b><br><span>SportsWeb One</span></div>
     </div>
     <div class="top-actions">
-      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">◐ Theme</button>
-      <button class="btn" onclick="window.print()" type="button">⎙ Print</button>
+      <button class="btn" id="themeBtn" type="button" aria-label="Toggle light/dark">&#9680; Theme</button>
+      <button class="btn" onclick="window.print()" type="button">&#9099; Print</button>
     </div>
   </div>
 </header>
 
-<div class="wrap">
-  <nav class="toc" aria-label="Contents">
-    <p class="lab">Contents</p>
-    <ol>
-      <li><a href="#summary"><span class="n">≡</span>At a glance</a></li>
-      <li><a href="#flow"><span class="n">▸</span>Your 7 steps</a></li>
-      <li><a href="#run"><span class="n">▶</span>The prompt</a></li>
-      <li><a href="#plain"><span class="n">☺</span>Start here</a></li>
-      <li><a href="#contract"><span class="n">1</span>Read contract</a></li>
-      <li><a href="#keys"><span class="n">2</span>Content-key map</a></li>
-      <li><a href="#publish"><span class="n">3</span>Publish gate</a></li>
-      <li><a href="#arch"><span class="n">4</span>Architecture</a></li>
-      <li><a href="#storage"><span class="n">5</span>Images</a></li>
-      <li><a href="#never"><span class="n">✕</span>Do not</a></li>
-      <li><a href="#verify"><span class="n">✓</span>Verify</a></li>
-      <li><a href="#files"><span class="n">▤</span>Files</a></li>
-    </ol>
-  </nav>
+<main>
+  <div class="hero">
+    <p class="eyebrow">Standard Operating Procedure</p>
+    <h1>SportsWeb One — Editable Site SOP (build)</h1>
+    
+  </div>
+  <div class="content">
+<h3>Load a club&#39;s content into the shared SportsWeb One app so it&#39;s edited through the platform editor — not code.</h3>
+<p><em>Sibling to <code>SPORTSWEB-LIVE-MIGRATION-SOP.md</code>. Law = <code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20). No club has been built end-to-end on F2/<code>PageRenderer</code> yet — &quot;no club is live&quot; (<code>docs/F2-design-doc.md</code> §10), only Carson&#39;s own demo estate. The Dookie United build predates this SOP&#39;s architecture (a standalone repo, not this shared app) and is not a valid reference anymore. The first real build against this SOP should become the reference — update this line once it exists.</em></p>
+<p><strong>Use this when</strong> the client will manage their own content over time. The club&#39;s site <strong>reads</strong> through the shared SW1 app — <a href="../SportsWeb-One/src/sections/PageRenderer.tsx"><code>PageRenderer.tsx</code></a> walks the <code>published_layout</code>/<code>draft_layout</code> returned by the <code>public_club_page</code> RPC (<a href="../SportsWeb-One/src/sections/usePublicClubPage.ts"><code>usePublicClubPage.ts</code></a>) — and the platform <strong>editor writes</strong> the club&#39;s content. There is <strong>no per-club codebase, no editing UI baked into a site, and no per-club deploy step.</strong> Result: someone edits in the editor → publishes → the site reflects it on the next request. (For a set-and-forget marketing site that isn&#39;t an SW1 club at all, use the static business playbooks instead.)</p>
+<blockquote class="note">
+<p><strong>Written for the Builder, not the Club Editor.</strong> This SOP is for Carson + Codey operating with full API/DB access to onboard a club&#39;s content. It is not the guide a volunteer uses in the platform&#39;s Club Editor to maintain their own content day to day.</p>
+</blockquote>
+<hr>
+<h2>Part 0 — Pre-flight design check (do this BEFORE writing a single page)</h2>
+<p>🔴 <strong>Learned the hard way on Chadstone Redbacks (Jul 2026):</strong> a static gameday-design build shipped and stayed live for weeks before anyone checked whether &quot;gameday&quot; was an SW1-supported design at all. It wasn&#39;t — the platform only renders the <strong>frozen set of allowed variants</strong> in <code>SportsWeb-One/src/content/allowedVariants.ts</code> (currently <code>heritage, broadcast, arena, classic, stadium, editorial, momentum, coastal</code>), and Chadstone&#39;s design was unbuilt platform work, not a shippable option.</p>
+<p><strong>Before starting any build under this SOP:</strong></p>
+<ol>
+<li>Open <code>SportsWeb-One/src/content/allowedVariants.ts</code> and confirm the target design/variant is in <code>ALLOWED_VARIANTS</code> — or is an already-completed design-pack port (check <code>SportsWeb-One/docs/</code> for a matching audit doc, e.g. <code>rdca-port-audit.md</code>).</li>
+<li>If it is <strong>neither</strong> — the design is bespoke, unported, or &quot;planned/next&quot; — <strong>stop and flag it to the client before writing any code.</strong> Do not quietly build a static stand-in as a placeholder; a static build has a habit of silently becoming the de facto deliverable. Get an explicit decision: wait for the platform port, pick an existing supported variant, or knowingly ship static with a documented follow-up to migrate later.</li>
+<li>Only once the design is confirmed supported (or the client has explicitly chosen a fallback) do you proceed to Part A.</li>
+</ol>
+<hr>
+<h2>Part A — Kickoff prompt (paste into a fresh chat; fill the fields)</h2>
+<blockquote class="note">
+<p>You&#39;re Codey. Onboard this club&#39;s content into the existing <strong>SportsWeb One</strong> app per the
+Editable Site SOP (<code>~/Developer/sportsweb-standards/SPORTSWEB-EDITABLE-SITE-SOP.md</code>), law
+<code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20).</p>
+<p><strong>Client/club:</strong> {{NAME}}   <strong>club_id:</strong> {{UUID}}   <strong>Supabase project:</strong> {{PROJECT_REF}}
+<strong>Design/variant:</strong> {{match the live platform render — confirm via ?club=<slug>}}</p>
+<p>There is <strong>no new repo and no new deployment</strong> — every club renders through the one shared
+SW1 app, resolved by domain. The platform editor already writes this client&#39;s content to
+Supabase in a fixed shape. READ from that same shape — do NOT invent tables, columns, or
+content-key names, do NOT hardcode editable content, do NOT build any editing UI. Follow the
+read contract below exactly. Static config is the DB-first FALLBACK only. Confirm the plan in
+one short message (the tables/keys you&#39;ll read, the design source you found), then go. Report
+the club&#39;s live/preview URL.</p>
+</blockquote>
+<hr>
+<h2>Part B — The content model (do NOT change — the editor depends on it)</h2>
+<p>🔴 <strong><code>club_content</code> (key/value) is the legacy path, being absorbed into the layout document under F2</strong> — per <code>docs/F2-design-doc.md</code>, its public read &quot;folds into [<code>public_club_page</code>] when F2 lands.&quot; Don&#39;t write new page-content fields to <code>club_content</code>; they belong in the layout document&#39;s section props instead (the registry&#39;s <strong>Content</strong> class — see <code>docs/F2-design-doc.md</code> §4).</p>
+<p>The other tables below are the registry&#39;s <strong>Collection</strong> class — real typed tables that both the legacy renderer and F2 read directly, independent of the layout-document walk. <code>usePublicClubPage.ts</code>&#39;s &quot;no direct table access&quot; claim is about the <strong>page layout</strong> read specifically (one RPC, no ad-hoc queries for section content) — it does not mean collection data has no table of its own:</p>
+<p><strong>Content is written to these tables</strong>, all keyed <code>.eq(&#39;club_id&#39;, CLUB_ID)</code> and, for content tables, <code>.eq(&#39;status&#39;,&#39;published&#39;)</code> when read directly (e.g. by admin tooling):
+<code>clubs</code> · <code>news</code> (order <code>published_at</code> desc) · <code>events</code> (upcoming by <code>event_date</code>) · <code>sponsors</code> (order <code>display_order</code>) · <code>teams</code> · <code>matches</code> (order <code>match_date</code>) · <code>ladder</code> (order <code>position</code>) · <code>people</code> (committee: <code>is_public=true</code> only).</p>
+<p><strong>Column spellings are British:</strong> <code>primary_colour</code> / <code>secondary_colour</code> / <code>tertiary_colour</code>.</p>
+<h3><code>club_content</code> key map (key/value; upsert on <code>club_id,content_key</code>)</h3>
+<div class="tablewrap"><table class="map">
+<thead>
+<tr>
+<th>Key</th>
+<th>Renders as</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hero.eyebrow</code> / <code>hero.title</code> / <code>hero.subtitle</code></td>
+<td>Homepage hero copy</td>
+</tr>
+<tr>
+<td><code>hero.image</code> / <code>hero.video</code></td>
+<td>Hero background media (full URL)</td>
+</tr>
+<tr>
+<td><code>hero.lede</code></td>
+<td>Optional second hero paragraph, below <code>hero.subtitle</code> (gameday-style two-line hero)</td>
+</tr>
+<tr>
+<td><code>hero.watermark</code></td>
+<td>Optional large decorative crest/logo watermark behind hero copy — full URL, distinct from <code>hero.image</code> (gameday-style; falls back to the club logo if unset)</td>
+</tr>
+<tr>
+<td><code>branding.logo</code></td>
+<td>Club/business logo (full URL)</td>
+</tr>
+<tr>
+<td><code>president.name</code> / <code>.role</code> / <code>.body.0</code> / <code>.signoff</code> / <code>.portrait</code></td>
+<td>President/welcome block</td>
+</tr>
+<tr>
+<td><code>join.heading</code> / <code>join.blurb</code></td>
+<td>Join / CTA block</td>
+</tr>
+<tr>
+<td><code>about.body.0</code> / <code>about.photo</code></td>
+<td>About page opening + photo</td>
+</tr>
+<tr>
+<td><code>footer.acknowledgement</code></td>
+<td>Acknowledgement of Country</td>
+</tr>
+<tr>
+<td><code>footer.logo.0</code> / <code>.1</code> / <code>.2</code></td>
+<td>Footer logos / flags (URLs)</td>
+</tr>
+<tr>
+<td><code>contact.email</code> / <code>.phone</code> / <code>.address</code> / <code>.instagram</code> / <code>.facebook</code></td>
+<td>Contact + site-wide</td>
+</tr>
+<tr>
+<td><code>page.{page}.eyebrow</code> / <code>.title</code> / <code>.intro</code></td>
+<td>Per-page banner (about, contact, news, events, teams, fixtures, sponsors, documents, register)</td>
+</tr>
+<tr>
+<td><code>site.variant</code></td>
+<td>Design variant (clamp to the allowed set)</td>
+</tr>
+<tr>
+<td><code>news.mode</code></td>
+<td><code>news</code> | <code>both</code> | <code>social</code></td>
+</tr>
+<tr>
+<td><code>hero.cta.primary.label</code> / <code>.href</code>, <code>hero.cta.secondary.label</code> / <code>.href</code></td>
+<td>Hero CTA button copy/links (falls back to generic &quot;Join the club&quot; / &quot;Fixtures &amp; results&quot;)</td>
+</tr>
+<tr>
+<td><code>identity.foundedNote</code></td>
+<td>Header tagline, e.g. &quot;Est. 1960&quot;</td>
+</tr>
+<tr>
+<td><code>identity.location</code></td>
+<td>Suburb/state — feeds <code>hero</code>/schema <code>address</code>, no <code>sport_type</code>-enum dependency</td>
+</tr>
+<tr>
+<td><code>identity.sports</code></td>
+<td>Comma-separated sport(s), e.g. &quot;Lacrosse&quot; — feeds schema <code>sport</code> without needing a <code>sport_type</code> enum migration</td>
+</tr>
+<tr>
+<td><code>whyUs.eyebrow</code> / <code>.title</code> / <code>.body</code> / <code>.item.N.icon</code> / <code>.item.N.title</code> / <code>.item.N.body</code> / <code>.cta.label</code> / <code>.cta.href</code></td>
+<td>Optional &quot;why this sport&quot; icon-card section</td>
+</tr>
+<tr>
+<td><code>videoPitch.eyebrow</code> / <code>.title</code> / <code>.body</code> / <code>.videoUrl</code> / <code>.caption</code> / <code>.cta.label</code> / <code>.cta.href</code></td>
+<td>Optional video-led split section</td>
+</tr>
+<tr>
+<td><code>photoStrip.eyebrow</code> / <code>.title</code> / <code>.image.N</code></td>
+<td>Optional &quot;life at the club&quot; photo strip</td>
+</tr>
+<tr>
+<td><code>teamsTeaser.eyebrow</code> / <code>.heading</code> / <code>.intro</code></td>
+<td>Copy override for the teams/programs teaser section</td>
+</tr>
+<tr>
+<td><code>nav.item.N.label</code> / <code>.href</code></td>
+<td>Per-club nav order/labels override — only applies to clubs that set it; every other club keeps the default nav</td>
+</tr>
+<tr>
+<td><code>seo.title</code> / <code>seo.description</code> / <code>seo.image</code>, or <code>seo.{page}.title</code> / <code>.description</code> / <code>.image</code> (e.g. <code>seo.about.title</code>)</td>
+<td>Per-page SEO overrides — see the new SEO/AEO subsection below</td>
+</tr>
+</tbody></table></div>
+<p><code>.N</code> suffixes are array slots (paragraph 0, logo 0). Brand colours are NOT in <code>club_content</code> — they live on the <code>clubs</code> row (<code>primary_colour</code> etc., written by the <code>set_club_colours</code> RPC); derive the theme tokens from them.</p>
+<h3>Storage</h3>
+<p>Bucket <strong><code>club-media</code></strong>, path <code>{clubId}/{folder}/{filename}</code>; folders in use: <code>hero</code>, <code>brand</code>, <code>people</code>, <code>about</code>, <code>footer</code>. Content-table + <code>club_content</code> image values are already full public URLs — just render them. The site never uploads.</p>
+<hr>
+<h2>Part C — The publish gate (CRITICAL — the #1 gotcha)</h2>
+<p>Every public-read RLS policy on <code>clubs</code>/<code>news</code>/<code>sponsors</code>/<code>events</code>/<code>teams</code>/<code>club_content</code> requires
+<strong><code>clubs.website_status = &#39;published&#39;</code></strong>. While the club is <code>draft</code>:</p>
+<ul>
+<li>the anon/publishable key reads <strong>nothing</strong> → the site correctly renders the <strong>static fallback</strong>;</li>
+<li>the editor&#39;s <strong>“Publish site”</strong> button (the <code>set_website_status</code> RPC) flips <code>draft → published</code>, and live DB data + every editor change flow immediately.</li>
+</ul>
+<p>So a freshly-onboarded club looks complete (fallback) but isn&#39;t yet DB-driven for the public <strong>until the club is published</strong>. Per <code>usePublicClubPage.ts</code>, the public read path is the <strong><code>public_club_page</code> RPC</strong> (see the Part B marker above re: how this squares with the direct-select description elsewhere in this doc) — it returns <code>published_layout</code> for a published club, <code>draft_layout</code> for a valid preview token, otherwise zero rows (existence is never leaked). A shareable no-login draft preview is available at <code>/?preview=&lt;token&gt;</code> (the editor&#39;s &quot;Share draft for review&quot;).</p>
+<h2>Part D — Architecture (grounded in <code>docs/engineering-conventions.md</code>)</h2>
+<ul>
+<li><strong>One shared app, not one per club.</strong> Every club renders through <code>sportsweb-one-club-template</code> (Vite + React + TypeScript, <code>react-router-dom</code>). There is no per-club Astro build, no per-club SSR, no per-club Vercel/Cloudflare project — see <code>engineering-conventions.md</code> §1.</li>
+<li><strong>Domain resolution:</strong> <code>src/App.tsx</code> resolves which club to render from the request&#39;s domain; a club&#39;s custom domain never reaches a separate deployment, it renders that club&#39;s homepage inside the one app.</li>
+<li><strong>Single data entry point:</strong> <code>usePublicClubPage.ts</code> calls the <code>public_club_page(club_id, slug, preview_token)</code> RPC — no direct table access from the client renderer.</li>
+<li><strong>Rendering:</strong> <code>PageRenderer.tsx</code> walks the returned layout document against a section registry; a per-section error boundary means one broken section is skipped, never a white screen.</li>
+<li><strong>Colours</strong> injected on <code>&lt;html&gt;</code> as <code>--club-ink/paper/accent/silver</code> from the <code>clubs</code> row; <code>data-variant</code> selects the surface mapping. Reuse the platform <code>tokens/base/blocks</code> CSS where the design must match.</li>
+<li><strong>Onboarding a new club is a database row + content import</strong> through <code>SiteMigrations.tsx</code> / <strong>Import a club</strong> in the admin panel — never a new codebase, never a new deployment.</li>
+<li>Per-page SEO/schema/etc. per the standards (S4/S5/S6).</li>
+</ul>
+<h3>SEO/AEO — the concrete build requirement, not just the standard</h3>
+<p>S4/S5/S6/S11 aren&#39;t satisfied by hand-writing tags once — on a multi-tenant platform they must be <strong>generated per club, dynamically</strong>, or every tenant silently ships without them. Build ALL of these before calling a tenant &quot;done&quot; (learned the hard way on Chadstone Redbacks, Aug 2026 — none of this existed until asked for explicitly):</p>
+<ul>
+<li><strong><code>/sitemap.xml</code>, <code>/robots.txt</code>, <code>/llms.txt</code></strong> — resolve the requesting club by host (custom domain → <code>club_domains</code>; <code>{slug}.sportsweb.com.au</code>; <code>?club=</code> override for platform-host testing), then list that club&#39;s real pages + published news/team/event slugs. <code>robots.txt</code> must declare <code>Sitemap: https://&lt;host&gt;/sitemap.xml</code> using the request&#39;s own host — a static file can&#39;t do this for a multi-tenant app.<ul>
+<li><strong>This app is the Vite/SPA case, not an edge-function/SSR framework:</strong> a catch-all SPA rewrite (<code>/(.*) → /index.html</code>) swallows these paths before your function ever runs — add explicit earlier <code>rewrites</code> entries pointing <code>/robots.txt</code>/<code>/sitemap.xml</code>/<code>/llms.txt</code> at their real <code>/api/...</code> function paths. And if <code>package.json</code> has <code>&quot;type&quot;: &quot;module&quot;</code>, <code>api/*.js</code> functions MUST use <code>import</code>/<code>export default</code>, not <code>require</code>/<code>module.exports</code> — CommonJS syntax there throws <code>FUNCTION_INVOCATION_FAILED</code> at runtime, not build time, so it looks fine until someone actually hits the route.</li>
+</ul>
+</li>
+<li><strong>Favicon</strong> — set from the club&#39;s own logo once resolved, not the platform default. Non-trivial on a client-rendered app (index.html ships neutral platform defaults before the club resolves) — upsert <code>link[rel=&quot;icon&quot;]</code>/<code>link[rel=&quot;apple-touch-icon&quot;]</code> once the club&#39;s <code>identity.logo</code> is known.</li>
+<li><strong>JSON-LD</strong> — at minimum <code>sport</code>, <code>address</code> (or <code>areaServed</code>), <code>telephone</code>, <code>sameAs</code> (verified social URLs) whenever the underlying data exists — not just <code>name</code>/<code>url</code>/<code>logo</code>. Use the <code>identity.location</code>/<code>identity.sports</code> content-key overrides above so this doesn&#39;t block on a schema migration (e.g. a missing <code>sport_type</code> enum value).</li>
+<li><strong>Twitter Card</strong> — <code>twitter:title</code>/<code>twitter:description</code>/<code>twitter:image</code> alongside <code>twitter:card</code>, not just the card type alone.</li>
+<li><strong><code>og:image</code></strong> — a real photo (ideally 1200×630, per S8), not just the logo. Overridable per club/page via <code>seo.image</code> / <code>seo.{page}.image</code>.</li>
+<li><strong>Alt text</strong> — meaningful content images (news, team, gallery photos) get real descriptive alt text; empty <code>alt=&quot;&quot;</code> is reserved for genuinely decorative images (hero watermarks, background motifs).</li>
+</ul>
+<h2>Part E — Do NOT</h2>
+<p>Create new tables · rename columns · invent <code>content_key</code> names · change the bucket or path convention · hardcode editable content into components · build editing UI (that stays in the platform).</p>
+<h2>Part F — Verify before &quot;done&quot;</h2>
+<ol>
+<li>Every page renders from Supabase (published rows), static fallback where the DB is empty.</li>
+<li><strong>The editable test:</strong> edit a value in the platform editor → <strong>Publish</strong> → refresh the site → the change shows. (While draft, expect the fallback — that&#39;s correct.)</li>
+<li>Images load from <code>club-media</code> URLs. Zero emoji; internal links resolve; 200s on production; branded 404.</li>
+<li><code>/sitemap.xml</code>, <code>/robots.txt</code>, <code>/llms.txt</code> fetched directly (not through the app) and confirmed they return real per-club content — not a framework/SPA fallback page with a 200 status (the classic silent-failure mode).</li>
+<li>Favicon is the club&#39;s own crest; <code>og:image</code>/<code>twitter:image</code> is a real photo; JSON-LD has <code>sameAs</code>/<code>address</code>/<code>sport</code> wherever the data exists.</li>
+</ol>
 
-  <main>
-    <div class="hero">
-      <p class="eyebrow">Standard Operating Procedure · Editable Site (build)</p>
-      <h1>Build a site the client edits themselves — through the platform, not the code.</h1>
-      <p class="lede">A database-driven <b>Astro</b> site that <b>reads</b> the SportsWeb One / Business One database and renders it. The platform editor <b>writes</b> the content; the site holds no editing UI and never writes. Edit in the editor → publish → the site reflects it on the next request.</p>
-      <div class="directive"><span aria-hidden="true">◆</span><div><b>The one rule that makes it work.</b> Read from the <b>same tables, columns and content-keys the editor already writes</b> — never invent your own, never hardcode editable content. Static config is the fallback only. Break the contract and the site stops being editable.</div></div>
-      <div class="meta-row">
-        <span class="chip">Stack&nbsp;<b>Astro SSR</b></span>
-        <span class="chip">Host&nbsp;<b>Vercel or Cloudflare</b></span>
-        <span class="chip">Proven on&nbsp;<b>Dookie United</b></span>
-        <span class="chip">Law&nbsp;<b>S1–S20</b></span>
-      </div>
-    </div>
-
-    <!-- SUMMARY -->
-    <section class="block" id="summary">
-      <h2 class="sec"><span class="k">SUMMARY</span> At a glance</h2>
-      <div class="summary">
-        <div class="r"><span class="l">Objective</span><span class="v">Build a site the client edits themselves through the platform — no code.</span></div>
-        <div class="r"><span class="l">Process</span><span class="v">Point Codey at the club/business + its database → Codey builds the site reading that data → you check the preview → you publish in the editor → the owner edits it anytime.</span></div>
-        <div class="r"><span class="l">Resources</span><span class="v">The Kickoff prompt (<a href="#run">below ↓</a>) · the <code>club_id</code> + Supabase project · Codey does the build.</span></div>
-        <div class="r"><span class="l">Outcome</span><span class="v">A live site whose content the owner edits in the SW1 / Business One editor; edits show on the next page load.</span></div>
-        <div class="r stuck"><span class="l">If stuck</span><span class="v">Nothing showing to the public? Check the site is <b>Published</b> (<a href="#publish"><code>website_status='published'</code></a>). An editor change not appearing? The build is reading the wrong tables/keys — it must use the <a href="#contract">exact ones the editor writes</a>, never its own.</span></div>
-      </div>
-    </section>
-
-    <!-- FLOW -->
-    <section class="block" id="flow">
-      <h2 class="sec"><span class="k">MAP</span> Your 7 steps, start to finish</h2>
-      <p style="color:var(--ink-soft);margin-top:0">The whole job as a picture — the <b>same numbers</b> as the step-by-step below. Who does each one: <span class="who you">You</span> = you or the SW1 manager · <span class="who bot">Codey</span> = the robot, automatic. <b>Tap any box</b> to jump straight to that step.</p>
-      <div class="flowwrap"><div class="flow">
-        <a class="fnode you" href="#w1"><span class="fn">1</span><b>Open a chat</b><span>fresh Codey chat</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w2"><span class="fn">2</span><b>Paste the prompt</b><span>fill club_id, Enter</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w3"><span class="fn">3</span><b>Codey builds it</b><span>reads the database</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode bot" href="#w4"><span class="fn">4</span><b>Codey checks pages</b><span>static fallback</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w5"><span class="fn">5</span><b>You preview</b><span>click around</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w6"><span class="fn">6</span><b>Publish it</b><span>in the editor</span></a>
-        <div class="fconn">→</div>
-        <a class="fnode you" href="#w7"><span class="fn">7</span><b>Owner edits</b><span>anytime, no code</span></a>
-      </div></div>
-    </section>
-
-    <!-- RUN -->
-    <section class="block" id="run">
-      <h2 class="sec"><span class="k">RUN</span> Start a build — paste into a fresh chat <span class="who you">You do this</span></h2>
-      <p style="color:var(--ink-soft);margin-top:0">Fill the <span class="fill">highlighted</span> fields and paste. It reads this SOP + the standards, confirms the plan once, then builds.</p>
-      <div class="callout note"><span class="ic">?</span><div><b>Pick-one fields.</b> Where a line shows <code>{{option A}} | {{option B}}</code>, the <code>|</code> means “or” — keep the one you want and delete the <code>{{ }}</code> braces and the other option(s). Fields with a single <code>{{…}}</code> are just a blank to fill in.</div></div>
-      <p class="usage"><b>Who</b> you (or the SW1 manager). <b>When</b> to start the whole build — this is the main one. <b>How</b> click Copy, open a fresh Claude Code chat, paste it in, fill the <code>club_id</code> + Supabase project, press Enter.</p>
-      <div class="code prompt">
-        <div class="code-head"><span class="tag">◆ Kickoff prompt</span><button class="copy" data-copy="k-run">Copy</button></div>
-<pre id="k-run">You're Codey. Build an editable, database-driven site per the SportsWeb One / Business One
-Editable Site SOP (~/Developer/sportsweb-standards/SPORTSWEB-EDITABLE-SITE-SOP.md), law
-SPORTSWEB-WEB-STANDARDS.md (S1–S20).
-
-Client/club: {{NAME}}   club_id: {{UUID}}   Supabase project: {{PROJECT_REF}}
-Design/variant: {{match the live platform render — confirm via ?club=<slug>}}
-Host: {{Vercel}} | {{Cloudflare}} (Astro SSR either way — keep the data layer runtime-neutral).
-
-The platform editor already writes this client's content to Supabase in a fixed shape. READ from
-that same shape — do NOT invent tables, columns or content-key names, do NOT hardcode editable
-content, do NOT build any editing UI. Static config is the DB-first FALLBACK only. Confirm the plan
-in one short message (repo name, page map, tables/keys you'll read, the design source you found),
-then go. Report repo + live URL.</pre>
-      </div>
-    </section>
-
-    <!-- START HERE -->
-    <section class="block" id="plain">
-      <h2 class="sec"><span class="k">ELI12</span> Start here — the whole job, step by step</h2>
-      <p style="color:var(--ink-soft);margin-top:0">Written for someone who's never done this — nothing technical. <b>Codey does most of it.</b> A <span class="who you">You do this</span> tag marks the few bits that are your job; <span class="who bot">Codey does this</span> is automatic once you send the prompt.</p>
-      <ol class="plain">
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><b id="w1">Open a chat.</b> <span class="who you">You do this</span><br>Open a fresh Claude Code chat — a brand-new, empty conversation. That's where Codey does the work. Nothing to install; just start a new chat.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><b id="w2">Paste the Kickoff prompt and press Enter.</b> <span class="who you">You do this</span><br>Go to the <b>Kickoff prompt</b> (<a href="#run">jump to it ↑</a>) and click the <b>Copy</b> button. Paste it into the chat, <b>fill in the <code>club_id</code></b> (and the Supabase project) where it asks, then press Enter. That one message tells Codey to do everything below.
-          <div class="attach"><span class="ai">◆</span><div>The <code>club_id</code> is the club/business's ID in the SW1 platform — paste it exactly. Without it Codey can't find the right content.</div></div>
-        </li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg></span><b id="w3">Codey builds it, reading the database.</b> <span class="who bot">Codey does this</span><br>Codey builds the whole site, pulling every word and picture from the <b>shared database</b> the editor writes to — nothing is baked into the code. Just watch. It only ever reads the <a href="#contract">exact tables and labels the editor already uses</a>, so your future edits keep working.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span><b id="w4">Codey checks every page renders.</b> <span class="who bot">Codey does this</span><br>Codey builds each page properly (fast, findable) and checks they all render. Where a piece of content isn't filled in yet, the page shows <b>tidy default text</b> (the <a href="#publish">static fallback</a>) so it always looks finished — never blank.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span><b id="w5">Look at the preview.</b> <span class="who you">You do this</span><br>Codey gives you a link. Open it and click around. Something wrong? Tell Codey in plain words (“the phone number is old”). Looks good? Move to publishing. <b>What to look for:</b> every page opens, the logo and colours are right, the menu links all work.</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg></span><b id="w6">Publish it in the editor.</b> <span class="who you">You do this</span><br>In the SW1 / Business One editor, hit <b>Publish</b> — until you do, the site is private and the public sees only the default text. Publishing is the switch that turns on the live data. (This is the <a href="#publish">publish gate</a> — the #1 thing people forget.)</li>
-        <li><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><b id="w7">The owner edits the content anytime.</b> <span class="who you">Owner does this</span><br>Done. The club or business now opens the editor, changes their own words and pictures, and the site shows it on the <b>next page load</b> — no code, no developer, no rebuild. <b>What to look for:</b> edit a value → Publish → refresh the page → the change is there.</li>
-      </ol>
-    </section>
-
-    <section class="block" id="contract">
-      <h2 class="sec"><span class="k">READ</span> The read contract <span class="who bot">Codey</span></h2>
-      <div class="callout note"><span class="ic">i</span><div><b>Codey does this for you — you don't do it by hand.</b> This is the exact shape Codey reads from so your future edits keep working. It's here so you (or a developer) can see what's under the hood.</div></div>
-      <p style="margin-top:0;color:var(--ink-soft)">All reads are <code>.eq('club_id', CLUB_ID)</code> and, for content tables, <code>.eq('status','published')</code>. <b>Column spellings are British</b> — <code>primary_colour</code> / <code>secondary_colour</code> / <code>tertiary_colour</code>.</p>
-      <div class="tablewrap"><table class="map">
-        <thead><tr><th>Table</th><th>Use · order</th></tr></thead>
-        <tbody>
-          <tr><td><code>clubs</code></td><td>Identity + brand colours (one row)</td></tr>
-          <tr><td><code>club_content</code></td><td>Editable page text + image URLs (key/value — see map)</td></tr>
-          <tr><td><code>news</code></td><td>Published, order <code>published_at</code> desc</td></tr>
-          <tr><td><code>events</code></td><td>Published, upcoming by <code>event_date</code></td></tr>
-          <tr><td><code>sponsors</code></td><td>Published, order <code>display_order</code></td></tr>
-          <tr><td><code>teams</code></td><td>Published, order <code>display_order</code></td></tr>
-          <tr><td><code>matches</code> · <code>ladder</code></td><td>Order <code>match_date</code> · <code>position</code></td></tr>
-          <tr><td><code>people</code></td><td>Committee: <code>is_public = true</code> only</td></tr>
-        </tbody>
-      </table></div>
-    </section>
-
-    <section class="block" id="keys">
-      <h2 class="sec"><span class="k">KEYS</span> The <code>club_content</code> key map <span class="who bot">Codey</span></h2>
-      <p style="margin-top:0;color:var(--ink-soft)">Key/value, upsert on <code>club_id,content_key</code>. Read each key; fall back to the static default if absent. <b>Never rename or invent keys</b> — the editor writes these exact names.</p>
-      <div class="tablewrap"><table class="map">
-        <thead><tr><th>content_key</th><th>Renders as</th></tr></thead>
-        <tbody>
-          <tr><td><code>hero.eyebrow / .title / .subtitle</code></td><td>Homepage hero copy</td></tr>
-          <tr><td><code>hero.image / .video</code></td><td>Hero background media (full URL)</td></tr>
-          <tr><td><code>branding.logo</code></td><td>Club / business logo (URL)</td></tr>
-          <tr><td><code>president.name / .role / .body.0 / .signoff / .portrait</code></td><td>Welcome block</td></tr>
-          <tr><td><code>join.heading / .blurb</code></td><td>Join / CTA block</td></tr>
-          <tr><td><code>about.body.0 / about.photo</code></td><td>About opening + photo</td></tr>
-          <tr><td><code>footer.acknowledgement</code></td><td>Acknowledgement of Country</td></tr>
-          <tr><td><code>footer.logo.0 / .1 / .2</code></td><td>Footer logos / flags (URLs)</td></tr>
-          <tr><td><code>contact.email / .phone / .address / .instagram / .facebook</code></td><td>Contact + site-wide</td></tr>
-          <tr><td><code>page.{page}.eyebrow / .title / .intro</code></td><td>Per-page banner (about, contact, news, events, teams, fixtures, sponsors, documents, register)</td></tr>
-          <tr><td><code>site.variant</code></td><td>Design variant (clamp to allowed set)</td></tr>
-          <tr><td><code>news.mode</code></td><td><code>news</code> | <code>both</code> | <code>social</code></td></tr>
-        </tbody>
-      </table></div>
-      <p style="color:var(--ink-soft);font-size:.88rem"><code>.N</code> suffixes are array slots. Brand colours are <b>not</b> in <code>club_content</code> — they're on the <code>clubs</code> row (written by the <code>set_club_colours</code> RPC); derive theme tokens from them.</p>
-    </section>
-
-    <section class="block" id="publish">
-      <h2 class="sec"><span class="k">GATE</span> The publish gate — the #1 gotcha <span class="who bot">Codey builds it</span> <span class="who you">You publish</span></h2>
-      <p style="margin-top:0;color:var(--ink-soft)"><b>Codey wires this up for you — you don't do it by hand.</b> Your one job here is the human step: hit <b>Publish</b> in the editor (<a href="#w6">step 6</a>). Until you do, the public sees the static fallback, which is correct.</p>
-      <div class="callout stop"><span class="ic">!</span><div>Every public-read RLS policy on <code>clubs / news / sponsors / events / teams / club_content</code> requires <b><code>clubs.website_status = 'published'</code></b>. While the club is <b>draft</b>, the anon key reads <b>nothing</b> → the site correctly shows the <b>static fallback</b>. The editor's <b>“Publish site”</b> (the <code>set_website_status</code> RPC) flips it, and live data + every edit flow immediately.</div></div>
-      <p style="color:var(--ink-soft)">So a freshly-built editable site looks complete (fallback) but isn't DB-driven for the public <b>until published</b>. There is <b>no <code>public_club_content</code> RPC</b> — the public path is <b>direct selects gated by that RLS</b>. A no-login draft preview is available at <code>/?preview=&lt;token&gt;</code> (“Share draft for review”).</p>
-    </section>
-
-    <section class="block" id="arch">
-      <h2 class="sec"><span class="k">HOW</span> Architecture — Business-One-ready <span class="who bot">Codey</span></h2>
-      <div class="phase"><div class="num">SSR</div>
-        <h3>Astro server-rendered, host-swappable</h3>
-        <ul>
-          <li><code>output:'server'</code>; adapter per host (<code>@astrojs/vercel</code> or <code>@astrojs/cloudflare</code>).</li>
-          <li><b>Runtime-neutral data layer</b>: <code>@supabase/supabase-js</code> with <code>persistSession:false, autoRefreshToken:false</code> (no localStorage/timers) → runs on Cloudflare Workers unchanged. A host swap is one adapter line.</li>
-        </ul>
-      </div>
-      <div class="phase"><div class="num">DB</div>
-        <h3>DB-first, static fallback</h3>
-        <ul>
-          <li>A <code>loadClub()</code> reads the tables/keys above and merges onto a static config; anything the DB hasn't supplied falls back to the static value, so the site is always complete.</li>
-          <li>Brand colours injected on <code>&lt;html&gt;</code> as <code>--club-ink/paper/accent/silver</code>; <code>data-variant</code> selects the surface mapping. Reuse the platform <code>tokens/base/blocks</code> CSS where the design must match.</li>
-          <li>Per-page SEO + connected JSON-LD per the standards (S4/S5/S6).</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="block" id="storage">
-      <h2 class="sec"><span class="k">MEDIA</span> Images / storage <span class="who bot">Codey</span></h2>
-      <ul style="color:var(--ink-soft)">
-        <li>Bucket <code>club-media</code> (public read); path <code>{clubId}/{folder}/{filename}</code>; folders: <code>hero</code>, <code>brand</code>, <code>people</code>, <code>about</code>, <code>footer</code>.</li>
-        <li>Image values in <code>club_content</code> and the content tables are already <b>full public URLs</b> — just render them. The site never uploads; the editor handles that.</li>
-      </ul>
-    </section>
-
-    <section class="block" id="never">
-      <h2 class="sec"><span class="k">STOP</span> Do NOT (keeps the editor compatible) <span class="who bot">Codey</span></h2>
-      <ul class="checks">
-        <li><span class="box" aria-hidden="true"></span><div>Create new tables or rename columns.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Invent new <code>content_key</code> names or change existing ones.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Change the storage bucket or path convention.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Hardcode editable content into components.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Build editing UI — that stays in the platform.</div></li>
-      </ul>
-    </section>
-
-    <section class="block" id="verify">
-      <h2 class="sec"><span class="k">CHECK</span> Verify before “done” <span class="who bot">Codey</span></h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b><span class="who bot">Codey</span> runs this checklist itself and reports back — you don't tick these off by hand. It's here so you know exactly what “done” means.</b></p>
-      <ul class="checks">
-        <li><span class="box" aria-hidden="true"></span><div>Every page renders from Supabase (published rows); static fallback where the DB is empty.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div><b>The editable test:</b> edit a value in the editor → <b>Publish</b> → refresh → the change shows. (While draft, the fallback is correct.)</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Images load from <code>club-media</code> URLs; zero emoji; internal links resolve; production 200s; branded 404.</div></li>
-        <li><span class="box" aria-hidden="true"></span><div>Runtime-neutral loader confirmed (no window/localStorage/Node built-ins) — host is swappable.</div></li>
-      </ul>
-    </section>
-
-    <section class="block" id="files">
-      <h2 class="sec"><span class="k">REF</span> Files &amp; where things live</h2>
-      <p style="color:var(--ink-soft);margin-top:0"><b>Why this is here:</b> you don't need any of this day-to-day. <span class="who bot">Codey</span> reads these; <span class="who you">you</span> don't have to. It's so you (or a developer) can find the real source files if something ever needs changing.</p>
-      <div class="tablewrap"><table class="map">
-        <thead><tr><th>File</th><th>What it is</th></tr></thead>
-        <tbody>
-          <tr><td><code>SPORTSWEB-EDITABLE-SITE-SOP.md</code></td><td>The procedure this guide renders — the authoritative text.</td></tr>
-          <tr><td><code>SPORTSWEB-WEB-STANDARDS.md</code></td><td>Shared law S1–S20. On any conflict, this wins.</td></tr>
-          <tr><td><code>SportsWeb-Australia/dookie-united-website</code></td><td>The proven reference implementation of this pattern.</td></tr>
-        </tbody>
-      </table></div>
-      <p style="color:var(--ink-soft);font-size:.85rem;margin-top:1rem">Standard location: <code>~/Developer/sportsweb-standards/</code> (source SOPs) · <code>~/Developer/sportsweb-standards/sw1-guides/</code> (these HTML guides). Companion: the <b>SW1 Editor — manager how-to</b> guide.</p>
-    </section>
-  </main>
-</div>
-
-<footer class="foot">SW1 Operations Runbook · Editable Site SOP (build) · access: you + the SW1 manager only. Source of truth = the standards repo, not memory.</footer>
+  </div>
+</main>
 
 <script>
 (function(){
@@ -401,17 +326,7 @@ then go. Report repo + live URL.</pre>
     var next=cur==='dark'?'light':(cur==='light'?'dark':(matchMedia('(prefers-color-scheme: dark)').matches?'light':'dark'));
     root.setAttribute('data-theme',next);
   });
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click',function(){
-      var el=document.getElementById(b.getAttribute('data-copy'));if(!el)return;
-      navigator.clipboard&&navigator.clipboard.writeText(el.innerText).then(function(){
-        var old=b.textContent;b.textContent='✓ Copied';b.classList.add('done');
-        setTimeout(function(){b.textContent=old;b.classList.remove('done');},1600);
-      });
-    });
-  });
 })();
 </script>
-<script>document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var el=document.getElementById(a.getAttribute("href").slice(1));if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth",block:"start"});}});</script>
 </body>
 </html>

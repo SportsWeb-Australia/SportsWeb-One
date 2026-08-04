@@ -29,7 +29,7 @@ export function About() {
         intro={aboutIntro}
       />
 
-      <PresidentWelcome />
+      {(club.president?.name || (canEdit && editing)) && <PresidentWelcome />}
 
       <section className="sw-section">
         <div className="sw-container">
@@ -98,7 +98,7 @@ export function About() {
         </section>
       )}
 
-      <Committee />
+      {(club.committee.length > 0 || (canEdit && editing)) && <Committee />}
     </>
   );
 }

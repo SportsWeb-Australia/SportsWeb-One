@@ -21,6 +21,7 @@ const HERO_FAMILY: Record<DesignVariant, string> = {
   editorial: "serif",
   momentum: "bold",
   coastal: "soft",
+  gameday: "dark",
   broadsheet: "serif",
   matchday: "dark",
   appshell: "soft",

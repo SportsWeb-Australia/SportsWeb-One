@@ -5,6 +5,7 @@ import { EditableText } from "../edit/Editable";
 import type { ClubConfig, DesignVariant } from "../../content/types";
 
 const MEDIA_VARIANTS: DesignVariant[] = ["stadium", "editorial", "momentum", "coastal"];
+const WATERMARK_VARIANTS: DesignVariant[] = ["gameday"];
 
 const DEFAULT_HERO_IMG: Partial<Record<DesignVariant, string>> = {
   stadium: "/hero-dark.jpg",
@@ -16,7 +17,28 @@ const DEFAULT_HERO_IMG: Partial<Record<DesignVariant, string>> = {
 export function Hero() {
   const { club, variant } = useClub();
   if (MEDIA_VARIANTS.includes(variant)) return <HeroMedia club={club} variant={variant} />;
+  if (WATERMARK_VARIANTS.includes(variant)) return <HeroWatermark club={club} />;
   return <HeroStandard club={club} />;
+}
+
+/** Colour-forward hero with a large translucent crest/logo watermark, no
+ *  photo — for gameday-style variants (solid hero-bg pinned to club ink). */
+function HeroWatermark({ club }: { club: ClubConfig }) {
+  const { hero, identity } = club;
+  const watermark = hero.watermark ?? identity.logo;
+  return (
+    <section className="sw-hero sw-hero--watermark">
+      {watermark && (
+        <img className="sw-hero-watermark" src={watermark} alt="" aria-hidden="true" />
+      )}
+      <div className="sw-container">
+        <div className="sw-hero-inner">
+          <HeroCopy hero={hero} showLede />
+          <HeroCtas club={club} />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 /** Original motif-led hero (heritage / broadcast / arena / classic). */
@@ -91,12 +113,23 @@ function HeroMedia({ club, variant }: { club: ClubConfig; variant: DesignVariant
   );
 }
 
-function HeroCopy({ hero }: { hero: ClubConfig["hero"] }) {
+function HeroCopy({ hero, showLede }: { hero: ClubConfig["hero"]; showLede?: boolean }) {
   return (
     <>
       <EditableText as="span" className="sw-eyebrow" k="hero.eyebrow" value={hero.eyebrow} />
-      <EditableText as="h1" k="hero.title" value={hero.title} />
+      <h1>
+        <EditableText as="span" k="hero.title" value={hero.title} />
+        {(hero.titleAccent || "") !== "" && (
+          <>
+            {" "}
+            <EditableText as="span" className="sw-hero-title-accent" k="hero.titleAccent" value={hero.titleAccent ?? ""} />
+          </>
+        )}
+      </h1>
       <EditableText as="p" className="sw-hero-sub" k="hero.subtitle" value={hero.subtitle} />
+      {showLede && (hero.lede || "") !== "" && (
+        <EditableText as="p" className="sw-hero-lede" k="hero.lede" value={hero.lede ?? ""} />
+      )}
     </>
   );
 }

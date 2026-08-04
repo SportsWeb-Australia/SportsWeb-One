@@ -8,9 +8,11 @@ interface Props {
   limit?: number;
   /** Hide the section header when embedded in a page that has its own. */
   bare?: boolean;
+  eyebrow?: string;
+  heading?: string;
 }
 
-export function FeaturedNews({ limit, bare }: Props) {
+export function FeaturedNews({ limit, bare, eyebrow, heading }: Props) {
   const { club } = useClub();
   const posts = limit ? club.news.slice(0, limit) : club.news;
 
@@ -19,7 +21,7 @@ export function FeaturedNews({ limit, bare }: Props) {
       {posts.map((post) => (
         <article className="sw-card" key={post.id}>
           <div className="sw-card-media">
-            {post.image ? <img src={post.image} alt="" /> : <Chevron />}
+            {post.image ? <img src={post.image} alt={post.title} /> : <Chevron />}
             <span className="sw-card-tag">{post.category}</span>
           </div>
           <div className="sw-card-body">
@@ -47,8 +49,8 @@ export function FeaturedNews({ limit, bare }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">Latest news</span>
-            <h2>From the club</h2>
+            <span className="sw-eyebrow">{eyebrow ?? "Latest news"}</span>
+            <h2>{heading ?? "From the club"}</h2>
           </div>
           <SmartLink href="/news" className="sw-link-arrow">
             All news →
