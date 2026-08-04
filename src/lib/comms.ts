@@ -19,15 +19,35 @@ export interface SendResult {
 
 const zero = () => ({ email: 0, sms: 0, push: 0 });
 
-/** Load the club's contactable people. */
+/** Load the club's contactable people, with role segments sourced from BOTH the
+ *  live person_roles table (where the member UI writes roles) AND the legacy
+ *  people.roles array, unioned. This fixes role-targeted sends silently missing
+ *  members added through the current UI (their roles live only in person_roles). */
 export async function loadPeople(clubId: string): Promise<Recipient[]> {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("people")
-    .select("id, full_name, first_name, last_name, email, mobile, roles, status")
-    .eq("club_id", clubId);
-  if (error || !data) return [];
-  return data
+  const [peopleRes, rolesRes] = await Promise.all([
+    supabase
+      .from("people")
+      .select("id, full_name, first_name, last_name, email, mobile, roles, status")
+      .eq("club_id", clubId),
+    supabase
+      .from("person_roles")
+      .select("person_id, role, status")
+      .eq("club_id", clubId),
+  ]);
+  const people = peopleRes.data;
+  if (peopleRes.error || !people) return [];
+
+  // person_id -> set of active role names from person_roles
+  const rolesByPerson = new Map<string, Set<string>>();
+  for (const r of rolesRes.data ?? []) {
+    if ((r.status ?? "active") !== "active" || !r.role) continue;
+    let set = rolesByPerson.get(r.person_id);
+    if (!set) rolesByPerson.set(r.person_id, (set = new Set<string>()));
+    set.add(r.role as string);
+  }
+
+  return people
     .filter((p) => (p.status ?? "active") !== "archived")
     .map((p) => ({
       id: p.id,
@@ -38,7 +58,12 @@ export async function loadPeople(clubId: string): Promise<Recipient[]> {
         "Unnamed",
       email: p.email || null,
       mobile: p.mobile || null,
-      roles: Array.isArray(p.roles) ? p.roles : [],
+      roles: [
+        ...new Set([
+          ...(Array.isArray(p.roles) ? (p.roles as string[]) : []),
+          ...(rolesByPerson.get(p.id) ?? []),
+        ]),
+      ],
     }));
 }
 
