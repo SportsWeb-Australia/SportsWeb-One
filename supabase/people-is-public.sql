@@ -11,7 +11,7 @@
 -- Default false: existing rows become non-public until a human opts each in. Committee
 -- sections then render nothing until someone opts a person in -- which is correct.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name (new migration; the
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name (new migration; the
 -- earlier overrides do not generalise). Pure ASCII.
 -- ============================================================
 

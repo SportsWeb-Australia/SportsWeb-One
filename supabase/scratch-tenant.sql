@@ -8,7 +8,7 @@
 -- This provisions that tenant. is_demo = true, so it is honestly labelled and (once the
 -- per-club SEO work lands) noindex. Idempotent -- safe to re-run.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name. Pure ASCII.
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name. Pure ASCII.
 -- Depends on: clubs.is_demo (supabase/strip-seeding-and-demo-flag.sql). Run that FIRST.
 -- ============================================================
 

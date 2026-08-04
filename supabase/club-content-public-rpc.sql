@@ -17,7 +17,7 @@
 --     caller is allowed (published OR valid token OR member OR platform admin),
 --     and ZERO rows otherwise (never leaks existence).
 --
--- NOT YET APPLIED. Author + show only. Apply in the Supabase SQL Editor once
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply in the Supabase SQL Editor once
 -- authorized by name. Pure ASCII, re-runnable. Keys off club_id.
 -- ============================================================
 

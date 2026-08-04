@@ -12,7 +12,7 @@
 --   clubs.is_demo = false -> a real tenant (trial or paying). Starts EMPTY. Only ever holds
 --                            what a human put there. Renders the honest empty states.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name. Pure ASCII.
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name. Pure ASCII.
 -- Depends on: clubs, sport_type enum. Run BEFORE re-running demo-seed.sql (its guard needs
 -- is_demo to exist).
 -- ============================================================

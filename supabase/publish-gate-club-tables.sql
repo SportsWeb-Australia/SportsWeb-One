@@ -36,7 +36,7 @@
 -- logged-out visitors. If that is wanted, grant anon SELECT on ladder+matches (as
 -- was done for club_content); that is deliberately NOT bundled here.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name. Pure ASCII,
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name. Pure ASCII,
 -- re-runnable (idempotent: drop-if-exists then create). Keys off club_id.
 -- ============================================================
 

@@ -11,7 +11,7 @@
 -- The SECURITY DEFINER RPCs run as the table owner, so they still reach every column; only
 -- the `authenticated` role's DIRECT writes are constrained.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name (new migration; the
+-- NOT APPLIED as of 2026-08-04 - and LIKELY UNNECESSARY: club_pages is served via the public_club_page RPC, not direct anon reads. Do not apply without confirming a direct anon read path (see docs/migration-ledger.md). Author + show only. Apply once authorized by name (new migration; the
 -- earlier overrides do not generalise). Pure ASCII.
 -- ============================================================
 
