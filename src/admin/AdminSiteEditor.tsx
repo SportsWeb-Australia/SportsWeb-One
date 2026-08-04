@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useClub } from "../components/ClubContext";
 import { useActiveClub } from "./ActiveClub";
 import { supabase, isPlatformHost } from "../lib/supabase";
@@ -140,11 +140,13 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
   async function saveContent(card: string, entries: Record<string, string>) {
     if (!clubId || !supabase) return;
     setSt(card, "Saving…");
-    const rows = Object.entries(entries).map(([content_key, value]) => ({ club_id: clubId, content_key, value }));
+    // Write to the DRAFT layer (staged) -- edits don't go live until Publish.
+    const rows = Object.entries(entries).map(([content_key, value]) => ({ club_id: clubId, content_key, draft_value: value }));
     const { error } = await supabase.from("club_content").upsert(rows, { onConflict: "club_id,content_key" });
     if (error) { setSt(card, `Could not save: ${error.message}`); return; }
     await reloadClub();
-    setSt(card, "Saved.");
+    void refreshPending();
+    setSt(card, "Saved as draft - Publish to go live.");
   }
 
   async function saveLogo(url: string) {
@@ -153,10 +155,11 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     setSt("brand", "Saving…");
     const { error } = await supabase
       .from("club_content")
-      .upsert({ club_id: clubId, content_key: "branding.logo", value: url }, { onConflict: "club_id,content_key" });
+      .upsert({ club_id: clubId, content_key: "branding.logo", draft_value: url }, { onConflict: "club_id,content_key" });
     if (error) { setSt("brand", `Could not save: ${error.message}`); return; }
     await reloadClub();
-    setSt("brand", "Logo updated.");
+    void refreshPending();
+    setSt("brand", "Logo saved as draft - Publish to go live.");
   }
 
   async function saveColours() {
@@ -181,6 +184,42 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     setSt("colours", "Colours saved.");
   }
 
+  // Draft publishing -- edits are staged (draft_value) until the club clicks Publish.
+  const [pending, setPending] = useState<number | null>(null);
+  const [pubBusy, setPubBusy] = useState(false);
+  const [pubMsg, setPubMsg] = useState<string | null>(null);
+  async function refreshPending() {
+    if (!clubId || !supabase) return;
+    const { count } = await supabase
+      .from("club_content")
+      .select("content_key", { count: "exact", head: true })
+      .eq("club_id", clubId)
+      .not("draft_value", "is", null);
+    setPending(count ?? 0);
+  }
+  useEffect(() => { setPubMsg(null); void refreshPending(); }, [clubId]);
+  async function publishChanges() {
+    if (!clubId || !supabase || pubBusy) return;
+    setPubBusy(true); setPubMsg(null);
+    const { data, error } = await supabase.rpc("publish_club_content", { p_club_id: clubId });
+    setPubBusy(false);
+    if (error) { setPubMsg(`Could not publish: ${error.message}`); return; }
+    setPending(0);
+    setPubMsg(`Published ${data ?? 0} change${(data ?? 0) === 1 ? "" : "s"} - your site is now live.`);
+    await reloadClub();
+  }
+  async function discardChanges() {
+    if (!clubId || !supabase || pubBusy) return;
+    if (!window.confirm("Discard all unpublished changes? Your live site stays exactly as it is.")) return;
+    setPubBusy(true); setPubMsg(null);
+    const { error } = await supabase.rpc("revert_club_content", { p_club_id: clubId });
+    setPubBusy(false);
+    if (error) { setPubMsg(`Could not discard: ${error.message}`); return; }
+    setPending(0);
+    setPubMsg("Unpublished changes discarded.");
+    await reloadClub();
+  }
+
   if (!clubId) {
     return (
       <div className="sw-admin-panel">
@@ -199,8 +238,20 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
       </div>
       <p className="sw-admin-note">
         Edit your homepage and key pages here. Each section opens up so you can work through them one at a time.
-        Images open a framing tool so they always sit nicely. Changes save to your site — reload the public site to see them live.
+        Images open a framing tool so they always sit nicely. <strong>Changes save as a draft</strong> — click <strong>Publish changes</strong> to make them live. Use <em>Preview site</em> to see your draft first.
       </p>
+      {pending !== null && pending > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", background: "#eff4ff", border: "1px solid #cfe0ff", borderRadius: 10, padding: "11px 14px", margin: "0 0 14px" }}>
+          <span style={{ fontSize: 13.5, color: "#1e3a8a" }}>
+            <strong>{pending}</strong> unpublished change{pending === 1 ? "" : "s"} — not live yet.
+          </span>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+            <button type="button" className="sw-btn" disabled={pubBusy} onClick={publishChanges}>{pubBusy ? "Working…" : "Publish changes"}</button>
+            <button type="button" className="sw-btn sw-btn--ghost" disabled={pubBusy} onClick={discardChanges}>Discard</button>
+          </span>
+        </div>
+      )}
+      {pubMsg && <p className="sw-admin-note" style={{ color: "#166534" }}>{pubMsg}</p>}
       {show("home") && <SectionHelp section="website" />}
 
       {headingKey && (
