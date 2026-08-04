@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars, Chevron } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 
 interface Props {
   bare?: boolean;
@@ -49,9 +50,9 @@ export function TeamsBlock({ bare, eyebrow, heading, intro, ctaLabel, ctaHref }:
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">{eyebrow ?? "Pathways"}</span>
-            <h2>{heading ?? "Teams & programs"}</h2>
-            {intro && <p className="sw-section-intro">{intro}</p>}
+            <EditableText as="span" className="sw-eyebrow" k="home.teams.eyebrow" value={eyebrow ?? "Pathways"} />
+            <EditableText as="h2" k="home.teams.heading" value={heading ?? "Teams & programs"} />
+            {intro && <EditableText as="p" className="sw-section-intro" k="home.teams.intro" value={intro} />}
           </div>
           <SmartLink href={ctaHref ?? "/register"} className="sw-link-arrow">
             {ctaLabel ?? "New player enquiries →"}

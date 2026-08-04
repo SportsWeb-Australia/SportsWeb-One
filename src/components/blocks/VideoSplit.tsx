@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 import { MediaEmbed } from "./MediaEmbed";
 
 /** Video-led split section: copy/CTA one side, an embedded video the other.
@@ -17,9 +18,9 @@ export function VideoSplit() {
       <div className="sw-container sw-videosplit-grid">
         <div>
           <AccentBars />
-          <span className="sw-eyebrow">{videoPitch.eyebrow}</span>
-          <h2>{videoPitch.title}</h2>
-          <p className="sw-videosplit-lead">{videoPitch.body}</p>
+          <EditableText as="span" className="sw-eyebrow" k="home.video.eyebrow" value={videoPitch.eyebrow} />
+          <EditableText as="h2" k="home.video.title" value={videoPitch.title} />
+          <EditableText as="p" className="sw-videosplit-lead" k="home.video.body" value={videoPitch.body} />
           {videoPitch.cta && (
             <SmartLink href={videoPitch.cta.href} className="sw-btn">
               {videoPitch.cta.label}
@@ -28,7 +29,7 @@ export function VideoSplit() {
         </div>
         <div>
           <MediaEmbed url={videoPitch.videoUrl} title={videoPitch.title} />
-          {videoPitch.caption && <p className="sw-videosplit-caption">{videoPitch.caption}</p>}
+          {videoPitch.caption && <EditableText as="p" className="sw-videosplit-caption" k="home.video.caption" value={videoPitch.caption} />}
         </div>
       </div>
     </section>

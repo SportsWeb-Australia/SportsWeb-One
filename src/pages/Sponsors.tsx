@@ -1,6 +1,7 @@
 import { useClub } from "../components/ClubContext";
 import { PageHero } from "../components/layout/PageHero";
 import { SponsorStrip } from "../components/blocks/SponsorStrip";
+import { EditableText } from "../components/edit/Editable";
 
 export function Sponsors() {
   const { club } = useClub();
@@ -23,11 +24,14 @@ export function Sponsors() {
               background: "var(--surface)",
             }}
           >
-            <h3 style={{ fontSize: "var(--fs-h3)" }}>Become a sponsor</h3>
-            <p className="sw-lead" style={{ marginTop: "0.5rem" }}>
-              Partner with {club.identity.shortName} and reach a passionate local community across
-              the season. Get in touch to discuss a package that suits your business.
-            </p>
+            <EditableText as="h3" style={{ fontSize: "var(--fs-h3)" }} k="page.sponsors.ctaHeading" value="Become a sponsor" />
+            <EditableText
+              as="p"
+              className="sw-lead"
+              style={{ marginTop: "0.5rem" }}
+              k="page.sponsors.ctaBody"
+              value={`Partner with ${club.identity.shortName} and reach a passionate local community across the season. Get in touch to discuss a package that suits your business.`}
+            />
             <a href={`mailto:${club.contact.email}`} className="sw-btn" style={{ marginTop: "1.25rem" }}>
               Enquire about sponsorship
             </a>

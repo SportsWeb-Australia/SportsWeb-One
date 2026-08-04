@@ -2,6 +2,7 @@ import { useClub } from "../components/ClubContext";
 import { PageHero } from "../components/layout/PageHero";
 import { SmartLink } from "../components/SmartLink";
 import { Chevron } from "../components/layout/Chevron";
+import { EditableText } from "../components/edit/Editable";
 
 export function Register() {
   const { club } = useClub();
@@ -30,8 +31,8 @@ export function Register() {
       {register?.steps && (
         <section className="sw-section sw-section--alt">
           <div className="sw-container">
-            <span className="sw-eyebrow">How it works</span>
-            <h2 style={{ fontSize: "var(--fs-h2)", margin: "0.6rem 0 0.5rem" }}>Registering in four steps</h2>
+            <EditableText as="span" className="sw-eyebrow" k="page.register.howEyebrow" value="How it works" />
+            <EditableText as="h2" style={{ fontSize: "var(--fs-h2)", margin: "0.6rem 0 0.5rem" }} k="page.register.howHeading" value="Registering in four steps" />
             <div className="sw-steps">
               {register.steps.map((s, i) => (
                 <div className="sw-step" key={i}>
@@ -64,10 +65,8 @@ export function Register() {
           >
             <Chevron />
             <div style={{ flex: 1, minWidth: 240 }}>
-              <h3 style={{ fontSize: "var(--fs-h3)" }}>Club merchandise</h3>
-              <p style={{ color: "var(--text-soft)" }}>
-                Kit yourself out in {identity.shortName} gear from our online store.
-              </p>
+              <EditableText as="h3" style={{ fontSize: "var(--fs-h3)" }} k="page.register.merchHeading" value="Club merchandise" />
+              <EditableText as="p" style={{ color: "var(--text-soft)" }} k="page.register.merchBlurb" value={`Kit yourself out in ${identity.shortName} gear from our online store.`} />
             </div>
             {merch && (
               <SmartLink href={merch.href} className="sw-btn">
@@ -78,8 +77,8 @@ export function Register() {
 
           {register?.faqs && (
             <div style={{ marginTop: "2.5rem" }}>
-              <span className="sw-eyebrow">Good to know</span>
-              <h2 style={{ fontSize: "var(--fs-h2)", margin: "0.6rem 0 0.5rem" }}>Questions</h2>
+              <EditableText as="span" className="sw-eyebrow" k="page.register.faqEyebrow" value="Good to know" />
+              <EditableText as="h2" style={{ fontSize: "var(--fs-h2)", margin: "0.6rem 0 0.5rem" }} k="page.register.faqHeading" value="Questions" />
               <div className="sw-faq">
                 {register.faqs.map((f, i) => (
                   <details key={i}>

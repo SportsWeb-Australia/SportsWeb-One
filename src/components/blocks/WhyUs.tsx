@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 
 /** "Why this sport / why us" icon-card section. Renders nothing if the club
  *  hasn't set whyUs (optional block — ported from gameday, generically useful). */
@@ -15,17 +16,17 @@ export function WhyUs() {
         <div className="sw-section-head sw-whyus-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">{whyUs.eyebrow}</span>
-            <h2>{whyUs.title}</h2>
-            {whyUs.body && <p className="sw-whyus-lead">{whyUs.body}</p>}
+            <EditableText as="span" className="sw-eyebrow" k="home.whyus.eyebrow" value={whyUs.eyebrow} />
+            <EditableText as="h2" k="home.whyus.title" value={whyUs.title} />
+            {whyUs.body && <EditableText as="p" className="sw-whyus-lead" k="home.whyus.body" value={whyUs.body} />}
           </div>
         </div>
         <div className="sw-whyus-grid">
-          {whyUs.items.map((item) => (
-            <div className="sw-whyus-card" key={item.title}>
+          {whyUs.items.map((item, i) => (
+            <div className="sw-whyus-card" key={i}>
               <span className="sw-whyus-icon" aria-hidden="true">{item.icon}</span>
-              <h4>{item.title}</h4>
-              <p>{item.body}</p>
+              <EditableText as="h4" k={`home.whyus.items.${i}.title`} value={item.title} />
+              <EditableText as="p" k={`home.whyus.items.${i}.body`} value={item.body} />
             </div>
           ))}
         </div>

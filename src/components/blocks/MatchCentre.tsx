@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 import { getMatchData } from "../../lib/matchData";
 import type { MatchCentreData } from "../../content/types";
 
@@ -201,8 +202,8 @@ export function MatchCentre({ bare }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">Match centre</span>
-            <h2>Fixtures &amp; results</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.matchcentre.eyebrow" value="Match centre" />
+            <EditableText as="h2" k="home.matchcentre.heading" value="Fixtures & results" />
           </div>
         </div>
         {panel}

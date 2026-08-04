@@ -1,5 +1,6 @@
 import { PageHero } from "../components/layout/PageHero";
 import { UpcomingEvents } from "../components/blocks/UpcomingEvents";
+import { EditableText } from "../components/edit/Editable";
 
 export function Events() {
   return (
@@ -13,11 +14,11 @@ export function Events() {
       <section className="sw-section">
         <div className="sw-container">
           <div className="sw-prose" style={{ marginBottom: "2rem" }}>
-            <p>
-              Club events are a big part of club life — they bring players, families and
-              supporters together and help fund everything we do. Everyone's welcome, so come down and
-              get involved.
-            </p>
+            <EditableText
+              as="p"
+              k="page.events.intro2"
+              value="Club events are a big part of club life — they bring players, families and supporters together and help fund everything we do. Everyone's welcome, so come down and get involved."
+            />
           </div>
           <UpcomingEvents bare />
         </div>
