@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useActiveClub } from "./ActiveClub";
 import { listClubMembers, addClubMember, type ClubMember } from "../lib/people";
+import { MemberImport } from "./MemberImport";
 
 function humanRole(role: string): string {
   const s = role.replace(/_/g, " ").trim();
@@ -29,6 +30,7 @@ export function MembersList({ onOpen }: { onOpen: (personId: string) => void }) 
   const [role, setRole] = useState<string>("all");
   const [team, setTeam] = useState<string>("all");
   const [adding, setAdding] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [add, setAdd] = useState({ ...EMPTY_ADD });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -109,9 +111,14 @@ export function MembersList({ onOpen }: { onOpen: (personId: string) => void }) 
     <div className="sw-admin-panel">
       <div className="sw-admin-formhead sw-mem-head">
         <h2>Members</h2>
-        <button className="sw-btn sw-btn--sm" onClick={() => { setAdding((a) => !a); setMsg(null); }}>
-          {adding ? "Close" : "+ Add member"}
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="sw-btn sw-btn--sm sw-btn--ghost" onClick={() => { setShowImport((s) => !s); setAdding(false); setMsg(null); }}>
+            {showImport ? "Close import" : "Import CSV"}
+          </button>
+          <button className="sw-btn sw-btn--sm" onClick={() => { setAdding((a) => !a); setShowImport(false); setMsg(null); }}>
+            {adding ? "Close" : "+ Add member"}
+          </button>
+        </div>
       </div>
       <p className="sw-admin-note">
         Everyone on the club&apos;s books — players, parents, volunteers, coaches and committee — in one place. Each
@@ -119,6 +126,10 @@ export function MembersList({ onOpen }: { onOpen: (personId: string) => void }) 
       </p>
 
       {msg && <p className="sw-admin-note sw-md-msg">{msg}</p>}
+
+      {showImport && clubId && (
+        <MemberImport clubId={clubId} onDone={() => { setShowImport(false); load(); }} />
+      )}
 
       {adding && (
         <div className="sw-mem-addform">
