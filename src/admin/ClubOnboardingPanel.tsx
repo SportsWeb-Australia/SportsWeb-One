@@ -106,6 +106,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
   const [showFeedback, setShowFeedback] = useState(false);
   const [previewToken, setPreviewToken] = useState<string | null>(null);
   const [copiedPreview, setCopiedPreview] = useState(false);
+  const [copiedStatus, setCopiedStatus] = useState(false);
   const [rotating, setRotating] = useState(false);
   const [shareErr, setShareErr] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
@@ -260,6 +261,19 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
       setTimeout(() => setCopiedPreview(false), 1600);
     } catch {
       window.prompt("Copy this review link:", previewUrl);
+    }
+  };
+  // The club-facing status page (same preview_token, different host). Share so the
+  // club can track how their feedback is being actioned.
+  const statusUrl = previewToken ? `https://sitepulse-status.vercel.app/?t=${previewToken}` : "";
+  const copyStatus = async () => {
+    if (!statusUrl) return;
+    try {
+      await navigator.clipboard.writeText(statusUrl);
+      setCopiedStatus(true);
+      setTimeout(() => setCopiedStatus(false), 1600);
+    } catch {
+      window.prompt("Copy this status link:", statusUrl);
     }
   };
   const regeneratePreview = async () => {
@@ -449,6 +463,21 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           </div>
           {shareErr && <small className="sw1-onboard-err">{shareErr}</small>}
           <small>Send this to the club so they can review their draft and leave feedback - no login needed. This is the same link the "Feedback" button rides on in draft.</small>
+        </label>
+
+        {/* Feedback status link — share so the club can track progress */}
+        <label className="sw-admin-field sw1-onboard-row">
+          <span>Feedback status link (share so the club can track progress)</span>
+          <div className="sw1-onboard-field">
+            <input readOnly value={statusUrl} placeholder="Status link..." onFocus={(e) => e.currentTarget.select()} />
+            <button type="button" className="sw-btn" disabled={!statusUrl} onClick={copyStatus}>
+              {copiedStatus ? "Copied" : "Copy status link"}
+            </button>
+            {statusUrl && (
+              <a className="sw-btn sw-btn--ghost" href={statusUrl} target="_blank" rel="noreferrer">Open</a>
+            )}
+          </div>
+          <small>A read-only page where the club tracks the status of each feedback item as you action it — no login. Same token as the review link.</small>
         </label>
 
         {/* Returning feedback (read-only; triage in the inbox) — its own collapsible section */}
