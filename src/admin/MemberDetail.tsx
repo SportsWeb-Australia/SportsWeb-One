@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useActiveClub } from "./ActiveClub";
 import { useClub } from "../components/ClubContext";
+import { supabase } from "../lib/supabase";
 import {
   getMemberDetail,
   updateMemberProfile,
@@ -49,6 +50,17 @@ const EDITABLE = [
 
 const EMPTY_ROLE = { role: "player", sport: "", team_id: "", season_id: "", committee_title: "", start_date: "" };
 
+const CHECK_TYPES: [string, string][] = [
+  ["wwcc", "Working with Children Check"],
+  ["police_check", "Police check"],
+  ["first_aid", "First aid"],
+  ["coach_accreditation", "Coach accreditation"],
+  ["trainer_accreditation", "Trainer accreditation"],
+  ["rsa", "RSA"],
+  ["other", "Other"],
+];
+const EMPTY_COMP = { check_type: "wwcc", reference_no: "", issued_on: "", expires_on: "", status: "valid", notes: "" };
+
 export function MemberDetail({ personId, onBack }: { personId: string; onBack: () => void }) {
   const { clubId } = useActiveClub();
   const { club } = useClub();
@@ -70,6 +82,37 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
   const [roleForm, setRoleForm] = useState({ ...EMPTY_ROLE });
   const [roleBusy, setRoleBusy] = useState(false);
+  const [showComp, setShowComp] = useState(false);
+  const [compForm, setCompForm] = useState({ ...EMPTY_COMP });
+  const [compBusy, setCompBusy] = useState(false);
+
+  async function saveCompliance() {
+    if (!clubId || !personId || !supabase) return;
+    setCompBusy(true);
+    setMsg(null);
+    const { error } = await supabase.from("compliance_records").insert({
+      club_id: clubId,
+      person_id: personId,
+      check_type: compForm.check_type,
+      reference_no: compForm.reference_no.trim() || null,
+      issued_on: compForm.issued_on || null,
+      expires_on: compForm.expires_on || null,
+      status: compForm.status,
+      notes: compForm.notes.trim() || null,
+    });
+    setCompBusy(false);
+    if (error) { setMsg(error.message); return; }
+    setCompForm({ ...EMPTY_COMP });
+    setShowComp(false);
+    load();
+  }
+  async function deleteCompliance(id: string) {
+    if (!supabase) return;
+    if (!window.confirm("Remove this compliance record?")) return;
+    const { error } = await supabase.from("compliance_records").delete().eq("id", id);
+    if (error) { setMsg(error.message); return; }
+    load();
+  }
 
   const load = () => {
     if (!clubId || !personId) return;
@@ -406,24 +449,56 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
 
             {/* COMPLIANCE (sensitive) */}
             {tab === "compliance" && sensitive && (
-              (detail!.compliance ?? []).length === 0 ? (
-                <p className="sw-admin-note">No compliance records (WWCC, accreditations) recorded yet.</p>
-              ) : (
-                <div className="sw-md-list">
-                  {detail!.compliance!.map((c) => (
-                    <div className="sw-md-compcard" key={c.id}>
-                      <div className="sw-md-roletop">
-                        <strong>{humanRole(c.check_type)}</strong>
-                        <span className={`sw-md-rolestate sw-md-rolestate--${c.status === "valid" ? "on" : c.status === "expired" ? "off" : "warn"}`}>{humanRole(c.status)}</span>
-                      </div>
-                      <div className="sw-md-rolemeta">
-                        {c.reference_no ? `Ref ${c.reference_no} · ` : ""}
-                        {c.expires_on ? `Expires ${fmtDate(c.expires_on)}` : "No expiry recorded"}
-                      </div>
-                    </div>
-                  ))}
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span className="sw-admin-note" style={{ margin: 0 }}>WWCC, police checks and accreditations — visible to club admins only.</span>
+                  <button className="sw-btn sw-btn--sm" onClick={() => setShowComp((s) => !s)}>{showComp ? "Close" : "+ Add record"}</button>
                 </div>
-              )
+                {showComp && (
+                  <div className="sw-mem-addform">
+                    <div className="sw-mem-addgrid">
+                      <label><span>Type</span>
+                        <select value={compForm.check_type} onChange={(e) => setCompForm({ ...compForm, check_type: e.target.value })}>
+                          {CHECK_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                        </select>
+                      </label>
+                      <label><span>Reference no.</span><input value={compForm.reference_no} onChange={(e) => setCompForm({ ...compForm, reference_no: e.target.value })} placeholder="e.g. WWC1234567E" /></label>
+                      <label><span>Issued</span><input type="date" value={compForm.issued_on} onChange={(e) => setCompForm({ ...compForm, issued_on: e.target.value })} /></label>
+                      <label><span>Expires</span><input type="date" value={compForm.expires_on} onChange={(e) => setCompForm({ ...compForm, expires_on: e.target.value })} /></label>
+                      <label><span>Status</span>
+                        <select value={compForm.status} onChange={(e) => setCompForm({ ...compForm, status: e.target.value })}>
+                          <option value="valid">Valid</option>
+                          <option value="pending">Pending</option>
+                          <option value="expired">Expired</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div style={{ marginTop: 10 }}>
+                      <button className="sw-btn" disabled={compBusy} onClick={saveCompliance}>{compBusy ? "Saving…" : "Save record"}</button>
+                    </div>
+                  </div>
+                )}
+                {(detail!.compliance ?? []).length === 0 ? (
+                  <p className="sw-admin-note">No compliance records yet — add a WWCC or accreditation above.</p>
+                ) : (
+                  <div className="sw-md-list">
+                    {detail!.compliance!.map((c) => (
+                      <div className="sw-md-compcard" key={c.id}>
+                        <div className="sw-md-roletop">
+                          <strong>{humanRole(c.check_type)}</strong>
+                          <span className={`sw-md-rolestate sw-md-rolestate--${c.status === "valid" ? "on" : c.status === "expired" ? "off" : "warn"}`}>{humanRole(c.status)}</span>
+                        </div>
+                        <div className="sw-md-rolemeta">
+                          {c.reference_no ? `Ref ${c.reference_no} · ` : ""}
+                          {c.expires_on ? `Expires ${fmtDate(c.expires_on)}` : "No expiry recorded"}
+                          <button className="sw-sales-link is-danger" style={{ marginLeft: 8, background: "none", border: 0, cursor: "pointer" }} onClick={() => deleteCompliance(c.id)}>Remove</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {/* ACTIVITY / FINANCIAL (sensitive) */}
