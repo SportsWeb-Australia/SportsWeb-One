@@ -93,3 +93,24 @@ export async function deleteSalesTarget(id: string): Promise<string | null> {
   const { error } = await supabase.from("sales_targets").delete().eq("id", id);
   return error ? error.message : null;
 }
+
+export interface AdvisorResult {
+  advice?: string;
+  error?: string;
+  notConfigured?: boolean;
+}
+
+/** Ask the AI sales coach (sales-advisor edge function -> Claude) to benchmark the
+ *  funnel and recommend actions. Degrades to a friendly message until the key is set. */
+export async function askSalesAdvisor(
+  target: SalesTarget,
+  ladder: FormulaLadder,
+  question?: string,
+): Promise<AdvisorResult> {
+  if (!supabase) return { error: "Supabase not configured." };
+  const { data, error } = await supabase.functions.invoke("sales-advisor", {
+    body: { target, ladder, question },
+  });
+  if (error) return { error: error.message };
+  return (data ?? {}) as AdvisorResult;
+}
