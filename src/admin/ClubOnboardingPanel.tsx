@@ -85,7 +85,7 @@ const FB_CATEGORY: Record<string, string> = {
 };
 const FB_STATUS: Record<string, string> = {
   new: "New", needs_review: "Needs review", accepted: "Accepted", in_progress: "In progress",
-  waiting_on_club: "Waiting on club", waiting_on_sportsweb: "Waiting on us",
+  waiting_on_club: "Waiting on client response", waiting_on_sportsweb: "Waiting on us",
   resolved: "Resolved", rejected: "Rejected", archived: "Archived",
 };
 // A feedback item is "open" until it's resolved/rejected/archived.
@@ -265,7 +265,7 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
   };
   // The club-facing status page (same preview_token, different host). Share so the
   // club can track how their feedback is being actioned.
-  const statusUrl = previewToken ? `https://sitepulse-status.vercel.app/?t=${previewToken}` : "";
+  const statusUrl = previewToken ? `https://sitepulse-status.pages.dev/?t=${previewToken}` : "";
   const copyStatus = async () => {
     if (!statusUrl) return;
     try {
