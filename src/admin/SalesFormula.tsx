@@ -5,6 +5,7 @@ import {
   saveSalesTarget,
   deleteSalesTarget,
   computeLadder,
+  askSalesAdvisor,
   type SalesProduct,
   type SalesTarget,
 } from "../lib/sales";
@@ -58,6 +59,12 @@ export function SalesFormula() {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // AI sales coach
+  const [advice, setAdvice] = useState("");
+  const [advErr, setAdvErr] = useState("");
+  const [advBusy, setAdvBusy] = useState(false);
+  const [q, setQ] = useState("");
+
   useEffect(() => {
     listSalesProducts().then(setProducts);
     listSalesTargets().then(setTargets);
@@ -93,6 +100,19 @@ export function SalesFormula() {
     if (!id) return;
     await deleteSalesTarget(id);
     setTargets(await listSalesTargets());
+  };
+
+  const ask = async (question?: string) => {
+    setAdvBusy(true);
+    setAdvErr("");
+    setAdvice("");
+    const res = await askSalesAdvisor({ ...t }, ladder, question);
+    setAdvBusy(false);
+    if (res.error) {
+      setAdvErr(res.error);
+      return;
+    }
+    setAdvice(res.advice ?? "");
   };
 
   return (
@@ -182,6 +202,36 @@ export function SalesFormula() {
           <div className="sw-sales-chain">
             <strong>{fmt(ladder.wins)} sales</strong> = {fmt(ladder.presentations)} presentations = {fmt(ladder.demos)} demos booked ={" "}
             {fmt(ladder.conversations)} conversations = {fmt(ladder.contacts)} targeted contacts = <strong>{fmt(ladder.ctaViews)} CTA views</strong>.
+          </div>
+
+          {/* AI sales coach */}
+          <div className="sw-sales-card">
+            <div className="sw-sales-sub">AI sales coach</div>
+            <p style={{ margin: "0 0 10px", fontSize: 13, color: "#5b6573" }}>
+              Benchmarks this funnel against real sales data and tells you, honestly, whether you're on track and what to do to hit the target.
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+              <button className="sw-btn sw-btn--ghost" disabled={advBusy} onClick={() => ask("Are we on track versus known global sales benchmarks?")}>Are we on track?</button>
+              <button className="sw-btn sw-btn--ghost" disabled={advBusy} onClick={() => ask("What should we do to achieve this target?")}>How do we hit it?</button>
+              <button className="sw-btn sw-btn--ghost" disabled={advBusy} onClick={() => ask("Which of our assumptions are unrealistic, and what should they be?")}>Check my assumptions</button>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                style={{ flex: 1, minWidth: 0, padding: "9px 11px", borderRadius: 9, border: "1px solid #d7dbe3", fontSize: 13.5 }}
+                value={q}
+                placeholder="Ask anything about this target…"
+                onChange={(e) => setQ(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && q.trim() && !advBusy) ask(q); }}
+              />
+              <button className="sw-btn" disabled={advBusy || !q.trim()} onClick={() => ask(q)}>{advBusy ? "Thinking…" : "Ask"}</button>
+            </div>
+            {advBusy && <p style={{ marginTop: 10, fontSize: 13, color: "#5b6573" }}>Analysing your funnel…</p>}
+            {advErr && <p className="sw-sales-msg is-err" style={{ marginTop: 10 }}>{advErr}</p>}
+            {advice && (
+              <div style={{ marginTop: 12, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1f2733", background: "#f7f8fa", border: "1px solid #e6e8ee", borderRadius: 10, padding: "13px 15px" }}>
+                {advice}
+              </div>
+            )}
           </div>
 
           {targets.length > 0 && (
