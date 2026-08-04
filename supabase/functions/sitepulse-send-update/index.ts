@@ -110,8 +110,8 @@ Deno.serve(async (req) => {
   const fbMap = new Map((fbs ?? []).map((f) => [f.id as string, f]));
 
   const statusUrl = club.preview_token
-    ? `https://sitepulse-status.vercel.app/?t=${club.preview_token}`
-    : "https://sitepulse-status.vercel.app";
+    ? `https://sitepulse-status.pages.dev/?t=${club.preview_token}`
+    : "https://sitepulse-status.pages.dev";
   const rowsHtml = items.map((c) => {
     const f = fbMap.get(c.feedback_id as string) as { category?: string; description?: string } | undefined;
     const cat = CATEGORY_LABEL[String(f?.category)] ?? (f?.category ?? "");

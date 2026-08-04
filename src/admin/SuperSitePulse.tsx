@@ -55,7 +55,7 @@ const STATUSES = [
 ];
 const STATUS_LABEL: Record<string, string> = {
   new: "New", needs_review: "Needs review", accepted: "Accepted", in_progress: "In progress",
-  waiting_on_club: "Waiting on club", waiting_on_sportsweb: "Waiting on us",
+  waiting_on_club: "Waiting on client response", waiting_on_sportsweb: "Waiting on us",
   resolved: "Resolved", rejected: "Rejected", archived: "Archived",
 };
 const STATUS_STYLE: Record<string, { color: string; bg: string; bd: string }> = {
