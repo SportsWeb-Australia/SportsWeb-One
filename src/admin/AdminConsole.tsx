@@ -117,6 +117,7 @@ const PLATFORM_RAIL = ["__biz", "__super_clubs", "__staff", "__super_sitepulse",
 const CLUB_SUB: Record<string, SubItem[]> = {
   __dashboard: [
     ["__dashboard", "Overview", "dashboard"],
+    ["__guide", "Quick-start guide", "todo"],
     ["__setup", "Get started", "todo"],
     ["__needs", "Needs analysis", "todo"],
   ],
@@ -140,7 +141,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
   ],
 };
 const CLUB_APP_OF: Record<string, string> = {
-  __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard",
+  __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard", __guide: "__dashboard",
   __site: "__site", __website: "__site", __feedback: "__site",
   news: "__site", events: "__site", sponsors: "__site",
   __members: "__members", __people: "__members", __reports_members: "__members", __compliance: "__members",
@@ -231,6 +232,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
   const CLUB_GROUPS = [
     { id: "club", title: "Your club", color: "var(--c-operate)", cards: [
       scr("__dashboard", "Dashboard", "Your club at a glance.", "dashboard", "var(--c-operate)", true),
+      scr("__guide", "Quick-start guide", "How to run your club, step by step.", "todo", "var(--c-operate)", true),
       scr("__setup", "Get started", "Finish setting up your club.", "todo", "var(--c-operate)", true),
       scr("__feedback", "Website feedback", "Raise and track site issues.", "pulse", "var(--c-crit)", true),
     ] },
