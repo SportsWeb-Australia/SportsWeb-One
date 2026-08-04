@@ -61,6 +61,8 @@ const P: Record<string, ReactNode> = {
   bookmarks: <path d="M6 3h12v18l-6-4-6 4z" />,
   office: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>,
   grid: <><rect x="3" y="3" width="7" height="7" rx="1.6" /><rect x="14" y="3" width="7" height="7" rx="1.6" /><rect x="3" y="14" width="7" height="7" rx="1.6" /><rect x="14" y="14" width="7" height="7" rx="1.6" /></>,
+  news: <><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 9h8M8 13h8M8 17h5" /></>,
+  tag: <><path d="M3 3h7l11 11-7 7L3 10z" /><circle cx="7.5" cy="7.5" r="1.4" /></>,
   megaphone: <path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6" />,
   globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z" /></>,
   cog: <><circle cx="12" cy="12" r="3.2" /><path d="M12 3v3M12 18v3M4.5 6l2 2M17.5 16l2 2M3 12h3M18 12h3M4.5 18l2-2M17.5 8l2-2" /></>,
@@ -117,7 +119,10 @@ const CLUB_SUB: Record<string, SubItem[]> = {
     ["__needs", "Needs analysis", "todo"],
   ],
   __site: [
-    ["__site", "Edit content", "studio"],
+    ["__site", "Pages & text", "studio"],
+    ["news", "News", "news"],
+    ["events", "Events", "calendar"],
+    ["sponsors", "Sponsors", "tag"],
     ["__website", "Style & theme", "cog"],
     ["__feedback", "Website feedback", "pulse"],
   ],
@@ -134,6 +139,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
 const CLUB_APP_OF: Record<string, string> = {
   __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard",
   __site: "__site", __website: "__site", __feedback: "__site",
+  news: "__site", events: "__site", sponsors: "__site",
   __members: "__members", __people: "__members", __reports_members: "__members",
   __teams_seasons: "__teams_seasons",
   __comms: "__comms", __comms_reports: "__comms",
@@ -227,6 +233,9 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
     ] },
     { id: "website", title: "Your website", color: "var(--c-build)", cards: [
       scr("__site", "Edit website", "Change text, images and pages.", "globe", "var(--c-build)", can("club.website")),
+      scr("news", "News", "Post match reports and notices.", "news", "var(--c-build)", can("club.content")),
+      scr("events", "Events", "Fixtures, functions and tickets.", "calendar", "var(--c-build)", can("club.content")),
+      scr("sponsors", "Sponsors", "Logos, links and levels.", "tag", "var(--c-build)", can("club.content")),
       scr("__website", "Style & theme", "Your site's look and colours.", "cog", "var(--c-build)", can("club.settings")),
     ] },
     { id: "people", title: "People & teams", color: "var(--c-operate)", cards: [
