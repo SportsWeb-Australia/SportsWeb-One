@@ -332,36 +332,68 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
     </>
   );
 
+  const header = (
+    <header className="swc-top">
+      <div className="swc-brand">
+        <div className="swc-mark">S1</div>
+        <div><strong>SportsWeb One</strong><span>{isClub ? (crumbRoot ?? "Club Admin") : "Platform Admin"}</span></div>
+      </div>
+      <label className="swc-search">
+        <svg className="ic ic-sm" viewBox="0 0 24 24">{P.search}</svg>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to anything…" aria-label="Search" />
+      </label>
+      <div className="swc-tacts">
+        {actingAs && onExit && (
+          <button className="swc-tbtn" onClick={onExit} aria-label="Exit to platform">
+            <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg><span>Exit to platform</span>
+          </button>
+        )}
+        {!isClub && !atHome && (
+          <button className="swc-tbtn" onClick={() => setActive(CONSOLE_HOME)} aria-label="All apps">
+            <svg className="ic ic-sm" viewBox="0 0 24 24">{P.grid}</svg><span>All apps</span>
+          </button>
+        )}
+        {!actingAs && (
+          <button className="swc-tbtn" onClick={signOut} title="Sign out" aria-label="Sign out">
+            <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
+          </button>
+        )}
+        <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
+      </div>
+    </header>
+  );
+
+  // Club mode = Concept C: horizontal top-tabs on the studio-grey + indigo palette.
+  if (isClub) {
+    return (
+      <div className="sw-console swc-club">
+        {header}
+        <nav className="swc-tabbar" aria-label="Sections">
+          {RAIL.map((k) => {
+            const m = META[k];
+            return (
+              <button key={k} className="swc-tab" data-active={railApp === k} onClick={() => setActive(k)}><Ic n={m.icon} />{m.label}</button>
+            );
+          })}
+        </nav>
+        {subs && (
+          <div className="swc-subtabs" aria-label="Sub-sections">
+            {subs.map((s) => (
+              <button key={s[0]} className="swc-subtab" data-active={active === s[0]} onClick={() => setActive(s[0])}><Ic n={s[2]} />{s[1]}</button>
+            ))}
+          </div>
+        )}
+        <div className="swc-stage">
+          <div className="swc-crumbs"><b>{rootLabel}</b>{meta && <><span className="sep">/</span><b>{meta.label}</b></>}</div>
+          {screen}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="sw-console">
-      <header className="swc-top">
-        <div className="swc-brand">
-          <div className="swc-mark">S1</div>
-          <div><strong>SportsWeb One</strong><span>{isClub ? (crumbRoot ?? "Club Admin") : "Platform Admin"}</span></div>
-        </div>
-        <label className="swc-search">
-          <svg className="ic ic-sm" viewBox="0 0 24 24">{P.search}</svg>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to anything…" aria-label="Search" />
-        </label>
-        <div className="swc-tacts">
-          {actingAs && onExit && (
-            <button className="swc-tbtn" onClick={onExit} aria-label="Exit to platform">
-              <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg><span>Exit to platform</span>
-            </button>
-          )}
-          {!atHome && (
-            <button className="swc-tbtn" onClick={() => setActive(CONSOLE_HOME)} aria-label="All apps">
-              <svg className="ic ic-sm" viewBox="0 0 24 24">{P.grid}</svg><span>All apps</span>
-            </button>
-          )}
-          {!actingAs && (
-            <button className="swc-tbtn" onClick={signOut} title="Sign out" aria-label="Sign out">
-              <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
-            </button>
-          )}
-          <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
-        </div>
-      </header>
+      {header}
       <div className="swc-shell">{rail}{content}</div>
     </div>
   );

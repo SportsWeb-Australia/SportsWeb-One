@@ -38,7 +38,7 @@
   background:var(--n-bg);border-bottom:1px solid var(--n-line);flex:0 0 auto;z-index:5}
 .swc-brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
 .swc-mark{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;
-  background:var(--brand);color:#fff;font-weight:800;font-size:14px;letter-spacing:.4px}
+  background:#2563eb;color:#fff;font-weight:800;font-size:14px;letter-spacing:.4px} /* logo stays SportsWeb blue */
 .swc-brand strong{display:block;font-size:14px;font-weight:750;letter-spacing:-.2px;line-height:1.1;color:var(--n-ink)}
 .swc-brand span{display:block;font-size:11px;color:var(--n-muted);letter-spacing:.3px}
 .swc-search{flex:1;max-width:460px;margin:0 auto;display:flex;align-items:center;gap:9px;background:var(--n-bg2);
@@ -133,3 +133,34 @@
 }
 @media (max-width:560px){ .swc-grid{grid-template-columns:1fr 1fr;gap:10px} .swc-tile{padding:13px} .swc-brand span{display:none} }
 @media (max-width:380px){ .swc-grid{grid-template-columns:1fr} }
+
+/* ============================================================================
+   Concept C — CLUB console: horizontal top-tabs, "studio grey + indigo" palette.
+   Scoped to .swc-club so the platform console (blue rail) is untouched.
+   ============================================================================ */
+.sw-console.swc-club{
+  --brand:#4f46e5; --brand-soft:#eceafe;
+  --bg:#f3f4f7; --card:#ffffff; --ink:#1e2430; --ink2:#414a59; --muted:#6b7482; --faint:#98a2b4; --line:#e4e7ec; --line2:#eef0f4;
+  --n-bg:#ffffff; --n-bg2:#f5f6f9; --n-line:#e4e7ec; --n-ink:#1e2430; --n-muted:#6b7482;
+}
+@media (prefers-color-scheme:dark){
+  .sw-console.swc-club{ --brand:#8b83ff; --brand-soft:#211f3a; --bg:#0f1119; --card:#171923; --ink:#eef0f6; --ink2:#c3c8d6; --muted:#8b93a6; --line:#242734; --line2:#1c1f2b;
+    --n-bg:#171923; --n-bg2:#12141d; --n-line:#242734; --n-ink:#eef0f6; --n-muted:#8b93a6; }
+}
+:root[data-theme="dark"] .sw-console.swc-club{ --brand:#8b83ff; --brand-soft:#211f3a; --bg:#0f1119; --card:#171923; --ink:#eef0f6; --ink2:#c3c8d6; --muted:#8b93a6; --line:#242734; --line2:#1c1f2b;
+  --n-bg:#171923; --n-bg2:#12141d; --n-line:#242734; --n-ink:#eef0f6; --n-muted:#8b93a6; }
+
+.swc-tabbar{display:flex;gap:2px;padding:0 clamp(10px,2vw,22px);background:var(--n-bg);border-bottom:1px solid var(--n-line);overflow-x:auto;flex:0 0 auto}
+.swc-tab{border:0;background:transparent;color:var(--n-muted);font-size:13.5px;font-weight:650;padding:13px 15px;border-bottom:2.5px solid transparent;
+  display:flex;gap:9px;align-items:center;white-space:nowrap;cursor:pointer;transition:.13s}
+.swc-tab:hover{color:var(--ink)}
+.swc-tab[data-active="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+.swc-tab .ic{width:18px;height:18px}
+.swc-subtabs{display:flex;gap:4px;padding:9px clamp(10px,2vw,22px);background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto;flex:0 0 auto}
+.swc-subtab{border:0;background:transparent;color:var(--ink2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;
+  display:flex;gap:8px;align-items:center;white-space:nowrap;cursor:pointer;transition:.12s}
+.swc-subtab:hover{background:var(--line2);color:var(--ink)}
+.swc-subtab[data-active="true"]{background:var(--brand-soft);color:var(--brand)}
+.swc-subtab .ic{width:16px;height:16px}
+.swc-club .swc-stage{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:clamp(14px,2.2vw,26px);color:var(--ink)}
+@media (max-width:900px){ .swc-club .swc-stage{padding-bottom:40px} }
