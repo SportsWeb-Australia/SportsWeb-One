@@ -4205,6 +4205,12 @@
 .sw-admin-formhead { margin-bottom: 1.25rem; }
 .sw-admin-panel > .sw-admin-note:first-of-type { margin-bottom: 1.5rem; }
 
+/* mobile: let the title + action buttons wrap instead of overflowing off-screen */
+@media (max-width: 560px) {
+  .sw-admin-formhead { flex-wrap: wrap; gap: 0.75rem; }
+  .sw-admin-formhead h2 { font-size: 1.35rem; }
+}
+
 /* ghost button: keep text readable on hover */
 .sw-btn--ghost { background: #fff; border: 1px solid var(--border, #cbd5e1); color: var(--text, #1e293b); }
 .sw-btn--ghost:hover {
