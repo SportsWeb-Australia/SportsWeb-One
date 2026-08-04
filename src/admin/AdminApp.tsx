@@ -14,6 +14,7 @@ import { MemberDetail } from "./MemberDetail";
 import { TeamsSeasons } from "./TeamsSeasons";
 import { Reports } from "./Reports";
 import { ComplianceReport } from "./ComplianceReport";
+import { ClubGuide } from "./ClubGuide";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor, SitePagesEditor } from "./AdminSiteEditor";
@@ -340,6 +341,8 @@ function AdminInner() {
       />
     ) : effectiveActive === "__needs" && hasClub ? (
       <NeedsWizard clubId={clubId!} filledBy={isPlatformAdmin ? "admin" : "club"} />
+    ) : effectiveActive === "__guide" && hasClub ? (
+      <ClubGuide go={setActive} />
     ) : effectiveActive === "__feedback" && hasClub ? (
       <AdminFeedback clubId={clubId!} websiteStatus={club.websiteStatus} />
     ) : effectiveActive.startsWith("__ws_") && hasClub ? (
