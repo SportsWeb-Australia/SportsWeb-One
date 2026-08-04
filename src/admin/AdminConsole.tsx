@@ -131,6 +131,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
   __members: [
     ["__members", "Members", "users"],
     ["__people", "People & committee", "staff"],
+    ["__compliance", "WWCC & compliance", "vault"],
     ["__reports_members", "Member reports", "chart"],
   ],
   __comms: [
@@ -142,7 +143,7 @@ const CLUB_APP_OF: Record<string, string> = {
   __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard",
   __site: "__site", __website: "__site", __feedback: "__site",
   news: "__site", events: "__site", sponsors: "__site",
-  __members: "__members", __people: "__members", __reports_members: "__members",
+  __members: "__members", __people: "__members", __reports_members: "__members", __compliance: "__members",
   __teams_seasons: "__teams_seasons",
   __comms: "__comms", __comms_reports: "__comms",
   __modules: "__modules",
@@ -244,6 +245,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
       scr("__members", "Members", "Your membership list.", "users", "var(--c-operate)", can("club.users")),
       scr("__people", "People & committee", "Committee and contacts.", "staff", "var(--c-operate)", can("club.users")),
       scr("__teams_seasons", "Teams & seasons", "Manage teams and grades.", "clubs", "var(--c-operate)", can("club.users")),
+      scr("__compliance", "WWCC & compliance", "Who needs a valid check.", "vault", "var(--c-crit)", can("club.users")),
     ] },
     { id: "communicate", title: "Communicate", color: "var(--c-grow)", cards: [
       scr("__comms", "Communications", "Email, SMS and push to members.", "megaphone", "var(--c-grow)", can("club.comms")),
