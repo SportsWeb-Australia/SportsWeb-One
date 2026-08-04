@@ -13,6 +13,7 @@ import { MembersList } from "./MembersList";
 import { MemberDetail } from "./MemberDetail";
 import { TeamsSeasons } from "./TeamsSeasons";
 import { Reports } from "./Reports";
+import { ComplianceReport } from "./ComplianceReport";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor, SitePagesEditor } from "./AdminSiteEditor";
@@ -388,6 +389,8 @@ function AdminInner() {
       <TeamsSeasons />
     ) : effectiveActive === "__reports_members" && can("club.users") ? (
       <Reports section="members" />
+    ) : effectiveActive === "__compliance" && can("club.users") ? (
+      <ComplianceReport onOpen={(id) => setActive(`__member_${id}`)} />
     ) : effectiveActive === "__comms" && can("club.comms") ? (
       <Communications />
     ) : effectiveActive === "__comms_reports" && can("club.comms") ? (
