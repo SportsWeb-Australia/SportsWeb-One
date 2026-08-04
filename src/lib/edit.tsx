@@ -17,6 +17,11 @@ interface EditState {
   uploadImage: (key: string, file: File) => Promise<void>;
   busyKey: string | null;
   error: string | null;
+  /** True once an edit has been staged this session (a draft is pending). */
+  dirty: boolean;
+  publishing: boolean;
+  /** Promote this club's staged drafts to live. */
+  publish: () => Promise<void>;
 }
 
 const Ctx = createContext<EditState | null>(null);
@@ -28,11 +33,14 @@ export function EditProvider({ children }: { children: ReactNode }) {
   const [editing, setEditing] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   const base = club.content ?? {};
-  // On-page editing is disabled — the website is edited from the admin panel.
-  // We keep reading saved overrides so admin edits still appear on the live site.
-  const canEdit = false;
+  // On-page editing: allowed only when a signed-in admin is viewing THEIR OWN club's
+  // site (guards against editing another club via ?club=). Edits stage to draft_value;
+  // they only go public when the admin hits Publish (same flow as the admin panel).
+  const canEdit = !!membership && !!club.clubId && membership.clubId === club.clubId;
 
   const value = (key: string, fallback: string) =>
     key in overrides ? overrides[key] : key in base ? base[key] : fallback;
@@ -42,8 +50,23 @@ export function EditProvider({ children }: { children: ReactNode }) {
     setOverrides((o) => ({ ...o, [key]: val }));
     const { error: e } = await supabase
       .from("club_content")
-      .upsert({ club_id: membership.clubId, content_key: key, value: val }, { onConflict: "club_id,content_key" });
+      .upsert({ club_id: membership.clubId, content_key: key, draft_value: val }, { onConflict: "club_id,content_key" });
     if (e) setError(e.message);
+    else setDirty(true);
+  };
+
+  const publish = async () => {
+    if (!membership || !supabase || publishing) return;
+    setPublishing(true);
+    setError(null);
+    const { error: e } = await supabase.rpc("publish_club_content", { p_club_id: membership.clubId });
+    setPublishing(false);
+    if (e) {
+      setError(e.message);
+      return;
+    }
+    setDirty(false);
+    setEditing(false);
   };
 
   const save = async (key: string, val: string) => {
@@ -67,7 +90,7 @@ export function EditProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <Ctx.Provider value={{ canEdit, editing, setEditing, value, save, uploadImage, busyKey, error }}>
+    <Ctx.Provider value={{ canEdit, editing, setEditing, value, save, uploadImage, busyKey, error, dirty, publishing, publish }}>
       {children}
     </Ctx.Provider>
   );

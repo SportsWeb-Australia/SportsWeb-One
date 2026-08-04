@@ -76,11 +76,16 @@ export function EditableImage({
 
 /** Floating toggle — only rendered for signed-in club admins. */
 export function EditToggle() {
-  const { canEdit, editing, setEditing, error } = useEdit();
+  const { canEdit, editing, setEditing, error, dirty, publish, publishing } = useEdit();
   if (!canEdit) return null;
   return (
     <div className="sw-edit-toggle-wrap">
       {error && <span className="sw-edit-toggle-err">{error}</span>}
+      {editing && dirty && (
+        <button className="sw-edit-toggle on" onClick={publish} disabled={publishing}>
+          {publishing ? "Publishing…" : "▲ Publish changes"}
+        </button>
+      )}
       <button className={`sw-edit-toggle${editing ? " on" : ""}`} onClick={() => setEditing(!editing)}>
         {editing ? "✓ Done editing" : "✎ Edit page"}
       </button>
