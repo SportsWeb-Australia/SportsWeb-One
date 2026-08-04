@@ -26,6 +26,8 @@ interface Props {
   mode?: "platform" | "club";
   /** Breadcrumb/brand root label. Platform: "Platform Admin"; club: the club name. */
   crumbRoot?: string;
+  /** Who's logged in — shown in the top bar (e.g. "Super Admin", "President"). */
+  roleLabel?: string;
   /** When a platform admin is acting-as a club, show an "Exit to platform" control. */
   actingAs?: boolean;
   onExit?: () => void;
@@ -166,7 +168,7 @@ function resolveApp(active: string, appOf: Record<string, string>): string | und
   return undefined;
 }
 
-export function AdminConsole({ active, setActive, can, openZoho, signOut, email, workspace, screen, mode = "platform", crumbRoot, actingAs, onExit }: Props) {
+export function AdminConsole({ active, setActive, can, openZoho, signOut, email, roleLabel, workspace, screen, mode = "platform", crumbRoot, actingAs, onExit }: Props) {
   const [q, setQ] = useState("");
   const isClub = mode === "club";
   const SUB = isClub ? CLUB_SUB : PLATFORM_SUB;
@@ -358,6 +360,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
             <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
           </button>
         )}
+        {roleLabel && <span className="swc-role" title="You're signed in as">{roleLabel}</span>}
         <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
       </div>
     </header>

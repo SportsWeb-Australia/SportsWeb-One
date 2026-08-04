@@ -164,3 +164,8 @@
 .swc-subtab .ic{width:16px;height:16px}
 .swc-club .swc-stage{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:clamp(14px,2.2vw,26px);color:var(--ink)}
 @media (max-width:900px){ .swc-club .swc-stage{padding-bottom:40px} }
+
+/* Logged-in role chip in the top bar (platform + club consoles). */
+.swc-role{font-size:12px;font-weight:650;color:var(--n-muted);background:var(--n-bg2);border:1px solid var(--n-line);
+  border-radius:20px;padding:5px 11px;white-space:nowrap;letter-spacing:.01em}
+@media (max-width:560px){ .swc-role{display:none} }
