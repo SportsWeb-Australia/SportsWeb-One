@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars, Chevron } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 import { formatDate } from "../../lib/format";
 import { slugify } from "../../lib/slug";
 import { Countdown } from "./Countdown";
@@ -62,8 +63,8 @@ export function UpcomingEvents({ limit, bare }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">What&apos;s on</span>
-            <h2>Upcoming events</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.events.eyebrow" value="What's on" />
+            <EditableText as="h2" k="home.events.heading" value="Upcoming events" />
           </div>
           <SmartLink href="/events" className="sw-link-arrow">
             Full calendar →

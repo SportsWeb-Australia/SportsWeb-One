@@ -4,6 +4,7 @@ import { SmartLink } from "../components/SmartLink";
 import { MediaPlaceholder } from "../components/blocks/MediaPlaceholder";
 import { TeamsBlock } from "../components/blocks/TeamsBlock";
 import { JoinCTA } from "../components/blocks/JoinCTA";
+import { EditableText } from "../components/edit/Editable";
 
 export function Teams() {
   const { club } = useClub();
@@ -26,12 +27,11 @@ export function Teams() {
             ))}
           </div>
           <div className="sw-prose" style={{ margin: "2rem 0" }}>
-            <p>
-              {club.identity.shortName} fields {club.identity.sports.join(" and ").toLowerCase()} teams
-              across the season. Whether you're returning for another year, brand new to the club, or
-              just getting started in sport, our coaches and volunteers will help you find the right
-              team and settle in.
-            </p>
+            <EditableText
+              as="p"
+              k="page.teams.intro2"
+              value={`${club.identity.shortName} fields ${club.identity.sports.join(" and ").toLowerCase()} teams across the season. Whether you're returning for another year, brand new to the club, or just getting started in sport, our coaches and volunteers will help you find the right team and settle in.`}
+            />
           </div>
           <TeamsBlock bare />
         </div>

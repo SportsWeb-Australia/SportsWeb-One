@@ -1,5 +1,6 @@
 import { useClub } from "../ClubContext";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 
 /** Simple 3-up photo strip ("Life at the club"-style). Renders nothing if the
  *  club hasn't set photoStrip (optional block). */
@@ -14,8 +15,8 @@ export function PhotoStrip() {
         <div className="sw-section-head sw-photostrip-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">{photoStrip.eyebrow}</span>
-            <h2>{photoStrip.title}</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.photostrip.eyebrow" value={photoStrip.eyebrow} />
+            <EditableText as="h2" k="home.photostrip.title" value={photoStrip.title} />
           </div>
         </div>
         <div className="sw-photostrip-grid">

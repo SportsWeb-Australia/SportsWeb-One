@@ -1,5 +1,6 @@
 import { useClub } from "../components/ClubContext";
 import { PageHero } from "../components/layout/PageHero";
+import { EditableText } from "../components/edit/Editable";
 
 export function Contact() {
   const { club } = useClub();
@@ -17,7 +18,7 @@ export function Contact() {
         <div className="sw-container">
           <div className="sw-welcome-grid">
             <aside className="sw-welcome-aside">
-              <div className="sw-welcome-role">Club details</div>
+              <EditableText as="div" className="sw-welcome-role" k="page.contact.detailsLabel" value="Club details" />
               <p style={{ marginTop: "0.75rem" }}>
                 <strong>{identity.name}</strong>
               </p>
@@ -48,10 +49,11 @@ export function Contact() {
               </div>
             </aside>
             <div className="sw-prose">
-              <p>
-                The quickest way to reach us is by email — drop us a line and the right person at the
-                club will get back to you.
-              </p>
+              <EditableText
+                as="p"
+                k="page.contact.lead"
+                value="The quickest way to reach us is by email — drop us a line and the right person at the club will get back to you."
+              />
               <p>
                 Looking to <strong>play</strong>? Head to the{" "}
                 <a href="/register" style={{ color: "var(--accent-on-bg)" }}>
@@ -77,10 +79,12 @@ export function Contact() {
                 </div>
               )}
 
-              <p className="sw-social-embed-note">
-                Contact form slot: a SportsWeb One enquiry form can be embedded here so messages land
-                straight in the club inbox. For now, the email link above is live.
-              </p>
+              <EditableText
+                as="p"
+                className="sw-social-embed-note"
+                k="page.contact.formNote"
+                value="Contact form slot: a SportsWeb One enquiry form can be embedded here so messages land straight in the club inbox. For now, the email link above is live."
+              />
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars, Chevron } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 import { formatDate } from "../../lib/format";
 import { slugify } from "../../lib/slug";
 
@@ -49,8 +50,8 @@ export function FeaturedNews({ limit, bare, eyebrow, heading }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">{eyebrow ?? "Latest news"}</span>
-            <h2>{heading ?? "From the club"}</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.news.eyebrow" value={eyebrow ?? "Latest news"} />
+            <EditableText as="h2" k="home.news.heading" value={heading ?? "From the club"} />
           </div>
           <SmartLink href="/news" className="sw-link-arrow">
             All news →

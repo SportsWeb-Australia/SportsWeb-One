@@ -1,6 +1,7 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 import type { Sponsor } from "../../content/types";
 
 const TIERS: { id: Sponsor["tier"]; label: string }[] = [
@@ -104,8 +105,8 @@ export function SponsorStrip({ bare, onlyCarousel }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">Proudly supported by</span>
-            <h2>Our sponsors</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.sponsors.eyebrow" value="Proudly supported by" />
+            <EditableText as="h2" k="home.sponsors.heading" value="Our sponsors" />
           </div>
           <SmartLink href="/sponsors" className="sw-link-arrow">
             Become a sponsor →

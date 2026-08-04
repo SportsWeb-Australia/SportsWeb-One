@@ -1,5 +1,6 @@
 import { useClub } from "../ClubContext";
 import { AccentBars } from "../layout/Chevron";
+import { EditableText } from "../edit/Editable";
 
 interface Props {
   bare?: boolean;
@@ -39,8 +40,8 @@ export function Committee({ bare }: Props) {
         <div className="sw-section-head">
           <div>
             <AccentBars />
-            <span className="sw-eyebrow">Who runs the club</span>
-            <h2>Committee &amp; coaches</h2>
+            <EditableText as="span" className="sw-eyebrow" k="home.committee.eyebrow" value="Who runs the club" />
+            <EditableText as="h2" k="home.committee.title" value="Committee & coaches" />
           </div>
         </div>
         {grid}

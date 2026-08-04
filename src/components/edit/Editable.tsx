@@ -1,4 +1,4 @@
-import type { ElementType } from "react";
+import type { CSSProperties, ElementType } from "react";
 import { useEdit } from "../../lib/edit";
 
 /** Inline-editable text. In edit mode it becomes click-to-type; saves on blur. */
@@ -7,11 +7,13 @@ export function EditableText({
   value,
   as = "span",
   className,
+  style,
 }: {
   k: string;
   value: string;
   as?: ElementType;
   className?: string;
+  style?: CSSProperties;
 }) {
   const { canEdit, editing, value: getVal, save, busyKey } = useEdit();
   const current = getVal(k, value);
@@ -21,6 +23,7 @@ export function EditableText({
     return (
       <Tag
         className={`${className ?? ""} sw-editable`.trim()}
+        style={style}
         contentEditable
         suppressContentEditableWarning
         data-busy={busyKey === k || undefined}
@@ -33,7 +36,7 @@ export function EditableText({
       </Tag>
     );
   }
-  return <Tag className={className}>{current}</Tag>;
+  return <Tag className={className} style={style}>{current}</Tag>;
 }
 
 /** Inline-editable image with a Swap button in edit mode. */

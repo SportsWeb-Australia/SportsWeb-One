@@ -2291,6 +2291,10 @@
 .sw-editable:hover { outline-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .sw-editable:focus { outline-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .sw-editable[data-busy] { opacity: 0.55; }
+/* empty editables must stay tappable — give them a visible placeholder + min size */
+.sw-editable:empty { min-width: 6ch; min-height: 1.2em; display: inline-block; }
+.sw-editable:empty::before { content: "Tap to add text"; color: var(--text-soft, #94a3b8); font-style: italic; }
+.sw-editable:empty:focus::before { content: ""; }
 
 .sw-editable-img { position: relative; display: inline-block; }
 .sw-editable-img-empty {
