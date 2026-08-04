@@ -141,6 +141,20 @@
 @media (max-width:560px){ .swc-grid{grid-template-columns:1fr 1fr;gap:10px} .swc-tile{padding:13px} .swc-brand span{display:none} }
 @media (max-width:380px){ .swc-grid{grid-template-columns:1fr} }
 
+/* ---- mobile top bar: the centered role banner collides with the brand wordmark and
+   the action buttons on narrow screens. Drop it onto its own full-width row below the
+   brand, and make the action buttons icon-only so the top row never overflows. ---- */
+@media (max-width:600px){
+  .swc-top{flex-wrap:wrap;row-gap:8px}
+  .swc-rolebig{position:static;transform:none;order:3;flex:1 0 100%;max-width:100%;
+    flex-direction:row;align-items:baseline;justify-content:center;gap:7px;
+    margin-top:1px;padding-top:9px;border-top:1px solid var(--n-line)}
+  .swc-rolebig span{display:inline;letter-spacing:.14em}
+  .swc-rolebig strong{max-width:none;font-size:15.5px}
+  .swc-tbtn span{display:none}
+  .swc-tbtn{min-width:38px;padding:0 9px}
+}
+
 /* ============================================================================
    Concept C — CLUB console: horizontal top-tabs, "studio grey + indigo" palette.
    Scoped to .swc-club so the platform console (blue rail) is untouched.
