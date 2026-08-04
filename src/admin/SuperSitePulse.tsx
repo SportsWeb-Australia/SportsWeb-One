@@ -280,6 +280,24 @@ function Pill({ color, bg, children }: { color: string; bg: string; children: Re
   );
 }
 
+// One-click copy (for pasting the client's exact text into the fix).
+function CopyBtn({ text, label = "Copy" }: { text: string; label?: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button type="button" className="sw-btn sw-btn--ghost"
+      style={{ fontSize: 12, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 6 }}
+      onClick={(e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(text).then(() => { setDone(true); setTimeout(() => setDone(false), 1400); });
+      }}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+        <rect x="9" y="9" width="11" height="11" rx="2" /><path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" strokeLinecap="round" />
+      </svg>
+      {done ? "Copied ✓" : label}
+    </button>
+  );
+}
+
 function Chevron({ open }: { open: boolean }) {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"
@@ -388,6 +406,12 @@ function ItemCard({
 
       {open && (
         <div style={{ padding: "2px 13px 14px", fontSize: 13, lineHeight: 1.6, color: INK }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "2px 0 10px" }}>
+            <CopyBtn text={r.description} label="Copy feedback text" />
+            {r.element_label && r.element_meta?.is_text && (
+              <CopyBtn text={r.element_label} label="Copy highlighted phrase" />
+            )}
+          </div>
           <ElementInfo r={r} />
           {r.page_url && (
             <div style={{ color: MUTED }}><b>Page:</b>{" "}
