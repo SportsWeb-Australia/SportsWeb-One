@@ -285,22 +285,27 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
     </div>
   );
 
-  /* ---- app shell ---- */
+  /* ---- persistent rail (always visible, incl. on the launcher) ---- */
   const meta = railApp ? META[railApp] : null;
   const subs = railApp ? SUB[railApp] : undefined;
-  const appView = meta && (
-    <div className={`swc-app${subs ? "" : " no-sub"}`}>
-      <nav className="swc-rail" aria-label="Apps">
-        <button className="swc-railb home" data-tip="All apps" aria-label="All apps" onClick={() => setActive(CONSOLE_HOME)}><Ic n="grid" /></button>
-        <div className="swc-railsep" />
-        {RAIL.map((k) => {
-          const m = META[k];
-          return (
-            <button key={k} className="swc-railb" data-tip={m.label} aria-label={m.label} data-active={railApp === k}
-              style={{ ["--rc" as string]: m.color }} onClick={() => setActive(k)}><Ic n={m.icon} /></button>
-          );
-        })}
-      </nav>
+  const rail = (
+    <nav className="swc-rail" aria-label="Apps">
+      <button className="swc-railb home" data-tip="All apps" aria-label="All apps" data-active={atHome} onClick={() => setActive(CONSOLE_HOME)}><Ic n="grid" /></button>
+      <div className="swc-railsep" />
+      {RAIL.map((k) => {
+        const m = META[k];
+        return (
+          <button key={k} className="swc-railb" data-tip={m.label} aria-label={m.label} data-active={railApp === k}
+            onClick={() => setActive(k)}><Ic n={m.icon} /></button>
+        );
+      })}
+    </nav>
+  );
+
+  const content = !meta ? (
+    <div className="swc-canvas">{launcher}</div>
+  ) : (
+    <>
       {subs && (
         <aside className="swc-sub" style={{ ["--rc" as string]: meta.color }}>
           <div className="swc-sub-hd"><div className="si"><Ic n={meta.icon} /></div><strong>{meta.label}</strong></div>
@@ -311,11 +316,11 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
           </div>
         </aside>
       )}
-      <div className="swc-stage" style={{ ["--rc" as string]: meta.color }}>
+      <div className="swc-stage">
         <div className="swc-crumbs"><b>{rootLabel}</b><span className="sep">/</span><b>{meta.label}</b></div>
         {screen}
       </div>
-    </div>
+    </>
   );
 
   return (
@@ -348,7 +353,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
           <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
         </div>
       </header>
-      <div className="swc-body">{atHome ? launcher : appView}</div>
+      <div className="swc-shell">{rail}{content}</div>
     </div>
   );
 }
