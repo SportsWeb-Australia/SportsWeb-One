@@ -14,7 +14,7 @@
 -- read a PUBLISHED club's module flags (low-sensitivity: it only says which features a club
 -- has), and public Module entitlement works via the flag, not just data presence.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name (this is a NEW
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name (this is a NEW
 -- migration; the earlier three-file override does not generalise). Pure ASCII.
 -- ============================================================
 

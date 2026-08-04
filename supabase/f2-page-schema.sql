@@ -12,7 +12,7 @@
 -- Both existing tables are empty (0 rows). Captured first in
 -- supabase/captured/club-pages-sections.sql, so this drops/rebuilds deliberately.
 --
--- NOT YET APPLIED. Author + show only. Apply once authorized by name. Pure ASCII.
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Apply once authorized by name. Pure ASCII.
 -- Depends on: clubs, vm_is_club_member(), is_platform_admin(), preview_token cols.
 --
 -- REV (Carson review): preview-token check restructured to run FIRST regardless of

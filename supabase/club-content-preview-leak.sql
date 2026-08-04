@@ -13,7 +13,7 @@
 -- (is_platform_admin() OR club_id IN my_club_ids()), which already covers SELECT
 -- for admins of the club. Only the anonymous/public read path changes.
 --
--- NOT YET APPLIED. Author + show only. Run in the Supabase SQL Editor once Carson
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Run in the Supabase SQL Editor once Carson
 -- authorizes THIS file. Pure ASCII, re-runnable. Keys off club_id.
 -- ============================================================
 

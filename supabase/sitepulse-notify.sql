@@ -9,7 +9,7 @@
 -- Vault -- never hardcoded. The function is exception-safe: a notify failure
 -- must NEVER roll back the feedback insert (the row is the source of truth).
 --
--- NOT YET APPLIED. Author + show only. Run in the Supabase SQL Editor once
+-- APPLIED TO PROD 2026-08-04 - verified via DB introspection; do NOT re-run (see docs/migration-ledger.md). Author + show only. Run in the Supabase SQL Editor once
 -- Carson authorizes THIS file. Pure ASCII, re-runnable. Keys off club_id.
 --
 -- Prereqs (already true on this project): pg_net + supabase_vault are enabled.
