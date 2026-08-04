@@ -152,6 +152,7 @@ function AdminInner() {
     };
   }, []);
   const [persona, setPersona] = useState<string>("general");
+  const [committeeTitle, setCommitteeTitle] = useState<string>("");
   const hasClub = !!clubId;
   // Scoped launch operator: SportsWeb staff, not a platform admin, no club.
   const [isOperator, setIsOperator] = useState(false);
@@ -201,11 +202,14 @@ function AdminInner() {
   useEffect(() => {
     if (!clubId || !userId) {
       setPersona("general");
+      setCommitteeTitle("");
       return;
     }
     let alive = true;
     loadCommitteeProfile(clubId, userId).then((p) => {
-      if (alive) setPersona(personaFromTitle(p.committeeTitle));
+      if (!alive) return;
+      setPersona(personaFromTitle(p.committeeTitle));
+      setCommitteeTitle(p.committeeTitle ?? "");
     });
     return () => {
       alive = false;
@@ -423,6 +427,23 @@ function AdminInner() {
     )
   );
 
+  // Friendly label for who's logged in — platform role, else committee title, else club role.
+  const roleLabel = platformRole
+    ? ROLE_LABELS[platformRole]
+    : committeeTitle
+      ? committeeTitle
+      : activeRole === "club_senior_admin"
+        ? "Club senior admin"
+        : activeRole === "club_admin"
+          ? "Club admin"
+          : activeRole === "super_admin"
+            ? "Exec admin"
+            : isOperator
+              ? "Launch operator"
+              : hasClub
+                ? "Member"
+                : "";
+
   // Platform admins with no club get the full-screen console; acting-as a club keeps the shell.
   const useConsole = isPlatformAdmin && !hasClub;
   if (useConsole) {
@@ -435,6 +456,7 @@ function AdminInner() {
           openZoho={openZoho}
           signOut={signOut}
           email={email}
+          roleLabel={roleLabel}
           workspace={WORKSPACE}
           screen={screen}
         />
@@ -458,6 +480,7 @@ function AdminInner() {
           openZoho={openZoho}
           signOut={signOut}
           email={email}
+          roleLabel={roleLabel}
           workspace={WORKSPACE}
           screen={screen}
         />
@@ -955,13 +978,15 @@ function AdminInner() {
             {email}
             {platformRole
               ? ` · ${ROLE_LABELS[platformRole]}`
-              : activeRole === "super_admin"
-                ? " · Exec Admin"
-                : activeRole === "club_admin"
-                  ? " · Club Admin"
-                  : activeRole
-                    ? ` · ${activeRole}`
-                    : ""}
+              : committeeTitle
+                ? ` · ${committeeTitle}`
+                : activeRole === "super_admin"
+                  ? " · Exec Admin"
+                  : activeRole === "club_admin"
+                    ? " · Club Admin"
+                    : activeRole
+                      ? ` · ${activeRole}`
+                      : ""}
           </span>
           {showSwitcher && (
             <label className="sw-clubswitch">
