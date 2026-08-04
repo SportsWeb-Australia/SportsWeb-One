@@ -6,6 +6,7 @@ import { isPlatformHost, hasPreviewClub } from "./lib/supabase";
 import { ClubContext } from "./components/ClubContext";
 import { AuthProvider, useAuth } from "./lib/auth";
 import { EditProvider } from "./lib/edit";
+import { EditToggle } from "./components/edit/Editable";
 import { registerServiceWorker } from "./lib/pwa";
 import type { ClubConfig, DesignVariant } from "./content/types";
 
@@ -293,6 +294,8 @@ export default function App() {
           <BackToTop />
           <MobileTabBar />
           <AppPrompts />
+          {/* On-page inline editor: floating Edit/Publish toggle for a signed-in admin on their own club. */}
+          <EditToggle />
           {/* Public-site feedback widget (SitePulse). Draft -> everyone; published -> admins only. */}
           <SitePulseWidget clubId={club.clubId} websiteStatus={club.websiteStatus} />
         </EditProvider>
