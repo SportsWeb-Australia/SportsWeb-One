@@ -35,16 +35,23 @@
 
 /* ---- top bar (dark) ---- */
 .swc-top{display:flex;align-items:center;gap:14px;padding:10px clamp(12px,2vw,20px);
-  background:var(--n-bg);border-bottom:1px solid var(--n-line);flex:0 0 auto;z-index:5}
+  background:var(--n-bg);border-bottom:1px solid var(--n-line);flex:0 0 auto;z-index:5;position:relative}
+/* Big, bold, centered "who's logged in" banner (all devices). */
+.swc-rolebig{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;
+  align-items:center;gap:1px;pointer-events:none;text-align:center;max-width:48vw}
+.swc-rolebig span{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--n-muted);line-height:1}
+.swc-rolebig strong{font-size:17px;font-weight:800;letter-spacing:.01em;color:var(--brand);line-height:1.15;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw}
+@media (max-width:560px){ .swc-rolebig span{display:none} .swc-rolebig strong{font-size:14.5px} }
 .swc-brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
 .swc-mark{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;
   background:#2563eb;color:#fff;font-weight:800;font-size:14px;letter-spacing:.4px} /* logo stays SportsWeb blue */
 .swc-brand strong{display:block;font-size:14px;font-weight:750;letter-spacing:-.2px;line-height:1.1;color:var(--n-ink)}
 .swc-brand span{display:block;font-size:11px;color:var(--n-muted);letter-spacing:.3px}
-.swc-search{flex:1;max-width:460px;margin:0 auto;display:flex;align-items:center;gap:9px;background:var(--n-bg2);
+.swc-search{flex:0 1 260px;margin:0;display:flex;align-items:center;gap:9px;background:var(--n-bg2);
   border:1px solid var(--n-line);border-radius:10px;padding:8px 12px;color:var(--n-muted)}
 .swc-search input{border:0;background:transparent;color:var(--n-ink);font-size:13.5px;flex:1;outline:none;min-width:0}
-.swc-tacts{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.swc-tacts{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:auto}
 .swc-tbtn{height:36px;min-width:36px;padding:0 11px;border-radius:9px;border:1px solid var(--n-line);background:var(--n-bg2);color:var(--n-ink);
   display:flex;align-items:center;gap:7px;justify-content:center;cursor:pointer;transition:.15s;font-size:13px;font-weight:600}
 .swc-tbtn:hover{border-color:var(--brand);background:#182135}
