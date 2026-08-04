@@ -340,11 +340,17 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
         <div className="swc-mark">S1</div>
         <div><strong>SportsWeb One</strong><span>{isClub ? (crumbRoot ?? "Club Admin") : "Platform Admin"}</span></div>
       </div>
-      <label className="swc-search">
-        <svg className="ic ic-sm" viewBox="0 0 24 24">{P.search}</svg>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to anything…" aria-label="Search" />
-      </label>
+      {roleLabel && (
+        <div className="swc-rolebig" title="You're signed in as">
+          <span>Signed in as</span>
+          <strong>{roleLabel}</strong>
+        </div>
+      )}
       <div className="swc-tacts">
+        <label className="swc-search">
+          <svg className="ic ic-sm" viewBox="0 0 24 24">{P.search}</svg>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to anything…" aria-label="Search" />
+        </label>
         {actingAs && onExit && (
           <button className="swc-tbtn" onClick={onExit} aria-label="Exit to platform">
             <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg><span>Exit to platform</span>
@@ -360,7 +366,6 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
             <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
           </button>
         )}
-        {roleLabel && <span className="swc-role" title="You're signed in as">{roleLabel}</span>}
         <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
       </div>
     </header>
