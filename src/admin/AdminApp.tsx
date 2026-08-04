@@ -40,7 +40,7 @@ import { StaffAccess } from "./StaffAccess";
 import { PlatformDashboard } from "./PlatformDashboard";
 import { Login } from "./Login";
 import { ZohoWorkspace, WS_ICON, WORKSPACE } from "./ZohoWorkspace";
-import { AdminConsole, CONSOLE_HOME } from "./AdminConsole";
+import { AdminConsole } from "./AdminConsole";
 import { SportsWebAccount } from "./SportsWebAccount";
 import { readSidebarLook, SIDEBAR_LOOK_EVENT } from "./sidebarLook";
 import { loadCommitteeProfile } from "../lib/committee";
@@ -184,10 +184,10 @@ function AdminInner() {
     if (clubId) setActive("__dashboard");
   }, [clubId]);
 
-  // Platform admin (no club) lands on the console launcher, not a club screen. The default
-  // active ("__dashboard") is a club key, so flip it to the launcher home for this context.
+  // Platform admin (no club) lands on the platform Dashboard (with the rail beside it), not a
+  // club screen. The default active ("__dashboard") is a club key, so flip it to "__biz".
   useEffect(() => {
-    if (isPlatformAdmin && !clubId && active === "__dashboard") setActive(CONSOLE_HOME);
+    if (isPlatformAdmin && !clubId && active === "__dashboard") setActive("__biz");
   }, [isPlatformAdmin, clubId, active]);
 
   // Keep the browser tab title right for the admin: the platform/super-admin
