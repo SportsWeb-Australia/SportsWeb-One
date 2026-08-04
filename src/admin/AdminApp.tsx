@@ -442,6 +442,29 @@ function AdminInner() {
     );
   }
 
+  // Club console: for now, only when a platform admin is acting-as a club (safe rollout — real
+  // club logins keep the existing shell until this is approved). Flip to `hasClub` to go all-in.
+  if (hasClub && isPlatformAdmin) {
+    return (
+      <MfaGate required={mfaRequired} email={email} onSignOut={signOut}>
+        <AdminConsole
+          mode="club"
+          crumbRoot={clubName || "Your club"}
+          actingAs={isActingAs}
+          onExit={exitActingAs}
+          active={active}
+          setActive={setActive}
+          can={can}
+          openZoho={openZoho}
+          signOut={signOut}
+          email={email}
+          workspace={WORKSPACE}
+          screen={screen}
+        />
+      </MfaGate>
+    );
+  }
+
   return (
     <MfaGate required={mfaRequired} email={email} onSignOut={signOut}>
     <div className={`sw-admin${operatorConsole ? " sw-brandwrap" : ""}`} data-sidebar-look={sidebarLook} style={operatorConsole ? undefined : brandStyle}>

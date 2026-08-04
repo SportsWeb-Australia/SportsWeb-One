@@ -1,8 +1,10 @@
-// Platform Admin console: a full-screen launcher + app-shell that replaces the old side-nav for
-// the SportsWeb platform admin (isPlatformAdmin && no active club). It owns ONLY the navigation
-// chrome -- every screen still renders through AdminApp's existing `active` chain, passed in here
-// as `screen`. Cards call the same setActive/openZoho the old buttons did, gated by the same can().
-// Styles in ./admin-console.css (scoped .sw-console). See the approved concept (artifact 10a6dda8).
+// Full-screen admin console: a launcher + app-shell that replaces the old side-nav.
+// Two modes, one shell:
+//   - "platform" (isPlatformAdmin && no active club): the SportsWeb platform admin nav.
+//   - "club" (any active club, incl. a platform admin acting-as): the club admin nav.
+// It owns ONLY the navigation chrome -- every screen still renders through AdminApp's existing
+// `active` chain, passed in as `screen`. Cards/rail call the same setActive/openZoho the old
+// buttons did, gated by the same can(). Styles in ./admin-console.css (scoped .sw-console).
 import { useState, type ReactNode } from "react";
 
 export const CONSOLE_HOME = "__launcher";
@@ -20,6 +22,13 @@ interface Props {
   workspace: Record<string, WorkspaceApp>;
   /** The current screen, rendered by AdminApp's existing `active` chain. */
   screen: ReactNode;
+  /** "platform" (default) or "club". Selects the nav model + branding. */
+  mode?: "platform" | "club";
+  /** Breadcrumb/brand root label. Platform: "Platform Admin"; club: the club name. */
+  crumbRoot?: string;
+  /** When a platform admin is acting-as a club, show an "Exit to platform" control. */
+  actingAs?: boolean;
+  onExit?: () => void;
 }
 
 /* ---- icons (professional line set) ---- */
@@ -52,6 +61,9 @@ const P: Record<string, ReactNode> = {
   bookmarks: <path d="M6 3h12v18l-6-4-6 4z" />,
   office: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>,
   grid: <><rect x="3" y="3" width="7" height="7" rx="1.6" /><rect x="14" y="3" width="7" height="7" rx="1.6" /><rect x="3" y="14" width="7" height="7" rx="1.6" /><rect x="14" y="14" width="7" height="7" rx="1.6" /></>,
+  megaphone: <path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6" />,
+  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z" /></>,
+  cog: <><circle cx="12" cy="12" r="3.2" /><path d="M12 3v3M12 18v3M4.5 6l2 2M17.5 16l2 2M3 12h3M18 12h3M4.5 18l2-2M17.5 8l2-2" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
   ext: <path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />,
@@ -62,9 +74,12 @@ const ZOHO = (
   <span className="swc-zw"><i style={{ color: "#e42527" }}>Z</i><i style={{ color: "#f9b21d" }}>o</i><i style={{ color: "#226db4" }}>h</i><i style={{ color: "#009b48" }}>o</i></span>
 );
 
-/* ---- static nav model ---- */
+/* ---- nav model types ---- */
 type SubItem = [key: string, label: string, icon: string];
-const SUB: Record<string, SubItem[]> = {
+type MetaEntry = { label: string; icon: string; color: string };
+
+/* ================= PLATFORM model ================= */
+const PLATFORM_SUB: Record<string, SubItem[]> = {
   __staff: [["__staff", "Team", "users"], ["__super_team", "Add a person", "userplus"]],
   __partner_dashboard: [
     ["__partner_dashboard", "Partner Dashboard", "chart"],
@@ -73,8 +88,7 @@ const SUB: Record<string, SubItem[]> = {
     ["__partner_editclub", "Edit club Zoho", "office"],
   ],
 };
-/** Which rail app owns a given `active` key (sub-screens fold onto their parent). */
-const APP_OF: Record<string, string> = {
+const PLATFORM_APP_OF: Record<string, string> = {
   __biz: "__biz", __super_clubs: "__super_clubs",
   __staff: "__staff", __super_team: "__staff",
   __super_import: "__super_import", __super_sitepulse: "__super_sitepulse",
@@ -82,7 +96,7 @@ const APP_OF: Record<string, string> = {
   __partner_dashboard: "__partner_dashboard", __partner_topup: "__partner_dashboard",
   __partner_connect: "__partner_dashboard", __partner_editclub: "__partner_dashboard",
 };
-const META: Record<string, { label: string; icon: string; color: string }> = {
+const PLATFORM_META: Record<string, MetaEntry> = {
   __biz: { label: "Dashboard", icon: "dashboard", color: "var(--c-operate)" },
   __super_clubs: { label: "Clubs & modules", icon: "clubs", color: "var(--c-operate)" },
   __staff: { label: "Staff & access", icon: "staff", color: "var(--c-operate)" },
@@ -93,12 +107,70 @@ const META: Record<string, { label: string; icon: string; color: string }> = {
   __sales: { label: "Sales", icon: "sales", color: "var(--c-grow)" },
   __partner_dashboard: { label: "Zoho Partner", icon: "money", color: "var(--c-zoho)" },
 };
-const RAIL = ["__biz", "__super_clubs", "__staff", "__super_sitepulse", "__super_studio", "__super_integrations", "__sales", "__partner_dashboard"];
+const PLATFORM_RAIL = ["__biz", "__super_clubs", "__staff", "__super_sitepulse", "__super_studio", "__super_integrations", "__sales", "__partner_dashboard"];
 
-export function AdminConsole({ active, setActive, can, openZoho, signOut, email, workspace, screen }: Props) {
+/* ================= CLUB model ================= */
+const CLUB_SUB: Record<string, SubItem[]> = {
+  __dashboard: [
+    ["__dashboard", "Overview", "dashboard"],
+    ["__setup", "Get started", "todo"],
+    ["__needs", "Needs analysis", "todo"],
+  ],
+  __site: [
+    ["__site", "Edit content", "studio"],
+    ["__website", "Style & theme", "cog"],
+    ["__feedback", "Website feedback", "pulse"],
+  ],
+  __members: [
+    ["__members", "Members", "users"],
+    ["__people", "People & committee", "staff"],
+    ["__reports_members", "Member reports", "chart"],
+  ],
+  __comms: [
+    ["__comms", "Send a message", "megaphone"],
+    ["__comms_reports", "Comms reports", "chart"],
+  ],
+};
+const CLUB_APP_OF: Record<string, string> = {
+  __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard",
+  __site: "__site", __website: "__site", __feedback: "__site",
+  __members: "__members", __people: "__members", __reports_members: "__members",
+  __teams_seasons: "__teams_seasons",
+  __comms: "__comms", __comms_reports: "__comms",
+  __modules: "__modules",
+  __account: "__account",
+};
+const CLUB_META: Record<string, MetaEntry> = {
+  __dashboard: { label: "Dashboard", icon: "dashboard", color: "var(--c-operate)" },
+  __site: { label: "Website", icon: "globe", color: "var(--c-build)" },
+  __members: { label: "Members & people", icon: "users", color: "var(--c-operate)" },
+  __teams_seasons: { label: "Teams & seasons", icon: "clubs", color: "var(--c-operate)" },
+  __comms: { label: "Communications", icon: "megaphone", color: "var(--c-grow)" },
+  __modules: { label: "Modules", icon: "grid", color: "var(--c-build)" },
+  __account: { label: "Account", icon: "billing", color: "var(--c-biz)" },
+};
+const CLUB_RAIL = ["__dashboard", "__site", "__members", "__teams_seasons", "__comms", "__modules", "__account"];
+
+/** Resolve which rail app owns an active key (handles dynamic __page_/__member_/__mod_ prefixes). */
+function resolveApp(active: string, appOf: Record<string, string>): string | undefined {
+  if (active in appOf) return appOf[active];
+  if (active.startsWith("__page_")) return appOf["__site"] ?? "__site";
+  if (active.startsWith("__member_")) return appOf["__members"] ?? "__members";
+  if (active.startsWith("__mod_")) return appOf["__modules"] ?? "__modules";
+  return undefined;
+}
+
+export function AdminConsole({ active, setActive, can, openZoho, signOut, email, workspace, screen, mode = "platform", crumbRoot, actingAs, onExit }: Props) {
   const [q, setQ] = useState("");
-  const atHome = active === CONSOLE_HOME || !(active in APP_OF);
-  const railApp = APP_OF[active];
+  const isClub = mode === "club";
+  const SUB = isClub ? CLUB_SUB : PLATFORM_SUB;
+  const APP_OF = isClub ? CLUB_APP_OF : PLATFORM_APP_OF;
+  const META = isClub ? CLUB_META : PLATFORM_META;
+  const RAIL = isClub ? CLUB_RAIL : PLATFORM_RAIL;
+  const rootLabel = crumbRoot ?? (isClub ? "Your club" : "Platform Admin");
+
+  const railApp = resolveApp(active, APP_OF);
+  const atHome = active === CONSOLE_HOME || !railApp;
 
   const zoho = (wsKey: string, label: string, desc: string, icon: string, color: string) => {
     const app = workspace[wsKey];
@@ -107,7 +179,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
   const scr = (key: string, label: string, desc: string, icon: string, color: string, show: boolean, pill?: string, pillCrit?: boolean) =>
     ({ label, desc, icon, color, show, pill, pillCrit, onClick: () => setActive(key) });
 
-  const GROUPS = [
+  const PLATFORM_GROUPS = [
     { id: "operate", title: "Run the platform", color: "var(--c-operate)", cards: [
       scr("__biz", "Dashboard", "Platform health at a glance.", "dashboard", "var(--c-operate)", can("platform.clubs")),
       scr("__super_clubs", "Clubs & modules", "Every club, plan and add-on.", "clubs", "var(--c-operate)", can("platform.clubs")),
@@ -147,13 +219,39 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
     ] },
   ];
 
+  const CLUB_GROUPS = [
+    { id: "club", title: "Your club", color: "var(--c-operate)", cards: [
+      scr("__dashboard", "Dashboard", "Your club at a glance.", "dashboard", "var(--c-operate)", true),
+      scr("__setup", "Get started", "Finish setting up your club.", "todo", "var(--c-operate)", true),
+      scr("__feedback", "Website feedback", "Raise and track site issues.", "pulse", "var(--c-crit)", true),
+    ] },
+    { id: "website", title: "Your website", color: "var(--c-build)", cards: [
+      scr("__site", "Edit website", "Change text, images and pages.", "globe", "var(--c-build)", can("club.website")),
+      scr("__website", "Style & theme", "Your site's look and colours.", "cog", "var(--c-build)", can("club.settings")),
+    ] },
+    { id: "people", title: "People & teams", color: "var(--c-operate)", cards: [
+      scr("__members", "Members", "Your membership list.", "users", "var(--c-operate)", can("club.users")),
+      scr("__people", "People & committee", "Committee and contacts.", "staff", "var(--c-operate)", can("club.users")),
+      scr("__teams_seasons", "Teams & seasons", "Manage teams and grades.", "clubs", "var(--c-operate)", can("club.users")),
+    ] },
+    { id: "communicate", title: "Communicate", color: "var(--c-grow)", cards: [
+      scr("__comms", "Communications", "Email, SMS and push to members.", "megaphone", "var(--c-grow)", can("club.comms")),
+      scr("__comms_reports", "Comms reports", "What you've sent.", "chart", "var(--c-grow)", can("club.comms")),
+    ] },
+    { id: "modules", title: "Modules & account", color: "var(--c-biz)", cards: [
+      scr("__modules", "Modules", "Add-ons for your club.", "grid", "var(--c-build)", true),
+      scr("__account", "Account", "Plan, billing and status.", "billing", "var(--c-biz)", true),
+    ] },
+  ];
+
+  const GROUPS = isClub ? CLUB_GROUPS : PLATFORM_GROUPS;
   const ql = q.trim().toLowerCase();
 
   /* ---- launcher ---- */
   const launcher = (
     <div className="swc-wrap">
       <div className="swc-hello">
-        <h1>{greeting()}</h1>
+        <h1>{greeting(isClub ? crumbRoot : undefined)}</h1>
         <p>Pick an area to jump into, or search above.</p>
       </div>
       {GROUPS.map((g) => {
@@ -214,7 +312,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
         </aside>
       )}
       <div className="swc-stage" style={{ ["--rc" as string]: meta.color }}>
-        <div className="swc-crumbs"><b>Platform Admin</b><span className="sep">/</span><b>{meta.label}</b></div>
+        <div className="swc-crumbs"><b>{rootLabel}</b><span className="sep">/</span><b>{meta.label}</b></div>
         {screen}
       </div>
     </div>
@@ -225,21 +323,28 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
       <header className="swc-top">
         <div className="swc-brand">
           <div className="swc-mark">S1</div>
-          <div><strong>SportsWeb One</strong><span>Platform Admin</span></div>
+          <div><strong>SportsWeb One</strong><span>{isClub ? (crumbRoot ?? "Club Admin") : "Platform Admin"}</span></div>
         </div>
         <label className="swc-search">
           <svg className="ic ic-sm" viewBox="0 0 24 24">{P.search}</svg>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Jump to anything…" aria-label="Search" />
         </label>
         <div className="swc-tacts">
+          {actingAs && onExit && (
+            <button className="swc-tbtn" onClick={onExit} aria-label="Exit to platform">
+              <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg><span>Exit to platform</span>
+            </button>
+          )}
           {!atHome && (
             <button className="swc-tbtn" onClick={() => setActive(CONSOLE_HOME)} aria-label="All apps">
               <svg className="ic ic-sm" viewBox="0 0 24 24">{P.grid}</svg><span>All apps</span>
             </button>
           )}
-          <button className="swc-tbtn" onClick={signOut} title="Sign out" aria-label="Sign out">
-            <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
-          </button>
+          {!actingAs && (
+            <button className="swc-tbtn" onClick={signOut} title="Sign out" aria-label="Sign out">
+              <svg className="ic ic-sm" viewBox="0 0 24 24">{P.out}</svg>
+            </button>
+          )}
           <div className="swc-avatar" title={email ?? ""}>{(email ?? "S")[0].toUpperCase()}</div>
         </div>
       </header>
@@ -248,7 +353,8 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
   );
 }
 
-function greeting() {
+function greeting(name?: string | null) {
   const h = new Date().getHours();
-  return (h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", Carson";
+  const who = name && name.trim() ? name : "Carson";
+  return (h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", " + who;
 }
