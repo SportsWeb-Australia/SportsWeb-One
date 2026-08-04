@@ -546,3 +546,28 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
     </div>
   );
 }
+
+// "Pages & text" with a page switcher: pick any page and edit its heading/content.
+// Each choice remounts AdminSiteEditor (key=page) so its fields re-init for that page.
+const SITE_EDIT_PAGES: SitePage[] = ["home", "about", "teams", "news", "events", "fixtures", "sponsors", "documents", "contact", "register", "footer"];
+export function SitePagesEditor() {
+  const [page, setPage] = useState<SitePage>("home");
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+        {SITE_EDIT_PAGES.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPage(p)}
+            className={`sw-btn ${page === p ? "" : "sw-btn--ghost"}`}
+            style={{ fontSize: 13 }}
+          >
+            {PAGE_LABELS[p] ?? p}
+          </button>
+        ))}
+      </div>
+      <AdminSiteEditor page={page} key={page} />
+    </div>
+  );
+}

@@ -15,7 +15,7 @@ import { TeamsSeasons } from "./TeamsSeasons";
 import { Reports } from "./Reports";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
-import { AdminSiteEditor } from "./AdminSiteEditor";
+import { AdminSiteEditor, SitePagesEditor } from "./AdminSiteEditor";
 import { PublishControl } from "./PublishControl";
 import { AdminFeedback } from "./AdminFeedback";
 import { AdminDashboard } from "./AdminDashboard";
@@ -365,7 +365,7 @@ function AdminInner() {
         );
       })()
     ) : effectiveActive === "__site" && can("club.website") ? (
-      <AdminSiteEditor key="__site" />
+      <SitePagesEditor key="__site" />
     ) : effectiveActive.startsWith("__page_") && can("club.website") ? (
       <AdminSiteEditor
         key={effectiveActive}
