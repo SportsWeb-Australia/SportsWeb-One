@@ -85,12 +85,31 @@ export function EditToggle() {
     <div className="sw-edit-toggle-wrap">
       {error && <span className="sw-edit-toggle-err">{error}</span>}
       {editing && dirty && (
-        <button className="sw-edit-toggle on" onClick={publish} disabled={publishing}>
+        <button className="sw-edit-toggle sw-edit-toggle--publish" onClick={publish} disabled={publishing}>
           {publishing ? "Publishing…" : "▲ Publish changes"}
         </button>
       )}
-      <button className={`sw-edit-toggle${editing ? " on" : ""}`} onClick={() => setEditing(!editing)}>
-        {editing ? "✓ Done editing" : "✎ Edit page"}
+      <button
+        className={`sw-edit-toggle${editing ? " on" : ""}`}
+        onClick={() => setEditing(!editing)}
+        aria-label={editing ? "Finish editing this page" : "Edit this page"}
+      >
+        {editing ? (
+          <>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            Done editing
+          </>
+        ) : (
+          <>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            Edit page
+          </>
+        )}
       </button>
     </div>
   );
