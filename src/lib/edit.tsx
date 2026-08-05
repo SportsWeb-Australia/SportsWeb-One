@@ -27,7 +27,7 @@ interface EditState {
 const Ctx = createContext<EditState | null>(null);
 
 export function EditProvider({ children }: { children: ReactNode }) {
-  const { membership } = useAuth();
+  const { membership, isPlatformAdmin } = useAuth();
   const { club } = useClub();
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
@@ -37,29 +37,34 @@ export function EditProvider({ children }: { children: ReactNode }) {
   const [publishing, setPublishing] = useState(false);
 
   const base = club.content ?? {};
-  // On-page editing: allowed only when a signed-in admin is viewing THEIR OWN club's
-  // site (guards against editing another club via ?club=). Edits stage to draft_value;
-  // they only go public when the admin hits Publish (same flow as the admin panel).
-  const canEdit = !!membership && !!club.clubId && membership.clubId === club.clubId;
+  // On-page editing targets the club currently being viewed (club.clubId). It is
+  // allowed for a club admin viewing THEIR OWN club (guards against editing another
+  // club via ?club=), and for any platform admin (superadmin / sportsweb_manager),
+  // who acts across clubs and has no per-club membership row. The DB enforces the
+  // same rule: club_content's write policy and publish_club_content both allow
+  // is_platform_admin() OR club member. Edits stage to draft_value and only go
+  // public on Publish (same flow as the admin panel).
+  const canEdit =
+    !!club.clubId && (isPlatformAdmin || (!!membership && membership.clubId === club.clubId));
 
   const value = (key: string, fallback: string) =>
     key in overrides ? overrides[key] : key in base ? base[key] : fallback;
 
   const persist = async (key: string, val: string) => {
-    if (!membership || !supabase) return;
+    if (!supabase || !club.clubId) return;
     setOverrides((o) => ({ ...o, [key]: val }));
     const { error: e } = await supabase
       .from("club_content")
-      .upsert({ club_id: membership.clubId, content_key: key, draft_value: val }, { onConflict: "club_id,content_key" });
+      .upsert({ club_id: club.clubId, content_key: key, draft_value: val }, { onConflict: "club_id,content_key" });
     if (e) setError(e.message);
     else setDirty(true);
   };
 
   const publish = async () => {
-    if (!membership || !supabase || publishing) return;
+    if (!supabase || !club.clubId || publishing) return;
     setPublishing(true);
     setError(null);
-    const { error: e } = await supabase.rpc("publish_club_content", { p_club_id: membership.clubId });
+    const { error: e } = await supabase.rpc("publish_club_content", { p_club_id: club.clubId });
     setPublishing(false);
     if (e) {
       setError(e.message);
@@ -77,11 +82,11 @@ export function EditProvider({ children }: { children: ReactNode }) {
   };
 
   const uploadImage = async (key: string, file: File) => {
-    if (!membership) return;
+    if (!club.clubId) return;
     setBusyKey(key);
     setError(null);
     try {
-      const url = await uploadToStorage(file, membership.clubId, "page");
+      const url = await uploadToStorage(file, club.clubId, "page");
       await persist(key, url);
     } catch (ex) {
       setError(ex instanceof Error ? ex.message : "Upload failed.");

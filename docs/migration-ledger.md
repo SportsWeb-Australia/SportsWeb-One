@@ -41,6 +41,12 @@ grant has no consumer today. Do **not** apply it without first confirming a code
 path that reads `club_pages` directly as the `anon` role. Left unapplied on
 purpose, recorded here so it is a decision and not a mystery.
 
+## Later additions
+
+| File | What it does | State |
+| --- | --- | --- |
+| `storage-platform-admin-write.sql` | adds the `is_platform_admin()` arm to the three `club-media` storage write policies (insert/update/delete) so platform admins can swap page images inline, matching `club-content-admin-write.sql` for text | ✅ APPLIED 2026-08-05 (verified via `pg_policies`) |
+
 ## Notes
 
 - The "already run in prod, committed for version control only" files (e.g.
