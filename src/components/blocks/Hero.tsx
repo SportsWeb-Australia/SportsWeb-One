@@ -1,7 +1,8 @@
 import { useClub } from "../ClubContext";
+import { useEdit } from "../../lib/edit";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
-import { EditableText } from "../edit/Editable";
+import { EditableText, EditableBgButton } from "../edit/Editable";
 import type { ClubConfig, DesignVariant } from "../../content/types";
 
 const MEDIA_VARIANTS: DesignVariant[] = ["stadium", "editorial", "momentum", "coastal"];
@@ -44,16 +45,17 @@ function HeroWatermark({ club }: { club: ClubConfig }) {
 /** Original motif-led hero (heritage / broadcast / arena / classic). */
 function HeroStandard({ club }: { club: ClubConfig }) {
   const { hero } = club;
+  const { value } = useEdit();
+  const bg = value("hero.backgroundImage", hero.backgroundImage ?? "");
   return (
     <section className="sw-hero">
-      {hero.backgroundImage && (
-        <img className="sw-hero-bgimg" src={hero.backgroundImage} alt="" aria-hidden="true" />
-      )}
+      {bg && <img className="sw-hero-bgimg" src={bg} alt="" aria-hidden="true" />}
       <div className="sw-hero-motif" aria-hidden="true">
         <i />
         <i />
         <i />
       </div>
+      <EditableBgButton k="hero.backgroundImage" label="Change background photo" />
       <div className="sw-container">
         <div className="sw-hero-inner">
           <AccentBars />
@@ -68,7 +70,8 @@ function HeroStandard({ club }: { club: ClubConfig }) {
 /** Image/video-led hero (stadium / editorial / momentum / coastal). */
 function HeroMedia({ club, variant }: { club: ClubConfig; variant: DesignVariant }) {
   const { hero, identity } = club;
-  const img = hero.backgroundImage ?? DEFAULT_HERO_IMG[variant] ?? "/hero-dark.jpg";
+  const { value } = useEdit();
+  const img = value("hero.backgroundImage", hero.backgroundImage ?? DEFAULT_HERO_IMG[variant] ?? "/hero-dark.jpg");
 
   return (
     <section className="sw-hero sw-hero--media">
@@ -82,6 +85,7 @@ function HeroMedia({ club, variant }: { club: ClubConfig; variant: DesignVariant
         )}
         <div className="sw-hero-scrim" />
       </div>
+      {!hero.video && <EditableBgButton k="hero.backgroundImage" label="Change background photo" />}
 
       <div className="sw-container">
         <div className="sw-hero-inner">
