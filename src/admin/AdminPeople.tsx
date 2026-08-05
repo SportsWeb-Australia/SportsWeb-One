@@ -11,6 +11,42 @@ import { listClubPeople, setMemberCommittee, inviteClubMember, listClubInvites, 
  * Committee titles are assigned here, never self-claimed. Access roles are
  * shown read-only.
  */
+
+/** Committee-role picker: preset positions plus a "Custom…" free-text option, so
+ *  clubs can enter roles the presets don't cover (e.g. "Lacrosse Equipment Manager"). */
+function CommitteeRoleSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const isCustomValue = value !== "" && !COMMITTEE_TITLES.includes(value);
+  const [custom, setCustom] = useState(isCustomValue);
+  const showCustom = custom || isCustomValue;
+  return (
+    <>
+      <select
+        className="sw-input"
+        value={showCustom ? "__custom__" : value}
+        onChange={(e) => {
+          if (e.target.value === "__custom__") { setCustom(true); onChange(""); }
+          else { setCustom(false); onChange(e.target.value); }
+        }}
+      >
+        <option value="">— none —</option>
+        {COMMITTEE_TITLES.map((t) => (
+          <option key={t} value={t}>{t}</option>
+        ))}
+        <option value="__custom__">Custom (type your own)…</option>
+      </select>
+      {showCustom && (
+        <input
+          className="sw-input"
+          style={{ marginTop: 8 }}
+          placeholder="e.g. Lacrosse Equipment Manager"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
+    </>
+  );
+}
+
 export function AdminPeople() {
   const { clubId, clubName } = useActiveClub();
   const [people, setPeople] = useState<ClubPerson[]>([]);
@@ -125,14 +161,7 @@ export function AdminPeople() {
           </label>
           <label className="sw-ed-l">
             Committee role
-            <select className="sw-input" value={add.title} onChange={(e) => setAdd((a) => ({ ...a, title: e.target.value }))}>
-              <option value="">— none —</option>
-              {COMMITTEE_TITLES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+            <CommitteeRoleSelect value={add.title} onChange={(v) => setAdd((a) => ({ ...a, title: v }))} />
           </label>
         </div>
         <div className="sw-people-actions">
@@ -195,18 +224,10 @@ export function AdminPeople() {
                   </label>
                   <label className="sw-ed-l">
                     Committee role
-                    <select
-                      className="sw-input"
+                    <CommitteeRoleSelect
                       value={d.title}
-                      onChange={(e) => setDrafts((s) => ({ ...s, [p.userId]: { ...d, title: e.target.value } }))}
-                    >
-                      <option value="">— none —</option>
-                      {COMMITTEE_TITLES.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(v) => setDrafts((s) => ({ ...s, [p.userId]: { ...d, title: v } }))}
+                    />
                   </label>
                   <div className="sw-people-actions">
                     <button className="sw-btn" onClick={() => save(p)}>
