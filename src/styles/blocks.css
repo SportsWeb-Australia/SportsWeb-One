@@ -2267,21 +2267,32 @@
    Inline edit mode
    ============================================================ */
 .sw-edit-toggle-wrap {
-  position: fixed; right: 16px; bottom: 84px; z-index: 1200;
-  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  /* Bottom-LEFT so it never fights the feedback launcher / back-to-top button, which
+     both sit bottom-right. z-index sits above the feedback widget so it is never covered. */
+  position: fixed; left: 16px; right: auto; bottom: 84px; z-index: 2147483200;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
 }
 @media (min-width: 900px) { .sw-edit-toggle-wrap { bottom: 24px; } }
 .sw-edit-toggle {
-  border: none; border-radius: 999px; padding: 0.7rem 1.2rem; cursor: pointer;
-  background: var(--club-ink, #14191f); color: #fff; font-weight: 700;
-  font-family: var(--font-mono); font-size: 0.85rem; letter-spacing: 0.02em;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  display: inline-flex; align-items: center; gap: 9px;
+  border: none; border-radius: 999px; padding: 0.9rem 1.45rem; cursor: pointer;
+  background: var(--accent); color: var(--club-on-primary, #fff); font-weight: 800;
+  font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.02em;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 0 4px color-mix(in srgb, var(--accent) 24%, transparent);
+  transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
 }
-.sw-edit-toggle.on { background: var(--accent); color: var(--club-on-primary, #fff); }
+.sw-edit-toggle svg { width: 19px; height: 19px; flex: 0 0 auto; }
+.sw-edit-toggle:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.sw-edit-toggle:active { transform: translateY(0); }
+/* editing: switch the pill to green "Done", publish pill goes dark above it */
+.sw-edit-toggle.on { background: #16a34a; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(22, 163, 74, 0.24); }
+.sw-edit-toggle--publish { background: #111827; color: #fff; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32); }
+.sw-edit-toggle--publish:disabled { opacity: 0.7; cursor: default; }
 .sw-edit-toggle-err {
   background: #fee2e2; color: #b91c1c; font-size: 0.78rem;
   padding: 0.35rem 0.6rem; border-radius: 8px; max-width: 240px;
 }
+@media (prefers-reduced-motion: reduce) { .sw-edit-toggle { transition: none; } .sw-edit-toggle:hover { transform: none; } }
 
 /* Editable affordances — only visible while in edit mode */
 .sw-editable {
