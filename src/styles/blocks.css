@@ -2323,6 +2323,16 @@
 .sw-editable:hover { outline-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .sw-editable:focus { outline-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .sw-editable[data-busy] { opacity: 0.55; }
+/* edit-mode "change background photo" pill, floated over a hero / cover image */
+.sw-edit-bgbtn {
+  position: absolute; top: 16px; right: 16px; z-index: 20;
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  background: rgba(17, 24, 39, 0.82); color: #fff; font-family: var(--font-mono, monospace);
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.01em;
+  padding: 0.58rem 0.9rem; border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.sw-edit-bgbtn:hover { background: rgba(17, 24, 39, 0.96); }
 /* empty editables must stay tappable — give them a visible placeholder + min size */
 .sw-editable:empty { min-width: 6ch; min-height: 1.2em; display: inline-block; }
 .sw-editable:empty::before { content: "Tap to add text"; color: var(--text-soft, #94a3b8); font-style: italic; }
