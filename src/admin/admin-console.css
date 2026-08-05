@@ -95,7 +95,10 @@
 
 /* ---- launcher (all-apps) in the canvas ---- */
 .swc-canvas{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;color:var(--ink)}
-.swc-wrap{max-width:1160px;margin:0 auto;padding:clamp(16px,2.4vw,28px) clamp(14px,2.4vw,26px) 64px}
+/* Left-aligned to sit right after the rail (a centered narrow column leaves an odd
+   void between the thin rail and the content). Fills the width responsively, capped
+   so it doesn't stretch edge-to-edge on very wide screens. */
+.swc-wrap{max-width:1560px;margin:0;padding:clamp(16px,2.4vw,28px) clamp(20px,3vw,44px) 64px}
 .swc-hello{margin:2px 0 20px}
 .swc-hello h1{font-size:clamp(19px,2.6vw,25px);font-weight:800;letter-spacing:-.6px;margin:0 0 3px;color:var(--ink);text-wrap:balance}
 .swc-hello p{margin:0;color:var(--muted);font-size:13.5px}
