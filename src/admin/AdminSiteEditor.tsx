@@ -231,14 +231,20 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
   return (
     <div className="sw-admin-panel sw-site-editor">
       <div className="sw-admin-formhead sw-site-edithead">
-        <h2>{pageTitle}</h2>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#6b7280", marginBottom: 3 }}>
+            Edit website
+          </div>
+          <h2>{pageTitle}</h2>
+        </div>
         <a href={previewHref} target="_blank" rel="noreferrer" className="sw-btn sw-btn--ghost sw-preview-btn">
-          Preview site →
+          Preview / edit site →
         </a>
       </div>
       <p className="sw-admin-note">
-        Edit your homepage and key pages here. Each section opens up so you can work through them one at a time.
-        Images open a framing tool so they always sit nicely. <strong>Changes save as a draft</strong> — click <strong>Publish changes</strong> to make them live. Use <em>Preview site</em> to see your draft first.
+        This is where you <strong>edit your website</strong>. Fill in each section below to change the words and
+        images on your pages. <strong>Changes save as a draft</strong> — click <strong>Publish changes</strong> to make
+        them live. Or click <strong>Preview / edit site</strong> to open your site and edit text straight on the page.
       </p>
       {pending !== null && pending > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", background: "#eff4ff", border: "1px solid #cfe0ff", borderRadius: 10, padding: "11px 14px", margin: "0 0 14px" }}>

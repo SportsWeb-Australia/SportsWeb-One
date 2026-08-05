@@ -28,7 +28,7 @@ export function Footer() {
           </div>
 
           <div className="sw-footer-col">
-            <h4>Explore</h4>
+            <EditableText as="h4" k="footer.col.explore" value="Explore" />
             {nav.slice(0, 6).map((item) => (
               <Link key={item.label} to={item.href}>
                 {item.label}
@@ -37,15 +37,15 @@ export function Footer() {
           </div>
 
           <div className="sw-footer-col">
-            <h4>Get involved</h4>
-            <Link to="/register">Register to play</Link>
-            <Link to="/register">Volunteer</Link>
-            <Link to="/sponsors">Become a sponsor</Link>
-            <Link to="/contact">Contact us</Link>
+            <EditableText as="h4" k="footer.col.getInvolved" value="Get involved" />
+            <Link to="/register"><EditableText as="span" k="footer.involved.0" value="Register to play" /></Link>
+            <Link to="/register"><EditableText as="span" k="footer.involved.1" value="Volunteer" /></Link>
+            <Link to="/sponsors"><EditableText as="span" k="footer.involved.2" value="Become a sponsor" /></Link>
+            <Link to="/contact"><EditableText as="span" k="footer.involved.3" value="Contact us" /></Link>
           </div>
 
           <div className="sw-footer-col">
-            <h4>Stay in touch</h4>
+            <EditableText as="h4" k="footer.col.stayInTouch" value="Stay in touch" />
             <a href={`mailto:${contact.email}`}>{contact.email}</a>
             {contact.phone && <a href={`tel:${contact.phone}`}>{contact.phone}</a>}
             <div className="sw-footer-socials" style={{ marginTop: "1rem" }}>

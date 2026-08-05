@@ -17,9 +17,9 @@ export function JoinCTA() {
         <EditableText as="h2" k="join.heading" value={join.heading} />
         <EditableText as="p" k="join.blurb" value={join.blurb} />
         <div className="sw-join-options">
-          {join.options.map((o) => (
-            <SmartLink key={o.label} href={o.href} className="sw-btn">
-              {o.label}
+          {join.options.map((o, i) => (
+            <SmartLink key={i} href={o.href} className="sw-btn">
+              <EditableText as="span" k={`join.options.${i}.label`} value={o.label} />
             </SmartLink>
           ))}
         </div>
