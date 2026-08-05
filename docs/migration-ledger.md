@@ -46,6 +46,7 @@ purpose, recorded here so it is a decision and not a mystery.
 | File | What it does | State |
 | --- | --- | --- |
 | `storage-platform-admin-write.sql` | adds the `is_platform_admin()` arm to the three `club-media` storage write policies (insert/update/delete) so platform admins can swap page images inline, matching `club-content-admin-write.sql` for text | ✅ APPLIED 2026-08-05 (verified via `pg_policies`) |
+| `club-content-versions.sql` | content version history: `club_content_versions` table (RLS read), snapshot-before-publish in `publish_club_content`, plus `save_content_restore_point()` / `restore_content_version()` RPCs. Powers site undo + restore-from-backup | ✅ APPLIED 2026-08-05 (verified: table + 3 functions present, jsonb round-trip checked) |
 
 ## Notes
 

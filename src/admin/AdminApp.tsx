@@ -18,6 +18,7 @@ import { ClubGuide } from "./ClubGuide";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
 import { AdminSiteEditor, SitePagesEditor } from "./AdminSiteEditor";
+import { SiteHistory } from "./SiteHistory";
 import { PublishControl } from "./PublishControl";
 import { AdminFeedback } from "./AdminFeedback";
 import { AdminDashboard } from "./AdminDashboard";
@@ -370,6 +371,8 @@ function AdminInner() {
       })()
     ) : effectiveActive === "__site" && can("club.website") ? (
       <SitePagesEditor key="__site" />
+    ) : effectiveActive === "__site_history" && can("club.website") ? (
+      <SiteHistory key="__site_history" />
     ) : effectiveActive.startsWith("__page_") && can("club.website") ? (
       <AdminSiteEditor
         key={effectiveActive}
@@ -769,6 +772,15 @@ function AdminInner() {
                       </button>
                     ))}
                 </div>
+              )}
+              {can("club.website") && (
+                <button
+                  className="sw-admin-stylebtn"
+                  data-active={active === "__site_history"}
+                  onClick={() => setActive("__site_history")}
+                >
+                  History &amp; restore
+                </button>
               )}
               {can("club.settings") && (
                 <button
