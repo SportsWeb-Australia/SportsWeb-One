@@ -10,8 +10,7 @@ export const COMMITTEE_TITLES = [
   "Sponsorship Manager",
   "Volunteer Coordinator",
   "Coach Coordinator",
-  "Football Manager",
-  "Netball Manager",
+  "Team Manager",
   "Communications Officer",
   "General Committee",
 ];
