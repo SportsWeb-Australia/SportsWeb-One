@@ -1,6 +1,6 @@
 import { useClub } from "../ClubContext";
 import { AccentBars } from "../layout/Chevron";
-import { EditableText } from "../edit/Editable";
+import { EditableText, EditableImage } from "../edit/Editable";
 
 /** Simple 3-up photo strip ("Life at the club"-style). Renders nothing if the
  *  club hasn't set photoStrip (optional block). */
@@ -21,7 +21,7 @@ export function PhotoStrip() {
         </div>
         <div className="sw-photostrip-grid">
           {photoStrip.images.map((src, i) => (
-            <img key={src} src={src} alt={`${photoStrip.title} — photo ${i + 1}`} loading="lazy" />
+            <EditableImage key={i} k={`home.photostrip.images.${i}`} value={src} alt={`${photoStrip.title} — photo ${i + 1}`} />
           ))}
         </div>
       </div>
