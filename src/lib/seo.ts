@@ -123,6 +123,12 @@ export function SeoManager() {
     upsertJsonLd("club-jsonld", org);
   }, [name, place, league, sports, logo, phone, instagram, facebook]);
 
+  // Derive the sport wording from the club's own sports, never hardcoded, so a
+  // lacrosse club's search snippet reads "lacrosse", not "football & netball".
+  const sportPhrase = sports && sports.length ? sports.join(" & ").toLowerCase() : "community sport";
+  const sportTitle = sportPhrase.charAt(0).toUpperCase() + sportPhrase.slice(1);
+  const inPlace = place ? ` in ${place}` : "";
+
   const MAP: Record<string, SeoInput> = {
     "/": {
       title: `${name} | ${club.identity.league}`,
@@ -130,11 +136,11 @@ export function SeoManager() {
     },
     "/about": {
       title: `About | ${name}`,
-      description: `The story, people and values of ${name} — football & netball in ${place}.`,
+      description: `The story, people and values of ${name} — ${sportPhrase}${inPlace}.`,
     },
     "/teams": {
       title: `Teams & Programs | ${name}`,
-      description: `Football and netball teams and programs at ${name}, from juniors to seniors.`,
+      description: `${sportTitle} teams and programs at ${name}, from juniors to seniors.`,
     },
     "/fixtures": {
       title: `Fixtures & Results | ${name}`,
@@ -162,7 +168,7 @@ export function SeoManager() {
     },
     "/register": {
       title: `Join the Club | ${name}`,
-      description: `Register to play football or netball with ${name} this season.`,
+      description: `Register to play ${sportPhrase} with ${name} this season.`,
     },
   };
 
