@@ -1460,12 +1460,18 @@
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--accent-on-bg);
+  /* was var(--accent-on-bg) — that's white "text-on-accent", invisible on a white
+     button. Use the admin blue so the Edit label is actually readable. */
+  color: #2563eb;
+  background: #fff;
+  cursor: pointer;
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
+.sw-admin-rowactions button:hover { border-color: #2563eb; background: #f5f8ff; }
 .sw-admin-rowactions button.danger { color: #b23a2c; }
+.sw-admin-rowactions button.danger:hover { border-color: #b23a2c; background: #fdf3f2; }
 
 @media (min-width: 800px) {
   .sw-admin { grid-template-columns: 240px 1fr; }
