@@ -100,7 +100,10 @@ export function EditToggle() {
     return (
       <div className="sw-edit-toggle-wrap">
         {activateConfirm ? (
-          <button className="sw-edit-toggle sw-edit-toggle--publish" onClick={() => { setActivateConfirm(false); activateEditing(); }}>
+          <button
+            className="sw-edit-toggle sw-edit-toggle--publish"
+            onClick={() => { setActivateConfirm(false); activateEditing(); setEditing(true); }}
+          >
             Edit {clubName}? Tap to confirm
           </button>
         ) : (
