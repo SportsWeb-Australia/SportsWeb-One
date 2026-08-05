@@ -31,6 +31,7 @@ exist. Method, not memory.
 | `f2-page-schema.sql` | `club_pages` / `club_page_versions` + `publish_club_page` / `revert_club_page` | ✅ APPLIED |
 | `scratch-tenant.sql` | provisions the `scratch-tenant` demo club | ✅ APPLIED |
 | `club-pages-column-grants.sql` | anon column grants on `club_pages` | ❌ NOT APPLIED — **likely unnecessary** |
+| `tk-sales-summary-security-invoker.sql` | `security_invoker=on` + drops write grants on `tk_event_sales_summary` (closes cross-club ticket-revenue leak) | ✅ APPLIED 2026-08-05 |
 
 ### The one genuine gap
 
