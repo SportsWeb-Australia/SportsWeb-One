@@ -42,6 +42,7 @@ import { AddPerson } from "./AddPerson";
 import { StaffAccess } from "./StaffAccess";
 import { PlatformDashboard } from "./PlatformDashboard";
 import { Login } from "./Login";
+import { SetNewPassword } from "./SetNewPassword";
 import { ZohoWorkspace, WS_ICON, WORKSPACE } from "./ZohoWorkspace";
 import { AdminConsole } from "./AdminConsole";
 import { SportsWebAccount } from "./SportsWebAccount";
@@ -100,7 +101,7 @@ function writeNavOpen(v: NavOpenState): void {
 }
 
 function AdminInner() {
-  const { ready, resolving, email, platformRole, isPlatformAdmin, signOut, userId } = useAuth();
+  const { ready, resolving, email, platformRole, isPlatformAdmin, signOut, userId, recovering } = useAuth();
   const {
     clubId,
     clubName,
@@ -283,6 +284,7 @@ function AdminInner() {
   }
 
   if (!ready) return <div className="sw-admin-loading">Loading…</div>;
+  if (recovering) return <SetNewPassword />;
   if (!email) return <Login />;
   if (resolving || !clubReady) return <div className="sw-admin-loading">Loading…</div>;
 

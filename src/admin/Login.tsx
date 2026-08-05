@@ -21,6 +21,7 @@ export function Login() {
   const [busy, setBusy] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
   const [iosTip, setIosTip] = useState(false);
   const standalone = isStandalone();
@@ -60,6 +61,24 @@ export function Login() {
     setLinkBusy(false);
     if (err) setError(err.message);
     else setSent(true);
+  };
+
+  const sendReset = async () => {
+    const addr = email.trim();
+    if (!addr) {
+      setError("Enter your email first, then request a reset.");
+      return;
+    }
+    if (!supabase) return;
+    setLinkBusy(true);
+    setError(null);
+    const { error: err } = await supabase.auth.resetPasswordForEmail(addr, {
+      redirectTo: `${window.location.origin}/admin`,
+    });
+    setLinkBusy(false);
+    // Don't reveal whether the address exists — always show the same confirmation.
+    if (err) setError(err.message);
+    else setResetSent(true);
   };
 
   return (
@@ -125,6 +144,17 @@ export function Login() {
         ) : (
           <button className="sw-login-magic" onClick={sendMagicLink} disabled={linkBusy}>
             {linkBusy ? "Sending…" : "Email me a magic link instead"}
+          </button>
+        )}
+
+        {resetSent ? (
+          <p className="sw-login-magic-sent">
+            If an account exists for <strong>{email.trim()}</strong>, we've emailed a link to reset your
+            password. Open it on this device to choose a new one.
+          </p>
+        ) : (
+          <button className="sw-login-magic sw-login-forgot" onClick={sendReset} disabled={linkBusy}>
+            Forgot your password?
           </button>
         )}
 

@@ -3920,6 +3920,7 @@
   font-size: 0.9rem; color: var(--accent, #2563eb); text-decoration: underline; text-underline-offset: 3px;
 }
 .sw-login-magic:disabled { opacity: 0.6; cursor: default; }
+.sw-login-forgot { margin-top: 0.35rem; font-size: 0.82rem; color: #6b7280; }
 .sw-login-magic-sent {
   margin-top: 0.7rem; padding: 0.8rem 0.95rem; border-radius: 10px;
   background: #ecfdf5; color: #166534; font-size: 0.88rem; line-height: 1.45;
