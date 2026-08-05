@@ -28,6 +28,9 @@ export function EditableText({
         contentEditable
         suppressContentEditableWarning
         data-busy={busyKey === k || undefined}
+        // When the editable sits inside a link/button, a tap would normally follow
+        // the link. Prevent the default so tapping just places the cursor to edit.
+        onClick={(e: { preventDefault: () => void }) => e.preventDefault()}
         onBlur={(e: { currentTarget: HTMLElement }) => {
           const text = e.currentTarget.textContent ?? "";
           if (text !== current) save(k, text);

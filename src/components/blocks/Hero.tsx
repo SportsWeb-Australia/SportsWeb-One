@@ -139,11 +139,11 @@ function HeroCtas({ club }: { club: ClubConfig }) {
   return (
     <div className="sw-hero-ctas">
       <SmartLink href={hero.primaryCta.href} className="sw-btn">
-        {hero.primaryCta.label}
+        <EditableText as="span" k="hero.primaryCta.label" value={hero.primaryCta.label} />
       </SmartLink>
       {hero.secondaryCta && (
         <SmartLink href={hero.secondaryCta.href} className="sw-btn sw-btn--ghost">
-          {hero.secondaryCta.label}
+          <EditableText as="span" k="hero.secondaryCta.label" value={hero.secondaryCta.label} />
         </SmartLink>
       )}
     </div>
