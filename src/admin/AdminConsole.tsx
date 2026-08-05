@@ -126,6 +126,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
     ["news", "News", "news"],
     ["events", "Events", "calendar"],
     ["sponsors", "Sponsors", "tag"],
+    ["__site_history", "History & restore", "vault"],
     ["__website", "Style & theme", "cog"],
     ["__feedback", "Website feedback", "pulse"],
   ],
@@ -142,7 +143,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
 };
 const CLUB_APP_OF: Record<string, string> = {
   __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard", __guide: "__dashboard",
-  __site: "__site", __website: "__site", __feedback: "__site",
+  __site: "__site", __website: "__site", __feedback: "__site", __site_history: "__site",
   news: "__site", events: "__site", sponsors: "__site",
   __members: "__members", __people: "__members", __reports_members: "__members", __compliance: "__members",
   __teams_seasons: "__teams_seasons",
@@ -241,6 +242,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
       scr("news", "News", "Post match reports and notices.", "news", "var(--c-build)", can("club.content")),
       scr("events", "Events", "Fixtures, functions and tickets.", "calendar", "var(--c-build)", can("club.content")),
       scr("sponsors", "Sponsors", "Logos, links and levels.", "tag", "var(--c-build)", can("club.content")),
+      scr("__site_history", "History & restore", "Undo changes, roll back to a saved point.", "vault", "var(--c-build)", can("club.website")),
       scr("__website", "Style & theme", "Your site's look and colours.", "cog", "var(--c-build)", can("club.settings")),
     ] },
     { id: "people", title: "People & teams", color: "var(--c-operate)", cards: [

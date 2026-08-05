@@ -2288,6 +2288,27 @@
 .sw-edit-toggle.on { background: #16a34a; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(22, 163, 74, 0.24); }
 .sw-edit-toggle--publish { background: #111827; color: #fff; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32); }
 .sw-edit-toggle--publish:disabled { opacity: 0.7; cursor: default; }
+.sw-edit-toggle--undo { background: #b45309; color: #fff; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3); }
+.sw-edit-toggle--ghost {
+  background: #fff; color: #1f2937; font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(17, 24, 39, 0.12);
+}
+/* "which club am I editing" banner — sits above the buttons in edit mode */
+.sw-edit-club {
+  align-self: flex-start; max-width: 78vw;
+  background: #111827; color: #fff; font-family: var(--font-mono);
+  font-size: 0.72rem; letter-spacing: 0.02em; font-weight: 600;
+  padding: 0.4rem 0.7rem; border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sw-edit-club strong { font-weight: 800; }
+.sw-edit-exit {
+  align-self: flex-start; border: none; cursor: pointer; background: transparent;
+  color: #6b7280; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.02em; padding: 0.2rem 0.3rem; text-decoration: underline;
+}
+.sw-edit-exit:hover { color: #111827; }
 .sw-edit-toggle-err {
   background: #fee2e2; color: #b91c1c; font-size: 0.78rem;
   padding: 0.35rem 0.6rem; border-radius: 8px; max-width: 240px;
@@ -4343,6 +4364,11 @@
 .sw-md-relcard { display: flex; align-items: center; gap: 0.7rem; padding: 0.85rem 1.1rem; border: 1px solid var(--border, #e6e8ec); border-radius: 12px; background: #fff; }
 .sw-md-restricted { display: flex; flex-direction: column; gap: 0.7rem; align-items: flex-start; padding: 1.5rem; border: 1px dashed var(--border, #cbd5e1); border-radius: 14px; background: #fff; color: var(--text-soft, #64748b); }
 .sw-md-restricted p { margin: 0; max-width: 60ch; line-height: 1.55; }
+
+/* ── Website history / restore points ── */
+.sw-restore-save { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap; margin: 0 0 1.2rem; }
+.sw-restore-save .sw-mem-search { flex: 1 1 320px; margin: 0; }
+@media (max-width: 560px) { .sw-restore-save .sw-btn { width: 100%; } }
 
 /* ── Members: add form, segmented counts, manilla folder ── */
 .sw-mem-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
