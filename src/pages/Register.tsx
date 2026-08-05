@@ -36,14 +36,18 @@ export function Register() {
             <div className="sw-steps">
               {register.steps.map((s, i) => (
                 <div className="sw-step" key={i}>
-                  <p>{s}</p>
+                  <EditableText as="p" k={`page.register.steps.${i}`} value={s} />
                 </div>
               ))}
             </div>
             {register.feesNote && (
-              <p className="sw-social-embed-note" style={{ marginTop: "1.5rem" }}>
-                {register.feesNote}
-              </p>
+              <EditableText
+                as="p"
+                className="sw-social-embed-note"
+                style={{ marginTop: "1.5rem" }}
+                k="page.register.feesNote"
+                value={register.feesNote}
+              />
             )}
           </div>
         </section>
@@ -82,8 +86,8 @@ export function Register() {
               <div className="sw-faq">
                 {register.faqs.map((f, i) => (
                   <details key={i}>
-                    <summary>{f.q}</summary>
-                    <p>{f.a}</p>
+                    <summary><EditableText as="span" k={`page.register.faqs.${i}.q`} value={f.q} /></summary>
+                    <EditableText as="p" k={`page.register.faqs.${i}.a`} value={f.a} />
                   </details>
                 ))}
               </div>
