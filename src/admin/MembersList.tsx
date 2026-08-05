@@ -79,17 +79,20 @@ export function MembersList({ onOpen }: { onOpen: (personId: string) => void }) 
   }, [members, query, role, team]);
 
   const counts = useMemo(() => {
-    const sport = (m: ClubMember, s: string) => m.sports.includes(s);
     const byTeam: Record<string, number> = {};
-    members.forEach((m) => m.teams.forEach((t) => { byTeam[t] = (byTeam[t] ?? 0) + 1; }));
+    const bySport: Record<string, number> = {};
+    members.forEach((m) => {
+      m.teams.forEach((t) => { byTeam[t] = (byTeam[t] ?? 0) + 1; });
+      m.sports.forEach((s) => { bySport[s] = (bySport[s] ?? 0) + 1; });
+    });
     return {
       total: members.length,
       players: members.filter((m) => m.roles.includes("player")).length,
       volunteers: members.filter((m) => m.roles.includes("volunteer")).length,
       juniors: members.filter((m) => m.isMinor).length,
-      footballers: members.filter((m) => sport(m, "football")).length,
-      netballers: members.filter((m) => sport(m, "netball")).length,
-      juniorNetballers: members.filter((m) => m.isMinor && sport(m, "netball")).length,
+      // Sport tiles are derived from the members' actual sports, not hardcoded, so a
+      // lacrosse club never shows phantom "Footballers / Netballers".
+      bySport: Object.entries(bySport).sort((a, b) => b[1] - a[1]),
       byTeam: Object.entries(byTeam).sort((a, b) => b[1] - a[1]),
     };
   }, [members]);
@@ -155,9 +158,9 @@ export function MembersList({ onOpen }: { onOpen: (personId: string) => void }) 
         <div className="sw-mem-stat"><strong>{counts.players}</strong><span>Players</span></div>
         <div className="sw-mem-stat"><strong>{counts.volunteers}</strong><span>Volunteers</span></div>
         <div className="sw-mem-stat"><strong>{counts.juniors}</strong><span>Under 18</span></div>
-        <div className="sw-mem-stat"><strong>{counts.footballers}</strong><span>Footballers</span></div>
-        <div className="sw-mem-stat"><strong>{counts.netballers}</strong><span>Netballers</span></div>
-        <div className="sw-mem-stat"><strong>{counts.juniorNetballers}</strong><span>Junior netballers</span></div>
+        {counts.bySport.map(([s, n]) => (
+          <div className="sw-mem-stat" key={s}><strong>{n}</strong><span>{s.charAt(0).toUpperCase() + s.slice(1)}</span></div>
+        ))}
       </div>
 
       {counts.byTeam.length > 0 && (

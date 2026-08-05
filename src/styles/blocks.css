@@ -1453,7 +1453,29 @@
   color: var(--text);
 }
 .sw-admin-field small { color: var(--text-soft); font-size: 0.78rem; }
-.sw-admin-table td { vertical-align: middle; }
+/* Clean, readable admin data table (issues list, etc.) — row dividers, aligned
+   columns, comfortable spacing. Text-heavy, so left-aligned and top-aligned. */
+.sw-admin-table { width: 100%; border-collapse: collapse; }
+.sw-admin-table thead th {
+  text-align: left; font-family: var(--font-mono);
+  font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-soft); font-weight: 600;
+  padding: 0.8rem 1rem; white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+.sw-admin-table tbody td {
+  padding: 0.95rem 1rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, #fff);
+  font-size: 0.9rem; line-height: 1.5; color: var(--text);
+}
+.sw-admin-table thead th:first-child,
+.sw-admin-table tbody td:first-child { padding-left: 1.2rem; }
+.sw-admin-table thead th:last-child,
+.sw-admin-table tbody td:last-child { padding-right: 1.2rem; }
+.sw-admin-table tbody tr:last-child td { border-bottom: none; }
+.sw-admin-table tbody tr:hover { background: #f7f9fc; }
+/* the "About" category column reads best on one line */
+.sw-admin-table tbody td:first-child { white-space: nowrap; font-weight: 600; }
 .sw-admin-rowactions { display: flex; gap: 0.5rem; }
 .sw-admin-rowactions button {
   font-family: var(--font-mono);
