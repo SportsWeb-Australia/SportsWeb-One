@@ -32,6 +32,7 @@ exist. Method, not memory.
 | `scratch-tenant.sql` | provisions the `scratch-tenant` demo club | ✅ APPLIED |
 | `club-pages-column-grants.sql` | anon column grants on `club_pages` | ❌ NOT APPLIED — **likely unnecessary** |
 | `tk-sales-summary-security-invoker.sql` | `security_invoker=on` + drops write grants on `tk_event_sales_summary` (closes cross-club ticket-revenue leak) | ✅ APPLIED 2026-08-05 |
+| `rpc-execute-lockdown.sql` | revokes PUBLIC execute on `tk_issue_tickets` (+ paid guard), `mfa_recovery_consume`, `audit_email_of`; keeps `service_role` where needed | ✅ APPLIED 2026-08-05 |
 
 ### The one genuine gap
 
