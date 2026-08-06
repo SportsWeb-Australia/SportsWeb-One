@@ -618,9 +618,30 @@ function elementSnippet(r: Row): string | null {
   return base.split(/\s+/).slice(0, 8).join(" ").slice(0, 60);
 }
 
+// Compact element-identity payload the on-page widget re-finds & highlights.
+// Short keys keep the URL small; base64(utf-8) so any label/href survives.
+function focusParam(r: Row): string | null {
+  const m = r.element_meta || {};
+  const f = {
+    t: r.element_tag || null, l: r.element_label || null,
+    s: m.src || null, h: m.href || null, hd: m.heading || null,
+    x: !!m.is_text, txt: m.selected_text || null,
+  };
+  if (!f.t && !f.l && !f.s && !f.h && !f.txt) return null;
+  try { return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(f))))); }
+  catch { return null; }
+}
+
 function openTarget(r: Row) {
   if (!r.page_url) return;
-  let url = r.page_url;
+  const parts = r.page_url.split("#");
+  let base = parts[0];
+  const hash = parts.slice(1).join("#");
+  // 1) element-focus payload — the on-page SitePulse widget re-finds & highlights it.
+  const foc = focusParam(r);
+  if (foc) base += (base.includes("?") ? "&" : "?") + "sp_focus=" + foc;
+  let url = base + (hash ? "#" + hash : "");
+  // 2) native text fragment — browsers highlight the exact phrase for text feedback.
   const snip = elementSnippet(r);
   if (snip) {
     const frag = ":~:text=" + encodeURIComponent(snip);
@@ -641,7 +662,7 @@ function ElementInfo({ r }: { r: Row }) {
   const m = r.element_meta || {};
   const primary = r.element_label || m.src || friendlyTag(r.element_tag);
   const pct = positionPct(m);
-  const canJump = !!elementSnippet(r);
+  const canJump = rowHasElement(r);
   return (
     <div style={{ margin: "8px 0 10px", padding: "9px 11px", background: "#eef2ff", border: "1px solid #dbe1fb", borderRadius: 9 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -661,8 +682,8 @@ function ElementInfo({ r }: { r: Row }) {
       {r.page_url && (
         <button onClick={(e) => { e.stopPropagation(); openTarget(r); }}
           className="sw-btn sw-btn--ghost" style={{ marginTop: 8, fontSize: 12, padding: "3px 10px" }}
-          title={canJump ? "Opens the page and jumps to the element" : "Opens the page (no text anchor to jump to)"}>
-          Open page {canJump ? "→ jump to element" : ""} ↗
+          title={canJump ? "Opens the page and highlights the element the feedback was about (on pages with the review widget)" : "Opens the page"}>
+          Open page {canJump ? "→ highlight element" : ""} ↗
         </button>
       )}
     </div>
