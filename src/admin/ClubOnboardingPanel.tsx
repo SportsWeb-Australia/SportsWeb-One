@@ -479,8 +479,13 @@ export function ClubOnboardingPanel({ club, onOpenInbox }: { club: Club; onOpenI
           </div>
           <small>A read-only page where the club tracks the status of each feedback item as you action it — no login. Same token as the review link.</small>
         </label>
+      </div>
 
-        {/* Returning feedback (read-only; triage in the inbox) — its own collapsible section */}
+      {/* WEBSITE FEEDBACK — returning SitePulse feedback, its own bold section to stand out */}
+      <div className="sw1-onboard-websitecheck" style={{ marginTop: 20, borderTop: "1px solid #e4e4e7", paddingTop: 16 }}>
+        <h4 className="sw1-onboard-title" style={{ fontSize: "1.02rem", margin: "0 0 10px" }}>Website feedback</h4>
+
+        {/* Returning feedback (read-only; triage in the inbox) — collapsible list */}
         <div className="sw-admin-field sw1-onboard-row">
           <button type="button" onClick={() => setShowFeedback((v) => !v)}
             style={{ width: "100%", display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap",
