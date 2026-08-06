@@ -261,6 +261,14 @@
     '.sphl{position:fixed;z-index:2147483001;pointer-events:none;display:none;border:2px solid #C21F22;' +
     'background:rgba(214,50,47,.14);border-radius:3px;box-shadow:0 0 0 2px rgba(255,255,255,.5)}' +
     '.sphl.open{display:block}' +
+    // Focus-mode banner: shown when the admin deep-links to an element to highlight.
+    '.spfocus{position:fixed;z-index:2147483004;left:50%;top:14px;transform:translateX(-50%);display:none;' +
+    'align-items:center;gap:10px;max-width:92vw;padding:9px 12px 9px 15px;color:#fff;font-size:13.5px;font-weight:600;' +
+    'background:linear-gradient(180deg,#D6322F,#B01D20);border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.28)}' +
+    '.spfocus.open{display:flex}' +
+    '.spfocus span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+    '.spfocus button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.55);color:#fff;' +
+    'border-radius:999px;width:22px;height:22px;line-height:1;font-size:15px;cursor:pointer;flex:0 0 auto;padding:0}' +
     ':host(.sp-picking) .btn{display:none}';
 
   var host = document.createElement("div");
@@ -287,7 +295,9 @@
     '<div class="overlay" id="sp-overlay"><div class="card" id="sp-card"></div></div>' +
     '<div class="pbanner" id="sp-pbanner"><span>Tap an element &mdash; or drag to highlight specific text</span>' +
       '<button type="button" class="pcancel" id="sp-pcancel">Cancel</button></div>' +
-    '<div class="sphl" id="sp-hl"></div>';
+    '<div class="sphl" id="sp-hl"></div>' +
+    '<div class="spfocus" id="sp-focus"><span id="sp-focus-txt"></span>' +
+      '<button type="button" id="sp-focus-x" aria-label="Dismiss">&times;</button></div>';
 
   var $ = function (id) { return root.getElementById(id); };
   var overlay = $("sp-overlay"), card = $("sp-card");
@@ -537,4 +547,108 @@
       err.style.display = "block";
     });
   }
+
+  // ---- FOCUS MODE (deep-link highlight) ---------------------------
+  // The admin inbox's "highlight element" opens the page with ?sp_focus=<payload>.
+  // Re-find that element here and highlight it so the reviewer sees exactly what the
+  // feedback was about. Pure DOM, no network. No-op when the param is absent.
+  function readFocus() {
+    try {
+      var raw = new URLSearchParams(location.search).get("sp_focus");
+      if (!raw) return null;
+      return JSON.parse(decodeURIComponent(escape(atob(raw))));
+    } catch (e) { return null; }
+  }
+  function focusBySrc(fn) {
+    fn = fileName(fn); if (!fn) return null;
+    var med = document.querySelectorAll("img,video,iframe,source");
+    for (var i = 0; i < med.length; i++) {
+      var s = med[i].getAttribute("src") || med[i].currentSrc || "";
+      if (s && fileName(s) === fn) {
+        return med[i].tagName.toLowerCase() === "source" ? (med[i].parentElement || med[i]) : med[i];
+      }
+    }
+    return null;
+  }
+  function focusByHref(h) {
+    if (!h) return null;
+    var norm = function (v) { return String(v).replace(/\/+$/, ""); };
+    var as = document.querySelectorAll("a[href]");
+    for (var i = 0; i < as.length; i++) {
+      var hr = as[i].getAttribute("href");
+      if (hr === h || norm(hr) === norm(h)) return as[i];
+    }
+    return null;
+  }
+  function focusByText(txt) {
+    txt = String(txt || "").replace(/\s+/g, " ").trim();
+    if (txt.length < 3) return null;
+    var low = txt.toLowerCase();
+    var nodes = document.querySelectorAll(
+      "p,li,span,a,b,strong,em,h1,h2,h3,h4,h5,h6,td,th,dd,dt,figcaption,button,label,small,blockquote,div");
+    var best = null, bestLen = Infinity;
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (host.contains(n)) continue;
+      var t = (n.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (t && t.indexOf(low) > -1 && t.length < bestLen) { best = n; bestLen = t.length; }
+    }
+    return best;
+  }
+  function findFocusEl(f) {
+    var el = null;
+    if (f.s) { el = focusBySrc(f.s); if (el) return el; }
+    if (f.h) { el = focusByHref(f.h); if (el) return el; }
+    var phrase = f.txt || (f.x ? f.l : "") || "";
+    if (phrase) { el = focusByText(phrase); if (el) return el; }
+    if (f.l && !f.x) { el = focusByText(f.l); if (el) return el; }
+    return null;
+  }
+  var focusClear = null;
+  function showFocusBanner(label) {
+    var b = $("sp-focus"); if (!b) return;
+    $("sp-focus-txt").textContent = label;
+    b.classList.add("open");
+  }
+  function clearFocus() {
+    if (focusClear) { focusClear(); focusClear = null; }
+    var b = $("sp-focus"); if (b) b.classList.remove("open");
+  }
+  function focusHighlight(el, f) {
+    try { el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" }); }
+    catch (e) { try { el.scrollIntoView(); } catch (e2) { /* ignore */ } }
+    var prev = { o: el.style.outline, oo: el.style.outlineOffset, bs: el.style.boxShadow, tr: el.style.transition };
+    var ring = "0 0 0 4px rgba(214,50,47,.35), 0 0 22px 7px rgba(214,50,47,.30)";
+    el.style.transition = "box-shadow .25s ease";
+    el.style.outline = "3px solid #D6322F";
+    el.style.outlineOffset = "2px";
+    el.style.boxShadow = ring;
+    var n = 0, iv = setInterval(function () {
+      el.style.boxShadow = (n % 2) ? "0 0 0 6px rgba(214,50,47,.16)" : ring;
+      if (++n > 6) { clearInterval(iv); el.style.boxShadow = ring; }
+    }, 420);
+    focusClear = function () {
+      clearInterval(iv);
+      el.style.outline = prev.o; el.style.outlineOffset = prev.oo;
+      el.style.boxShadow = prev.bs; el.style.transition = prev.tr;
+    };
+    showFocusBanner(f.x ? "Feedback highlighted this text"
+      : f.s ? "Feedback was about this image"
+      : f.h ? "Feedback was about this link"
+      : "This is the element the feedback was about");
+  }
+  function runFocus(f, tries) {
+    var el = findFocusEl(f);
+    if (el) { focusHighlight(el, f); return; }
+    if (tries > 0) { setTimeout(function () { runFocus(f, tries - 1); }, 700); return; }
+    var what = f.l || f.txt || f.s || f.h;   // couldn't auto-locate -- still say what to look for
+    if (what) showFocusBanner("Feedback was about: " + String(what).slice(0, 70));
+  }
+  function initFocus() {
+    var f = readFocus(); if (!f) return;
+    var x = $("sp-focus-x"); if (x) x.addEventListener("click", clearFocus);
+    runFocus(f, 3);   // retry a few times for lazily-loaded content
+  }
+  if (document.readyState === "complete") initFocus();
+  else window.addEventListener("load", initFocus);
 })();
