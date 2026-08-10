@@ -11,7 +11,7 @@ export interface AdminClub {
 
 /** Canonical option lists for the Clubs & Modules setters (free-form in the DB,
  *  so add more here any time without a migration). */
-export const ACCOUNT_STATUSES = ["demo", "trial", "active", "paused", "churned"] as const;
+export const ACCOUNT_STATUSES = ["demo", "trial", "active", "paused", "churned", "archived"] as const;
 export const PLAN_TIERS = ["free", "starter", "growth", "pro", "association", "enterprise"] as const;
 
 export interface AdminModuleRow {
