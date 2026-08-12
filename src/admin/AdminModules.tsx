@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useClub } from "../components/ClubContext";
 import { useAuth } from "../lib/auth";
 import { useActiveClub } from "./ActiveClub";
@@ -53,6 +53,43 @@ export function AdminModules() {
     `mailto:${salesEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
       `Club: ${club.identity.name}\nModule: ${modName}\n\n`
     )}`;
+
+  const liveScoresIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Live Scores has no login of its own — it borrows the SW1 admin's Supabase session
+  // (same project, so the same auth.users/club_users rows apply). Without this handoff,
+  // writes to live_matches fail RLS: my_club_ids() has no auth.uid() to match.
+  const sendLiveScoresAuth = async (target: Window | null, targetOrigin: string) => {
+    if (!target || !supabase) return;
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return;
+    target.postMessage(
+      {
+        type: "sportsweb-live-scores-auth",
+        accessToken: data.session.access_token,
+        refreshToken: data.session.refresh_token,
+      },
+      targetOrigin
+    );
+  };
+
+  // window.open must run synchronously in the click handler (a popup blocker kills it
+  // once we've awaited anything) — open a blank tab first, then fill in its location
+  // once the session is fetched.
+  const openLiveScores = (url: string) => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    if (!supabase) {
+      win.location.href = url;
+      return;
+    }
+    supabase.auth.getSession().then(({ data }) => {
+      const session = data.session;
+      win.location.href = session
+        ? `${url}#at=${encodeURIComponent(session.access_token)}&rt=${encodeURIComponent(session.refresh_token)}`
+        : url;
+    });
+  };
 
   const mod = getModule(activeKey);
   const soon = !mod ? COMING_SOON_MODULES.find((m) => m.key === activeKey) ?? null : null;
@@ -131,7 +168,11 @@ export function AdminModules() {
               <strong>This module is active for {club.identity.shortName}.</strong>
               <p>Jump in below, or follow the quick start if you&apos;re new to it.</p>
             </div>
-            {appUrl ? (
+            {appUrl && mod.key === "live-scores" ? (
+              <button type="button" className="sw-btn" onClick={() => openLiveScores(appUrl)}>
+                Open {mod.name} ↗
+              </button>
+            ) : appUrl ? (
               <a className="sw-btn" href={appUrl} target="_blank" rel="noopener noreferrer">
                 Open {mod.name} ↗
               </a>
@@ -167,7 +208,17 @@ export function AdminModules() {
               {mod.name} running inside your admin. You may need to sign in to it the first time.
             </p>
             <div className="sw-module-embed">
-              <iframe src={appUrl} title={mod.name} loading="lazy" />
+              <iframe
+                ref={mod.key === "live-scores" ? liveScoresIframeRef : undefined}
+                src={appUrl}
+                title={mod.name}
+                loading="lazy"
+                onLoad={
+                  mod.key === "live-scores"
+                    ? () => sendLiveScoresAuth(liveScoresIframeRef.current?.contentWindow ?? null, new URL(appUrl).origin)
+                    : undefined
+                }
+              />
             </div>
           </div>
         )}
