@@ -407,6 +407,8 @@ export interface ClubConfig {
     trialDays?: number;
     /** Deployed Volunteer Manager app URL — opened/embedded from the admin. */
     volunteerAppUrl?: string;
+    /** Deployed Live Scores app URL — opened/embedded from the admin, ?clubId= appended. */
+    liveScoresAppUrl?: string;
   };
 
   footer: {

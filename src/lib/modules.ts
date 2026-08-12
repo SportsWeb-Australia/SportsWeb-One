@@ -69,6 +69,26 @@ export const MODULE_CATALOG: ModuleDef[] = [
     plan: "SportsWeb add-on",
   },
   {
+    key: "live-scores",
+    name: "Live Scores",
+    badge: "LS",
+    tagline: "Live scores, results and AI-curated match reports.",
+    summary:
+      "Score the match live, then turn a few dot points into a full match report instantly with AI — published straight to your site and embeddable anywhere. Built for OzTag first, with AFL support included.",
+    overview: [
+      "Live score entry with a public scoreboard that updates in real time — no refresh needed.",
+      "Post-game: jot dot points and get an AI-curated match report in seconds, editable before you publish.",
+      "Works as an in-page module here, or as a standalone embeddable widget on any page.",
+      "Sport-aware scoring (OzTag tries, AFL goals/behinds) — more sports to follow.",
+    ],
+    quickstart: [
+      { title: "Start a match", body: "Create a match, set the teams, competition and venue." },
+      { title: "Score it live", body: "Tap the score buttons as it happens — the public widget updates instantly." },
+      { title: "Publish the report", body: "Add a few dot points after the match, generate the AI report, review and publish." },
+    ],
+    plan: "SportsWeb add-on",
+  },
+  {
     key: "learn",
     name: "Club Learn",
     badge: "LN",

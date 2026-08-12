@@ -87,8 +87,17 @@ export function AdminModules() {
 
   if (mod) {
     const on = isEnabled(mod.key);
-    const appUrl = mod.key === "volunteers" ? club.platform?.volunteerAppUrl || "" : mod.appUrl ?? "";
-    const canEmbed = mod.key === "volunteers" && !!appUrl;
+    const perClubAppUrl =
+      mod.key === "volunteers"
+        ? club.platform?.volunteerAppUrl
+        : mod.key === "live-scores"
+          ? club.platform?.liveScoresAppUrl
+          : undefined;
+    const appUrl =
+      mod.key === "live-scores" && perClubAppUrl && clubId
+        ? `${perClubAppUrl}${perClubAppUrl.includes("?") ? "&" : "?"}clubId=${clubId}`
+        : perClubAppUrl || mod.appUrl || "";
+    const canEmbed = (mod.key === "volunteers" || mod.key === "live-scores") && !!appUrl;
     return (
       <div className="sw-admin-panel">
         <div className="sw-admin-formhead">
@@ -128,6 +137,8 @@ export function AdminModules() {
               </a>
             ) : mod.key === "volunteers" ? (
               <span className="sw-flag">Set volunteerAppUrl in config to open it</span>
+            ) : mod.key === "live-scores" ? (
+              <span className="sw-flag">Set liveScoresAppUrl in config to open it</span>
             ) : (
               <span className="sw-flag">Launching soon</span>
             )}
@@ -153,10 +164,10 @@ export function AdminModules() {
           <div className="sw-module-section">
             <h2>Live preview</h2>
             <p className="sw-admin-note">
-              Volunteer One running inside your admin. You may need to sign in to it the first time.
+              {mod.name} running inside your admin. You may need to sign in to it the first time.
             </p>
             <div className="sw-module-embed">
-              <iframe src={appUrl} title="Volunteer One" loading="lazy" />
+              <iframe src={appUrl} title={mod.name} loading="lazy" />
             </div>
           </div>
         )}
