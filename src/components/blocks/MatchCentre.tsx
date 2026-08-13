@@ -4,6 +4,7 @@ import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
 import { EditableText } from "../edit/Editable";
 import { getMatchData } from "../../lib/matchData";
+import { LiveScoresEmbed } from "./LiveScoresEmbed";
 import type { MatchCentreData } from "../../content/types";
 
 type Tab = "fixtures" | "results" | "ladder";
@@ -34,6 +35,8 @@ export function MatchCentre({ bare }: Props) {
 
   const panel = (
     <>
+      <LiveScoresEmbed club={club} />
+
       {data.liveLinks && data.liveLinks.length > 0 && (
         <div className="sw-mc-live">
           <span className="sw-mc-live-label">Live source</span>
