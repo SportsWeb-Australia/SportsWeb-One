@@ -362,12 +362,14 @@ export const club: ClubConfig = {
 
   // Demo: "learn" is switched on so the enabled state is visible; the rest show
   // the upgrade / free-trial state. Per-club entitlement will come from the DB.
-  enabledModules: ["learn", "volunteers"],
+  enabledModules: ["learn", "volunteers", "live-scores"],
   platform: {
     salesEmail: "carson@clicksportsmedia.com",
     trialDays: 14,
     // Set this to your deployed Volunteer Manager URL to open/embed it here.
     volunteerAppUrl: "https://volunteer-manager-e8ti.vercel.app/",
+    // Deployed Live Scores app (live scores, results, AI-curated match reports).
+    liveScoresAppUrl: "https://sportsweb-live-scores.vercel.app/",
   },
 
   footer: {
