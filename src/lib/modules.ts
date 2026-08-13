@@ -89,6 +89,26 @@ export const MODULE_CATALOG: ModuleDef[] = [
     plan: "SportsWeb add-on",
   },
   {
+    key: "live-scores-cricket-pro",
+    name: "Cricket Pro",
+    badge: "CP",
+    tagline: "Full ball-by-ball cricket scoring, batting & bowling cards.",
+    summary:
+      "The premium cricket tier on top of Live Scores — score every ball, get live batting and bowling scorecards, run rate and required run rate, all published to your site automatically. Requires Live Scores to be enabled.",
+    overview: [
+      "Ball-by-ball entry: runs, wides, no-balls, byes/leg-byes and wickets with dismissal type.",
+      "Live batting and bowling scorecards, generated automatically from every ball bowled.",
+      "Run rate and required run rate for a run chase.",
+      "Undo the last ball if you mis-key — every figure recalculates from what's left.",
+    ],
+    quickstart: [
+      { title: "Enable Live Scores first", body: "Cricket Pro is an upgrade on top of the base Live Scores module." },
+      { title: "Start a Cricket match", body: "Create a match and pick Cricket as the sport." },
+      { title: "Score ball by ball", body: "Open the Cricket Pro tab and score every ball as it happens." },
+    ],
+    plan: "SportsWeb add-on — premium",
+  },
+  {
     key: "learn",
     name: "Club Learn",
     badge: "LN",
