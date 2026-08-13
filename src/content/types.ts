@@ -409,6 +409,8 @@ export interface ClubConfig {
     volunteerAppUrl?: string;
     /** Deployed Live Scores app URL — opened/embedded from the admin, ?clubId= appended. */
     liveScoresAppUrl?: string;
+    /** Deployed Fixtures & Ladder app URL — opened/embedded from the admin, ?clubId= appended. */
+    fixturesLadderAppUrl?: string;
   };
 
   footer: {

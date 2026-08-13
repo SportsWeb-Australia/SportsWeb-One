@@ -89,6 +89,26 @@ export const MODULE_CATALOG: ModuleDef[] = [
     plan: "SportsWeb add-on",
   },
   {
+    key: "fixtures-ladder",
+    name: "Fixtures & Ladder",
+    badge: "FX",
+    tagline: "The season draw, results and a ladder that keeps itself up to date.",
+    summary:
+      "Build the season fixture list, enter results as they come in, and the ladder computes itself — always current, always correct, published straight to your site and embeddable anywhere. Shares the same team directory as Live Scores, so a team's logo only ever needs entering once.",
+    overview: [
+      "Enter fixtures round by round — competition, grade, venue, date and time.",
+      "Enter a result and the ladder recalculates instantly, from the results themselves.",
+      "Works as an in-page Match Centre module here, or as a standalone embeddable widget on any page.",
+      "Same team directory as Live Scores — logos and colours carry across automatically.",
+    ],
+    quickstart: [
+      { title: "Build the draw", body: "Add each round's fixtures — teams, venue, date and time." },
+      { title: "Enter results", body: "Mark a fixture completed and add the score." },
+      { title: "Watch the ladder update", body: "No extra step — the ladder recalculates from results automatically." },
+    ],
+    plan: "SportsWeb add-on",
+  },
+  {
     key: "live-scores-cricket-pro",
     name: "Cricket Pro",
     badge: "CP",

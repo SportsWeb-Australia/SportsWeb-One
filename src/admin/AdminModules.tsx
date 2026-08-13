@@ -13,6 +13,20 @@ const MODULE_LOGOS: Record<string, string> = {
   ticketing: "/module-logos/ticket-one.png",
 };
 
+/** Modules that (a) have no login of their own — they borrow the SW1 admin's
+ *  Supabase session, the same way each time — and (b) need ?clubId= in their URL.
+ *  Each has its own postMessage type (matches that app's own authHandoff.ts)
+ *  rather than one shared type, so a stray embed from module A can't be mistaken
+ *  for module B's session handoff. */
+const SESSION_APP_URL_FIELD: Record<string, "liveScoresAppUrl" | "fixturesLadderAppUrl"> = {
+  "live-scores": "liveScoresAppUrl",
+  "fixtures-ladder": "fixturesLadderAppUrl",
+};
+const AUTH_MESSAGE_TYPE: Record<string, string> = {
+  "live-scores": "sportsweb-live-scores-auth",
+  "fixtures-ladder": "sportsweb-fixtures-auth",
+};
+
 function ModuleBadge({ moduleKey, badge }: { moduleKey: string; badge: string }) {
   const logo = MODULE_LOGOS[moduleKey];
   const [failed, setFailed] = useState(false);
@@ -54,21 +68,15 @@ export function AdminModules() {
       `Club: ${club.identity.name}\nModule: ${modName}\n\n`
     )}`;
 
-  const liveScoresIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const sessionIframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  // Live Scores has no login of its own — it borrows the SW1 admin's Supabase session
-  // (same project, so the same auth.users/club_users rows apply). Without this handoff,
-  // writes to live_matches fail RLS: my_club_ids() has no auth.uid() to match.
-  const sendLiveScoresAuth = async (target: Window | null, targetOrigin: string) => {
-    if (!target || !supabase) return;
+  const sendSessionAuth = async (moduleKey: string, target: Window | null, targetOrigin: string) => {
+    const messageType = AUTH_MESSAGE_TYPE[moduleKey];
+    if (!target || !supabase || !messageType) return;
     const { data } = await supabase.auth.getSession();
     if (!data.session) return;
     target.postMessage(
-      {
-        type: "sportsweb-live-scores-auth",
-        accessToken: data.session.access_token,
-        refreshToken: data.session.refresh_token,
-      },
+      { type: messageType, accessToken: data.session.access_token, refreshToken: data.session.refresh_token },
       targetOrigin
     );
   };
@@ -76,7 +84,7 @@ export function AdminModules() {
   // window.open must run synchronously in the click handler (a popup blocker kills it
   // once we've awaited anything) — open a blank tab first, then fill in its location
   // once the session is fetched.
-  const openLiveScores = (url: string) => {
+  const openWithSession = (url: string) => {
     const win = window.open("", "_blank");
     if (!win) return;
     if (!supabase) {
@@ -124,17 +132,14 @@ export function AdminModules() {
 
   if (mod) {
     const on = isEnabled(mod.key);
-    const perClubAppUrl =
-      mod.key === "volunteers"
-        ? club.platform?.volunteerAppUrl
-        : mod.key === "live-scores"
-          ? club.platform?.liveScoresAppUrl
-          : undefined;
+    const sessionField = SESSION_APP_URL_FIELD[mod.key];
+    const needsSession = !!sessionField;
+    const perClubAppUrl = mod.key === "volunteers" ? club.platform?.volunteerAppUrl : sessionField ? club.platform?.[sessionField] : undefined;
     const appUrl =
-      mod.key === "live-scores" && perClubAppUrl && clubId
+      needsSession && perClubAppUrl && clubId
         ? `${perClubAppUrl}${perClubAppUrl.includes("?") ? "&" : "?"}clubId=${clubId}`
         : perClubAppUrl || mod.appUrl || "";
-    const canEmbed = (mod.key === "volunteers" || mod.key === "live-scores") && !!appUrl;
+    const canEmbed = (mod.key === "volunteers" || needsSession) && !!appUrl;
     return (
       <div className="sw-admin-panel">
         <div className="sw-admin-formhead">
@@ -168,8 +173,8 @@ export function AdminModules() {
               <strong>This module is active for {club.identity.shortName}.</strong>
               <p>Jump in below, or follow the quick start if you&apos;re new to it.</p>
             </div>
-            {appUrl && mod.key === "live-scores" ? (
-              <button type="button" className="sw-btn" onClick={() => openLiveScores(appUrl)}>
+            {appUrl && needsSession ? (
+              <button type="button" className="sw-btn" onClick={() => openWithSession(appUrl)}>
                 Open {mod.name} ↗
               </button>
             ) : appUrl ? (
@@ -178,8 +183,8 @@ export function AdminModules() {
               </a>
             ) : mod.key === "volunteers" ? (
               <span className="sw-flag">Set volunteerAppUrl in config to open it</span>
-            ) : mod.key === "live-scores" ? (
-              <span className="sw-flag">Set liveScoresAppUrl in config to open it</span>
+            ) : sessionField ? (
+              <span className="sw-flag">Set {sessionField} in config to open it</span>
             ) : (
               <span className="sw-flag">Launching soon</span>
             )}
@@ -209,13 +214,13 @@ export function AdminModules() {
             </p>
             <div className="sw-module-embed">
               <iframe
-                ref={mod.key === "live-scores" ? liveScoresIframeRef : undefined}
+                ref={needsSession ? sessionIframeRef : undefined}
                 src={appUrl}
                 title={mod.name}
                 loading="lazy"
                 onLoad={
-                  mod.key === "live-scores"
-                    ? () => sendLiveScoresAuth(liveScoresIframeRef.current?.contentWindow ?? null, new URL(appUrl).origin)
+                  needsSession
+                    ? () => sendSessionAuth(mod.key, sessionIframeRef.current?.contentWindow ?? null, new URL(appUrl).origin)
                     : undefined
                 }
               />

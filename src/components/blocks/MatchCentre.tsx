@@ -5,6 +5,7 @@ import { AccentBars } from "../layout/Chevron";
 import { EditableText } from "../edit/Editable";
 import { getMatchData } from "../../lib/matchData";
 import { LiveScoresEmbed } from "./LiveScoresEmbed";
+import { FixturesLadderEmbed } from "./FixturesLadderEmbed";
 import type { MatchCentreData } from "../../content/types";
 
 type Tab = "fixtures" | "results" | "ladder";
@@ -35,6 +36,7 @@ export function MatchCentre({ bare }: Props) {
 
   const panel = (
     <>
+      <FixturesLadderEmbed club={club} />
       <LiveScoresEmbed club={club} />
 
       {data.liveLinks && data.liveLinks.length > 0 && (
