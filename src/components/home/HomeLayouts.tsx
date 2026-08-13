@@ -6,6 +6,7 @@ import { slugify } from "../../lib/slug";
 import { Countdown } from "../blocks/Countdown";
 import { Hero } from "../blocks/Hero";
 import { MatchCentre } from "../blocks/MatchCentre";
+import { LiveScoresEmbed } from "../blocks/LiveScoresEmbed";
 import { SponsorStrip } from "../blocks/SponsorStrip";
 import { FeaturedNews } from "../blocks/FeaturedNews";
 import { NewsSlot } from "../blocks/NewsSlot";
@@ -1537,6 +1538,10 @@ const LAYOUTS: Partial<Record<DesignVariant, () => ReactNode>> = {
 export function HomeLayout() {
   const { club, variant } = useClub();
   const Layout = LAYOUTS[variant];
-  if (Layout) return <Layout />;
-  return <Classic club={club} />;
+  return (
+    <>
+      {Layout ? <Layout /> : <Classic club={club} />}
+      <LiveScoresEmbed club={club} />
+    </>
+  );
 }
