@@ -2468,7 +2468,10 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(16, 19, 32, 0.04), 0 6px 20px rgba(16, 19, 32, 0.05);
 }
-.sw-super-table { width: 100%; border-collapse: collapse; }
+/* min-width, not just width: 100% — the wrap's overflow-x: auto only kicks in
+   once the table's natural width exceeds the wrap. Without this, every extra
+   MODULE_CATALOG column just squeezed the existing ones instead of scrolling. */
+.sw-super-table { width: 100%; min-width: max-content; border-collapse: collapse; }
 .sw-super-table thead th {
   position: sticky; top: 0;
   background: #f7f8fa;
