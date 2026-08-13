@@ -113,7 +113,11 @@ export const emptyClub: ClubConfig = {
   },
 
   enabledModules: [],
-  platform: { trialDays: 14 },
+  // Live Scores is one shared deployed app for every club (clubId is a URL param,
+  // not a per-club deployment like Volunteer One can be) — every club gets this
+  // default, not just Dookie. club_modules (not this file) is what actually
+  // gates whether a given club sees it as enabled.
+  platform: { trialDays: 14, liveScoresAppUrl: "https://sportsweb-live-scores.vercel.app/" },
 
   footer: { acknowledgement: "", legal: [] },
 };
