@@ -2,7 +2,7 @@ import { useClub } from "../ClubContext";
 import { useEdit } from "../../lib/edit";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
-import { EditableText, EditableBgButton } from "../edit/Editable";
+import { EditableText, EditableBgButton, EditableVideo } from "../edit/Editable";
 import type { ClubConfig, DesignVariant } from "../../content/types";
 
 const MEDIA_VARIANTS: DesignVariant[] = ["stadium", "editorial", "momentum", "coastal"];
@@ -72,20 +72,26 @@ function HeroMedia({ club, variant }: { club: ClubConfig; variant: DesignVariant
   const { hero, identity } = club;
   const { value } = useEdit();
   const img = value("hero.backgroundImage", hero.backgroundImage ?? DEFAULT_HERO_IMG[variant] ?? "/hero-dark.jpg");
+  // Read the video through the edit layer, not straight off the static config —
+  // otherwise a link pasted inline saves fine but the hero keeps playing the old one.
+  const video = value("hero.video", hero.video ?? "");
 
   return (
     <section className="sw-hero sw-hero--media">
       <div className="sw-hero-media" aria-hidden="true">
-        {hero.video ? (
-          <video className="sw-hero-video" autoPlay muted loop playsInline poster={hero.poster ?? img}>
-            <source src={hero.video} />
+        {video ? (
+          <video className="sw-hero-video" autoPlay muted loop playsInline poster={hero.poster ?? img} key={video}>
+            <source src={video} />
           </video>
         ) : (
           <img src={img} alt="" />
         )}
         <div className="sw-hero-scrim" />
       </div>
-      {!hero.video && <EditableBgButton k="hero.backgroundImage" label="Change background photo" />}
+      {/* The photo button hides behind a video (it wouldn't be visible anyway), but the
+          video control is always offered — otherwise setting a video is a one-way door. */}
+      {!video && <EditableBgButton k="hero.backgroundImage" label="Change background photo" />}
+      <EditableVideo k="hero.video" label="hero video" />
 
       <div className="sw-container">
         <div className="sw-hero-inner">

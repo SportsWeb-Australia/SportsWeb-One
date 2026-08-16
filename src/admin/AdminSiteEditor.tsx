@@ -39,11 +39,19 @@ function EdCard({
 /**
  * Website editor — lives in the admin panel (Club Admin level and up).
  * Edits the same content keys the public site reads (club_content), plus the
- * club logo. Images upload to the club-media bucket via the crop tool. No
- * inline editing happens on the public site.
+ * club logo. Images upload to the club-media bucket via the crop tool.
+ *
+ * This form is now the SECOND surface, not the first. Words and photos are edited
+ * on the page itself (see components/edit) — what's left here is the handful of
+ * settings inline editing genuinely can't reach, because they aren't a visible
+ * element you can click: brand colours, the logo, contact details, footer logos.
+ *
+ * "settings" renders all of those together in one panel. The per-page values are
+ * kept so existing deep links still resolve, but nothing links to them any more.
  */
 export type SitePage =
   | "all"
+  | "settings"
   | "home"
   | "about"
   | "footer"
@@ -57,6 +65,7 @@ export type SitePage =
   | "register";
 
 const PAGE_LABELS: Record<string, string> = {
+  settings: "Site settings",
   home: "Home page",
   about: "About page",
   footer: "Footer & site-wide",
@@ -76,9 +85,13 @@ const HEADING_PAGES = ["about", "contact", "news", "events", "teams", "fixtures"
 export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
   const { club } = useClub();
   const { clubId, reloadClub } = useActiveClub();
-  const show = (p: SitePage) => page === "all" || page === p;
+  // "settings" gathers every card that isn't reachable by clicking the page itself.
+  const isSettings = page === "settings";
+  const show = (p: SitePage) => page === "all" || isSettings || page === p;
   const pageTitle = PAGE_LABELS[page] ?? "Edit website";
-  const headingKey = HEADING_PAGES.includes(page) ? page : "";
+  // Page headings are edited on the page now — the eyebrow/title/intro of every
+  // page is a visible element the club can click. No heading card in settings.
+  const headingKey = !isSettings && HEADING_PAGES.includes(page) ? page : "";
   const siteSlug = club.identity.slug ?? "";
   const previewHref = isPlatformHost() && siteSlug ? `/?club=${siteSlug}` : "/";
 
@@ -241,11 +254,20 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
           Preview / edit site →
         </a>
       </div>
-      <p className="sw-admin-note">
-        This is where you <strong>edit your website</strong>. Fill in each section below to change the words and
-        images on your pages. <strong>Changes save as a draft</strong> — click <strong>Publish changes</strong> to make
-        them live. Or click <strong>Preview / edit site</strong> to open your site and edit text straight on the page.
-      </p>
+      {isSettings ? (
+        <p className="sw-admin-note">
+          <strong>Words and photos are edited on the page itself</strong> — click <strong>Preview / edit site</strong>,
+          then click any heading, paragraph or photo to change it. What&apos;s below is the handful of settings you
+          can&apos;t click on the page: your colours, logo, contact details and footer.
+          <strong> Changes save as a draft</strong> until you click <strong>Publish changes</strong>.
+        </p>
+      ) : (
+        <p className="sw-admin-note">
+          This is where you <strong>edit your website</strong>. Fill in each section below to change the words and
+          images on your pages. <strong>Changes save as a draft</strong> — click <strong>Publish changes</strong> to make
+          them live. Or click <strong>Preview / edit site</strong> to open your site and edit text straight on the page.
+        </p>
+      )}
       {pending !== null && pending > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", background: "#eff4ff", border: "1px solid #cfe0ff", borderRadius: 10, padding: "11px 14px", margin: "0 0 14px" }}>
           <span style={{ fontSize: 13.5, color: "#1e3a8a" }}>
@@ -291,7 +313,7 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
         </EdCard>
       )}
 
-      {page === "contact" && (
+      {(page === "contact" || isSettings) && (
         <EdCard title="Contact details" subtitle="Shown on your Contact page and used across the site." defaultOpen>
           <label className="sw-ed-l">Email</label>
           <input className="sw-input" value={contactInfo.email} onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })} />
@@ -604,27 +626,39 @@ export function AdminSiteEditor({ page = "all" }: { page?: SitePage }) {
   );
 }
 
-// "Pages & text" with a page switcher: pick any page and edit its heading/content.
-// Each choice remounts AdminSiteEditor (key=page) so its fields re-init for that page.
-const SITE_EDIT_PAGES: SitePage[] = ["home", "about", "teams", "news", "events", "fixtures", "sponsors", "documents", "contact", "register", "footer"];
+/**
+ * "Edit website" — now inline-first.
+ *
+ * This used to be a row of eleven page tabs. Seven of them (teams, news, events,
+ * fixtures, sponsors, documents, register) held nothing but an eyebrow/title/intro,
+ * and all three of those are visible elements the club can now click on the page.
+ * The tabs were duplicating the site's own navigation to reach three text fields.
+ *
+ * What's left is a single Site settings panel for the things you genuinely cannot
+ * click: colours, logo, contact details, footer. Everything else starts by opening
+ * the site.
+ */
 export function SitePagesEditor() {
-  const [page, setPage] = useState<SitePage>("home");
+  const { club } = useClub();
+  const siteSlug = club.identity.slug ?? "";
+  const previewHref = isPlatformHost() && siteSlug ? `/?club=${siteSlug}` : "/";
+
   return (
     <div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-        {SITE_EDIT_PAGES.map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPage(p)}
-            className={`sw-btn ${page === p ? "" : "sw-btn--ghost"}`}
-            style={{ fontSize: 13 }}
-          >
-            {PAGE_LABELS[p] ?? p}
-          </button>
-        ))}
-      </div>
-      <AdminSiteEditor page={page} key={page} />
+      <section className="sw-inline-cta">
+        <div className="sw-inline-ctacopy">
+          <h3>Edit your site on the page</h3>
+          <p>
+            Open your website and click straight onto any heading, paragraph or photo to change it.
+            Swap photos with a crop tool, paste a new video link, and set your club colours — all in place.
+          </p>
+        </div>
+        <a href={previewHref} target="_blank" rel="noreferrer" className="sw-btn sw-inline-ctabtn">
+          Preview / edit site →
+        </a>
+      </section>
+
+      <AdminSiteEditor page="settings" key="settings" />
     </div>
   );
 }

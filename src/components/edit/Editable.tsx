@@ -1,6 +1,7 @@
 import { useState, type CSSProperties, type ElementType } from "react";
 import { useEdit } from "../../lib/edit";
-import { saveRestorePoint, restoreVersion, newestUndoPoint } from "../../lib/siteVersions";
+import { CropModal } from "./CropModal";
+import { imageSlot } from "./imageSlots";
 
 /** Inline-editable text. In edit mode it becomes click-to-type; saves on blur. */
 export function EditableText({
@@ -43,6 +44,54 @@ export function EditableText({
   return <Tag className={className} style={style}>{current}</Tag>;
 }
 
+/**
+ * Shared pick → crop → upload flow for the inline image controls.
+ *
+ * Every inline swap now goes through the same crop dialog the admin form uses, so
+ * a photo changed on the page lands at the slot's intended aspect ratio instead of
+ * whatever shape came off the club's phone.
+ */
+function useCropUpload(k: string) {
+  const { uploadImage } = useEdit();
+  const [src, setSrc] = useState<string | null>(null);
+  const slot = imageSlot(k);
+
+  const pick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) setSrc(URL.createObjectURL(file));
+  };
+
+  const apply = async (blob: Blob) => {
+    const ext = slot.transparent ? "png" : "jpg";
+    const file = new File([blob], `${k.replace(/[^a-z0-9]+/gi, "-")}.${ext}`, {
+      type: slot.transparent ? "image/png" : "image/jpeg",
+    });
+    // Revoke before the await so a slow upload can't leak the object URL.
+    if (src) URL.revokeObjectURL(src);
+    setSrc(null);
+    await uploadImage(k, file, slot.folder);
+  };
+
+  const cancel = () => {
+    if (src) URL.revokeObjectURL(src);
+    setSrc(null);
+  };
+
+  const modal = src ? (
+    <CropModal
+      src={src}
+      aspect={slot.aspect}
+      targetW={slot.targetW}
+      transparent={!!slot.transparent}
+      onCancel={cancel}
+      onApply={apply}
+    />
+  ) : null;
+
+  return { pick, modal };
+}
+
 /** Inline-editable image with a Swap button in edit mode. */
 export function EditableImage({
   k,
@@ -55,7 +104,8 @@ export function EditableImage({
   alt?: string;
   className?: string;
 }) {
-  const { canEdit, editing, value: getVal, uploadImage, busyKey } = useEdit();
+  const { canEdit, editing, value: getVal, busyKey } = useEdit();
+  const { pick, modal } = useCropUpload(k);
   const src = getVal(k, value);
 
   if (canEdit && editing) {
@@ -64,17 +114,9 @@ export function EditableImage({
         {src ? <img src={src} alt={alt} className={className} /> : <span className="sw-editable-img-empty">No image</span>}
         <label className="sw-editable-img-btn">
           {busyKey === k ? "Uploading…" : "Swap image"}
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) uploadImage(k, file);
-              e.target.value = "";
-            }}
-          />
+          <input type="file" accept="image/*" hidden onChange={pick} />
         </label>
+        {modal}
       </span>
     );
   }
@@ -85,167 +127,102 @@ export function EditableImage({
  *  Renders nothing unless a club admin is actively editing. Pair it with reading the
  *  same key via useEdit().value for the actual background src. */
 export function EditableBgButton({ k, label = "Change photo" }: { k: string; label?: string }) {
-  const { canEdit, editing, uploadImage, busyKey } = useEdit();
+  const { canEdit, editing, busyKey } = useEdit();
+  const { pick, modal } = useCropUpload(k);
   if (!canEdit || !editing) return null;
   return (
-    <label className="sw-edit-bgbtn" onClick={(e) => e.stopPropagation()}>
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="8.5" cy="8.5" r="1.5" />
-        <path d="m21 15-5-5L5 21" />
-      </svg>
-      {busyKey === k ? "Uploading…" : label}
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) uploadImage(k, file);
-          e.target.value = "";
-        }}
-      />
-    </label>
+    <>
+      <label className="sw-edit-bgbtn" onClick={(e) => e.stopPropagation()}>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="m21 15-5-5L5 21" />
+        </svg>
+        {busyKey === k ? "Uploading…" : label}
+        <input type="file" accept="image/*" hidden onChange={pick} />
+      </label>
+      {modal}
+    </>
   );
 }
 
-/** Floating toggle — only rendered for signed-in club admins. */
-export function EditToggle() {
-  const {
-    canEdit, canActivate, actingAs, activateEditing, deactivateEditing,
-    editing, setEditing, error, dirty, publish, publishing, clubId, clubName,
-  } = useEdit();
-  const [confirming, setConfirming] = useState(false);
-  const [activateConfirm, setActivateConfirm] = useState(false);
-  const [undoId, setUndoId] = useState<string | null>(null);
-  const [busy, setBusy] = useState<null | "saving" | "undoing">(null);
-  const [saved, setSaved] = useState(false);
-  const [localErr, setLocalErr] = useState<string | null>(null);
+const VIDEO_OK = /^https?:\/\/.+/i;
 
-  // Platform admin who hasn't opted into editing this club yet: show a deliberate
-  // "act as this club" step (confirming the club name) rather than a live editor.
-  if (!canEdit && canActivate) {
-    return (
-      <div className="sw-edit-toggle-wrap">
-        {activateConfirm ? (
-          <button
-            className="sw-edit-toggle sw-edit-toggle--publish"
-            onClick={() => { setActivateConfirm(false); activateEditing(); setEditing(true); }}
-          >
-            Edit {clubName}? Tap to confirm
-          </button>
-        ) : (
-          <button className="sw-edit-toggle" onClick={() => setActivateConfirm(true)} aria-label={`Act as ${clubName} to edit its site`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-            </svg>
-            Edit this club’s site
-          </button>
-        )}
-      </div>
-    );
-  }
+/**
+ * Edit-mode control for a video slot: paste a YouTube / Vimeo / MP4 link, or clear
+ * it to fall back to the still image.
+ *
+ * Without this a club that set a hero video had no way to change or remove it from
+ * the page — the background-photo button hides itself whenever a video is set, so
+ * the slot was a one-way door.
+ */
+export function EditableVideo({ k, label = "video" }: { k: string; label?: string }) {
+  const { canEdit, editing, value: getVal, save, busyKey } = useEdit();
+  const [open, setOpen] = useState(false);
+  const current = getVal(k, "");
+  const [draft, setDraft] = useState(current);
+  const [err, setErr] = useState<string | null>(null);
 
-  if (!canEdit) return null;
+  if (!canEdit || !editing) return null;
 
-  async function doPublish() {
-    setConfirming(false);
-    const ok = await publish();
-    if (ok && clubId) {
-      const pt = await newestUndoPoint(clubId).catch(() => null);
-      if (pt) setUndoId(pt.id);
+  const commit = async (next: string) => {
+    const trimmed = next.trim();
+    if (trimmed && !VIDEO_OK.test(trimmed)) {
+      setErr("Paste a full link starting with https://");
+      return;
     }
-  }
-
-  async function doSavePoint() {
-    if (!clubId || busy) return;
-    setBusy("saving");
-    setLocalErr(null);
-    try {
-      await saveRestorePoint(clubId, "Manual restore point");
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2600);
-    } catch (e) {
-      setLocalErr(e instanceof Error ? e.message : "Couldn't save restore point.");
-    }
-    setBusy(null);
-  }
-
-  async function doUndo() {
-    if (!undoId || busy) return;
-    setBusy("undoing");
-    setLocalErr(null);
-    try {
-      await restoreVersion(undoId);
-      window.location.reload(); // re-fetch live content so the page shows the rollback
-    } catch (e) {
-      setLocalErr(e instanceof Error ? e.message : "Couldn't undo.");
-      setBusy(null);
-    }
-  }
+    setErr(null);
+    await save(k, trimmed);
+    setOpen(false);
+  };
 
   return (
-    <div className="sw-edit-toggle-wrap">
-      {(error || localErr) && <span className="sw-edit-toggle-err">{error || localErr}</span>}
-
-      {/* Which club am I editing? Guards against editing the wrong club by accident. */}
-      {editing && <span className="sw-edit-club" title="You are editing this club's live site">Editing: <strong>{clubName}</strong></span>}
-
-      {/* Undo appears right after a publish so a mistake is one tap to reverse. */}
-      {undoId && !editing && (
-        <button className="sw-edit-toggle sw-edit-toggle--undo" onClick={doUndo} disabled={busy === "undoing"}>
-          {busy === "undoing" ? "Undoing…" : "↩ Undo last publish"}
-        </button>
-      )}
-
-      {editing && (
-        <button className="sw-edit-toggle sw-edit-toggle--ghost" onClick={doSavePoint} disabled={busy === "saving"}>
-          {busy === "saving" ? "Saving…" : saved ? "✓ Restore point saved" : "⧉ Save restore point"}
-        </button>
-      )}
-
-      {editing && dirty && (
-        confirming ? (
-          <button className="sw-edit-toggle sw-edit-toggle--publish" onClick={doPublish} disabled={publishing}>
-            {publishing ? "Publishing…" : `Publish to ${clubName}? Tap to confirm`}
-          </button>
-        ) : (
-          <button className="sw-edit-toggle sw-edit-toggle--publish" onClick={() => setConfirming(true)}>
-            ▲ Publish changes
-          </button>
-        )
-      )}
-
+    <>
       <button
-        className={`sw-edit-toggle${editing ? " on" : ""}`}
-        onClick={() => { setConfirming(false); setEditing(!editing); }}
-        aria-label={editing ? "Finish editing this page" : "Edit this page"}
+        type="button"
+        className="sw-edit-bgbtn sw-edit-bgbtn--video"
+        onClick={(e) => { e.stopPropagation(); setDraft(current); setOpen((o) => !o); }}
       >
-        {editing ? (
-          <>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-            Done editing
-          </>
-        ) : (
-          <>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 20h9" />
-              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-            </svg>
-            Edit page
-          </>
-        )}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="2" y="6" width="14" height="12" rx="2" />
+          <path d="m22 8-6 4 6 4V8Z" />
+        </svg>
+        {current ? `Change ${label}` : `Add ${label}`}
       </button>
 
-      {/* Platform admin acting as this club: let them step back out cleanly. */}
-      {actingAs && !editing && (
-        <button className="sw-edit-exit" onClick={deactivateEditing} aria-label={`Stop editing ${clubName}`}>
-          Exit {clubName}
-        </button>
+      {open && (
+        <div className="sw-edit-videopop" onClick={(e) => e.stopPropagation()}>
+          <label className="sw-edit-videolabel" htmlFor={`vid-${k}`}>
+            Video link — YouTube, Vimeo or a direct MP4
+          </label>
+          <input
+            id={`vid-${k}`}
+            className="sw-edit-videoinput"
+            type="url"
+            placeholder="https://…"
+            value={draft}
+            spellCheck={false}
+            onChange={(e) => { setDraft(e.target.value); setErr(null); }}
+          />
+          <p className="sw-edit-videohint">Leave blank to go back to the photo.</p>
+          {err && <p className="sw-edit-videoerr">{err}</p>}
+          <div className="sw-edit-videoacts">
+            <button type="button" className="sw-btn sw-btn--ghost sw-btn--sm" onClick={() => setOpen(false)}>
+              Cancel
+            </button>
+            {current && (
+              <button type="button" className="sw-btn sw-btn--ghost sw-btn--sm" onClick={() => commit("")}>
+                Remove video
+              </button>
+            )}
+            <button type="button" className="sw-btn sw-btn--sm" disabled={busyKey === k} onClick={() => commit(draft)}>
+              {busyKey === k ? "Saving…" : "Save link"}
+            </button>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
+
+export { EditToggle } from "./EditToggle";

@@ -70,6 +70,10 @@ export function AdminWebsite() {
   const frozenCurrent =
     ALLOWED_VARIANTS.includes(variant) ? null : STYLES.find((s) => s.id === variant) ?? null;
 
+  // Both of these stage into draft_value like every other content edit. They used to
+  // write `value` directly, which meant a club could change its whole site style or
+  // news mode with no Publish step — live before anyone had a chance to review it,
+  // and invisible to the unpublished-changes count.
   const chooseMode = async (m: NewsMode) => {
     setMode(m);
     setSaved(false);
@@ -77,19 +81,19 @@ export function AdminWebsite() {
     setSaving(true);
     const { error } = await supabase
       .from("club_content")
-      .upsert({ club_id: clubId, content_key: "news.mode", value: m }, { onConflict: "club_id,content_key" });
+      .upsert({ club_id: clubId, content_key: "news.mode", draft_value: m }, { onConflict: "club_id,content_key" });
     setSaving(false);
     if (!error) setSaved(true);
   };
 
   const chooseStyle = async (v: DesignVariant) => {
-    setVariant(v); // apply live immediately
+    setVariant(v); // preview it locally straight away; the live site waits for Publish
     setStyleSaved(false);
     if (!clubId || !supabase) return;
     setStyleSaving(true);
     const { error } = await supabase
       .from("club_content")
-      .upsert({ club_id: clubId, content_key: "site.variant", value: v }, { onConflict: "club_id,content_key" });
+      .upsert({ club_id: clubId, content_key: "site.variant", draft_value: v }, { onConflict: "club_id,content_key" });
     setStyleSaving(false);
     if (!error) setStyleSaved(true);
   };
@@ -100,8 +104,8 @@ export function AdminWebsite() {
         <h2>Website style</h2>
       </div>
       <p className="sw-admin-note">
-        Pick a look for the {club.identity.shortName} website. It applies live across the site and
-        saves as your club&apos;s style straight away.
+        Pick a look for the {club.identity.shortName} website. You&apos;ll see it here straight away, and it
+        saves as a draft &mdash; click <strong>Publish changes</strong> to put it live on your site.
       </p>
       {frozenCurrent && (
         <p className="sw-admin-note" style={{ background: "#eef2f7", borderRadius: 8, padding: "8px 12px" }}>
@@ -131,7 +135,7 @@ export function AdminWebsite() {
       </div>
       {(styleSaving || styleSaved) && (
         <p className="sw-admin-note" style={{ marginTop: "0.6rem" }}>
-          {styleSaving ? "Saving\u2026" : "Saved \u2014 this is now your club's style."}
+          {styleSaving ? "Saving\u2026" : "Saved as a draft \u2014 Publish to make it live."}
         </p>
       )}
 
@@ -161,7 +165,7 @@ export function AdminWebsite() {
           : saving
             ? "Saving…"
             : saved
-              ? "Saved. Reload the site to see it."
+              ? "Saved as a draft — Publish to make it live."
               : ""}
       </p>
     </div>
