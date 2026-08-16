@@ -142,6 +142,29 @@ export async function getClubConfigById(clubId: string): Promise<ClubConfig> {
   }
 }
 
+/**
+ * Bake entry point: the club's full config by id, for server-side pre-rendering.
+ *
+ * Deliberately NOT getClubConfigById. That one degrades to emptyClub on any read
+ * failure, which is right for an admin act-as view (show a blank shell rather than
+ * another club's content) but wrong for a bake: it would silently overwrite a real
+ * club's cached pages with a blank site. Here a failure throws, so the caller can
+ * abort and leave the previous cache entry standing.
+ *
+ * Uses the same buildClubConfig as the client — never a parallel implementation —
+ * so a baked page cannot drift from what the live renderer would produce.
+ */
+export async function getClubConfigForClubId(clubId: string): Promise<ClubConfig> {
+  if (!supabase) throw new Error("getClubConfigForClubId: no Supabase client");
+  if (!clubId) throw new Error("getClubConfigForClubId: clubId is required");
+
+  const direct = await supabase.from("clubs").select("*").eq("id", clubId).maybeSingle();
+  if (direct.error) throw new Error(`getClubConfigForClubId: clubs read failed — ${direct.error.message}`);
+  if (!direct.data) throw new Error(`getClubConfigForClubId: no club row for ${clubId}`);
+
+  return await buildClubConfig(direct.data as Record<string, any>);
+}
+
 /** Build a complete ClubConfig from a clubs row (shared by both loaders).
  *  opts.previewToken: when set (draft-preview render), club_content is read via the
  *  token-gated RPC instead of a direct select, so it survives the leak-fix policy. */
