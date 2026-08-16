@@ -267,6 +267,11 @@ export interface ClubConfig {
     initials: string;
     nickname: string;
     sports: string[];
+    /**
+     * Raw `clubs.sport_type` enum value (e.g. "cricket"), as opposed to the
+     * display labels in `sports`. Used to decide which modules a club is offered.
+     */
+    sportType?: string;
     location: string;
     ground: string;
     league: string;

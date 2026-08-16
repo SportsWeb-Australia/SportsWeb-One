@@ -26,6 +26,25 @@ export interface ModuleDef {
   appUrl?: string;
   /** Plan label shown on the tile + pre-page. */
   plan: string;
+  /**
+   * `clubs.sport_type` values this module is offered to. Omit for the usual case
+   * of a module that suits every sport — only set it for genuinely sport-specific
+   * tools, e.g. Cricket Pro's ball-by-ball scoring.
+   */
+  sports?: string[];
+}
+
+/**
+ * Is this module offered to a club playing `sportType`?
+ *
+ * Fails open: a module with no `sports` list suits everyone, and an unknown or
+ * missing sport shows the full catalogue rather than silently hiding tools from
+ * a club whose sport simply hasn't been set.
+ */
+export function moduleSuitsSport(mod: ModuleDef, sportType?: string | null): boolean {
+  if (!mod.sports || mod.sports.length === 0) return true;
+  if (!sportType) return true;
+  return mod.sports.includes(sportType);
 }
 
 export const MODULE_CATALOG: ModuleDef[] = [
@@ -127,6 +146,31 @@ export const MODULE_CATALOG: ModuleDef[] = [
       { title: "Score ball by ball", body: "Open the Cricket Pro tab and score every ball as it happens." },
     ],
     plan: "SportsWeb add-on — premium",
+    // Ball-by-ball scoring is meaningless outside cricket, so it is only offered
+    // to cricket clubs rather than sitting locked on every other club's grid.
+    sports: ["cricket"],
+  },
+  {
+    // Key matches the existing club_modules rows written while this was a
+    // "coming soon" tile, so clubs already switched off stay switched off.
+    key: "team_lineups",
+    name: "Team Line-Ups",
+    badge: "TL",
+    tagline: "Pick your teams on a branded field graphic and share them everywhere.",
+    summary:
+      "Select each team on a club-branded field graphic, add sponsors and headshots, then export a clean image for socials or embed it on your site.",
+    overview: [
+      "Drag players onto positions on a club-branded field.",
+      "Add sponsor banners, headshots and competition logos.",
+      "Export to PNG / Instagram, or embed straight on your website.",
+      "Save by round and clone last week's team to start fast.",
+    ],
+    quickstart: [
+      { title: "Pick a team & round", body: "Choose the grade and round you're selecting for." },
+      { title: "Place your players", body: "Drop players onto their positions and add any sponsors." },
+      { title: "Share it", body: "Export the image or grab the embed link for your site." },
+    ],
+    plan: "SportsWeb module",
   },
   {
     key: "learn",
