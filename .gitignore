@@ -7,3 +7,8 @@ node_modules/
 # Build output
 dist/
 supabase/.temp/
+
+# Local environment (Supabase URL + anon key). Never commit these.
+.env
+.env.*
+!.env.example
