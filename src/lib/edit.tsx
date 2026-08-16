@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "./supabase";
 import { uploadToStorage } from "./upload";
 import { saveRestorePoint } from "./siteVersions";
@@ -6,6 +6,12 @@ import { useAuth } from "./auth";
 import { useClub } from "../components/ClubContext";
 
 const EDIT_CLUB_KEY = "sw1_edit_club";
+
+export interface BrandColours {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+}
 
 interface EditState {
   /** True when the signed-in user may edit the club currently being viewed. */
@@ -24,21 +30,31 @@ interface EditState {
   value: (key: string, fallback: string) => string;
   /** Save a text value for a key. */
   save: (key: string, value: string) => Promise<void>;
-  /** Upload + save an image for a key, returns the URL. */
-  uploadImage: (key: string, file: File) => Promise<void>;
+  /** Upload + save an image for a key. Pass the storage folder for the slot. */
+  uploadImage: (key: string, file: File, folder?: string) => Promise<void>;
   busyKey: string | null;
   error: string | null;
-  /** True once an edit has been staged this session (a draft is pending). */
+  /** Count of staged-but-unpublished content keys for this club (0 = nothing pending). */
+  pending: number;
+  /** True when there is anything to publish — staged this session OR earlier. */
   dirty: boolean;
   publishing: boolean;
   /** Promote this club's staged drafts to live. Resolves true on success. */
   publish: () => Promise<boolean>;
+  /** Throw away staged drafts; the live site is untouched. Resolves true on success. */
+  discard: () => Promise<boolean>;
+  /** The club's current brand colours. */
+  colours: BrandColours;
+  /** Save brand colours via the gated RPC. Resolves an error string, or null on success. */
+  saveColours: (next: BrandColours) => Promise<string | null>;
   /** The club currently being edited (its own id + display name). */
   clubId: string | null;
   clubName: string;
 }
 
 const Ctx = createContext<EditState | null>(null);
+
+const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export function EditProvider({ children }: { children: ReactNode }) {
   const { membership, isPlatformAdmin } = useAuth();
@@ -47,7 +63,7 @@ export function EditProvider({ children }: { children: ReactNode }) {
   const [editing, setEditing] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [dirty, setDirty] = useState(false);
+  const [pending, setPending] = useState(0);
   const [publishing, setPublishing] = useState(false);
   const [editClub, setEditClub] = useState<string | null>(() => {
     try { return sessionStorage.getItem(EDIT_CLUB_KEY); } catch { return null; }
@@ -68,6 +84,35 @@ export function EditProvider({ children }: { children: ReactNode }) {
   const actingAs = isPlatformAdmin && !isOwnClubAdmin && !!club.clubId && editClub === club.clubId;
   const canEdit = !!club.clubId && (isOwnClubAdmin || actingAs);
   const canActivate = isPlatformAdmin && !isOwnClubAdmin && !!club.clubId && !actingAs;
+
+  const colours: BrandColours = {
+    primary: club.brandColours?.primary ?? "#1a1a2e",
+    secondary: club.brandColours?.secondary ?? "#e8c100",
+    tertiary: club.brandColours?.tertiary ?? "",
+  };
+
+  /**
+   * How many content keys are staged but not published.
+   *
+   * This used to be a session-local boolean, which meant drafts staged yesterday —
+   * or staged from the admin form — showed no Publish button here at all, so edits
+   * silently never went live. Counting from the DB makes the inline toolbar agree
+   * with the admin banner.
+   */
+  const refreshPending = async () => {
+    if (!supabase || !club.clubId || !canEdit) return;
+    const { count, error: e } = await supabase
+      .from("club_content")
+      .select("content_key", { count: "exact", head: true })
+      .eq("club_id", club.clubId)
+      .not("draft_value", "is", null);
+    if (!e) setPending(count ?? 0);
+  };
+
+  useEffect(() => {
+    void refreshPending();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [club.clubId, canEdit]);
 
   const activateEditing = () => {
     if (!club.clubId) return;
@@ -102,7 +147,7 @@ export function EditProvider({ children }: { children: ReactNode }) {
       .from("club_content")
       .upsert({ club_id: club.clubId, content_key: key, draft_value: val }, { onConflict: "club_id,content_key" });
     if (e) setError(e.message);
-    else setDirty(true);
+    else await refreshPending();
   };
 
   const publish = async (): Promise<boolean> => {
@@ -115,8 +160,25 @@ export function EditProvider({ children }: { children: ReactNode }) {
       setError(e.message);
       return false;
     }
-    setDirty(false);
+    setPending(0);
     setEditing(false);
+    return true;
+  };
+
+  const discard = async (): Promise<boolean> => {
+    if (!supabase || !club.clubId || publishing) return false;
+    setPublishing(true);
+    setError(null);
+    const { error: e } = await supabase.rpc("revert_club_content", { p_club_id: club.clubId });
+    setPublishing(false);
+    if (e) {
+      setError(e.message);
+      return false;
+    }
+    // Drop local overrides too, otherwise the page keeps showing the discarded text
+    // until a reload and the club thinks Discard did nothing.
+    setOverrides({});
+    setPending(0);
     return true;
   };
 
@@ -127,12 +189,12 @@ export function EditProvider({ children }: { children: ReactNode }) {
     setBusyKey(null);
   };
 
-  const uploadImage = async (key: string, file: File) => {
+  const uploadImage = async (key: string, file: File, folder = "page") => {
     if (!club.clubId) return;
     setBusyKey(key);
     setError(null);
     try {
-      const url = await uploadToStorage(file, club.clubId, "page");
+      const url = await uploadToStorage(file, club.clubId, folder);
       await persist(key, url);
     } catch (ex) {
       setError(ex instanceof Error ? ex.message : "Upload failed.");
@@ -140,11 +202,34 @@ export function EditProvider({ children }: { children: ReactNode }) {
     setBusyKey(null);
   };
 
+  /**
+   * Brand colours go through set_club_colours: the clubs row has no club_admin
+   * UPDATE policy, so this RPC is the only sanctioned write path. Note colours
+   * apply immediately rather than staging as a draft — that matches the admin
+   * form's existing behaviour.
+   */
+  const saveColours = async (next: BrandColours): Promise<string | null> => {
+    if (!supabase || !club.clubId) return "Not signed in.";
+    const tertiary = next.tertiary.trim();
+    if (!HEX.test(next.primary) || !HEX.test(next.secondary) || (tertiary && !HEX.test(tertiary))) {
+      return "Enter 6-digit hex colours like #ed2129.";
+    }
+    const { error: e } = await supabase.rpc("set_club_colours", {
+      p_club: club.clubId,
+      p_primary: next.primary,
+      p_secondary: next.secondary,
+      p_tertiary: tertiary ? tertiary : null,
+    });
+    return e ? e.message : null;
+  };
+
   return (
     <Ctx.Provider
       value={{
         canEdit, canActivate, actingAs, activateEditing, deactivateEditing,
-        editing, setEditing: beginEditing, value, save, uploadImage, busyKey, error, dirty, publishing, publish,
+        editing, setEditing: beginEditing, value, save, uploadImage, busyKey, error,
+        pending, dirty: pending > 0, publishing, publish, discard,
+        colours, saveColours,
         clubId: club.clubId ?? null,
         clubName: club.identity?.name ?? "this club",
       }}

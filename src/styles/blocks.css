@@ -2382,6 +2382,147 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* ---- inline video control -------------------------------------------------
+   Sits under the "change photo" pill on a hero, or over an embed in VideoSplit. */
+.sw-edit-bgbtn--video {
+  top: 64px; border: 1px solid rgba(255, 255, 255, 0.18);
+  font-family: var(--font-mono, monospace);
+}
+.sw-videosplit-media { position: relative; }
+.sw-videosplit-media .sw-edit-bgbtn--video { top: 12px; right: 12px; }
+
+.sw-edit-videopop {
+  position: absolute; top: 108px; right: 16px; z-index: 30; width: min(320px, calc(100vw - 48px));
+  background: #fff; color: #111827; border-radius: 12px; padding: 0.9rem;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32); border: 1px solid rgba(17, 24, 39, 0.1);
+  text-align: left;
+}
+.sw-videosplit-media .sw-edit-videopop { top: 56px; right: 12px; }
+.sw-edit-videolabel {
+  display: block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
+  text-transform: uppercase; color: #6b7280; margin-bottom: 0.35rem;
+}
+.sw-edit-videoinput {
+  width: 100%; padding: 0.55rem 0.65rem; border: 1px solid #d4d4d8; border-radius: 8px;
+  font-size: 0.9rem; font-family: inherit;
+}
+.sw-edit-videohint { margin: 0.4rem 0 0; font-size: 0.78rem; color: #6b7280; }
+.sw-edit-videoerr { margin: 0.4rem 0 0; font-size: 0.78rem; color: #b91c1c; }
+.sw-edit-videoacts { display: flex; gap: 0.4rem; justify-content: flex-end; margin-top: 0.7rem; flex-wrap: wrap; }
+
+/* ---- inline toolbar panels (brand colours, request a change) --------------- */
+.sw-edit-panel {
+  width: min(340px, calc(100vw - 32px)); max-height: min(70vh, 620px); overflow-y: auto;
+  background: #fff; color: #111827; border-radius: 14px; padding: 1rem;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.34); border: 1px solid rgba(17, 24, 39, 0.1);
+  text-align: left;
+}
+.sw-edit-panelhead {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+.sw-edit-panelhead strong { font-size: 1rem; }
+.sw-edit-panelx {
+  border: none; background: transparent; cursor: pointer; font-size: 1.3rem;
+  line-height: 1; color: #6b7280; padding: 0 0.2rem;
+}
+.sw-edit-panelx:hover { color: #111827; }
+.sw-edit-panelintro { margin: 0 0 0.8rem; font-size: 0.84rem; color: #4b5563; line-height: 1.5; }
+.sw-edit-panellabel {
+  display: block; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em;
+  text-transform: uppercase; color: #6b7280; margin: 0.7rem 0 0.3rem;
+}
+.sw-edit-panelinput {
+  width: 100%; padding: 0.55rem 0.65rem; border: 1px solid #d4d4d8; border-radius: 8px;
+  font-size: 0.9rem; font-family: inherit; resize: vertical;
+}
+.sw-edit-panelerr { margin: 0.6rem 0 0; font-size: 0.8rem; color: #b91c1c; }
+.sw-edit-panelok { margin: 0.2rem 0 0; font-size: 0.9rem; color: #166534; line-height: 1.5; }
+.sw-edit-panelacts { display: flex; gap: 0.4rem; justify-content: flex-end; margin-top: 0.9rem; flex-wrap: wrap; }
+
+/* urgency picker — big tap targets, since most club edits happen on a phone */
+.sw-edit-urgency { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.sw-edit-urgbtn {
+  flex: 1 1 90px; display: flex; flex-direction: column; gap: 2px; cursor: pointer;
+  padding: 0.55rem 0.6rem; border: 1px solid #d4d4d8; border-radius: 10px;
+  background: #fff; text-align: left; font-family: inherit;
+}
+.sw-edit-urgbtn strong { font-size: 0.86rem; }
+.sw-edit-urgbtn span { font-size: 0.72rem; color: #6b7280; line-height: 1.35; }
+.sw-edit-urgbtn.is-on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* brand colour rows inside the inline panel */
+.sw-edit-colrow { display: flex; gap: 0.7rem; align-items: flex-start; margin-bottom: 0.8rem; }
+.sw-edit-colfields { flex: 1 1 auto; min-width: 0; }
+.sw-edit-collabel {
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem;
+}
+.sw-edit-colhex {
+  width: 100%; padding: 0.4rem 0.55rem; border: 1px solid #d4d4d8; border-radius: 8px;
+  font-family: var(--font-mono, monospace); font-size: 0.84rem;
+}
+.sw-edit-colhint { margin: 0.3rem 0 0; font-size: 0.74rem; color: #6b7280; line-height: 1.4; }
+.sw-edit-colnote { margin: 0.2rem 0 0; font-size: 0.76rem; color: #b45309; }
+
+/* count of staged-but-unpublished changes, shown above the publish pill */
+.sw-edit-pending {
+  align-self: flex-start; background: #eff4ff; color: #1e3a8a;
+  border: 1px solid #cfe0ff; border-radius: 8px;
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+  padding: 0.3rem 0.6rem;
+}
+.sw-edit-toggle--discard { background: #b91c1c; color: #fff; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3); }
+.sw-edit-toggle--discard:disabled { opacity: 0.7; cursor: default; }
+
+/* ---- "edit on the page" call-to-action, top of Edit website ---------------- */
+.sw-inline-cta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem;
+  background: linear-gradient(135deg, #eff4ff, #f8fafc);
+  border: 1px solid #cfe0ff; border-radius: 12px;
+  padding: 1.1rem 1.3rem; margin: 0 0 1.25rem;
+}
+.sw-inline-ctacopy { flex: 1 1 320px; min-width: 0; }
+.sw-inline-ctacopy h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+.sw-inline-ctacopy p { margin: 0; font-size: 0.87rem; color: #4b5563; line-height: 1.55; max-width: 62ch; }
+.sw-inline-ctabtn { flex: 0 0 auto; white-space: nowrap; }
+
+/* ---- change-request queue -------------------------------------------------- */
+.sw-req-list { display: flex; flex-direction: column; gap: 0.85rem; }
+.sw-req-card {
+  border: 1px solid #e4e4e7; border-left: 4px solid #d4d4d8; border-radius: 10px;
+  background: #fff; padding: 0.95rem 1.1rem;
+}
+.sw-req-card--urgent { border-left-color: #b91c1c; }
+.sw-req-card--soon { border-left-color: #b45309; }
+.sw-req-card--whenever { border-left-color: #9ca3af; }
+.sw-req-top {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.55rem;
+}
+.sw-req-urg {
+  font-family: var(--font-mono); font-size: 0.68rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.2rem 0.45rem; border-radius: 5px;
+}
+.sw-req-urg--urgent { background: #fee2e2; color: #b91c1c; }
+.sw-req-urg--soon { background: #ffedd5; color: #b45309; }
+.sw-req-urg--whenever { background: #f4f4f5; color: #52525b; }
+.sw-req-club { font-size: 0.92rem; }
+.sw-req-status {
+  font-size: 0.72rem; font-weight: 700; color: #3f3f46;
+  background: #f4f4f5; border-radius: 999px; padding: 0.18rem 0.5rem;
+}
+.sw-req-status[data-status="done"] { background: #dcfce7; color: #166534; }
+.sw-req-status[data-status="declined"] { background: #f4f4f5; color: #71717a; }
+.sw-req-status[data-status="in_progress"] { background: #dbeafe; color: #1e40af; }
+.sw-req-when { margin-left: auto; font-size: 0.74rem; color: #71717a; }
+.sw-req-what { margin: 0 0 0.4rem; font-size: 0.95rem; font-weight: 600; line-height: 1.5; }
+.sw-req-why, .sw-req-response { margin: 0 0 0.3rem; font-size: 0.86rem; color: #3f3f46; line-height: 1.55; }
+.sw-req-why span, .sw-req-response span { font-weight: 700; color: #71717a; }
+.sw-req-page { margin: 0.3rem 0 0; font-size: 0.78rem; color: #71717a; }
+.sw-req-page code { background: #f4f4f5; padding: 0.1rem 0.3rem; border-radius: 4px; }
+.sw-req-acts { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.7rem; }
+
 /* ============================================================
    Admin — Communications hub
    ============================================================ */
@@ -3438,7 +3579,9 @@
 .sw-imgfield-err { font-size: 0.82rem; color: #b23a2c; margin-top: 0.4rem; }
 
 .sw-crop-overlay {
-  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  /* Above the inline edit toolbar (2147483200) — the crop dialog is now opened from
+     the page itself, and the floating edit pills would otherwise sit on top of it. */
+  position: fixed; inset: 0; z-index: 2147483300; display: flex; align-items: center; justify-content: center;
   background: rgba(8, 12, 22, 0.62); padding: 1rem;
 }
 .sw-crop-card {

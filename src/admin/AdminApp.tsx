@@ -21,6 +21,7 @@ import { AdminSiteEditor, SitePagesEditor } from "./AdminSiteEditor";
 import { SiteHistory } from "./SiteHistory";
 import { PublishControl } from "./PublishControl";
 import { AdminFeedback } from "./AdminFeedback";
+import { AdminRequests } from "./AdminRequests";
 import { AdminDashboard } from "./AdminDashboard";
 import { ModulePrePage, COMING_SOON_MODULES, type ModulePre } from "./ModulePrePage";
 import { getModule } from "../lib/modules";
@@ -49,13 +50,12 @@ import { readSidebarLook, SIDEBAR_LOOK_EVENT } from "./sidebarLook";
 import { loadCommitteeProfile } from "../lib/committee";
 import { personaFromTitle } from "../lib/roleKpis";
 
-/** Editable site pages shown under "Edit website" (alongside the content collections). */
+/** Shown under "Edit website" (alongside the content collections).
+ *  Per-page entries are gone: page words and photos are edited on the page itself,
+ *  and what can't be clicked there lives in one Site settings panel. The __page_*
+ *  routes still resolve so old deep links don't 404 — nothing links to them. */
 const SITE_PAGES: { key: string; label: string }[] = [
-  { key: "__page_home", label: "Home" },
-  { key: "__page_about", label: "About" },
-  { key: "__page_contact", label: "Contact" },
-  { key: "__page_register", label: "Register" },
-  { key: "__page_footer", label: "Footer & site-wide" },
+  { key: "__site", label: "Site settings" },
 ];
 
 /** SETUP_ROUTES (cta_route → admin screen) now lives in ./setupRoutes,
@@ -346,6 +346,8 @@ function AdminInner() {
       <ClubGuide go={setActive} />
     ) : effectiveActive === "__feedback" && hasClub ? (
       <AdminFeedback clubId={clubId!} websiteStatus={club.websiteStatus} />
+    ) : effectiveActive === "__requests" ? (
+      <AdminRequests isPlatformAdmin={isPlatformAdmin} />
     ) : effectiveActive.startsWith("__ws_") && hasClub ? (
       <ZohoWorkspace appKey={effectiveActive.slice("__ws_".length)} />
     ) : effectiveActive.startsWith("__partner_") ? (
@@ -780,6 +782,15 @@ function AdminInner() {
                   onClick={() => setActive("__site_history")}
                 >
                   History &amp; restore
+                </button>
+              )}
+              {can("club.website") && (
+                <button
+                  className="sw-admin-stylebtn"
+                  data-active={active === "__requests"}
+                  onClick={() => setActive("__requests")}
+                >
+                  Change requests
                 </button>
               )}
               {can("club.settings") && (

@@ -1,8 +1,9 @@
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { AccentBars } from "../layout/Chevron";
-import { EditableText } from "../edit/Editable";
+import { EditableText, EditableVideo } from "../edit/Editable";
 import { MediaEmbed } from "./MediaEmbed";
+import { useEdit } from "../../lib/edit";
 
 /** Video-led split section: copy/CTA one side, an embedded video the other.
  *  Renders nothing if the club hasn't set videoPitch (optional block —
@@ -10,8 +11,11 @@ import { MediaEmbed } from "./MediaEmbed";
  *  (YouTube/Vimeo/direct file) rather than re-implementing embed logic. */
 export function VideoSplit() {
   const { club } = useClub();
+  const { value } = useEdit();
   const { videoPitch } = club;
-  if (!videoPitch || !videoPitch.videoUrl) return null;
+  // Read through the edit layer so a link swapped inline takes effect immediately.
+  const videoUrl = value("home.video.url", videoPitch?.videoUrl ?? "");
+  if (!videoPitch || !videoUrl) return null;
 
   return (
     <section className="sw-section sw-videosplit">
@@ -27,8 +31,9 @@ export function VideoSplit() {
             </SmartLink>
           )}
         </div>
-        <div>
-          <MediaEmbed url={videoPitch.videoUrl} title={videoPitch.title} />
+        <div className="sw-videosplit-media">
+          <MediaEmbed url={videoUrl} title={videoPitch.title} />
+          <EditableVideo k="home.video.url" label="video" />
           {videoPitch.caption && <EditableText as="p" className="sw-videosplit-caption" k="home.video.caption" value={videoPitch.caption} />}
         </div>
       </div>
