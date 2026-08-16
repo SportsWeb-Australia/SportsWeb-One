@@ -1,17 +1,46 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/", "destination": "/api/render" },
-    { "source": "/robots.txt", "destination": "/api/robots.txt" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
-    { "source": "/llms.txt", "destination": "/api/llms.txt" },
-    { "source": "/admin", "destination": "/index.html" },
-    { "source": "/admin/:path*", "destination": "/index.html" },
-    { "source": "/start", "destination": "/index.html" },
-    { "source": "/start/:path*", "destination": "/index.html" },
-    { "source": "/guide", "destination": "/index.html" },
-    { "source": "/guide/:path*", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/api/render" }
+    {
+      "source": "/robots.txt",
+      "destination": "/api/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.xml"
+    },
+    {
+      "source": "/llms.txt",
+      "destination": "/api/llms.txt"
+    },
+    {
+      "source": "/admin",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/start",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/start/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/guide",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/guide/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/render"
+    }
   ],
   "redirects": [
     {

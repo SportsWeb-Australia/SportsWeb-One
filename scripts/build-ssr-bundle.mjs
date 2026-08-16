@@ -10,7 +10,8 @@
  * rather than routable functions, the same way api/_club.js already works.
  */
 import { build } from "esbuild";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, rename } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -69,10 +70,23 @@ async function bundleRenderer() {
   });
 }
 
+/**
+ * Capture the shell, then move the built entry off the root path.
+ *
+ * Vercel matches the filesystem before it considers rewrites, so while
+ * dist/index.html exists, "/" is answered from it and never reaches api/render —
+ * meaning the homepage, the page that matters most for SEO, could never be served
+ * from the bake even though every other route could. Emitting it as app.html leaves
+ * "/" unclaimed, so the catch-all rewrite wins. The rewrites for the app's own
+ * routes (/admin, /start, /guide) point at app.html directly.
+ *
+ * Idempotent: re-running after a rename reads whichever of the two exists.
+ */
 async function captureShell() {
-  const shell = await readFile(R("dist/index.html"), "utf8");
+  const entry = existsSync(R("dist/index.html")) ? R("dist/index.html") : R("dist/app.html");
+  const shell = await readFile(entry, "utf8");
   if (!shell.includes('id="root"')) {
-    throw new Error('dist/index.html has no id="root" — the bake has nowhere to inject markup');
+    throw new Error(`${entry} has no id="root" — the bake has nowhere to inject markup`);
   }
   await writeFile(
     R("api/_shell.mjs"),
@@ -80,6 +94,7 @@ async function captureShell() {
       `export const SHELL_HTML = ${JSON.stringify(shell)};\n`,
     "utf8"
   );
+  if (entry.endsWith("index.html")) await rename(entry, R("dist/app.html"));
   return shell.length;
 }
 
