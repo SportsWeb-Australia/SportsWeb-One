@@ -2452,6 +2452,9 @@
 .sw-switch {
   width: 52px; height: 30px; border-radius: 999px; border: none; cursor: pointer;
   background: #c7c7cc; position: relative; transition: background 0.18s; flex: none;
+  /* border-box so the dashed "not set" variant below keeps the same footprint
+     as a solid switch and the toggle column stays aligned. */
+  box-sizing: border-box;
 }
 .sw-switch.on { background: var(--accent); }
 .sw-switch i {
@@ -2531,6 +2534,30 @@
 .sw-switch--sm { width: 40px; height: 23px; }
 .sw-switch--sm i { width: 17px; height: 17px; }
 .sw-switch--sm.on i { transform: translateX(17px); }
+
+/* Module switch states. "Not set" (no club_modules row) and "locked" both sit in
+   the off position, so they are told apart by weight: hollow and dashed for the
+   absence of a decision, solid for a deliberate off. */
+.sw-switch.is-default {
+  background: transparent; border: 1px dashed #bfc5d0;
+}
+.sw-switch.is-default i { background: #dfe3ea; box-shadow: none; }
+.sw-switch.is-default:hover { border-color: var(--accent); }
+/* A trial is on but unpaid, and nothing expires it — amber rather than a subtle
+   ring, so free grants are scannable down the column instead of blending into
+   the paid ones. */
+.sw-switch.is-trial.on { background: #c47009; }
+
+.sw-super-legend {
+  display: flex; flex-wrap: wrap; gap: 0.6rem 1.5rem;
+  margin-top: 1rem; padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem; color: var(--text-soft);
+}
+.sw-super-legend-item { display: flex; align-items: center; gap: 0.5rem; }
+.sw-super-legend-item b { color: var(--text); font-weight: 600; }
+/* Legend swatches are illustrative, not controls. */
+.sw-super-legend .sw-switch { cursor: default; pointer-events: none; }
 
 .sw-super-providers { display: grid; gap: 1rem; margin-top: 1rem; max-width: 880px; }
 .sw-super-provider { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem 1.3rem; background: #fff; box-shadow: 0 1px 2px rgba(16, 19, 32, 0.04); }

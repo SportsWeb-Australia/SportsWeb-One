@@ -21,6 +21,23 @@ const SPORT_LABELS: Record<string, string> = {
 };
 const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "—");
 
+/* A module switch shows four states but only two positions, so "never touched"
+   and "explicitly off" would otherwise look identical. These drive a distinct
+   look and an honest label for each. "default" is a UI-only sentinel meaning
+   there is no club_modules row at all — it is never stored. */
+const MODULE_STATE_CLASS: Record<string, string> = {
+  default: "is-default", locked: "is-locked", enabled: "is-enabled", trial: "is-trial",
+};
+const MODULE_STATE_LABEL: Record<string, string> = {
+  default: "not set", locked: "off", enabled: "on", trial: "on (trial)",
+};
+const MODULE_STATE_HINT: Record<string, string> = {
+  default: "Not set — off, and no record either way. Click to turn on.",
+  locked: "Off. Recorded as “locked”, which overrides any built-in default.",
+  enabled: "On. Recorded as “enabled”.",
+  trial: "On, as a free trial. Nothing expires it automatically.",
+};
+
 /** Platform operator view: every club, with per-module enable/disable. */
 export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
   const { setActiveClub } = useActiveClub();
@@ -244,10 +261,11 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
             <td key={m.key} className="sw-super-cell">
               <button
                 type="button"
-                className={`sw-switch sw-switch--sm${on ? " on" : ""}`}
+                className={`sw-switch sw-switch--sm${on ? " on" : ""} ${MODULE_STATE_CLASS[st] ?? ""}`}
                 aria-pressed={on}
                 disabled={busy === cell}
-                title={st === "default" ? "Using site default" : st}
+                title={`${m.name} — ${MODULE_STATE_HINT[st] ?? st}`}
+                aria-label={`${m.name} for ${club.name}: ${MODULE_STATE_LABEL[st] ?? st}`}
                 onClick={() => toggle(club.id, m.key, on)}
               >
                 <i />
@@ -457,10 +475,26 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
           })}
         </div>
       )}
-      <p className="sw-comms-note" style={{ marginTop: "1rem" }}>
-        A switch left untouched uses the site's built-in default. Turning it on records an explicit
-        “enabled”; turning it off records “locked”, which overrides any default.
-      </p>
+      <div className="sw-super-legend">
+        {([
+          ["default", "Not set", "No record either way — the module is off."],
+          ["locked", "Off", "Recorded as “locked”. Overrides any built-in default."],
+          ["enabled", "On", "Recorded as “enabled”."],
+          ["trial", "On (trial)", "Nothing expires this automatically."],
+        ] as const).map(([state, label, note]) => (
+          <span key={state} className="sw-super-legend-item">
+            <span
+              aria-hidden="true"
+              className={`sw-switch sw-switch--sm ${MODULE_STATE_CLASS[state]}${state === "enabled" || state === "trial" ? " on" : ""}`}
+            >
+              <i />
+            </span>
+            <span>
+              <b>{label}</b> — {note}
+            </span>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
