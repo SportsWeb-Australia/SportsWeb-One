@@ -144,13 +144,37 @@ rolled-back transaction *before* applying, not assumed.
 
 Rollback if ever needed: re-run `supabase/enable-writes.sql` in the line-ups repo.
 
-## 5. Remaining: enforce entitlement
+## 5. Existing clubs are grandfathered
 
-`club_entitlement()` is correct but nothing calls it on the write path yet, so an
-expired trial is reported rather than stopped. Now that writes are authenticated,
-gating them on it is meaningful.
+All seven clubs that predate billing were marked `active` with **no Stripe id**.
+`club_entitlement()` reports those as `source='complimentary'` so a grandfathered
+club is never counted as revenue. Nothing they already built can expire.
 
-Before switching that on, decide what happens to the existing data: 25 line-ups,
-14 teams and 249 players sit under clubs with no subscription row, so a strict
-gate would lock them out. Either `start_lineup_trial()` those clubs or mark them
-`active`.
+## 6. Bringing an existing line-ups club onto SportsWeb One
+
+**Adopt the existing club first, then switch the module on.** Not the other way
+around.
+
+`link_sportsweb_club()` only finds a club by its existing link, so switching the
+module on for a club that already uses Team Line-Ups standalone would create a
+brand-new **empty** club and strand every team, player and line-up on the old row.
+
+```sql
+-- on the line-ups project, BEFORE toggling the module in SportsWeb One
+select public.adopt_lineups_club_for_sportsweb(
+         '<line-ups club uuid>', '<sportsweb club uuid>', true);
+```
+
+Then toggling the module updates that same row in place. Adoption also drops the
+complimentary subscription, so the club is billed by SportsWeb One only.
+
+Adoption is deliberately manual. Matching by name is the obvious shortcut and is
+unsafe: five rows in the line-ups `clubs` table are called "Geelong", so a guess
+would silently attach the wrong history.
+
+Verified by simulating the whole handover in a rolled-back transaction: entitlement
+moved `complimentary → sportsweb`, all 44 players stayed put, no duplicate club was
+created, switching the module off correctly revoked access, and linking a second
+row to the same SportsWeb club was refused.
+
+## 7. Remaining: enforce entitlement
