@@ -17,6 +17,10 @@ interface AuthState {
   platformRole: PlatformRole | null;
   isPlatformAdmin: boolean;
   isSuperadmin: boolean;
+  // True while the user arrived via a password-recovery link and hasn't yet set a
+  // new password. Gates a "choose a new password" screen ahead of the normal app.
+  recovering: boolean;
+  finishRecovery: () => void;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
 }
@@ -94,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [membership, setMembership] = useState<ClubMembership | null>(null);
   const [platformRole, setPlatformRole] = useState<PlatformRole | null>(null);
+  const [recovering, setRecovering] = useState(false);
   // The user id we've already resolved membership/role for. Token refreshes fire
   // on every tab refocus; without this guard we'd re-resolve and flip `resolving`
   // each time, which unmounts the open admin screen (see AdminApp's loading gate)
@@ -132,7 +137,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setReady(true);
       })
       .catch(() => setReady(true));
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Arriving via the emailed reset link: show the set-a-new-password screen
+      // instead of dropping the user straight into the app with a temp session.
+      if (event === "PASSWORD_RECOVERY") setRecovering(true);
       const user = session?.user ?? null;
       const nextEmail = user?.email ?? null;
       const nextId = user?.id ?? null;
@@ -176,6 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase?.auth.signOut();
   };
 
+  const finishRecovery = () => setRecovering(false);
+
   const isSuperadmin = platformRole === "superadmin";
   // Platform admin = Super Admin or SportsWeb Manager. The SportsWeb Admin (builder)
   // is a platform role but NOT a platform admin: it only reaches assigned clubs.
@@ -183,7 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider
-      value={{ ready, resolving, email, userId, membership, platformRole, isPlatformAdmin, isSuperadmin, signIn, signOut }}
+      value={{ ready, resolving, email, userId, membership, platformRole, isPlatformAdmin, isSuperadmin, recovering, finishRecovery, signIn, signOut }}
     >
       {children}
     </Ctx.Provider>

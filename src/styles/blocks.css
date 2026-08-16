@@ -2280,12 +2280,46 @@
   font-size: 0.82rem; color: #3f3f46; font-family: var(--font-mono);
 }
 .sw-rt-toolbar button:hover { background: #eef0f2; border-color: #e4e4e7; }
+.sw-rt-sep { width: 1px; align-self: stretch; margin: 2px 4px; background: #e4e4e7; }
+.sw-rt-sel {
+  height: 30px; padding: 0 6px; border: 1px solid #e4e4e7; border-radius: 6px;
+  background: #fff; color: #3f3f46; font-size: 0.8rem; font-family: var(--font-mono); cursor: pointer;
+}
+.sw-rt-sel:hover { border-color: #c9ccd1; }
+.sw-rt-swatches { display: inline-flex; align-items: center; gap: 3px; }
+.sw-rt-swatch {
+  width: 20px; height: 20px; min-width: 0; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15); cursor: pointer; box-shadow: none;
+}
+.sw-rt-swatch:hover { transform: scale(1.12); border-color: rgba(0, 0, 0, 0.35); }
+.sw-rt-swatch--custom {
+  display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+  background: conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.sw-rt-swatch--custom input {
+  width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; cursor: pointer;
+}
 .sw-rt-area {
   min-height: 220px; padding: 1rem 1.1rem; outline: none;
   font-size: 1rem; line-height: 1.6;
 }
 .sw-rt-area:empty:before { content: attr(data-placeholder); color: #a1a1aa; }
 .sw-rt-area:focus { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+/* Active formatting lights up in SportsWeb blue */
+.sw-rt-toolbar button.is-active {
+  background: color-mix(in srgb, var(--accent) 14%, #fff);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+}
+/* Uploaded images stay inside the column, editor and live site alike */
+.sw-prose img { max-width: 100%; height: auto; border-radius: 8px; }
+/* Phone: bigger tap targets, let the toolbar scroll rather than crowd */
+@media (max-width: 640px) {
+  .sw-rt-toolbar { gap: 3px; -webkit-overflow-scrolling: touch; }
+  .sw-rt-toolbar button { height: 34px; min-width: 34px; }
+  .sw-rt-sel { height: 34px; }
+  .sw-rt-swatch { width: 24px; height: 24px; }
+}
 
 /* Prose blockquote (article + editor) */
 .sw-prose blockquote {
@@ -3889,6 +3923,7 @@
   font-size: 0.9rem; color: var(--accent, #2563eb); text-decoration: underline; text-underline-offset: 3px;
 }
 .sw-login-magic:disabled { opacity: 0.6; cursor: default; }
+.sw-login-forgot { margin-top: 0.35rem; font-size: 0.82rem; color: #6b7280; }
 .sw-login-magic-sent {
   margin-top: 0.7rem; padding: 0.8rem 0.95rem; border-radius: 10px;
   background: #ecfdf5; color: #166534; font-size: 0.88rem; line-height: 1.45;

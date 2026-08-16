@@ -366,7 +366,7 @@ function FieldInput({ field, value, onChange, clubId, folder, recordKey }: { fie
     return (
       <label className="sw-admin-field">
         <span>{field.label}</span>
-        <RichText key={recordKey} value={value} onChange={onChange} />
+        <RichText key={recordKey} value={value} onChange={onChange} clubId={clubId} folder={folder ?? "articles"} />
         {field.help && <small>{field.help}</small>}
       </label>
     );
