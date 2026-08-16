@@ -138,6 +138,33 @@
 </blockquote>
 <p><strong>Use this when</strong> you&#39;re building a new site (new design, new structure) — not replicating one existing site. Two things are decided <strong>independently</strong>: where the <strong>content</strong> comes from, and where the <strong>design</strong> comes from. Pick one option on each axis.</p>
 <hr>
+<h2>Part A0 — Kickoff prompt (paste into a fresh chat; fill the fields)</h2>
+<p>🔴 <strong>This is the prompt Carson pulls from this SOP for every new build.</strong> Written after the
+AFLVM incident (<code>docs/engineering-conventions.md</code> §7/§8, 2026-08-04) — it exists specifically so
+the next build can&#39;t repeat it.</p>
+<blockquote class="note">
+<p>You&#39;re Codey. Build <strong>{{CLUB/CLIENT NAME}}</strong>&#39;s site per the SW1 Build-from-Scratch SOP
+(<code>~/Developer/sportsweb-standards/SPORTSWEB-BUILD-FROM-SCRATCH-SOP.md</code>), law
+<code>SPORTSWEB-WEB-STANDARDS.md</code> (S1–S20).</p>
+<p><strong>Reference design:</strong> {{URL or named prior build, e.g. RDCA}} — {{a proven, hand-built
+reference OR &quot;new design, no reference — brief below&quot;}}. <strong>Brand:</strong> {{exact colours, e.g.
+&quot;navy #… / white / silver accent #…&quot;}} — state every colour explicitly; do not infer them from
+a screenshot&#39;s UI chrome or a different property&#39;s palette.</p>
+<p>🔴 <strong>Before writing a single section:</strong> confirm what the reference is actually built on (open
+its real live URL/repo, don&#39;t assume) and pick the renderer per this doc&#39;s §7/§8 — the site
+must be a bespoke, hand-built-quality result, whichever renderer gets you there fastest without
+sacrificing fidelity. Report which renderer and why in your one-line plan confirmation.</p>
+<p>Mirror the reference <strong>section-by-section, in its real source order</strong> — don&#39;t improvise a
+structure from memory or invent a generic composition. If a section type doesn&#39;t exist yet,
+build it as a real, registered, reusable piece (not a one-off), and say so.</p>
+<p>🔴 <strong>Before presenting ANY preview, open the real reference and the build side by side and
+diff them</strong> — brand colours applied correctly (not the reference&#39;s own colours), section
+order, spacing, type weight. Report the diff, not a self-assessment (&quot;looks good,&quot; &quot;verified&quot;)
+— show what you compared and what you found, including anything still off.</p>
+<p>Confirm the plan in one short message (renderer choice + why, reference used, brand tokens),
+then go. Report the preview URL.</p>
+</blockquote>
+<hr>
 <h2>Part A — Two axes, decided separately</h2>
 <h3>Axis 1 — CONTENT source</h3>
 <ul>

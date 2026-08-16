@@ -9,5 +9,6 @@ export * from "./registry";
 export * from "./jsonSchema";
 export * from "./PageRenderer";
 export * from "./usePublicClubPage";
+export * from "./usePublicClubNav";
 export * from "./themeSchema";
 export * from "./templates/classic";

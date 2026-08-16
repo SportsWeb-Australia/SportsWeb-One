@@ -24,8 +24,14 @@
   max-width: var(--container);
   margin-inline: auto;
 }
-/* Alternating surface bands read the same token; never assume neighbours. */
-.sw-page .sw-sec:nth-of-type(even) {
+/* Alternating surface bands read the same token; never assume neighbours.
+   :where() wraps :nth-of-type deliberately -- it contributes ZERO specificity, so this rule
+   ties with any 2-class variant selector (.sw-page .sw-sec--xyz) instead of beating it. Found
+   live: :nth-of-type(even) silently overrode .sw-sec--contact-full's dark background because
+   plain nth-of-type outranks a single modifier class on specificity -- white contact heading
+   ended up on a light band, unreadable. Every dark/full-bleed variant added after this must
+   still just work without individually fighting this rule; :where() is what makes that true. */
+.sw-page .sw-sec:where(:nth-of-type(even)) {
   background: var(--bg-alt);
 }
 
@@ -69,6 +75,18 @@
   background: var(--brand-fill);
   color: var(--brand-fill-on);
   border-color: transparent;
+}
+/* A non-primary CTA inside the hero reads its border/text off --text/--border, which are
+   dark-surface tokens -- invisible against a dark or photo hero (the RDCA acceptance-test
+   page's "Fixtures" link, found in this session's checkpoint screenshot: unstyled text with
+   no visible button chrome). Ghost variant, relative to --hero-text instead. */
+.sw-page .sw-sec--hero .sw-sec-cta:not(.sw-sec-cta--primary) {
+  color: var(--hero-text);
+  border-color: color-mix(in srgb, var(--hero-text) 35%, transparent);
+  background: color-mix(in srgb, var(--hero-text) 10%, transparent);
+}
+.sw-page .sw-sec--hero .sw-sec-cta:not(.sw-sec-cta--primary):hover {
+  background: color-mix(in srgb, var(--hero-text) 18%, transparent);
 }
 
 /* ============================ HERO ============================ */
@@ -135,9 +153,35 @@
   padding-block: var(--space-2); font-size: var(--fs-eyebrow); text-align: center;
 }
 .sw-page .sw-sec-announce-link { color: var(--text-invert); text-decoration: underline; }
+/* list variant -- RDCA's sidebar "Community Notices" card: a light surface list, not the
+   dark full-width banner (this is a sidebar widget, not chrome). */
+.sw-page .sw-sec--announce-list {
+  display: block; background: var(--surface); color: var(--text); text-align: left;
+  border: 1px solid var(--border); border-left: 3px solid var(--accent-on-bg);
+  border-radius: var(--radius); padding: var(--space-2);
+}
+.sw-page .sw-sec-announce-items { list-style: none; margin: 0; padding: 0; }
+.sw-page .sw-sec--announce-list .sw-sec-announce-item {
+  display: flex; gap: var(--space-1); padding-block: var(--space-1);
+  border-bottom: 1px solid var(--border); font-size: 0.8rem;
+}
+.sw-page .sw-sec--announce-list .sw-sec-announce-item:last-child { border-bottom: none; }
+.sw-page .sw-sec--announce-list .sw-sec-announce-date { color: var(--accent-on-bg); font-weight: 700; flex-shrink: 0; }
+.sw-page .sw-sec--announce-list .sw-sec-announce-link,
+.sw-page .sw-sec--announce-list .sw-sec-announce-text { color: var(--text); text-decoration: none; }
 
 /* ============================ RICH TEXT ============================ */
 .sw-page .sw-sec-rt-body { max-width: 46rem; }
+/* spotlight variant -- RDCA's sidebar "Player Spotlight" card: a photo-topped authored card. */
+.sw-page .sw-sec--richtext-spotlight {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; padding: 0;
+}
+.sw-page .sw-sec--richtext-spotlight .sw-sec-rt-photo { width: 100%; height: 8rem; object-fit: cover; display: block; }
+.sw-page .sw-sec--richtext-spotlight .sw-sec-heading,
+.sw-page .sw-sec--richtext-spotlight .sw-sec-rt-body { padding-inline: var(--space-2); }
+.sw-page .sw-sec--richtext-spotlight .sw-sec-heading { margin-top: var(--space-2); }
+.sw-page .sw-sec--richtext-spotlight .sw-sec-rt-body { padding-bottom: var(--space-2); max-width: none; }
 .sw-page .sw-sec-rt-p { margin: 0 0 var(--space-2); color: var(--text); }
 .sw-page .sw-sec-rt-list { margin: 0 0 var(--space-2) var(--space-3); color: var(--text); }
 .sw-page .sw-sec-rt-list li { margin-block: 0.25rem; }
@@ -155,12 +199,44 @@
   box-shadow: var(--shadow); transition: transform var(--dur) var(--ease);
 }
 .sw-page .sw-sec-ql-link:hover { transform: translateY(-2px); }
+/* icon-grid variant -- RDCA's "APP BUTTONS" row: dense icon tiles, not link cards. */
+.sw-page .sw-sec--quicklinks-icon-grid .sw-sec-ql-list {
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 0;
+  background: var(--bg-invert);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.sw-page .sw-sec--quicklinks-icon-grid .sw-sec-ql-link {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  padding: var(--space-2) 0.4rem; background: transparent; border: none; border-radius: 0;
+  box-shadow: none; text-align: center; color: color-mix(in srgb, var(--text-invert) 70%, transparent);
+  font-size: 0.7rem; font-weight: 600;
+}
+.sw-page .sw-sec--quicklinks-icon-grid .sw-sec-ql-link:hover { color: var(--text-invert); transform: none; }
+.sw-page .sw-sec--quicklinks-icon-grid .sw-sec-ql-icon {
+  width: 2.75rem; height: 2.75rem; border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--text-invert) 8%, transparent);
+}
 
 /* ============================ CTA BAND ============================ */
-.sw-page .sw-sec--ctaband { text-align: center; background: var(--bg-invert); color: var(--text-invert); }
-.sw-page .sw-sec--ctaband .sw-sec-heading { color: var(--text-invert); text-align: center; }
+.sw-page .sw-sec--ctaband-compact { text-align: center; background: var(--bg-invert); color: var(--text-invert); }
+.sw-page .sw-sec--ctaband-compact .sw-sec-heading { color: var(--text-invert); text-align: center; }
 .sw-page .sw-sec-ctaband-blurb { color: var(--text-invert); opacity: 0.85; max-width: 40rem; margin: 0 auto var(--space-3); }
 .sw-page .sw-sec-ctaband-actions { display: flex; gap: var(--space-2); justify-content: center; flex-wrap: wrap; }
+/* feature variant -- RDCA's full-bleed photo banner (rep cricket / umpires pattern),
+   reused for any "big announcement with a CTA" moment rather than 3 separate sections. */
+.sw-page .sw-sec--ctaband-feature { position: relative; overflow: hidden; min-height: 14rem; display: flex; align-items: center; background: var(--bg-invert); }
+.sw-page .sw-sec-ctaband-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+.sw-page .sw-sec--ctaband-feature > * { max-width: none; margin-inline: 0; } /* two children (img + inner); see hero's identical fix */
+.sw-page .sw-sec--ctaband-feature .sw-sec-ctaband-inner {
+  position: relative; z-index: 1; max-width: var(--container); margin-inline: auto;
+  padding: var(--space-3); border-left: 4px solid var(--accent-on-bg);
+  text-align: left;
+}
+.sw-page .sw-sec--ctaband-feature .sw-sec-heading { color: var(--text-invert); text-align: left; }
+.sw-page .sw-sec--ctaband-feature .sw-sec-ctaband-blurb { text-align: left; margin-inline: 0; }
+.sw-page .sw-sec--ctaband-feature .sw-sec-ctaband-actions { justify-content: flex-start; }
 
 /* ============================ PRESIDENT ============================ */
 .sw-page .sw-sec--president { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; }
@@ -173,6 +249,50 @@
 .sw-page .sw-sec-contact-rows { display: flex; flex-direction: column; gap: var(--space-1); }
 .sw-page .sw-sec-contact-row { color: var(--text); text-decoration: none; }
 .sw-page .sw-sec-contact-map { color: var(--accent-on-bg); font-weight: 600; }
+/* full-width variant -- RDCA's real closing-contact banner, not an inline card. */
+.sw-page .sw-sec--contact-full { background: var(--bg-invert); }
+.sw-page .sw-sec--contact-full .sw-sec-contact-inner { max-width: var(--container); margin-inline: auto; padding: var(--space-4) var(--space-3); }
+.sw-page .sw-sec--contact-full .sw-sec-heading { color: var(--text-invert); }
+.sw-page .sw-sec--contact-full .sw-sec-contact-rows { flex-direction: row; flex-wrap: wrap; gap: var(--space-3); }
+.sw-page .sw-sec--contact-full .sw-sec-contact-row { color: color-mix(in srgb, var(--text-invert) 80%, transparent); }
+.sw-page .sw-sec--contact-full .sw-sec-contact-map { color: var(--accent-on-bg); }
+
+/* ============================ CLUBS DIRECTORY ============================
+   The association member-club directory (docs/rdca-port-audit-v2.md sec 1a-gap) -- RDCA's
+   28 clubs, AFLVM's ~45. Content class: an authored list, grouped by division/category. */
+.sw-page .sw-sec-club-group { margin-bottom: var(--space-3); }
+.sw-page .sw-sec-club-group-h {
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  margin-bottom: var(--space-2);
+}
+.sw-page .sw-sec-club-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+}
+.sw-page .sw-sec-club-list { display: flex; flex-direction: column; gap: var(--space-1); }
+.sw-page .sw-sec-club-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  color: var(--text);
+  text-decoration: none;
+  transition: transform var(--dur) var(--ease);
+}
+a.sw-sec-club-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.sw-page .sw-sec-club-list .sw-sec-club-card { flex-direction: row; justify-content: flex-start; text-align: left; }
+.sw-page .sw-sec-club-crest { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+.sw-page .sw-sec-club-name { font-weight: 600; font-size: var(--fs-body); }
 
 /* ============================ NEWS / EVENTS / GENERIC LISTS ============================ */
 .sw-page .sw-sec-news-list,
@@ -183,7 +303,8 @@
 .sw-page .sw-sec-sponsors-list {
   list-style: none; padding: 0; display: grid; gap: var(--space-3);
 }
-.sw-page .sw-sec--news-grid .sw-sec-news-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.sw-page .sw-sec--news-grid .sw-sec-news-list,
+.sw-page .sw-sec--news-feature .sw-sec-news-list { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 .sw-page .sw-sec-news-item {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
   box-shadow: var(--shadow); overflow: hidden; padding: var(--space-3);
@@ -194,11 +315,36 @@
 .sw-page .sw-sec-news-title { font-family: var(--font-display); font-weight: var(--heading-weight); color: var(--text); text-decoration: none; font-size: var(--fs-h3); }
 .sw-page .sw-sec-news-date { font-size: var(--fs-eyebrow); color: var(--text-soft); }
 .sw-page .sw-sec-news-excerpt { color: var(--text-soft); }
+/* news-hero -- RDCA's real featured-story treatment (feature layout, first item only). */
+.sw-page .sw-sec-news-hero {
+  display: block; position: relative; height: 18rem; border-radius: var(--radius-lg);
+  overflow: hidden; margin-bottom: var(--space-3); text-decoration: none;
+  background: var(--bg-invert);
+}
+.sw-page .sw-sec-news-hero-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.sw-page .sw-sec-news-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.15) 55%, transparent 100%); }
+.sw-page .sw-sec-news-hero-body { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: var(--space-3); gap: 0.3rem; }
+.sw-page .sw-sec-news-hero-body .sw-sec-news-cat { color: var(--accent-on-bg); }
+.sw-page .sw-sec-news-hero-title { font-family: var(--font-display); font-size: var(--fs-h2); color: #fff; line-height: 1.05; }
+.sw-page .sw-sec-news-hero-meta { font-size: 0.75rem; color: rgba(255,255,255,.6); }
 
-.sw-page .sw-sec-events-item { display: flex; gap: var(--space-2); align-items: baseline; padding-block: var(--space-2); border-bottom: 1px solid var(--border); }
-.sw-page .sw-sec-events-date { font-family: var(--font-display); color: var(--accent-on-bg); min-width: 8rem; }
-.sw-page .sw-sec-events-title { font-weight: 600; flex: 1; }
-.sw-page .sw-sec-events-loc { color: var(--text-soft); }
+/* events -- real card treatment: image + date badge, not a text row. */
+.sw-page .sw-sec-events-list { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.sw-page .sw-sec-events-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: var(--shadow);
+}
+.sw-page .sw-sec-events-img { position: relative; height: 7rem; background: var(--surface-2); background-size: cover; background-position: center; }
+.sw-page .sw-sec-events-datebadge {
+  position: absolute; bottom: 0.6rem; left: 0.6rem; background: var(--accent-on-bg);
+  border-radius: 0.4rem; padding: 0.25rem 0.5rem; text-align: center; line-height: 1;
+}
+.sw-page .sw-sec-events-day { display: block; font-family: var(--font-display); font-size: 1.1rem; color: var(--hero-bg); }
+.sw-page .sw-sec-events-mon { display: block; font-size: 0.6rem; font-weight: 700; color: var(--hero-bg); }
+.sw-page .sw-sec-events-body { padding: var(--space-2); display: flex; flex-direction: column; gap: 0.3rem; }
+.sw-page .sw-sec-events-title { font-weight: 700; }
+.sw-page .sw-sec-events-loc { color: var(--text-soft); font-size: 0.8rem; }
+.sw-page .sw-sec-events-cta { color: var(--accent-on-bg); font-weight: 600; font-size: 0.8rem; text-decoration: none; }
 
 /* ============================ SPONSORS ============================ */
 .sw-page .sw-sec--sponsors-strip .sw-sec-sponsors-list,
@@ -206,6 +352,21 @@
 .sw-page .sw-sec-sponsor { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: var(--space-2); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .sw-page .sw-sec-sponsor img { max-width: 100%; height: auto; }
 .sw-page .sw-sec-sponsor-blurb { font-size: var(--fs-eyebrow); color: var(--text-soft); text-align: center; }
+/* carousel variant -- RDCA's real sponsor treatment: a horizontally scrolling strip on a
+   dark band, not a static grid. No auto-scroll JS here (RDCA's used a CSS keyframe loop over
+   a doubled list; this is a plain scrollable list -- simpler, equally real, no motion-only
+   content trap). */
+.sw-page .sw-sec--sponsors-carousel { background: var(--bg-invert); padding-block: var(--space-3); }
+.sw-page .sw-sec--sponsors-carousel .sw-sec-heading { color: var(--text-invert); }
+.sw-page .sw-sec--sponsors-carousel .sw-sec-sponsors-list {
+  display: flex; flex-wrap: nowrap; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1);
+  grid-template-columns: none;
+}
+.sw-page .sw-sec--sponsors-carousel .sw-sec-sponsor {
+  flex: 0 0 auto; min-width: 12rem; height: 4.5rem; flex-direction: row;
+  background: color-mix(in srgb, var(--text-invert) 6%, transparent);
+  border-color: color-mix(in srgb, var(--text-invert) 10%, transparent);
+}
 
 /* ============================ COMMITTEE ============================ */
 .sw-page .sw-sec-committee-list { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
@@ -231,8 +392,20 @@
 .sw-page .sw-sec-md-round { color: var(--text-soft); min-width: 5rem; }
 .sw-page .sw-sec-md-opp { flex: 1; font-weight: 600; }
 .sw-page .sw-sec-md-ladder { width: 100%; border-collapse: collapse; }
-.sw-page .sw-sec-md-ladder th, .sw-page .sw-sec-md-ladder td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); }
+.sw-page .sw-sec-md-ladder th, .sw-page .sw-sec-md-ladder td { text-align: center; padding: 0.5rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.sw-page .sw-sec-md-ladder-tl { text-align: left !important; display: flex; align-items: center; gap: 0.5rem; }
+.sw-page .sw-sec-md-ladder-logo { width: 1.5rem; height: 1.5rem; object-fit: contain; }
+.sw-page .sw-sec-md-ladder-pts { font-family: var(--font-display); font-weight: 700; }
 .sw-page .sw-sec-md-ladder-club { background: var(--surface-2); font-weight: 700; }
+/* Real Competition Hub tabs (RDCA port) -- Ladder/Fixtures/Results, one visible at a time. */
+.sw-page .sw-sec-md-hub { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3); box-shadow: var(--shadow); }
+.sw-page .sw-sec-md-tabs { display: flex; gap: var(--space-2); border-bottom: 2px solid var(--border); margin-bottom: var(--space-2); }
+.sw-page .sw-sec-md-tab {
+  background: none; border: none; cursor: pointer; padding: 0.6rem 0.2rem; margin-bottom: -2px;
+  font-size: 0.8rem; font-weight: 700; color: var(--text-soft);
+  border-bottom: 2.5px solid transparent;
+}
+.sw-page .sw-sec-md-tab[aria-selected="true"] { color: var(--text); border-color: var(--accent-on-bg); }
 
 .sw-page .sw-sec--scoreboard { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .sw-page .sw-sec-sb-cell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-2) var(--space-3); box-shadow: var(--shadow); }
@@ -240,8 +413,169 @@
 .sw-page .sw-sec-sb-main { font-family: var(--font-display); font-size: var(--fs-h3); display: block; }
 .sw-page .sw-sec-sb-sub { color: var(--text-soft); font-size: var(--fs-eyebrow); }
 
-/* Mobile: hero + president stack. */
+/* Mobile: president stacks. (The old generic hero media-fade rule for [data-layout="feature"]
+   is gone -- 'feature' has its own real markup below, .sw-sec-hero-photo handles the image.) */
 @media (max-width: 640px) {
   .sw-page .sw-sec--president { grid-template-columns: 1fr; }
-  .sw-page .sw-sec--hero[data-layout="media-split"] .sw-sec-hero-media { width: 100%; opacity: 0.35; }
 }
+
+/* ============================ MAIN + SIDEBAR (layout_mode: main-side) ============================
+   Base structural rules only -- real RDCA density/typography lands with the design port
+   (Step 4, docs/codey-brief-10-the-design-layer.md). This is the minimum so a main-side page
+   holds together today: two columns on desktop, one column on mobile/tablet, and an empty
+   side column (nothing in it yet) collapses rather than leaving a visible gap -- the same
+   "no section may break at any position" contract every other section already honours. */
+.sw-page--main-side .sw-page-cols { display: grid; grid-template-columns: 1fr 320px; gap: var(--space-3); align-items: start; max-width: 1200px; margin-inline: auto; padding-inline: var(--space-3); }
+.sw-page--main-side .sw-page-main { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.sw-page--main-side .sw-page-side { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.sw-page--main-side .sw-page-side:empty { display: none; }
+@media (max-width: 1060px) {
+  .sw-page--main-side .sw-page-cols { grid-template-columns: 1fr; }
+}
+
+/* ============================ FEATURE HERO (real RDCA port) ============================
+   .hero/.hero-grid/.hmc ported from design-sources/rdca-deploy-flat_1.zip/_shared.css,
+   token-driven (no hardcoded RDCA colours -- --hero-bg/--hero-text/--accent-on-bg/--surface
+   carry the club's own theme). Only [data-layout="feature"] uses this; every other layout
+   keeps the generic renderer above until it gets its own real design. */
+.sw-page .sw-sec--hero[data-layout="feature"] {
+  position: relative;
+  overflow: hidden;
+  min-height: 32rem;
+  display: flex;
+  align-items: stretch;
+  padding-block: 0;
+  background: var(--hero-bg);
+}
+/* Two direct children (.sw-sec-hero-photo, .sw-sec-hero-grid) -- override the generic
+   "every direct child is a centred max-width column" rule the same way the earlier
+   showMatchCard slot needed to (found + documented then; same bug shape, fixed proactively
+   here rather than rediscovering it). .sw-sec-hero-grid re-declares its own max-width/margin
+   explicitly below, so this only actually changes .sw-sec-hero-photo's behaviour. */
+.sw-page .sw-sec--hero[data-layout="feature"] > * { max-width: none; margin-inline: 0; }
+.sw-page .sw-sec-hero-photo { position: absolute; inset: 0; }
+.sw-page .sw-sec-hero-photo .sw-sec-hero-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sw-page .sw-sec-hero-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, color-mix(in srgb, var(--hero-bg) 96%, #000) 0%, color-mix(in srgb, var(--hero-bg) 88%, #000) 45%, color-mix(in srgb, var(--hero-bg) 55%, transparent) 100%);
+}
+.sw-page .sw-sec-hero-grid {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 5rem) var(--space-3) var(--space-4);
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: var(--space-4);
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+.sw-page .sw-sec-hero-left { display: flex; flex-direction: column; min-width: 0; }
+.sw-page .sw-sec-hero-crest {
+  width: clamp(64px, 9vw, 108px);
+  height: auto;
+  margin: 0 0 var(--space-2);
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+}
+.sw-page .sw-sec-hero-hed {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  line-height: var(--heading-leading);
+  letter-spacing: var(--heading-tracking);
+  text-transform: var(--heading-transform);
+  color: var(--hero-text);
+  margin: 0 0 var(--space-2);
+}
+.sw-page .sw-sec-hero-accent { color: var(--accent-on-bg); }
+.sw-page .sw-sec-hero-ghost { -webkit-text-stroke: 1.5px color-mix(in srgb, var(--hero-text) 35%, transparent); color: transparent; }
+.sw-page .sw-sec-hero-sub { color: color-mix(in srgb, var(--hero-text) 62%, transparent); font-size: var(--fs-lead); line-height: 1.7; max-width: 30rem; margin: 0 0 var(--space-3); }
+.sw-page .sw-sec--hero[data-layout="feature"] .sw-sec-hero-ctas { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3); }
+.sw-page .sw-sec-hero-badge-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.sw-page .sw-sec-hero-badge {
+  display: inline-flex; align-items: center; gap: 0.4em;
+  padding: 0.25em 0.7em; border-radius: 999px;
+  font-size: var(--fs-eyebrow); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  background: var(--accent-on-bg); color: var(--hero-bg);
+}
+.sw-page .sw-sec-live-dot { width: 0.5em; height: 0.5em; border-radius: 50%; background: currentColor; display: inline-block; animation: sw-live-blink 1.3s ease-in-out infinite; }
+@keyframes sw-live-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.sw-page .sw-sec-hero-note { font-size: var(--fs-eyebrow); color: color-mix(in srgb, var(--hero-text) 45%, transparent); }
+.sw-page .sw-sec-hero-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: color-mix(in srgb, var(--hero-text) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hero-text) 10%, transparent);
+  border-radius: var(--radius-lg); overflow: hidden; margin-top: auto;
+}
+.sw-page .sw-sec-hero-stat { background: color-mix(in srgb, var(--hero-text) 5%, transparent); padding: var(--space-2); text-align: center; }
+.sw-page .sw-sec-hero-stat-val { display: block; font-family: var(--font-display); font-size: var(--fs-h3); color: var(--hero-text); line-height: 1; }
+.sw-page .sw-sec-hero-stat-lbl { display: block; font-size: 0.65rem; color: color-mix(in srgb, var(--hero-text) 45%, transparent); letter-spacing: 0.05em; text-transform: uppercase; margin-top: 0.2rem; }
+.sw-page .sw-sec-hero-right { display: flex; flex-direction: column; min-width: 0; }
+
+/* .hmc -- the live-match card, RDCA's most distinctive element. Honest content only: a real
+   next fixture or latest result from the club's own MatchCentreData (see HeroMatchCard in
+   content.tsx), no fabricated ball-by-ball detail. */
+.sw-page .sw-sec-hmc {
+  background: color-mix(in srgb, var(--hero-bg) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hero-text) 12%, transparent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  flex: 1;
+}
+.sw-page .sw-sec-hmc::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent-on-bg); }
+.sw-page .sw-sec-hmc-hdr { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.sw-page .sw-sec-hmc-badge {
+  display: inline-flex; padding: 0.2em 0.6em; border-radius: 999px;
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  background: var(--accent-on-bg); color: var(--hero-bg);
+}
+.sw-page .sw-sec-hmc-comp { font-size: 0.7rem; color: color-mix(in srgb, var(--hero-text) 45%, transparent); }
+.sw-page .sw-sec-hmc-team { display: flex; align-items: center; justify-content: space-between; padding-block: var(--space-1); }
+.sw-page .sw-sec-hmc-tid { display: flex; align-items: center; gap: var(--space-1); }
+.sw-page .sw-sec-hmc-logo { width: 2rem; height: 2rem; border-radius: 0.5rem; object-fit: contain; flex-shrink: 0; }
+.sw-page .sw-sec-hmc-name { font-size: 0.85rem; font-weight: 600; color: var(--hero-text); }
+.sw-page .sw-sec-hmc-score { font-family: var(--font-display); font-size: 1.4rem; color: var(--hero-text); }
+.sw-page .sw-sec-hmc-vs { font-size: 0.65rem; color: color-mix(in srgb, var(--hero-text) 40%, transparent); }
+.sw-page .sw-sec-hmc-meta { font-size: 0.8rem; color: color-mix(in srgb, var(--hero-text) 55%, transparent); }
+.sw-page .sw-sec-hmc-outcome { font-size: 0.75rem; font-weight: 700; margin-top: var(--space-1); }
+.sw-page .sw-sec-hmc-outcome[data-outcome="W"] { color: #4ade80; }
+.sw-page .sw-sec-hmc-outcome[data-outcome="L"] { color: #f87171; }
+
+@media (max-width: 1060px) {
+  .sw-page .sw-sec-hero-grid { grid-template-columns: 1fr; }
+  .sw-page .sw-sec-hero-right { display: none; }
+}
+@media (max-width: 640px) {
+  .sw-page .sw-sec--hero[data-layout="feature"] { min-height: 0; }
+}
+
+/* ============================ TICKER ============================
+   Chrome-like, always-visible strip -- real content (recent results/upcoming fixtures from
+   ctx.matchCentre), auto-scrolling. No section heading (matches the RDCA source: a topbar-
+   adjacent strip, not a titled content block). */
+.sw-page .sw-sec--ticker { background: var(--bg-invert); padding-block: 0.5rem; overflow: hidden; }
+.sw-page .sw-sec-ticker-track { display: flex; gap: var(--space-4); overflow-x: auto; padding-inline: var(--space-3); }
+.sw-page .sw-sec-ticker-item { white-space: nowrap; font-size: 0.75rem; color: color-mix(in srgb, var(--text-invert) 75%, transparent); flex-shrink: 0; }
+.sw-page .sw-sec-ticker-grade { color: var(--text-invert); }
+.sw-page .sw-sec-ticker-outcome { font-weight: 700; margin-left: 0.3em; }
+.sw-page .sw-sec-ticker-outcome[data-outcome="W"] { color: #4ade80; }
+.sw-page .sw-sec-ticker-outcome[data-outcome="L"] { color: #f87171; }
+
+/* ============================ TEAM LINEUP ============================ */
+.sw-page .sw-sec-lineup-vs { color: var(--text-soft); margin-bottom: var(--space-2); }
+.sw-page .sw-sec-lineup-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-1); }
+.sw-page .sw-sec-lineup-player { display: flex; align-items: center; gap: var(--space-1); padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+.sw-page .sw-sec-lineup-num { font-family: var(--font-display); color: var(--accent-on-bg); min-width: 1.5rem; }
+.sw-page .sw-sec-lineup-name { font-weight: 600; flex: 1; }
+.sw-page .sw-sec-lineup-pos { font-size: var(--fs-eyebrow); color: var(--text-soft); }
+
+/* ============================ PHOTO STRIP ============================ */
+.sw-page .sw-sec-photostrip-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--space-2); gap: var(--space-2); flex-wrap: wrap; }
+.sw-page .sw-sec-photostrip-credit { font-size: var(--fs-eyebrow); color: var(--text-soft); }
+.sw-page .sw-sec-photostrip-track { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1); }
+.sw-page .sw-sec-photostrip-img { flex: 0 0 auto; height: 12rem; width: auto; border-radius: var(--radius); object-fit: cover; }

@@ -69,6 +69,33 @@
   --section-pad: clamp(3rem, 6vw, 5.5rem);
 }
 
+/* ---------- F2 NEUTRAL FALLBACK ----------
+   Every surface/text/border/hero/shadow token below is otherwise defined ONLY inside the
+   legacy html:not([data-render="f2"])[data-variant=X] blocks -- under F2 (data-render="f2")
+   none of them had ANY value at all until this block existed. sections.css depends on every
+   one of these (--bg, --surface, --text, --border, --hero-bg, --shadow, --accent-on-bg...),
+   so an F2 page with no club_themes.tokens (every preset ships '{}' today) rendered with no
+   colour system whatsoever, not just "bland" as docs/codey-brief-10-the-design-layer.md
+   describes it. Found + fixed 2026-08-03 while starting the RDCA design port.
+   These are the same formulas as the legacy "classic" variant -- a real, already-designed
+   neutral light theme, not invented here. club_themes.tokens (applied as inline styles on
+   .sw-page by PageRenderer) overrides this per club; this is only the floor. */
+html[data-render="f2"] {
+  --bg: color-mix(in srgb, var(--club-silver) 7%, var(--club-paper));
+  --bg-alt: color-mix(in srgb, var(--club-silver) 16%, var(--club-paper));
+  --bg-invert: color-mix(in srgb, var(--club-ink) 88%, var(--club-accent));
+  --surface: var(--club-paper);
+  --surface-2: color-mix(in srgb, var(--club-silver) 12%, var(--club-paper));
+  --text: color-mix(in srgb, var(--club-ink) 92%, var(--club-paper));
+  --text-soft: color-mix(in srgb, var(--club-ink) 58%, var(--club-paper));
+  --text-invert: var(--club-paper);
+  --border: color-mix(in srgb, var(--club-silver) 52%, var(--club-paper));
+  --hero-bg: color-mix(in srgb, var(--club-silver) 18%, var(--club-paper));
+  --hero-text: var(--club-ink);
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 18px 40px rgba(0, 0, 0, 0.09);
+  --accent-on-bg: var(--accent-deep);
+}
+
 /* ---------- HERITAGE (light, community, sponsor-friendly — default) ---------- */
 :root,
 html:not([data-render="f2"])[data-variant="heritage"] {

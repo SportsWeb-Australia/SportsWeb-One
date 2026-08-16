@@ -17,11 +17,11 @@ export type AiAuthorable = "free" | "grounded" | "enhance-only";
 // protects them). Nested fields inherit their top-level parent's class.
 export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = {
   // Content -- prose is where fabrication lives.
-  hero: { media: "grounded" }, // a real image URL, never invented; title/subtitle/CTAs free
-  announcement_bar: { text: "grounded" }, // announcements state specifics (dates, states)
-  rich_text: { body: "grounded" }, // the test proved stats + prose facts get fabricated here
+  hero: { media: "grounded", stats: "grounded", note: "grounded", titleRich: "grounded" }, // real numbers/status only, never invented; title/subtitle/CTAs free
+  announcement_bar: { text: "grounded", items: "grounded" }, // announcements state specifics (dates, states)
+  rich_text: { body: "grounded", photo: "grounded" }, // the test proved stats + prose facts get fabricated here
   quick_links: {},
-  cta_band: {},
+  cta_band: { media: "grounded" },
   president_welcome: {
     name: "grounded",
     role: "grounded",
@@ -29,6 +29,9 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
     body: "enhance-only", // a named human's voice: enhance, never forge (doc sec 5)
   },
   contact: {}, // toggles only; the data binds from the club record
+  clubs_directory: { clubs: "grounded" }, // real member clubs only, never invented to fill a grid
+  team_lineup: { players: "grounded" }, // real named players only
+  photo_strip: { photos: "grounded" }, // real photo URLs only, never invented to fill a strip
   // Collection -- display config only; the rows come from tables (rule 9 at the data layer).
   news: {},
   events: {},
@@ -40,6 +43,7 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
   // Module -- config only; data is module-owned + entitlement-gated.
   match_data: {},
   scoreboard: {},
+  ticker: {},
 };
 
 /** The class of a field, defaulting to "free". */

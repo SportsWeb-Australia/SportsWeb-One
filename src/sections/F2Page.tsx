@@ -9,6 +9,7 @@ import type { ClubConfig } from "../content/types";
 import { PageRenderer } from "./PageRenderer";
 import { sectionContextFromClub, type SectionContext } from "./entitlement";
 import { usePublicClubPage } from "./usePublicClubPage";
+import { F2Chrome } from "./chrome/Chrome";
 
 export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: string }) {
   const [ctx, setCtx] = useState<SectionContext | null>(null);
@@ -46,5 +47,9 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
 
   if (loading || !ctx) return <div className="sw-admin-loading">Loading&hellip;</div>;
   if (notFound || !page) return <div className="sw-admin-loading">This page is not published yet.</div>;
-  return <PageRenderer layout={page.layout} ctx={ctx} theme={theme} />;
+  return (
+    <F2Chrome clubId={clubId} ctx={ctx} theme={theme}>
+      <PageRenderer layout={page.layout} ctx={ctx} theme={theme} layoutMode={page.layoutMode} />
+    </F2Chrome>
+  );
 }

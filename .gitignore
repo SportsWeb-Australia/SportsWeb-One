@@ -7,3 +7,9 @@ node_modules/
 # Build output
 dist/
 supabase/.temp/
+.vercel
+
+# Local env overrides (this session's develop-branch testing config, etc.)
+.env
+.env.local
+.env.*.local

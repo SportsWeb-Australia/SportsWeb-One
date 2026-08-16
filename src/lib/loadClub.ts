@@ -211,6 +211,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
         (isDemoClub
           ? staticClub.identity.logo
           : placeholderLogo(initialsFrom(clubName), colours.accent, colours.paper)),
+      secondaryLogo: clubRow.secondary_logo_url ?? undefined,
       ...(isDemoClub
         ? {}
         : {

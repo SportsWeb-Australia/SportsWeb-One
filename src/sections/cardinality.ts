@@ -14,6 +14,8 @@ export const CARDINALITY: Record<SectionType, Cardinality> = {
   hero: "single",
   announcement_bar: "single",
   contact: "single",
+  clubs_directory: "single",
+  ticker: "single",
   president_welcome: "single",
   // Everything else -- freely duplicable.
   rich_text: "many",
@@ -26,6 +28,8 @@ export const CARDINALITY: Record<SectionType, Cardinality> = {
   teams: "many",
   documents: "many",
   social_feed: "many",
+  team_lineup: "many",
+  photo_strip: "many",
   match_data: "many",
   scoreboard: "many",
 };

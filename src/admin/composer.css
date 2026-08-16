@@ -71,12 +71,27 @@
 .sw-comp-error { background: #fef2f2; color: #b91c1c; padding: 0.6rem 1rem; }
 .sw-comp-warn { background: #fffbeb; color: #92400e; padding: 0.6rem 1rem; font-size: 0.9rem; }
 
+/* --- main+sidebar note: informational only, layout_mode is platform-set (not a club control) --- */
+.sw-comp-layout-note {
+  margin: 0.75rem 1rem 0;
+  padding: 0.6rem 0.85rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--comp-ink);
+}
+
 /* --- body: list + preview --- */
 .sw-comp-body { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; background: var(--comp-bg); }
 @media (min-width: 900px) {
   .sw-comp-body { grid-template-columns: minmax(320px, 380px) 1fr; align-items: start; }
   .sw-comp-preview { position: sticky; top: 5rem; }
 }
+
+/* --- two drop zones (layout: main + sidebar) --- */
+.sw-comp-cols { display: flex; flex-direction: column; gap: 1.25rem; }
+.sw-comp-col-h { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--comp-soft); margin-bottom: 0.5rem; }
 
 /* --- section list --- */
 .sw-comp-list { display: flex; flex-direction: column; gap: 0.6rem; }

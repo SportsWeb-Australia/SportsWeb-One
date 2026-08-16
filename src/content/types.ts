@@ -278,6 +278,10 @@ export interface ClubConfig {
     leagueHref?: string;
     foundedNote: string;
     logo: string;
+    /** A second, independent brand mark shown alongside `logo` (e.g. a parent league/
+     *  competition-body co-brand) -- never composited into `logo` as one image. Optional:
+     *  most clubs only have one mark. */
+    secondaryLogo?: string;
     colours: BrandColours;
   };
 

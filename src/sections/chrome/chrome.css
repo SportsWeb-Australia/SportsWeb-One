@@ -1,0 +1,147 @@
+/* F2 -- public chrome (topbar/nav/mobile menu/footer). New surface -- F2 had none before
+   this session (docs/rdca-port-audit-v2.md sec 1a). Uses --bg-invert/--text-invert (already
+   defined per theme, including the F2 neutral fallback) -- these ARE the "dark chrome"
+   tokens the token model already anticipated; this is their first real use. */
+
+.sw-chrome-topbar {
+  background: color-mix(in srgb, var(--bg-invert) 92%, #000000);
+  color: var(--text-invert);
+  padding: 0.5rem var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+}
+.sw-chrome-topbar-info { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.sw-chrome-topbar-item { color: color-mix(in srgb, var(--text-invert) 70%, transparent); text-decoration: none; }
+.sw-chrome-topbar-item:hover { color: var(--text-invert); }
+.sw-chrome-topbar-social { display: flex; gap: 0.5rem; }
+.sw-chrome-topbar-social a {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-invert) 10%, transparent);
+  color: var(--text-invert);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.7rem;
+}
+
+.sw-chrome-nav {
+  background: var(--nav-bg, var(--bg-invert));
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+}
+.sw-chrome-nav-inner {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-3);
+  display: flex;
+  align-items: center;
+  height: 4rem;
+  gap: var(--space-3);
+}
+.sw-chrome-nav-brand { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; flex-shrink: 0; }
+.sw-chrome-nav-logo { width: 2.5rem; height: 2.5rem; object-fit: contain; }
+.sw-chrome-nav-logo--secondary { width: 2.1rem; height: 2.5rem; }
+.sw-chrome-nav-brand-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: var(--text-invert);
+}
+.sw-chrome-nav-links { display: flex; align-items: center; gap: 0.15rem; flex: 1; }
+.sw-chrome-nav-item { position: relative; }
+.sw-chrome-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--text-invert) 78%, transparent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sw-chrome-nav-link:hover { background: color-mix(in srgb, var(--text-invert) 10%, transparent); color: var(--text-invert); }
+.sw-chrome-nav-caret { font-size: 0.6em; }
+.sw-chrome-nav-drop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 12rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.4rem;
+  display: none;
+  flex-direction: column;
+  z-index: 210;
+}
+.sw-chrome-nav-item:hover .sw-chrome-nav-drop { display: flex; }
+.sw-chrome-nav-drop a { padding: 0.5rem 0.6rem; border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.85rem; }
+.sw-chrome-nav-drop a:hover { background: var(--surface-2); }
+.sw-chrome-hamburger {
+  display: none;
+  background: color-mix(in srgb, var(--text-invert) 10%, transparent);
+  border: none;
+  color: var(--text-invert);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.sw-chrome-mob-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg-invert);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.sw-chrome-mob-close { align-self: flex-end; background: none; border: none; color: var(--text-invert); font-size: 1.75rem; line-height: 1; cursor: pointer; margin-bottom: var(--space-2); }
+.sw-chrome-mob-link { padding: 0.75rem 0.5rem; color: var(--text-invert); text-decoration: none; font-size: 1rem; border-bottom: 1px solid color-mix(in srgb, var(--text-invert) 10%, transparent); }
+
+.sw-chrome-footer {
+  background: var(--bg-invert);
+  color: var(--text-invert);
+  margin-top: var(--space-4);
+}
+.sw-chrome-footer-inner {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+.sw-chrome-footer-identity { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-size: 1.1rem; }
+.sw-chrome-footer-logo { width: 2rem; height: 2rem; object-fit: contain; }
+.sw-chrome-footer-links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.sw-chrome-footer-links a { color: color-mix(in srgb, var(--text-invert) 70%, transparent); text-decoration: none; font-size: 0.85rem; }
+.sw-chrome-footer-links a:hover { color: var(--text-invert); }
+.sw-chrome-footer-bottom {
+  border-top: 1px solid color-mix(in srgb, var(--text-invert) 12%, transparent);
+  text-align: center;
+  padding: var(--space-2);
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--text-invert) 55%, transparent);
+}
+
+@media (max-width: 860px) {
+  .sw-chrome-nav-links { display: none; }
+  .sw-chrome-hamburger { display: flex; align-items: center; justify-content: center; }
+}
