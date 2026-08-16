@@ -1,11 +1,13 @@
-import type { ModuleDef } from "../lib/modules";
+import { moduleAppUrl, type ModuleDef } from "../lib/modules";
 
 /**
  * Pre-page for a module: what it is, what you can do, a quick-start, and a
  * video slot (placeholder for now — clubs/Carson drop real walkthroughs in
  * later). Modules that aren't wired into this dashboard yet show "Coming soon".
  */
-export function ModulePrePage({ mod, status }: { mod: ModulePre; status: "open" | "soon" }) {
+export function ModulePrePage({ mod, status, clubId }: { mod: ModulePre; status: "open" | "soon"; clubId?: string | null }) {
+  // Same helper as the Modules grid so both "Open" links carry the club.
+  const openUrl = moduleAppUrl(mod as ModuleDef, clubId);
   return (
     <div className="sw-admin-panel sw-mod">
       <div className="sw-mod-head">
@@ -49,8 +51,8 @@ export function ModulePrePage({ mod, status }: { mod: ModulePre; status: "open" 
       </div>
 
       <div className="sw-mod-foot">
-        {status === "open" && mod.appUrl ? (
-          <a className="sw-btn" href={mod.appUrl} target="_blank" rel="noreferrer">
+        {status === "open" && openUrl ? (
+          <a className="sw-btn" href={openUrl} target="_blank" rel="noreferrer">
             Open {mod.name} →
           </a>
         ) : (

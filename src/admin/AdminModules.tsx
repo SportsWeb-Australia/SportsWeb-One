@@ -4,7 +4,7 @@ import { useAuth } from "../lib/auth";
 import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
-import { MODULE_CATALOG, getModule, moduleSuitsSport } from "../lib/modules";
+import { MODULE_CATALOG, getModule, moduleSuitsSport, moduleAppUrl } from "../lib/modules";
 import { COMING_SOON_MODULES } from "./ModulePrePage";
 
 /** Drop real logo files here (PNG/SVG) and they replace the initials badge. */
@@ -138,7 +138,7 @@ export function AdminModules() {
     const appUrl =
       needsSession && perClubAppUrl && clubId
         ? `${perClubAppUrl}${perClubAppUrl.includes("?") ? "&" : "?"}clubId=${clubId}`
-        : perClubAppUrl || mod.appUrl || "";
+        : perClubAppUrl || moduleAppUrl(mod, clubId) || "";
     const canEmbed = (mod.key === "volunteers" || needsSession) && !!appUrl;
     return (
       <div className="sw-admin-panel">

@@ -1,7 +1,7 @@
 # Team Line-Ups ↔ SportsWeb One integration
 
-**Status:** the module opens the line-ups editor in a new tab. Club identity and
-billing are not yet joined up. This is the plan for both.
+**Status:** the module opens the line-ups editor in a new tab, passing the club.
+Identity is joined up (§1, done). Billing is not (§2, still a decision).
 
 | | |
 |---|---|
@@ -33,13 +33,28 @@ the Fixtures & Ladder module. Note its own comment — it matches clubs **by nam
 "the only identifier the two projects share, since there's no unified club id
 across them."
 
-## 1. Club identity — recommendation
+## 1. Club identity — DONE
 
-**Add a nullable `sportsweb_club_id uuid unique` to the line-ups app's `clubs`
-table.** SW1 then links a club by passing its own uuid; line-ups resolves that to
-its internal club row. Standalone customers leave the column null.
+`clubs.sportsweb_club_id uuid` (nullable, unique) exists on the line-ups app's
+Supabase, and the app resolves `?sw1club=<sw1 uuid>` through it
+(`resolveClubIdFromSportsWeb` in its `src/lib/source.ts`). SW1 appends the param
+via `moduleAppUrl()` in `src/lib/modules.ts`. Standalone customers leave it null.
 
-Why this and not the alternatives:
+An unlinked club shows "not linked yet" rather than falling through to the latest
+sheet from any club — a club arriving from SW1 must never see another club's team.
+
+**Linking a club is still manual**, one SQL statement on the line-ups project:
+
+```sql
+update public.clubs set sportsweb_club_id = '<sw1 uuid>' where id = '<local uuid>';
+```
+
+Worth automating later: SW1 could create the line-ups club and set the link when
+the module is first switched on.
+
+### Why this shape
+
+
 
 - **Not "line-ups adopts SW1 club ids".** Line-ups has customers who are not SW1
   clubs (its `clubs` table currently holds `Riverton Hawks`, `Hillcrest Cats` and

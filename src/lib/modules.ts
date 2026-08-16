@@ -35,6 +35,32 @@ export interface ModuleDef {
 }
 
 /**
+ * Modules whose own `appUrl` identifies the club by query param, keyed to the
+ * param name the target app expects.
+ *
+ * Distinct from the session-handoff apps (Live Scores, Fixtures & Ladder), which
+ * postMessage a session and take `clubId`. This is identification only, no auth.
+ * Team Line-Ups uses `sw1club` rather than its own `club` param because `club`
+ * means that app's OWN club id — see docs/team-lineups-integration.md.
+ */
+const CLUB_ID_PARAM: Record<string, string> = {
+  team_lineups: "sw1club",
+};
+
+/**
+ * The URL to open a module at, with the club identified where the target app
+ * supports it. Used by every surface that offers an "Open" link, so they can't
+ * drift apart.
+ */
+export function moduleAppUrl(mod: ModuleDef, clubId?: string | null): string {
+  const base = mod.appUrl;
+  if (!base) return "";
+  const param = CLUB_ID_PARAM[mod.key];
+  if (!param || !clubId) return base;
+  return `${base}${base.includes("?") ? "&" : "?"}${param}=${encodeURIComponent(clubId)}`;
+}
+
+/**
  * Is this module offered to a club playing `sportType`?
  *
  * Fails open: a module with no `sports` list suits everyone, and an unknown or
