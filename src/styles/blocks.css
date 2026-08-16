@@ -2386,6 +2386,10 @@
    Admin — Communications hub
    ============================================================ */
 .sw-admin-page { max-width: 1100px; }
+/* Wide data grids (e.g. Clubs & modules) opt out of the 1100px reading measure —
+   with 9 module columns the table is wider than that and would clip mid-column
+   on large screens while leaving the rest of the viewport empty. */
+.sw-admin-page--wide { max-width: 100%; }
 .sw-admin-head {
   display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
   gap: 1rem 1.5rem; margin-bottom: 2.25rem;
@@ -2485,7 +2489,7 @@
   border-bottom: 1px solid var(--border);
   text-align: center; vertical-align: middle;
 }
-.sw-super-table thead th:first-child { text-align: left; padding-left: 1.15rem; }
+.sw-super-table thead th:first-child { text-align: left; padding-left: 1.15rem; width: 300px; }
 .sw-super-table tbody td {
   padding: 0.85rem 0.85rem; text-align: center; vertical-align: middle;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, #fff);
@@ -2493,7 +2497,12 @@
 .sw-super-table tbody tr:last-child td { border-bottom: none; }
 .sw-super-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--border) 16%, #fff); }
 .sw-super-table tbody tr:hover { background: var(--accent-soft); }
-.sw-super-clubcell { text-align: left; padding-left: 1.15rem; min-width: 200px; }
+/* Scoped to .sw-super-table so it outranks `.sw-super-table tbody td`, which
+   otherwise centred the club name while its controls stayed flush left. */
+.sw-super-table tbody td.sw-super-clubcell {
+  text-align: left; padding-left: 1.15rem;
+  width: 300px; min-width: 220px;
+}
 .sw-super-clubcell strong { display: block; font-size: 0.97rem; }
 .sw-super-clubcell small { display: block; color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; margin: 0.12rem 0 0.4rem; }
 .sw-super-cell { width: 86px; }

@@ -286,7 +286,7 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
   };
 
   return (
-    <div className="sw-admin-page">
+    <div className="sw-admin-page sw-admin-page--wide">
       <header className="sw-admin-head">
         <div>
           <h1>Clubs &amp; modules</h1>
