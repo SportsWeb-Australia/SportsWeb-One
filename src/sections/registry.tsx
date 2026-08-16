@@ -150,7 +150,7 @@ export type ResolvedSection =
 export function resolveSection(raw: unknown): ResolvedSection {
   const shell = sectionInstanceSchema.safeParse(raw);
   if (!shell.success) return { ok: false, reason: "malformed section instance" };
-  const { id, type, props, visible } = shell.data;
+  const { id, type, props, visible, column } = shell.data;
 
   if (visible === false) return { ok: false, reason: "hidden", id, type };
   if (!isSectionType(type)) return { ok: false, reason: "unknown section type", id, type };
@@ -161,6 +161,8 @@ export function resolveSection(raw: unknown): ResolvedSection {
   return {
     ok: true,
     def: SECTION_REGISTRY[type],
-    instance: { id, type, props: parsed.data, visible },
+    // `column` is carried through, not dropped: the schema accepts it, so a caller
+    // reading it off the resolved instance must not silently get undefined.
+    instance: { id, type, props: parsed.data, visible, column },
   };
 }
