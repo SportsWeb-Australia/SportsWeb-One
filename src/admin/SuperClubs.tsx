@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MODULE_CATALOG } from "../lib/modules";
 import { ClubOnboardingPanel } from "./ClubOnboardingPanel";
 import { slugify } from "../lib/slug";
@@ -191,8 +191,7 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
   }, [filtered, groupBy]);
 
   const clubRow = (club: AdminClub) => (
-    <Fragment key={club.id}>
-      <tr>
+    <tr key={club.id}>
         <td className="sw-super-clubcell">
           <strong>{club.name}</strong>
           <small>{club.slug}</small>
@@ -256,33 +255,38 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
             </td>
           );
         })}
-      </tr>
-      {onboardId === club.id && (
-        <tr className="sw1-onboard-exprow">
-          <td colSpan={1 + MODULE_CATALOG.length}>
-            <ClubOnboardingPanel club={{ id: club.id, name: club.name, slug: club.slug }} onOpenInbox={onOpenInbox} />
-          </td>
-        </tr>
-      )}
-    </Fragment>
+    </tr>
   );
 
-  const tableFor = (list: AdminClub[]) => (
-    <div className="sw-super-table-wrap">
-      <table className="sw-admin-table sw-super-table">
-        <thead>
-          <tr>
-            <th>Club</th>
-            {MODULE_CATALOG.map((m) => <th key={m.key}>{m.name}</th>)}
-          </tr>
-        </thead>
-        <tbody>{list.map(clubRow)}</tbody>
-      </table>
-    </div>
-  );
+  const tableFor = (list: AdminClub[]) => {
+    const expandedClub = list.find((c) => c.id === onboardId);
+    return (
+      <div className="sw-super-table-wrap">
+        <div className="sw-super-table-scroll">
+          <table className="sw-admin-table sw-super-table">
+            <thead>
+              <tr>
+                <th>Club</th>
+                {MODULE_CATALOG.map((m) => <th key={m.key}>{m.name}</th>)}
+              </tr>
+            </thead>
+            <tbody>{list.map(clubRow)}</tbody>
+          </table>
+        </div>
+        {expandedClub && (
+          <div className="sw1-onboard-exppanel">
+            <ClubOnboardingPanel
+              club={{ id: expandedClub.id, name: expandedClub.name, slug: expandedClub.slug }}
+              onOpenInbox={onOpenInbox}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="sw-admin-page">
+    <div className="sw-admin-page sw-admin-page--wide">
       <header className="sw-admin-head">
         <div>
           <h1>Clubs &amp; modules</h1>

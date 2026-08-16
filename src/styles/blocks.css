@@ -2386,6 +2386,10 @@
    Admin — Communications hub
    ============================================================ */
 .sw-admin-page { max-width: 1100px; }
+/* Wide data grids (e.g. Clubs & modules) opt out of the 1100px reading measure —
+   with 9 module columns the table is wider than that and would clip mid-column
+   on large screens while leaving the rest of the viewport empty. */
+.sw-admin-page--wide { max-width: 100%; }
 .sw-admin-head {
   display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
   gap: 1rem 1.5rem; margin-bottom: 2.25rem;
@@ -2462,27 +2466,41 @@
    ============================================================ */
 .sw-super-table-wrap {
   margin-top: 2rem;
-  overflow-x: auto;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: 0 1px 2px rgba(16, 19, 32, 0.04), 0 6px 20px rgba(16, 19, 32, 0.05);
 }
-/* min-width, not just width: 100% — the wrap's overflow-x: auto only kicks in
-   once the table's natural width exceeds the wrap. Without this, every extra
+/* Horizontal scroll lives on this inner wrapper, not the card itself — so the
+   expanded onboarding panel (a sibling, not a table row) always renders at the
+   card's full width instead of being scrolled off with the module columns.
+   The capped height gives the grid its own vertical scroll region, which is what
+   makes the sticky header actually freeze: `position: sticky` resolves against
+   the nearest scroll container, so without a height here the header stuck to a
+   container that just scrolled away with the page. */
+.sw-super-table-scroll { overflow: auto; max-height: calc(100vh - 15rem); }
+/* min-width, not just width: 100% — the scroll wrapper's overflow-x: auto only
+   kicks in once the table's natural width exceeds it. Without this, every extra
    MODULE_CATALOG column just squeezed the existing ones instead of scrolling. */
 .sw-super-table { width: 100%; min-width: max-content; border-collapse: collapse; }
 .sw-super-table thead th {
-  position: sticky; top: 0;
+  position: sticky; top: 0; z-index: 2;
   background: #f7f8fa;
   font-family: var(--font-mono);
   font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-soft); font-weight: 600;
   padding: 0.9rem 0.85rem; white-space: nowrap;
-  border-bottom: 1px solid var(--border);
+  /* box-shadow, not border-bottom: collapsed-table borders are painted with the
+     cell rather than the sticky layer, so the rule tore away on scroll. */
+  box-shadow: inset 0 -1px 0 var(--border);
   text-align: center; vertical-align: middle;
 }
-.sw-super-table thead th:first-child { text-align: left; padding-left: 1.15rem; }
+/* Corner cell: frozen on both axes, so it outranks the other sticky cells. */
+.sw-super-table thead th:first-child {
+  text-align: left; padding-left: 1.15rem; width: 300px;
+  left: 0; z-index: 3;
+  box-shadow: inset 0 -1px 0 var(--border), inset -1px 0 0 var(--border);
+}
 .sw-super-table tbody td {
   padding: 0.85rem 0.85rem; text-align: center; vertical-align: middle;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, #fff);
@@ -2490,7 +2508,22 @@
 .sw-super-table tbody tr:last-child td { border-bottom: none; }
 .sw-super-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--border) 16%, #fff); }
 .sw-super-table tbody tr:hover { background: var(--accent-soft); }
-.sw-super-clubcell { text-align: left; padding-left: 1.15rem; min-width: 200px; }
+/* Scoped to .sw-super-table so it outranks `.sw-super-table tbody td`, which
+   otherwise centred the club name while its controls stayed flush left.
+   Frozen to the left edge so the club stays identifiable while scrolling
+   sideways through the module columns. */
+.sw-super-table tbody td.sw-super-clubcell {
+  text-align: left; padding-left: 1.15rem;
+  width: 300px; min-width: 220px;
+  position: sticky; left: 0; z-index: 1;
+  /* The row stripe/hover colours live on the <tr>, whose background paints
+     below this cell's sticky layer — module toggles would slide through it.
+     Each state is restated here so the frozen column stays opaque. */
+  background: #fff;
+  box-shadow: inset -1px 0 0 var(--border);
+}
+.sw-super-table tbody tr:nth-child(even) td.sw-super-clubcell { background: color-mix(in srgb, var(--border) 16%, #fff); }
+.sw-super-table tbody tr:hover td.sw-super-clubcell { background: var(--accent-soft); }
 .sw-super-clubcell strong { display: block; font-size: 0.97rem; }
 .sw-super-clubcell small { display: block; color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; margin: 0.12rem 0 0.4rem; }
 .sw-super-cell { width: 86px; }
@@ -2613,7 +2646,7 @@
 }
 .sw1-onboard-err { color: #dc2626; }
 .sw1-onboard a.sw-btn { text-decoration: none; display: inline-flex; align-items: center; }
-.sw1-onboard-exprow > td { background: #fbfbfc; padding: 0 0.5rem 0.6rem; }
+.sw1-onboard-exppanel { background: #fbfbfc; border-top: 1px solid var(--border); padding: 0.6rem 1.15rem 1.1rem; }
 /* submitted-answers drill-down */
 .sw1-onboard-submitted { margin-top: 0.5rem; }
 .sw1-onboard-answers { border: 1px solid #e4e4e7; border-radius: 10px; padding: 0.75rem 0.9rem; margin: 0 0 0.8rem; background: #fff; }
