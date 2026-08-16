@@ -29,12 +29,18 @@ function PlatformFront() {
   return <PlatformLanding />;
 }
 
-export default function App() {
+export default function App({ initialClub }: { initialClub?: ClubConfig } = {}) {
   // Static config renders instantly; live Supabase content swaps in when ready.
   // Seed with the neutral base, not the demo club, so a non-demo club never paints
   // Dookie's name/content for a frame before getClubConfig() resolves.
-  const [club, setClub] = useState<ClubConfig>(emptyClub);
-  const [variant, setVariant] = useState<DesignVariant>(emptyClub.variant);
+  //
+  // On a publish-time-baked page main.tsx passes the very config the server rendered
+  // from, so the first client render reproduces the served markup exactly — which is
+  // what hydration requires. The fetch below still runs afterwards as a freshness
+  // check, but it no longer causes a visible swap because the state already matches.
+  const seed = initialClub ?? emptyClub;
+  const [club, setClub] = useState<ClubConfig>(seed);
+  const [variant, setVariant] = useState<DesignVariant>(seed.variant);
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isTrial = location.pathname.startsWith("/start");

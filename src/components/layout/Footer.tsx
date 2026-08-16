@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
@@ -6,7 +7,12 @@ import { EditableText } from "../edit/Editable";
 export function Footer() {
   const { club } = useClub();
   const { identity, contact, nav, footer } = club;
-  const year = new Date().getFullYear();
+  // Resolved after mount, not during render. On a publish-time-baked page the
+  // render happens once, months before someone reads it — baking "2026" into the
+  // HTML would still say 2026 next January. Undefined on the first pass so the
+  // server and client markup agree, then filled in by the client's own clock.
+  const [year, setYear] = useState<number | undefined>(undefined);
+  useEffect(() => setYear(new Date().getFullYear()), []);
 
   return (
     <footer className="sw-footer">
