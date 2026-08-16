@@ -16,9 +16,13 @@ const CLUB_TYPES: { label: string; sport: string }[] = [
   { label: "Rugby League", sport: "rugby_league" },
   { label: "Junior Football", sport: "afl" },
   { label: "Masters / Over-35s Football", sport: "afl" },
-  { label: "Oztag", sport: "other" },
-  { label: "Touch Football", sport: "other" },
+  { label: "Oztag", sport: "oztag" },
+  { label: "Touch Football", sport: "touch_football" },
   { label: "Lacrosse", sport: "other" },
+  { label: "Hockey", sport: "hockey" },
+  { label: "Tennis", sport: "tennis" },
+  { label: "Golf", sport: "golf" },
+  { label: "Swimming", sport: "swimming" },
 ];
 
 // Sport -> a Classic-backed theme preset (all render as Classic today; differentiated

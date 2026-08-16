@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MODULE_CATALOG, moduleSuitsSport, type ModuleDef } from "../lib/modules";
 import { ClubOnboardingPanel } from "./ClubOnboardingPanel";
 import { slugify } from "../lib/slug";
+import { SPORT_TYPES, SPORT_LABELS } from "../lib/sports";
 import { useActiveClub } from "./ActiveClub";
 import {
   listClubs,
@@ -15,10 +16,6 @@ import {
   type AdminModuleRow,
 } from "../lib/superAdmin";
 
-const SPORT_LABELS: Record<string, string> = {
-  afl: "Australian Rules", afl_netball: "AFL / Netball", soccer: "Soccer", cricket: "Cricket",
-  netball: "Netball", basketball: "Basketball", rugby_union: "Rugby Union", rugby_league: "Rugby League", other: "Other",
-};
 const titleCase = (s?: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "—");
 
 /* A module switch shows four states but only two positions, so "never touched"
@@ -366,15 +363,7 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
             <label className="sw-admin-field">
               <span>Sport</span>
               <select value={form.sport} onChange={(e) => setForm((f) => ({ ...f, sport: e.target.value }))}>
-                <option value="afl">Australian Rules (AFL)</option>
-                <option value="afl_netball">AFL / Netball (FNC)</option>
-                <option value="soccer">Soccer / Football</option>
-                <option value="cricket">Cricket</option>
-                <option value="netball">Netball</option>
-                <option value="basketball">Basketball</option>
-                <option value="rugby_union">Rugby Union</option>
-                <option value="rugby_league">Rugby League</option>
-                <option value="other">Other (lacrosse, oztag, touch, etc.)</option>
+                {SPORT_TYPES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </label>
             <label className="sw-admin-field">
