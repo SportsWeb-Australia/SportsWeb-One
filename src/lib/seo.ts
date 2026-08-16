@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useClub } from "../components/ClubContext";
+import { slugify } from "./slug";
 import type { ClubConfig } from "../content/types";
 
 export interface SeoInput {
@@ -88,6 +89,52 @@ export function useSeo(seo: SeoInput | null) {
 }
 
 /**
+ * Titles/descriptions for the data-driven routes (news and event details, the
+ * per-sport pages, program pages).
+ *
+ * Those pages set their own SEO through useSeo, which is an effect — so under
+ * renderToString it never runs and a baked page would ship the shell's platform
+ * default title. Resolving them here from the club config, which the caller
+ * already holds, closes that gap. Each branch mirrors its page's own useSeo call
+ * exactly, so the client's later, page-level call is a no-op rather than a fight.
+ */
+function dynamicRouteSeo(club: ClubConfig, pathname: string, name: string): SeoInput | null {
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (segments[0] === "news" && segments[1]) {
+    const post = club.news?.find((p) => (p.slug ?? slugify(p.title)) === segments[1]);
+    return post ? { title: `${post.title} | ${name}`, description: post.excerpt } : null;
+  }
+
+  if (segments[0] === "events" && segments[1]) {
+    const ev = club.events?.find((e) => (e.slug ?? slugify(e.title)) === segments[1]);
+    return ev ? { title: `${ev.title} | ${name}`, description: ev.description ?? "" } : null;
+  }
+
+  if (segments[0] === "program" && segments[1]) {
+    for (const group of club.teams ?? []) {
+      const team = group.teams.find((t) => t.slug === segments[1]);
+      if (team) return { title: `${team.name} | ${name}`, description: team.blurb };
+    }
+    return null;
+  }
+
+  // The per-sport pages are fixed routes in App's tree, each passing its own
+  // sport name; the route itself is the only thing identifying which.
+  const SPORT_BY_ROUTE: Record<string, string> = { "/football": "Football", "/netball": "Netball" };
+  const sport = SPORT_BY_ROUTE[pathname];
+  if (sport) {
+    const group = club.teams?.find((g) => g.sport.toLowerCase() === sport.toLowerCase());
+    return {
+      title: `${sport} | ${name}`,
+      description: `${sport} programs at ${name} — ${group?.teams.map((t) => t.name).join(", ")}.`,
+    };
+  }
+
+  return null;
+}
+
+/**
  * Pure head computation for one route — the single source of truth for what the
  * <head> should contain. Shared by SeoManager (which mutates the live DOM) and by
  * the publish-time bake (which serialises the same values into static HTML), so a
@@ -115,7 +162,9 @@ export function computeSeoTags(club: ClubConfig, pathname: string, origin: strin
 
   const MAP: Record<string, SeoInput> = {
     "/": {
-      title: `${name} | ${club.identity.league}`,
+      // Clubs without a league would otherwise title as "Name | " — survivable on
+      // a client-rendered page, but a baked page keeps it forever.
+      title: league ? `${name} | ${league}` : name,
       description: club.hero.subtitle,
     },
     "/about": {
@@ -162,7 +211,7 @@ export function computeSeoTags(club: ClubConfig, pathname: string, origin: strin
   const overrideTitle = club.content?.[`seo${key}.title`];
   const overrideDescription = club.content?.[`seo${key}.description`];
   const overrideImage = club.content?.[`seo${key}.image`] ?? club.content?.["seo.image"];
-  const base = MAP[pathname] ?? null;
+  const base = MAP[pathname] ?? dynamicRouteSeo(club, pathname, name);
   const page: SeoInput | null = base || overrideTitle
     ? {
         title: overrideTitle ?? base?.title ?? name,
