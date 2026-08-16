@@ -83,10 +83,21 @@ export default async function handler(req, res) {
     if (!row?.html) return sendShell(res, "no-cache-row");
 
     res.setHeader("content-type", "text/html; charset=utf-8");
-    // Deliberately short. A publish re-bakes the row, and this is the window in which
-    // an already-served page can still be the old one; 60s keeps that window small
-    // while still absorbing a burst.
-    res.setHeader("cache-control", "public, max-age=60, stale-while-revalidate=300");
+    // No shared caching, deliberately.
+    //
+    // An earlier version sent `public, max-age=60`, and measurably broke the
+    // unpublish guarantee: the edge answered with x-vercel-cache: HIT for the full
+    // 60s after a club went back to draft, never consulting the origin. The three
+    // gates below this line are all origin-side, so a CDN in front of them silently
+    // outranks every one of them — and `suspended` exists for cases where continuing
+    // to serve is exactly what must not happen.
+    //
+    // The cost is one lambda invocation and two indexed reads per request, against a
+    // page that previously cost a client-side render plus ~11 Supabase queries, so
+    // this is still overwhelmingly the faster path. Edge caching belongs here
+    // eventually, but only with purge-on-publish to hold the guarantee — which is an
+    // API Cloudflare has and this setup does not.
+    res.setHeader("cache-control", "no-store");
     res.setHeader("x-sw1-render", "cache");
     res.setHeader("x-sw1-baked-at", String(row.baked_at ?? ""));
     return res.status(200).send(row.html);
