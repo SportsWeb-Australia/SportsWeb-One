@@ -170,6 +170,11 @@ export const MODULE_CATALOG: ModuleDef[] = [
       { title: "Place your players", body: "Drop players onto their positions and add any sponsors." },
       { title: "Share it", body: "Export the image or grab the embed link for your site." },
     ],
+    // Opens the line-ups editor in a new tab. `?admin` because the app's default
+    // view is the chrome-free public graphic meant for embedding, not the editor.
+    // No `?club=` yet: that param takes the line-ups app's OWN club id, and the
+    // two products share no club identity — see docs/team-lineups-integration.md.
+    appUrl: "https://afl-team-line-ups.vercel.app/?admin",
     plan: "SportsWeb module",
   },
   {
