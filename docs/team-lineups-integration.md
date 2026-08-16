@@ -2,8 +2,8 @@
 
 **Status:** the module opens the line-ups editor in a new tab, passing the club.
 Identity and linking are automatic (§1). Entitlement is modelled and pushed (§2).
-Writes are login-gated (§4). Remaining: gate writes on `club_entitlement()` so an
-expired trial is actually stopped rather than merely reported.
+Writes are login-gated (§4) and entitlement is enforced (§7). The integration is
+complete end to end.
 
 | | |
 |---|---|
@@ -177,4 +177,30 @@ moved `complimentary → sportsweb`, all 44 players stayed put, no duplicate clu
 created, switching the module off correctly revoked access, and linking a second
 row to the same SportsWeb club was refused.
 
-## 7. Remaining: enforce entitlement
+## 7. Entitlement is enforced — DONE (16 Aug 2026)
+
+`club_entitlement()` no longer merely reports. Signed-in users can only change
+data for entitled clubs, gated at each level through the real ownership path:
+
+| Table | Gated via |
+|---|---|
+| `teams`, `players`, `sponsors` | `club_id` |
+| `fixtures` | `teams.club_id` — the **owning** team's club, never `opponent_club_id` |
+| `lineups` | `fixtures → teams.club_id` |
+| `lineup_positions` | `lineups → fixtures → teams.club_id` |
+| `clubs` | update/delete gated; INSERT open to any signed-in user, since a club can't be entitled before it exists |
+| `venues`, `opponent_clubs` | shared reference data with no owning club — still plain signed-in write, or an entitled club couldn't name a ground |
+
+**Public read is untouched.** Losing entitlement stops a club EDITING; it does not
+pull their published line-ups off their website.
+
+Verified in a rolled-back transaction, both directions at every level: a
+grandfathered club could still write `players`, `teams` and `lineups`, while a
+club with an expired trial was refused at all three. Confirmed afterwards over
+HTTP that anon read still returns 200 on `clubs`, `lineups`, `players` and
+`teams`, and that anon write still 401s.
+
+A blocked save now shows the reason from `club_entitlement()` — "Free trial has
+ended", "…not switched on for this club in SportsWeb One" — rather than the raw
+row-level-security error. The previous message told the user to run
+`enable-writes.sql`, which would have undone the lock-down.
