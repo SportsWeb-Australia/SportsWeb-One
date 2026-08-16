@@ -1,3 +1,6 @@
+// Imported by its typed entry point, but bundled from react-dom/server.browser — see
+// the alias in scripts/build-ssr-bundle.mjs. Only the .browser build avoids node:stream,
+// which does not exist on Cloudflare Workers.
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import { PublicSite } from "../PublicSite";

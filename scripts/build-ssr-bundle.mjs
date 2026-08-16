@@ -19,6 +19,7 @@ const R = (p) => resolve(root, p);
 
 // react-dom/server is CommonJS and dynamically require()s node builtins, which an
 // ESM bundle has no `require` for. This banner gives the bundle one.
+// Kept only for any residual CJS interop; the renderer itself no longer needs node:stream.
 const ESM_REQUIRE_BANNER =
   'import{createRequire as __cr}from"module";const require=__cr(import.meta.url);';
 
@@ -32,6 +33,12 @@ async function bundleRenderer() {
     target: "node18",
     jsx: "automatic",
     banner: { js: ESM_REQUIRE_BANNER },
+    // react-dom/server resolves to the Node build, which pulls in node:stream — absent
+    // on Cloudflare Workers. The .browser build exports the same renderToString without
+    // it. Aliasing here rather than at the import site keeps the source typed (the
+    // .browser subpath ships no declarations) while the bundle stays runtime-agnostic,
+    // so it ports to Workers unchanged when this platform moves.
+    alias: { "react-dom/server": "react-dom/server.browser" },
     // The public tree imports styles and images for the browser build; the server
     // render only produces markup, so they resolve to nothing here.
     loader: {
