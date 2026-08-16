@@ -70,26 +70,8 @@ export type ModulePre = Pick<
 
 /** Modules that have their own dashboard entry but aren't built into the club app yet. */
 export const COMING_SOON_MODULES: ModulePre[] = [
-  {
-    key: "team_lineups",
-    name: "Team Line-Ups",
-    badge: "TL",
-    tagline: "Pick your teams on a branded oval and share them everywhere.",
-    summary:
-      "Select each team on an oval-field graphic, add sponsors and headshots, then export a clean image for socials or embed it on your site.",
-    overview: [
-      "Drag players onto positions on a club-branded oval.",
-      "Add sponsor banners, headshots and competition logos.",
-      "Export to PNG / Instagram, or embed straight on your website.",
-      "Save by round and clone last week's team to start fast.",
-    ],
-    quickstart: [
-      { title: "Pick a team & round", body: "Choose the grade and round you're selecting for." },
-      { title: "Place your players", body: "Drop players onto their positions and add any sponsors." },
-      { title: "Share it", body: "Export the image or grab the embed link for your site." },
-    ],
-    plan: "SportsWeb module",
-  },
+  // Team Line-Ups was promoted into MODULE_CATALOG (src/lib/modules.ts) — it is a
+  // switchable module now, so listing it here too would render it twice.
   { key: "sponsor_deals", name: "Sponsor Deals", badge: "SD", tagline: "Sell sponsor deals and member offers in one place.", summary: "Package sponsor and member-only offers, publish them, and track redemptions.", overview: ["Create deals with expiry, limits and sponsor branding.", "Track views and redemptions per sponsor."], quickstart: [{ title: "Add a deal", body: "Create your first sponsor or member offer." }], plan: "Add module to plan" },
   { key: "pos", name: "POS", badge: "PS", tagline: "Point of sale for the canteen, bar and merch.", summary: "Take payments at the canteen, bar and merch table with a simple touch POS.", overview: ["Fast tap-to-pay across multiple registers.", "Daily takings roll straight into Club Finance."], quickstart: [{ title: "Set up a register", body: "Add your products and prices to get selling." }], plan: "Add module to plan" },
   { key: "commerce", name: "Superstore Commerce", badge: "SC", tagline: "A full online store with built-in inventory control.", summary: "Run a proper club online store with stock levels, variants and order management.", overview: ["Products, variants and live inventory control.", "Orders, shipping and pickup in one dashboard."], quickstart: [{ title: "Add a product", body: "List your first item and set stock on hand." }], plan: "Add module to plan" },

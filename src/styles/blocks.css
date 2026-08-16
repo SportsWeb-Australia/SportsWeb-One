@@ -2530,6 +2530,8 @@
 .sw-super-clubcell strong { display: block; font-size: 0.97rem; }
 .sw-super-clubcell small { display: block; color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; margin: 0.12rem 0 0.4rem; }
 .sw-super-cell { width: 86px; }
+/* Placeholder where a sport-specific module doesn't apply to this club. */
+.sw-super-na { color: #c2c8d2; cursor: help; user-select: none; }
 
 .sw-switch--sm { width: 40px; height: 23px; }
 .sw-switch--sm i { width: 17px; height: 17px; }

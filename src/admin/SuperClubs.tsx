@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MODULE_CATALOG } from "../lib/modules";
+import { MODULE_CATALOG, moduleSuitsSport, type ModuleDef } from "../lib/modules";
 import { ClubOnboardingPanel } from "./ClubOnboardingPanel";
 import { slugify } from "../lib/slug";
 import { useActiveClub } from "./ActiveClub";
@@ -207,7 +207,7 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
     return Object.entries(map).sort((a, b) => b[1].length - a[1].length);
   }, [filtered, groupBy]);
 
-  const clubRow = (club: AdminClub) => (
+  const clubRow = (club: AdminClub, mods: ModuleDef[]) => (
     <tr key={club.id}>
         <td className="sw-super-clubcell">
           <strong>{club.name}</strong>
@@ -253,7 +253,21 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
             </button>
           </div>
         </td>
-        {MODULE_CATALOG.map((m) => {
+        {mods.map((m) => {
+          // A sport-specific module still gets a cell for every club so the grid
+          // stays aligned — clubs it doesn't apply to get a dash, not a switch.
+          if (!moduleSuitsSport(m, club.sport_type)) {
+            return (
+              <td key={m.key} className="sw-super-cell">
+                <span
+                  className="sw-super-na"
+                  title={`${m.name} is only offered to ${m.sports?.map((s) => SPORT_LABELS[s] ?? titleCase(s)).join(" / ")} clubs.`}
+                >
+                  —
+                </span>
+              </td>
+            );
+          }
           const st = statusFor(club.id, m.key);
           const on = st === "enabled" || st === "trial";
           const cell = `${club.id}:${m.key}`;
@@ -278,6 +292,9 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
 
   const tableFor = (list: AdminClub[]) => {
     const expandedClub = list.find((c) => c.id === onboardId);
+    // Drop a sport-specific column when no club in this table could use it — so
+    // grouping by sport gives each group only the modules that suit it.
+    const mods = MODULE_CATALOG.filter((m) => list.some((c) => moduleSuitsSport(m, c.sport_type)));
     return (
       <div className="sw-super-table-wrap">
         <div className="sw-super-table-scroll">
@@ -285,10 +302,10 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
             <thead>
               <tr>
                 <th>Club</th>
-                {MODULE_CATALOG.map((m) => <th key={m.key}>{m.name}</th>)}
+                {mods.map((m) => <th key={m.key}>{m.name}</th>)}
               </tr>
             </thead>
-            <tbody>{list.map(clubRow)}</tbody>
+            <tbody>{list.map((c) => clubRow(c, mods))}</tbody>
           </table>
         </div>
         {expandedClub && (

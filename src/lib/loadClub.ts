@@ -203,6 +203,9 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       name: clubName,
       slug: clubRow.slug ?? base.identity.slug,
       colours,
+      // Set for every club, demo included: unlike `sports` below, this is the raw
+      // enum the module catalogue filters on, and a demo club still has a sport.
+      sportType: clubRow.sport_type ?? undefined,
       logo:
         clubRow.logo_url ??
         (isDemoClub
