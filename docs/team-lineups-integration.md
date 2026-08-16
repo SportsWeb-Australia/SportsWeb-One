@@ -1,7 +1,8 @@
 # Team Line-Ups ↔ SportsWeb One integration
 
 **Status:** the module opens the line-ups editor in a new tab, passing the club.
-Identity is joined up (§1, done). Billing is not (§2, still a decision).
+Identity and linking are automatic (§1, done). Entitlement is modelled and
+pushed (§2, done); ENFORCING it is blocked on login-gated writes (§3).
 
 | | |
 |---|---|
@@ -43,14 +44,13 @@ via `moduleAppUrl()` in `src/lib/modules.ts`. Standalone customers leave it null
 An unlinked club shows "not linked yet" rather than falling through to the latest
 sheet from any club — a club arriving from SW1 must never see another club's team.
 
-**Linking a club is still manual**, one SQL statement on the line-ups project:
-
-```sql
-update public.clubs set sportsweb_club_id = '<sw1 uuid>' where id = '<local uuid>';
-```
-
-Worth automating later: SW1 could create the line-ups club and set the link when
-the module is first switched on.
+Linking is automatic. Switching `team_lineups` on or off in Clubs & modules calls
+`link_sportsweb_club()` on the line-ups project (`src/lib/teamLineups.ts`), which
+creates the club there on first use and mirrors the switch into
+`clubs.sportsweb_entitled`. It is idempotent, and failure is non-fatal on purpose
+— the SportsWeb switch is the record of truth and the next toggle reconciles,
+because a second product being unreachable must never make switching a module on
+look like it failed.
 
 ### Why this shape
 
@@ -78,36 +78,38 @@ Once the column exists, SW1 passes `?sw1club=<uuid>` (a *new* param — do not r
 `src/lib/modules.ts` appends it the way Live Scores and Fixtures already append
 `?clubId=`.
 
-## 2. Billing — recommendation
-
-The model asked for: line-ups sells standalone, and an SW1 plan can include it free
-or for a small extra charge. Both systems currently believe they own entitlement —
-line-ups has `lineup_plans` / `lineup_subscriptions` (with Stripe price ids and
-`team_limit`), SW1 has `club_modules`.
+## 2. Billing — decided
 
 **One rule: a club is billed by whoever provisioned it, and never by both.**
 
-- `sportsweb_club_id IS NULL` → standalone. Line-ups' own Stripe subscription is
-  the entitlement. SW1 is not involved.
-- `sportsweb_club_id IS NOT NULL` → SW1-provisioned. **SW1's `club_modules` row is
-  the entitlement**, and line-ups skips its own Stripe gate entirely. It should not
-  hold a `lineup_subscriptions` row at all.
+| | Entitlement source | Billed by |
+|---|---|---|
+| `sportsweb_club_id IS NULL` | this app's `lineup_subscriptions` | Team Line-Ups (Stripe, $19.99–$49.99/mo) |
+| `sportsweb_club_id IS NOT NULL` | SportsWeb One's `club_modules`, mirrored into `sportsweb_entitled` | SportsWeb One |
 
-"Free on plan X, small charge on plan Y" is then purely an SW1-side concern, and
-needs no line-ups change: the SW1 plan decides whether `team_lineups` is switched
-on, and any additional charge is an SW1 add-on on the existing invoice. That keeps
-one invoice per club, which is the part clubs actually care about.
+`public.club_entitlement(club_id)` on the line-ups project is the single
+implementation, returning `(entitled, source, reason, expires_at)`. Nothing else
+should re-derive this.
 
-Implement the check as a single function in the line-ups app — `isEntitled(club)` —
-so the precedence lives in one place rather than being re-derived at each call site.
+`link_sportsweb_club()` deliberately creates **no** `lineup_subscriptions` row, so
+a SportsWeb-billed club can never also hold a Stripe subscription here.
 
-### Watch out
+### Standalone trials expire hard
 
-- `club_modules.trial_ends_at` in SW1 is written by no code path and read by none,
-  so a `trial` status never expires. If a bundled line-ups entitlement is granted as
-  `trial`, it is currently permanent. Either expire trials or grant `enabled`.
-- The line-ups Supabase has its **own** `club_modules` table mirroring SW1's schema.
-  Don't confuse the two when writing the entitlement check.
+`start_lineup_trial(club, days := 14)` sets `status='trialing'` with a fixed
+`trial_ends_at`. Entitlement stops the moment it passes — no grace period — and a
+`trialing` row with a **null** end date counts as expired, so a missing date can
+never become free access forever.
+
+This is the opposite of SportsWeb One's `club_modules.trial_ends_at`, which is
+written by nothing and read by nothing, so a `trial` status there never expires.
+Do not copy that pattern here. For bundled clubs, grant `enabled`, not `trial`.
+
+### "Free on plan X, small charge on plan Y"
+
+Needs no line-ups change. The SportsWeb plan decides whether `team_lineups` is
+switched on; any additional charge is an SportsWeb-side add-on on the existing
+invoice. One invoice per club, which is the part clubs actually notice.
 
 ## 3. Not doing
 
@@ -116,3 +118,27 @@ No auth handoff. Live Scores and Fixtures each postMessage a session
 the target app; line-ups has no equivalent, so the module opens in a new tab and the
 user signs in there. Revisit if it should be embedded — that needs the handoff on
 both sides, and identity (§1) settled first.
+
+## 4. Blocked: enforcement needs a login
+
+Entitlement is now *computed* correctly, but it is **not enforced**, because the
+line-ups Supabase still carries a `dev anon write` policy granting the public key
+full write access on `clubs, venues, teams, players, sponsors, fixtures, lineups,
+lineup_positions`. While that stands, any paywall is advisory — the data can be
+written by anyone with the key, which is shipped in the browser bundle.
+
+`supabase/enable-auth.sql` in the line-ups repo already does the lock-down. It is
+**not** safe to run yet:
+
+- `auth.users` is **empty**, and `VITE_REQUIRE_AUTH` is not set on the Vercel
+  project (only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are).
+- Running it now would leave 25 line-ups, 14 teams and 249 players readable but
+  editable by nobody.
+
+Order to unblock, all on the line-ups side:
+
+1. Create the first user in Supabase → Authentication → Users.
+2. Set `VITE_REQUIRE_AUTH=true` on the Vercel project and redeploy.
+3. Run `supabase/enable-auth.sql`.
+4. Then gate writes on `club_entitlement()` — with auth in place, a trial that has
+   expired can actually be stopped rather than merely reported.
