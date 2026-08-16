@@ -3,6 +3,7 @@ import { MODULE_CATALOG, moduleSuitsSport, type ModuleDef } from "../lib/modules
 import { ClubOnboardingPanel } from "./ClubOnboardingPanel";
 import { slugify } from "../lib/slug";
 import { SPORT_TYPES, SPORT_LABELS } from "../lib/sports";
+import { syncTeamLineupsClub } from "../lib/teamLineups";
 import { useActiveClub } from "./ActiveClub";
 import {
   listClubs,
@@ -155,6 +156,14 @@ export function SuperClubs({ onOpenInbox }: { onOpenInbox?: () => void } = {}) {
     const err = await setModuleStatus(clubId, key, currentlyOn ? "locked" : "enabled");
     if (err) setError(err);
     else {
+      // Team Line-Ups keeps its own club table, so mirror the switch across.
+      // Deliberately not awaited into the error path: the switch above already
+      // succeeded, and a second product being unreachable must not make it look
+      // like it failed. The next toggle reconciles.
+      if (key === "team_lineups") {
+        const club = clubs.find((c) => c.id === clubId);
+        void syncTeamLineupsClub(clubId, club?.name ?? "", !currentlyOn);
+      }
       // optimistic local update
       setRows((rs) => {
         const without = rs.filter((r) => !(r.club_id === clubId && r.module_key === key));
