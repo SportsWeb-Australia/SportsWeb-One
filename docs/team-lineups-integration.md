@@ -1,8 +1,9 @@
 # Team Line-Ups ↔ SportsWeb One integration
 
 **Status:** the module opens the line-ups editor in a new tab, passing the club.
-Identity and linking are automatic (§1, done). Entitlement is modelled and
-pushed (§2, done); ENFORCING it is blocked on login-gated writes (§3).
+Identity and linking are automatic (§1). Entitlement is modelled and pushed (§2).
+Writes are login-gated (§4). Remaining: gate writes on `club_entitlement()` so an
+expired trial is actually stopped rather than merely reported.
 
 | | |
 |---|---|
@@ -119,26 +120,37 @@ the target app; line-ups has no equivalent, so the module opens in a new tab and
 user signs in there. Revisit if it should be embedded — that needs the handoff on
 both sides, and identity (§1) settled first.
 
-## 4. Blocked: enforcement needs a login
+## 4. Login-gated writes — DONE (16 Aug 2026)
 
-Entitlement is now *computed* correctly, but it is **not enforced**, because the
-line-ups Supabase still carries a `dev anon write` policy granting the public key
-full write access on `clubs, venues, teams, players, sponsors, fixtures, lineups,
-lineup_positions`. While that stands, any paywall is advisory — the data can be
-written by anyone with the key, which is shipped in the browser bundle.
+The line-ups project no longer allows anonymous writes. `enable-auth.sql` was
+applied after a login was created and `VITE_REQUIRE_AUTH=true` was deployed, in
+that order — locking the database first would have left a window where the editor
+looked open but every save failed silently.
 
-`supabase/enable-auth.sql` in the line-ups repo already does the lock-down. It is
-**not** safe to run yet:
+All eight tables (`clubs, venues, teams, players, sponsors, fixtures, lineups,
+lineup_positions`) now carry exactly `authenticated write` + `public read`.
 
-- `auth.users` is **empty**, and `VITE_REQUIRE_AUTH` is not set on the Vercel
-  project (only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are).
-- Running it now would leave 25 line-ups, 14 teams and 249 players readable but
-  editable by nobody.
+Verified with the publishable key over HTTP after applying:
 
-Order to unblock, all on the line-ups side:
+| Check | Result |
+|---|---|
+| anon write | blocked, HTTP 401 (RLS violation) |
+| anon read | works — embeds and the public graphic are unaffected |
+| `link_sportsweb_club()` from SportsWeb One | still works |
 
-1. Create the first user in Supabase → Authentication → Users.
-2. Set `VITE_REQUIRE_AUTH=true` on the Vercel project and redeploy.
-3. Run `supabase/enable-auth.sql`.
-4. Then gate writes on `club_entitlement()` — with auth in place, a trial that has
-   expired can actually be stopped rather than merely reported.
+The auto-link survives because it is `SECURITY DEFINER` and the tables do not
+`FORCE` row level security, so it runs as the table owner. This was proven in a
+rolled-back transaction *before* applying, not assumed.
+
+Rollback if ever needed: re-run `supabase/enable-writes.sql` in the line-ups repo.
+
+## 5. Remaining: enforce entitlement
+
+`club_entitlement()` is correct but nothing calls it on the write path yet, so an
+expired trial is reported rather than stopped. Now that writes are authenticated,
+gating them on it is meaningful.
+
+Before switching that on, decide what happens to the existing data: 25 line-ups,
+14 teams and 249 players sit under clubs with no subscription row, so a strict
+gate would lock them out. Either `start_lineup_trial()` those clubs or mark them
+`active`.
