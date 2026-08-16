@@ -8,8 +8,9 @@
 -- exception-safe body: a notify failure must NEVER roll back the request insert,
 -- because the row is the source of truth and the queue is the real deliverable.
 --
--- NOT YET APPLIED TO PROD. Author + show only -- run in the Supabase SQL Editor
--- once Carson authorizes THIS file. Pure ASCII, re-runnable.
+-- APPLIED TO PROD 2026-08-16 (sportsweb-one / uzibfawcwoapfbigpzum). The trigger is
+-- installed and is a deliberate NO-OP until the two Vault secrets below exist.
+-- Pure ASCII, re-runnable. See docs/migration-ledger.md.
 --
 -- Prereqs: supabase/club-requests.sql applied; pg_net + supabase_vault enabled
 -- (both already true on this project).
@@ -86,3 +87,12 @@ create trigger trg_club_request_notify
 --   -- Check the club-request-notify function logs for a 200 + the test inbox.
 --   -- Then delete the test row.
 -- ============================================================
+
+-- ------------------------------------------------------------
+-- Applied alongside this file: a trigger function has no reason to carry an
+-- EXECUTE grant for the API roles. Postgres already refuses a direct call
+-- ("trigger functions can only be called as triggers"), so this is
+-- belt-and-braces -- it also clears the two
+-- {anon,authenticated}_security_definer_function_executable advisories.
+-- The trigger is unaffected: it runs as the table owner, not via this grant.
+revoke execute on function public.club_request_notify_new() from anon, authenticated;

@@ -1,5 +1,7 @@
 -- SportsWeb One -- Change requests raised by clubs from the on-page editor.
--- Run once in the Supabase SQL editor. Safe to re-run.
+-- APPLIED TO PROD 2026-08-16 (sportsweb-one / uzibfawcwoapfbigpzum) - verified via
+-- pg_policies + role-impersonation RLS tests; see docs/migration-ledger.md.
+-- Idempotent, but do NOT re-run without reason.
 --
 -- The inline editor deliberately only lets a club change what it can safely change
 -- on its own: text, photos, video links, brand colours, and its News/Events items.
