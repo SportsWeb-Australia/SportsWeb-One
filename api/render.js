@@ -19,6 +19,25 @@ import { SHELL_HTML } from "./_shell.mjs";
 const APP_PREFIXES = ["/admin", "/start", "/guide"];
 
 /**
+ * Hosts where "/" is SportsWeb One's own front door rather than a club homepage.
+ * Mirrors isPlatformHost() in src/lib/supabase.ts — the client makes this decision
+ * too, and if the two disagree the server sends a club's baked homepage to a page
+ * the client then re-renders as the platform landing, which is both wrong and a
+ * guaranteed hydration failure.
+ */
+const PLATFORM_HOSTS = new Set([
+  "sportsweb.com.au",
+  "www.sportsweb.com.au",
+  "app.sportsweb.com.au",
+  "localhost",
+  "127.0.0.1",
+]);
+function isPlatformHost(host) {
+  const h = (host || "").toLowerCase().split(":")[0];
+  return !!h && (PLATFORM_HOSTS.has(h) || h.endsWith(".vercel.app"));
+}
+
+/**
  * Query params that put the app in a mode a baked page cannot represent — a draft
  * preview, the composer, the F2 renderer, a club/variant override. Any of these falls
  * back to the client-rendered shell.
@@ -55,6 +74,12 @@ export default async function handler(req, res) {
     return sendShell(res, "app-route");
   }
   if (DYNAMIC_PARAMS.some((p) => url.searchParams.has(p))) return sendShell(res, "dynamic-mode");
+
+  // On a platform host the root is SportsWeb One's own landing page, not a club's.
+  // Deeper paths still resolve to a club there, matching what the SPA does today.
+  if (url.pathname === "/" && isPlatformHost(req.headers.host)) {
+    return sendShell(res, "platform-front");
+  }
 
   // "/about/" and "/about" are the same page; the cache is keyed on the unslashed form.
   const route = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, "") : "/";

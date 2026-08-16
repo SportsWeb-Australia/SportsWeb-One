@@ -39,6 +39,14 @@ export function AppPrompts() {
   const [pushState, setPushState] = useState(notificationPermission());
   const [hidePush, setHidePush] = useState(dismissed(PUSH_KEY));
 
+  // Nothing here may render until mounted. Every input this reads — install
+  // availability, notification permission, whether we're already standalone — only
+  // exists in a browser, so a server render answers "no prompt" while the client
+  // immediately answers "prompt", and hydration fails on the difference. Install and
+  // push prompts also have no business being baked into a cached page.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (isStandalone()) return;
     watchInstallPrompt(() => setInstallable(true));
@@ -64,7 +72,7 @@ export function AppPrompts() {
     pushSupported() &&
     pushState === "default";
 
-  if (!showInstall && !showPush) return null;
+  if (!mounted || (!showInstall && !showPush)) return null;
 
   return (
     <div className="sw-pwa-banner" role="dialog" aria-label="App options">
