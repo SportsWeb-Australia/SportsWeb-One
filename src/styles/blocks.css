@@ -2495,7 +2495,12 @@
   box-shadow: inset 0 -1px 0 var(--border);
   text-align: center; vertical-align: middle;
 }
-.sw-super-table thead th:first-child { text-align: left; padding-left: 1.15rem; width: 300px; }
+/* Corner cell: frozen on both axes, so it outranks the other sticky cells. */
+.sw-super-table thead th:first-child {
+  text-align: left; padding-left: 1.15rem; width: 300px;
+  left: 0; z-index: 3;
+  box-shadow: inset 0 -1px 0 var(--border), inset -1px 0 0 var(--border);
+}
 .sw-super-table tbody td {
   padding: 0.85rem 0.85rem; text-align: center; vertical-align: middle;
   border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, #fff);
@@ -2504,11 +2509,21 @@
 .sw-super-table tbody tr:nth-child(even) { background: color-mix(in srgb, var(--border) 16%, #fff); }
 .sw-super-table tbody tr:hover { background: var(--accent-soft); }
 /* Scoped to .sw-super-table so it outranks `.sw-super-table tbody td`, which
-   otherwise centred the club name while its controls stayed flush left. */
+   otherwise centred the club name while its controls stayed flush left.
+   Frozen to the left edge so the club stays identifiable while scrolling
+   sideways through the module columns. */
 .sw-super-table tbody td.sw-super-clubcell {
   text-align: left; padding-left: 1.15rem;
   width: 300px; min-width: 220px;
+  position: sticky; left: 0; z-index: 1;
+  /* The row stripe/hover colours live on the <tr>, whose background paints
+     below this cell's sticky layer — module toggles would slide through it.
+     Each state is restated here so the frozen column stays opaque. */
+  background: #fff;
+  box-shadow: inset -1px 0 0 var(--border);
 }
+.sw-super-table tbody tr:nth-child(even) td.sw-super-clubcell { background: color-mix(in srgb, var(--border) 16%, #fff); }
+.sw-super-table tbody tr:hover td.sw-super-clubcell { background: var(--accent-soft); }
 .sw-super-clubcell strong { display: block; font-size: 0.97rem; }
 .sw-super-clubcell small { display: block; color: var(--text-soft); font-family: var(--font-mono); font-size: 0.72rem; margin: 0.12rem 0 0.4rem; }
 .sw-super-cell { width: 86px; }
