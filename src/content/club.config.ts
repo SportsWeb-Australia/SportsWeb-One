@@ -1,13 +1,18 @@
 import type { ClubConfig } from "./types";
 
 /**
- * CLIENT ZERO: Dookie United Football & Netball Club.
+ * The built-in demo/template club, modelled on Dookie United.
  *
  * Real, migrated content is unmarked. Anything with `placeholder: true`
- * (or a // TODO comment) needs the club to confirm/supply before launch.
+ * (or a // TODO comment) is sample data, not fact.
  *
  * To spin up a new club from this template: copy this file, swap the values.
  * Layout and components do not change.
+ *
+ * `slug` MUST NOT match any real club in the `clubs` table. loadClub.ts treats a
+ * slug match as "this is the demo" and uses this whole file as the base config —
+ * so a collision makes a real club inherit this file's sample fixtures, ladder and
+ * copy wherever it has no data of its own, and present them as its own.
  */
 export const club: ClubConfig = {
   variant: "heritage",
@@ -15,7 +20,7 @@ export const club: ClubConfig = {
 
   identity: {
     name: "Dookie United Football & Netball Club",
-    slug: "dookie-united",
+    slug: "sportsweb-demo",
     shortName: "Dookie United",
     initials: "DUFNC",
     nickname: "the Dooks",
