@@ -1,4 +1,5 @@
 import { supabase, resolveClubSlug } from "./supabase";
+import { sportsFromType } from "./sports";
 import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
 import { emptyClub } from "../content/emptyClub";
@@ -629,25 +630,6 @@ function initialsFrom(name: string): string {
     .slice(0, 4)
     .toUpperCase();
   return letters || "CLUB";
-}
-
-/** Map the clubs.sport_type enum to display sport labels for the website skin
- *  filter. 'other' (and anything unknown) returns [] so only generic styles
- *  show — never Dookie's Football/Netball. True multi-sport lives in a future
- *  sports array; this is the single-enum best effort. */
-function sportsFromType(t: string | null | undefined): string[] {
-  switch ((t ?? "").toLowerCase()) {
-    case "afl": return ["AFL"];
-    case "afl_netball": return ["AFL", "Netball"];
-    case "netball": return ["Netball"];
-    case "soccer": return ["Soccer"];
-    case "cricket": return ["Cricket"];
-    case "basketball": return ["Basketball"];
-    case "rugby_union": return ["Rugby Union"];
-    case "rugby_league": return ["Rugby League"];
-    case "lacrosse": return ["Lacrosse"];
-    default: return [];
-  }
 }
 
 /** Neutral placeholder crest for a club with no logo yet: an initials badge in
