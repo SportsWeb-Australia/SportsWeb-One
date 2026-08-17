@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useClub } from "../components/ClubContext";
-import { MODULE_CATALOG } from "../lib/modules";
+import { MODULE_CATALOG, moduleSuitsSport } from "../lib/modules";
 import { COMING_SOON_MODULES } from "./ModulePrePage";
 import type { DesignVariant } from "../content/types";
 
@@ -579,7 +579,7 @@ export function NeedsWizard({ clubId, filledBy }: { clubId: string; filledBy: "c
             Entitlement is managed separately by SportsWeb.
           </p>
           <div className="sw-needs-chips sw-needs-chips--wrap">
-            {MODULE_CATALOG.map((m) => (
+            {MODULE_CATALOG.filter((m) => moduleSuitsSport(m, club.identity.sportType)).map((m) => (
               <button
                 key={m.key}
                 type="button"

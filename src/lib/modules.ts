@@ -26,6 +26,51 @@ export interface ModuleDef {
   appUrl?: string;
   /** Plan label shown on the tile + pre-page. */
   plan: string;
+  /**
+   * `clubs.sport_type` values this module is offered to. Omit for the usual case
+   * of a module that suits every sport — only set it for genuinely sport-specific
+   * tools, e.g. Cricket Pro's ball-by-ball scoring.
+   */
+  sports?: string[];
+}
+
+/**
+ * Modules whose own `appUrl` identifies the club by query param, keyed to the
+ * param name the target app expects.
+ *
+ * Distinct from the session-handoff apps (Live Scores, Fixtures & Ladder), which
+ * postMessage a session and take `clubId`. This is identification only, no auth.
+ * Team Line-Ups uses `sw1club` rather than its own `club` param because `club`
+ * means that app's OWN club id — see docs/team-lineups-integration.md.
+ */
+const CLUB_ID_PARAM: Record<string, string> = {
+  team_lineups: "sw1club",
+};
+
+/**
+ * The URL to open a module at, with the club identified where the target app
+ * supports it. Used by every surface that offers an "Open" link, so they can't
+ * drift apart.
+ */
+export function moduleAppUrl(mod: ModuleDef, clubId?: string | null): string {
+  const base = mod.appUrl;
+  if (!base) return "";
+  const param = CLUB_ID_PARAM[mod.key];
+  if (!param || !clubId) return base;
+  return `${base}${base.includes("?") ? "&" : "?"}${param}=${encodeURIComponent(clubId)}`;
+}
+
+/**
+ * Is this module offered to a club playing `sportType`?
+ *
+ * Fails open: a module with no `sports` list suits everyone, and an unknown or
+ * missing sport shows the full catalogue rather than silently hiding tools from
+ * a club whose sport simply hasn't been set.
+ */
+export function moduleSuitsSport(mod: ModuleDef, sportType?: string | null): boolean {
+  if (!mod.sports || mod.sports.length === 0) return true;
+  if (!sportType) return true;
+  return mod.sports.includes(sportType);
 }
 
 export const MODULE_CATALOG: ModuleDef[] = [
@@ -127,6 +172,36 @@ export const MODULE_CATALOG: ModuleDef[] = [
       { title: "Score ball by ball", body: "Open the Cricket Pro tab and score every ball as it happens." },
     ],
     plan: "SportsWeb add-on — premium",
+    // Ball-by-ball scoring is meaningless outside cricket, so it is only offered
+    // to cricket clubs rather than sitting locked on every other club's grid.
+    sports: ["cricket"],
+  },
+  {
+    // Key matches the existing club_modules rows written while this was a
+    // "coming soon" tile, so clubs already switched off stay switched off.
+    key: "team_lineups",
+    name: "Team Line-Ups",
+    badge: "TL",
+    tagline: "Pick your teams on a branded field graphic and share them everywhere.",
+    summary:
+      "Select each team on a club-branded field graphic, add sponsors and headshots, then export a clean image for socials or embed it on your site.",
+    overview: [
+      "Drag players onto positions on a club-branded field.",
+      "Add sponsor banners, headshots and competition logos.",
+      "Export to PNG / Instagram, or embed straight on your website.",
+      "Save by round and clone last week's team to start fast.",
+    ],
+    quickstart: [
+      { title: "Pick a team & round", body: "Choose the grade and round you're selecting for." },
+      { title: "Place your players", body: "Drop players onto their positions and add any sponsors." },
+      { title: "Share it", body: "Export the image or grab the embed link for your site." },
+    ],
+    // Opens the line-ups editor in a new tab. `?admin` because the app's default
+    // view is the chrome-free public graphic meant for embedding, not the editor.
+    // No `?club=` yet: that param takes the line-ups app's OWN club id, and the
+    // two products share no club identity — see docs/team-lineups-integration.md.
+    appUrl: "https://afl-team-line-ups.vercel.app/?admin",
+    plan: "SportsWeb module",
   },
   {
     key: "learn",

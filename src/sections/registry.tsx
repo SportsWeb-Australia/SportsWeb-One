@@ -18,12 +18,15 @@ import {
 } from "./schemas";
 import {
   AnnouncementBarSection,
+  ClubsDirectorySection,
   ContactSection,
   CtaBandSection,
   HeroSection,
+  PhotoStripSection,
   PresidentWelcomeSection,
   QuickLinksSection,
   RichTextSection,
+  TeamLineupSection,
 } from "./components/content";
 import {
   CommitteeSection,
@@ -34,7 +37,7 @@ import {
   SponsorsSection,
   TeamsSection,
 } from "./components/collection";
-import { MatchDataSection, ScoreboardSection } from "./components/module";
+import { MatchDataSection, ScoreboardSection, TickerSection } from "./components/module";
 
 /** What the renderer passes a section component: validated props + the club data context. */
 export type SectionComponent<T extends SectionType = SectionType> = ComponentType<{
@@ -100,7 +103,9 @@ function def<T extends SectionType>(
 }
 
 export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
-  // content (7)
+  // content (10) -- clubs_directory/team_lineup/photo_strip added 2026-08-03
+  // (docs/rdca-port-audit-v2.md sec 1a; no backing table for any of the three, so Content
+  // class -- authored, same reasoning as rich_text).
   hero: def("hero", "Hero", "content", HeroSection),
   announcement_bar: def("announcement_bar", "Announcement bar", "content", AnnouncementBarSection),
   rich_text: def("rich_text", "Rich text", "content", RichTextSection),
@@ -108,6 +113,9 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   cta_band: def("cta_band", "Call to action", "content", CtaBandSection),
   president_welcome: def("president_welcome", "President welcome", "content", PresidentWelcomeSection),
   contact: def("contact", "Contact", "content", ContactSection),
+  clubs_directory: def("clubs_directory", "Club directory", "content", ClubsDirectorySection),
+  team_lineup: def("team_lineup", "Team lineup", "content", TeamLineupSection),
+  photo_strip: def("photo_strip", "Photo strip", "content", PhotoStripSection),
   // collection (7) -- social_feed reclassified here (sec 4)
   news: def("news", "News", "collection", NewsSection),
   events: def("events", "Events", "collection", EventsSection),
@@ -116,9 +124,10 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   teams: def("teams", "Teams", "collection", TeamsSection),
   documents: def("documents", "Documents", "collection", DocumentsSection),
   social_feed: def("social_feed", "Social highlights", "collection", SocialFeedSection),
-  // module (2) -- entitlement-gated
+  // module (3) -- entitlement-gated. ticker added 2026-08-03, same match_centre gate.
   match_data: def("match_data", "Match centre", "module", MatchDataSection),
   scoreboard: def("scoreboard", "Scoreboard", "module", ScoreboardSection),
+  ticker: def("ticker", "Live ticker", "module", TickerSection),
 };
 
 export const SECTION_TYPES = Object.keys(SECTION_REGISTRY) as SectionType[];
@@ -141,7 +150,7 @@ export type ResolvedSection =
 export function resolveSection(raw: unknown): ResolvedSection {
   const shell = sectionInstanceSchema.safeParse(raw);
   if (!shell.success) return { ok: false, reason: "malformed section instance" };
-  const { id, type, props, visible } = shell.data;
+  const { id, type, props, visible, column } = shell.data;
 
   if (visible === false) return { ok: false, reason: "hidden", id, type };
   if (!isSectionType(type)) return { ok: false, reason: "unknown section type", id, type };
@@ -152,6 +161,8 @@ export function resolveSection(raw: unknown): ResolvedSection {
   return {
     ok: true,
     def: SECTION_REGISTRY[type],
-    instance: { id, type, props: parsed.data, visible },
+    // `column` is carried through, not dropped: the schema accepts it, so a caller
+    // reading it off the resolved instance must not silently get undefined.
+    instance: { id, type, props: parsed.data, visible, column },
   };
 }

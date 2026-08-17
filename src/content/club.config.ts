@@ -367,7 +367,11 @@ export const club: ClubConfig = {
 
   // Demo: "learn" is switched on so the enabled state is visible; the rest show
   // the upgrade / free-trial state. Per-club entitlement will come from the DB.
-  enabledModules: ["learn", "volunteers", "live-scores"],
+  // Modules default to OFF everywhere. club_modules is the only thing that turns
+  // one on, so "no row" means off for every club including this demo one — which
+  // keeps "not set" and "locked" behaviourally identical instead of the demo club
+  // being the lone place where the distinction bites.
+  enabledModules: [],
   platform: {
     salesEmail: "carson@clicksportsmedia.com",
     trialDays: 14,

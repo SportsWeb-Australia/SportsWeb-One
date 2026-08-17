@@ -364,7 +364,7 @@ function AdminInner() {
         const key = effectiveActive.slice("__mod_".length);
         const item = moduleNav.find((m) => m.def.key === key);
         return item ? (
-          <ModulePrePage mod={item.def} status={item.status} />
+          <ModulePrePage mod={item.def} status={item.status} clubId={clubId} />
         ) : (
           <div className="sw-admin-loading">That module isn't available.</div>
         );

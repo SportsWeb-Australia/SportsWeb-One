@@ -10,6 +10,9 @@ export interface PublicPage {
   layout: unknown; // jsonb array of section instances (walked by PageRenderer)
   seo: Record<string, unknown>;
   title: string | null;
+  /** club_pages.layout_mode, passed through by public_club_page. Defaults to 'stack' if the
+   *  RPC hasn't been migrated yet (supabase/f2-sidebar-layout.sql, hand-over only). */
+  layoutMode: "stack" | "main-side";
 }
 
 export interface PublicPageState {
@@ -42,8 +45,14 @@ export function usePublicClubPage(
           setState({ page: null, loading: false, notFound: true });
           return;
         }
+        const mode = (row as any).layout_mode;
         setState({
-          page: { layout: (row as any).layout ?? [], seo: (row as any).seo ?? {}, title: (row as any).title ?? null },
+          page: {
+            layout: (row as any).layout ?? [],
+            seo: (row as any).seo ?? {},
+            title: (row as any).title ?? null,
+            layoutMode: mode === "main-side" ? "main-side" : "stack",
+          },
           loading: false,
           notFound: false,
         });

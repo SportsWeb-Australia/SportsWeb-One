@@ -1,4 +1,5 @@
 import { supabase, resolveClubSlug } from "./supabase";
+import { sportsFromType } from "./sports";
 import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
 import { emptyClub } from "../content/emptyClub";
@@ -226,11 +227,15 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       name: clubName,
       slug: clubRow.slug ?? base.identity.slug,
       colours,
+      // Set for every club, demo included: unlike `sports` below, this is the raw
+      // enum the module catalogue filters on, and a demo club still has a sport.
+      sportType: clubRow.sport_type ?? undefined,
       logo:
         clubRow.logo_url ??
         (isDemoClub
           ? staticClub.identity.logo
           : placeholderLogo(initialsFrom(clubName), colours.accent, colours.paper)),
+      secondaryLogo: clubRow.secondary_logo_url ?? undefined,
       ...(isDemoClub
         ? {}
         : {
@@ -649,25 +654,6 @@ function initialsFrom(name: string): string {
     .slice(0, 4)
     .toUpperCase();
   return letters || "CLUB";
-}
-
-/** Map the clubs.sport_type enum to display sport labels for the website skin
- *  filter. 'other' (and anything unknown) returns [] so only generic styles
- *  show — never Dookie's Football/Netball. True multi-sport lives in a future
- *  sports array; this is the single-enum best effort. */
-function sportsFromType(t: string | null | undefined): string[] {
-  switch ((t ?? "").toLowerCase()) {
-    case "afl": return ["AFL"];
-    case "afl_netball": return ["AFL", "Netball"];
-    case "netball": return ["Netball"];
-    case "soccer": return ["Soccer"];
-    case "cricket": return ["Cricket"];
-    case "basketball": return ["Basketball"];
-    case "rugby_union": return ["Rugby Union"];
-    case "rugby_league": return ["Rugby League"];
-    case "lacrosse": return ["Lacrosse"];
-    default: return [];
-  }
 }
 
 /** Neutral placeholder crest for a club with no logo yet: an initials badge in

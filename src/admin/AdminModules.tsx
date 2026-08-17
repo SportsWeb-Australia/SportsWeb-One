@@ -4,7 +4,7 @@ import { useAuth } from "../lib/auth";
 import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
-import { MODULE_CATALOG, getModule } from "../lib/modules";
+import { MODULE_CATALOG, getModule, moduleSuitsSport, moduleAppUrl } from "../lib/modules";
 import { COMING_SOON_MODULES } from "./ModulePrePage";
 
 /** Drop real logo files here (PNG/SVG) and they replace the initials badge. */
@@ -138,7 +138,7 @@ export function AdminModules() {
     const appUrl =
       needsSession && perClubAppUrl && clubId
         ? `${perClubAppUrl}${perClubAppUrl.includes("?") ? "&" : "?"}clubId=${clubId}`
-        : perClubAppUrl || mod.appUrl || "";
+        : perClubAppUrl || moduleAppUrl(mod, clubId) || "";
     const canEmbed = (mod.key === "volunteers" || needsSession) && !!appUrl;
     return (
       <div className="sw-admin-panel">
@@ -276,7 +276,9 @@ export function AdminModules() {
         preview what&apos;s coming next. Locked tools aren&apos;t on your plan yet.
       </p>
       <div className="sw-module-grid">
-        {MODULE_CATALOG.map((m) => {
+        {/* Sport-specific modules (e.g. Cricket Pro) are hidden from clubs that
+            can't use them, rather than shown as permanently locked. */}
+        {MODULE_CATALOG.filter((m) => moduleSuitsSport(m, club.identity.sportType)).map((m) => {
           const isOn = isEnabled(m.key);
           return (
             <button

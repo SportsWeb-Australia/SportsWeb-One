@@ -100,9 +100,96 @@ Fix: `sportsweb-standards/SPORTSWEB-*.md` is the single canonical source. HTML i
 in the standards repo is retired — one canonical `.md`, one generated output, not three files
 that can disagree.
 
+## 6. Every design renders correctly on every device, for every club
+
+🔴 **"One app renders every club" (§1) means every club, on every device.** There is no
+per-club, per-device escape hatch — the same renderer, same section components, same CSS
+serve a phone, a tablet, and a desktop for whichever club's domain resolved the request. A
+section or design that only looks right at one viewport width is not done, the same way a
+section that only looks right with live data present is not done (Rule 9,
+`docs/F2-design-doc.md` §5).
+
+Concretely, for every new section component or design:
+- **Test at phone, tablet, and desktop widths before calling it finished** — not just desktop,
+  which is what a browser defaults to and what's easiest to forget to leave.
+- **Breakpoints degrade, they don't disappear.** A two-column layout (`layout_mode:
+  'main-side'`, `docs/codey-brief-10-the-design-layer.md` §3a) collapses to one column on
+  narrow viewports; a hero's embedded module (e.g. the match-card slot, §3b) hides below the
+  width it can no longer sit in cleanly. `src/sections/sections.css`'s main-side/hero-match
+  rules use RDCA's own real breakpoint (1060px, ported directly from `_shared.css`, not
+  invented) — reuse it rather than picking new numbers per section.
+- **This is a renderer/CSS concern, not a per-club concern.** A club's brand colours or
+  content never change whether a layout holds together at a given width — if a section
+  breaks on mobile for one club, it breaks on mobile for every club using that section.
+
+## 7. Verify against the real reference before committing, and again before calling it done
+
+🔴 **Architectural "correctness" never overrides "would this embarrass us in front of a client."**
+This rule exists because of the AFLVM incident (2026-08-04): a build was committed to F2 as the
+target renderer without weighing that F2 was, by this doc's own §1, unproven and unfinished —
+the wrong foundation for something that had to look client-ready immediately. Hours were spent
+before anyone checked what the actual comparison baseline (RDCA's real live site) was even built
+on.
+
+**Before committing to an architecture or approach for anything client/prospect-facing:**
+verify it against the real reference implementation for the quality bar you're being judged on
+— not a doc describing it, not a self-report from a prior session claiming something is
+"verified" or "essentially complete." Open both side by side. A written audit is a starting
+point, not proof.
+
+**Before calling a client-facing build done:** the same check, again. Self-assessment inside the
+same session that did the build is not verification — it's the failure mode repeating. Confirm
+against the live reference, and confirm the brand tokens actually applied (colour, logo, type),
+not just that the structure/sections are present.
+
+## 8. Bespoke build first, thin content-only editor after — never the reverse
+
+🔴 **The site and the editor are not the same effort, and F2's job in that split is narrower than
+this doc originally implied.** A club's public site is a **bespoke, hand-built, high-spec build**
+— reusing a proven reference design/section set where one fits, occasionally a genuinely new one
+— built to the standard of a hand-crafted site like RDCA's real one. It is never assembled from
+generic swappable blocks as an end in itself; if a new section type or design gets built for one
+club, it becomes a registered, reusable piece (a variant, a design-pack port, a new section type)
+for the next one — not a one-off.
+
+**The editor is a separate, later, deliberately thin layer on top of a finished bespoke build.**
+It changes content only — write a news article, swap an image, edit an SEO title/H1/H2/meta
+description — and **never** touches layout, design, or code. Think Wix/Webwave, but simpler and
+more constrained, not more powerful: there is no page builder, no drag-and-drop layout, no style
+picker beyond what the bespoke build already locked in. This is the same "constrain the
+destructive freedom, keep the useful freedom" principle as the wider platform (§3) — the club
+expresses *what changed*, never *how it looks*.
+
+🔴 **There is exactly one editor, not one per club.** It already lives in the SW1 admin
+dashboard (`Import a club` / `Site Migrations` / the club's own admin login) and is not built or
+duplicated per site. A club admin logs into that one shared UI, and it loads *their* club's
+content because every read/write is keyed by `club_id` — same code, same screens, different row.
+The editor has no idea what any given club's site looks like; it only knows how to write to a
+fixed set of named fields (`club_content` keys, the `news`/`events`/`sponsors`/etc. tables,
+`clubs.primary_colour` and siblings) — see the content model in
+`SPORTSWEB-EDITABLE-SITE-SOP.md` Part B.
+
+**What a new bespoke build actually has to do, therefore, is not "add an editor" — it's wire its
+components to *read from* that same existing shape** (the hero pulls `hero.title` from
+`club_content`, news pulls from the `news` table, brand colours from the `clubs` row) instead of
+hardcoding content. If a design genuinely needs a field that doesn't exist yet (e.g. a match
+ticker with no home in the current shape), that is a **one-time extension of the shape** — one
+new key or column — after which the existing editor can edit it for **every** club, not just the
+one that needed it first. Never invent a parallel content mechanism per site; extend the one
+shape everyone reads from (`SPORTSWEB-EDITABLE-SITE-SOP.md` Part E already forbids inventing new
+tables/columns/keys per build — this is the *why*).
+
+**What this means for F2 concretely:** its RPC/publish-gate/draft-preview plumbing is still sound
+infrastructure for the editor layer once one exists. But F2 must not be treated as the thing that
+produces the site's design — genuinely bespoke, reference-faithful builds are the bar, whichever
+renderer they're built on, and that choice gets made per §7, not assumed.
+
 ---
 
 ## The one-line version
 
 > **SW1 is one app that renders every club. B1 doesn't exist yet — don't build for it inside
-> SW1's docs. If a rule lives in two files, write a generator, not a promise to keep them in sync.**
+> SW1's docs. If a rule lives in two files, write a generator, not a promise to keep them in sync.
+> Build bespoke against the real reference, verify against it before you start and again before
+> you call it done — never against a doc or a prior session's self-report. The editor only ever
+> touches content, never design.**

@@ -3,14 +3,15 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "SportsWeb One — reusable football/netball club website template. Client zero: Dookie United FNC.",
+  "description": "SportsWeb One \u2014 reusable football/netball club website template. Client zero: Dookie United FNC.",
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/build-ssr-bundle.mjs",
     "build:client": "vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "deploy:ingest": "supabase functions deploy sitepulse-ingest --project-ref uzibfawcwoapfbigpzum"
+    "deploy:ingest": "supabase functions deploy sitepulse-ingest --project-ref uzibfawcwoapfbigpzum",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "typescript": "^5.5.4",
-    "vite": "^5.4.6"
+    "vite": "^5.4.6",
+    "vitest": "^2.1.9"
   }
 }

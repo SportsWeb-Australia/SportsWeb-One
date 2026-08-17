@@ -8,6 +8,7 @@ import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/blocks.css";
 import "./sections/sections.css";
+import "./sections/chrome/chrome.css";
 import "./admin/composer.css";
 import "./admin/admin-console.css";
 import "./styles/migrations.css";
