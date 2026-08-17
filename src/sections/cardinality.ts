@@ -22,6 +22,7 @@ export const CARDINALITY: Record<SectionType, Cardinality> = {
   quick_links: "many",
   cta_band: "many",
   news: "many",
+  videos: "many",
   events: "many",
   sponsors: "many",
   committee: "many",

@@ -139,6 +139,7 @@ export const club: ClubConfig = {
   ],
 
   // TODO: replace with real club news. Marked placeholder so it's obvious in the UI.
+  videos: [],
   news: [
     {
       id: "n1",

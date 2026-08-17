@@ -8,67 +8,97 @@
 // does not invent one.
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import type { SectionContext } from "../entitlement";
 import type { NavItem } from "../usePublicClubNav";
 import { usePublicClubNav } from "../usePublicClubNav";
 import { themeToStyle, type ThemeTokens } from "../PageRenderer";
 
 /**
- * Build an F2 nav href, preserving the query params the current view was opened with.
+ * How this chrome addresses other pages.
  *
- * A bare `?f2=<slug>` replaces the ENTIRE query string, which silently dropped
- * `?preview=<token>` — so the first nav click on a shared draft-review link kicked the
- * reviewer out of preview and onto "not published yet". `?variant=` demo overrides were
- * lost the same way. Only the `f2` param is ours to overwrite; everything else carries.
+ * 'path'  — the club is on the F2 renderer, so its pages ARE real URLs: /about, /welfare/x.
+ * 'query' — the legacy `?f2=<slug>` opt-in, still how the composer previews a page and how a
+ *           legacy club's F2 pages are viewed at all. Kept because it is not dead: only clubs
+ *           explicitly moved to render_mode='f2' get real paths.
  *
- * `?f2=` is still today's routing mechanism, and real path routing is coming — keeping this
- * the single place that knows the convention is what makes that a one-function change.
+ * One function knows the convention, which is what made adding path mode a small change.
  */
-function navHref(item: NavItem): string {
+export type LinkMode = "path" | "query";
+
+function navHref(item: NavItem, mode: LinkMode): string {
+  if (mode === "path") return item.isHome ? "/" : `/${item.slug}`;
+  // Query mode: preserve every OTHER param. A bare `?f2=<slug>` replaces the whole query
+  // string, which silently dropped `?preview=<token>` — so the first nav click on a shared
+  // draft-review link kicked the reviewer out of preview and onto "not published yet".
   const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-  if (item.isHome) params.set("f2", "");
-  else params.set("f2", item.slug);
+  params.set("f2", item.isHome ? "" : item.slug);
   // URLSearchParams renders an empty value as "f2=", which App.tsx reads as home ("" -> home).
   return `?${params.toString()}`;
 }
 
-/** The same param-preserving rule for the brand/home link. */
-function homeHref(): string {
-  return navHref({ id: "", slug: "", title: "", navLabel: "", isHome: true, children: [] });
+function homeHref(mode: LinkMode): string {
+  return navHref({ id: "", slug: "", title: "", navLabel: "", isHome: true, children: [] }, mode);
 }
 
-function NavLink({ item }: { item: NavItem }) {
+/** Real paths navigate through the router (no full reload); query mode stays a plain anchor. */
+function ChromeLink({
+  item, mode, className, style, children,
+}: {
+  item: NavItem; mode: LinkMode; className?: string; style?: React.CSSProperties; children: ReactNode;
+}) {
+  const href = navHref(item, mode);
+  if (mode === "path") {
+    return (
+      <Link className={className} style={style} to={href}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a className={className} style={style} href={href}>
+      {children}
+    </a>
+  );
+}
+
+function NavLink({ item, mode }: { item: NavItem; mode: LinkMode }) {
   if (item.children.length === 0) {
     return (
-      <a className="sw-chrome-nav-link" href={navHref(item)}>
+      <ChromeLink item={item} mode={mode} className="sw-chrome-nav-link">
         {item.navLabel}
-      </a>
+      </ChromeLink>
     );
   }
   return (
     <div className="sw-chrome-nav-item">
-      <a className="sw-chrome-nav-link sw-chrome-nav-drop-toggle" href={navHref(item)}>
+      <ChromeLink item={item} mode={mode} className="sw-chrome-nav-link sw-chrome-nav-drop-toggle">
         {item.navLabel} <span className="sw-chrome-nav-caret">&#9662;</span>
-      </a>
+      </ChromeLink>
       <div className="sw-chrome-nav-drop">
         {item.children.map((c) => (
-          <a key={c.id} href={navHref(c)}>
+          <ChromeLink key={c.id} item={c} mode={mode}>
             {c.navLabel}
-          </a>
+          </ChromeLink>
         ))}
       </div>
     </div>
   );
 }
 
-function MobileLink({ item, depth = 0 }: { item: NavItem; depth?: number }) {
+function MobileLink({ item, mode, depth = 0 }: { item: NavItem; mode: LinkMode; depth?: number }) {
   return (
     <>
-      <a className="sw-chrome-mob-link" style={depth ? { paddingLeft: `${depth * 1.25 + 1}rem` } : undefined} href={navHref(item)}>
+      <ChromeLink
+        item={item}
+        mode={mode}
+        className="sw-chrome-mob-link"
+        style={depth ? { paddingLeft: `${depth * 1.25 + 1}rem` } : undefined}
+      >
         {item.navLabel}
-      </a>
+      </ChromeLink>
       {item.children.map((c) => (
-        <MobileLink key={c.id} item={c} depth={depth + 1} />
+        <MobileLink key={c.id} item={c} mode={mode} depth={depth + 1} />
       ))}
     </>
   );
@@ -83,12 +113,14 @@ export interface ChromeProps {
   theme?: ThemeTokens;
   /** Draft-review token, threaded from F2Page so the nav shows the draft page set. */
   previewToken?: string | null;
+  /** How to address other pages -- real paths for an F2-routed club, else ?f2=. */
+  linkMode?: LinkMode;
   children: ReactNode;
 }
 
 /** Wraps a rendered F2 page with topbar + nav + footer. Every fact shown comes from the
  *  club's own real data (ctx.identity/ctx.contact, the nav RPC) -- never fabricated. */
-export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeProps) {
+export function F2Chrome({ clubId, ctx, theme, previewToken, linkMode = "query", children }: ChromeProps) {
   const { items } = usePublicClubNav(clubId, previewToken);
   const [mobileOpen, setMobileOpen] = useState(false);
   // Resolved after mount, never during render: F2 pages are pre-rendered at publish time, so
@@ -133,7 +165,7 @@ export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeP
 
       <nav className="sw-chrome-nav">
         <div className="sw-chrome-nav-inner">
-          <a className="sw-chrome-nav-brand" href={homeHref()}>
+          <a className="sw-chrome-nav-brand" href={homeHref(linkMode)}>
             {identity.logo && <img className="sw-chrome-nav-logo" src={identity.logo} alt="" />}
             {identity.secondaryLogo && (
               <img className="sw-chrome-nav-logo sw-chrome-nav-logo--secondary" src={identity.secondaryLogo} alt="" />
@@ -142,7 +174,7 @@ export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeP
           </a>
           <div className="sw-chrome-nav-links">
             {items.map((item) => (
-              <NavLink key={item.id} item={item} />
+              <NavLink key={item.id} item={item} mode={linkMode} />
             ))}
           </div>
           <button
@@ -162,7 +194,7 @@ export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeP
             &times;
           </button>
           {items.map((item) => (
-            <MobileLink key={item.id} item={item} />
+            <MobileLink key={item.id} item={item} mode={linkMode} />
           ))}
         </div>
       )}
@@ -180,9 +212,9 @@ export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeP
           </div>
           <div className="sw-chrome-footer-links">
             {items.map((item) => (
-              <a key={item.id} href={navHref(item)}>
+              <ChromeLink key={item.id} item={item} mode={linkMode}>
                 {item.navLabel}
-              </a>
+              </ChromeLink>
             ))}
           </div>
         </div>

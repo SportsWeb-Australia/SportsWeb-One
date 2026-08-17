@@ -4,7 +4,7 @@ import { PageHero } from "../components/layout/PageHero";
 import { SmartLink } from "../components/SmartLink";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
 import { NotFound } from "./NotFound";
-import { useSeo } from "../lib/seo";
+import { useSeo, notFoundSeo } from "../lib/seo";
 import { slugify } from "../lib/slug";
 import { formatDate } from "../lib/format";
 
@@ -17,7 +17,7 @@ export function NewsArticle() {
   useSeo(
     post
       ? { title: `${post.title} | ${club.identity.name}`, description: post.excerpt }
-      : null
+      : notFoundSeo(club.identity.name)
   );
 
   if (!post) return <NotFound />;

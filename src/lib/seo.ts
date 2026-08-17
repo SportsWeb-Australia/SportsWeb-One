@@ -66,6 +66,18 @@ function upsertJsonLd(id: string, data: unknown) {
   el.textContent = JSON.stringify(data);
 }
 
+/**
+ * The head for a page that does not exist, on a named club.
+ *
+ * A 404 needs its OWN title. Passing null to useSeo leaves whatever the last view set, so a
+ * visitor who mistypes a news slug gets a 404 body under the previous article's tab name --
+ * and, worse, a crawler gets a real-looking title on a dead URL. Shared by the legacy article
+ * routes and the F2 renderer so the wording is identical wherever a miss lands.
+ */
+export function notFoundSeo(clubName: string): SeoInput {
+  return { title: `Page not found | ${clubName}` };
+}
+
 export function useSeo(seo: SeoInput | null) {
   useEffect(() => {
     if (!seo) return;

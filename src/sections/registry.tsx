@@ -31,6 +31,7 @@ import {
 import {
   CommitteeSection,
   DocumentsSection,
+  VideosSection,
   EventsSection,
   NewsSection,
   SocialFeedSection,
@@ -123,6 +124,7 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   committee: def("committee", "Committee", "collection", CommitteeSection),
   teams: def("teams", "Teams", "collection", TeamsSection),
   documents: def("documents", "Documents", "collection", DocumentsSection),
+  videos: def("videos", "Video highlights", "collection", VideosSection),
   social_feed: def("social_feed", "Social highlights", "collection", SocialFeedSection),
   // module (3) -- entitlement-gated. ticker added 2026-08-03, same match_centre gate.
   match_data: def("match_data", "Match centre", "module", MatchDataSection),

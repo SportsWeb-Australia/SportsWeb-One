@@ -576,3 +576,55 @@ a.sw-sec-club-card:hover { transform: translateY(-2px); box-shadow: var(--shadow
 .sw-page .sw-sec-photostrip-credit { font-size: var(--fs-eyebrow); color: var(--text-soft); }
 .sw-page .sw-sec-photostrip-track { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1); }
 .sw-page .sw-sec-photostrip-img { flex: 0 0 auto; height: 12rem; width: auto; border-radius: var(--radius); object-fit: cover; }
+
+/* ---- videos (Collection) -------------------------------------------------
+   Video highlights play in place: no detail page, so nothing here is a link.
+   'feature' puts the main video large with the rest as a poster row beneath --
+   the "main video plus two or three" arrangement. Only the main video ships an
+   iframe; the rest are buttons that mount a player on click, so a page with a
+   growing highlights reel does not boot a third-party player per video on load. */
+.sw-page .sw-sec-video-main { margin: 0 0 var(--space-3); }
+.sw-page .sw-sec-video-main figcaption {
+  display: flex; flex-direction: column; gap: 0.2rem; padding-top: var(--space-2);
+}
+.sw-page .sw-sec-video-title { font-family: var(--font-display); font-weight: 700; line-height: 1.25; }
+.sw-page .sw-sec-video-meta { font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.04em; }
+.sw-page .sw-sec-video-desc { font-size: 0.95rem; opacity: 0.85; }
+
+.sw-page .sw-sec-video-list {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.sw-page .sw-sec-video-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow); overflow: hidden; padding: var(--space-3);
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+/* The poster is a real <button>: keyboard reachable and announced as a control,
+   which an overlaid div would not be. */
+.sw-page .sw-sec-video-poster {
+  position: relative; display: flex; flex-direction: column; gap: 0.4rem;
+  background: none; border: 0; padding: 0; margin: 0; width: 100%;
+  text-align: left; cursor: pointer; color: inherit; font: inherit;
+}
+.sw-page .sw-sec-video-poster img {
+  width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--radius);
+}
+/* No thumbnail (YouTube/Vimeo host their own): a plain play tile rather than a
+   fake frame. Never pretend to show a still we do not have. */
+.sw-page .sw-sec-video-poster:not(:has(img)) .sw-sec-video-play {
+  position: static; width: 100%; aspect-ratio: 16/9; display: grid; place-items: center;
+  background: var(--bg-invert); border-radius: var(--radius);
+}
+.sw-page .sw-sec-video-play {
+  position: absolute; top: 0; left: 0; right: 0; aspect-ratio: 16/9;
+  display: grid; place-items: center; font-size: 2rem;
+  color: var(--brand-fill-on); background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius); transition: background var(--dur) var(--ease);
+}
+.sw-page .sw-sec-video-poster:hover .sw-sec-video-play,
+.sw-page .sw-sec-video-poster:focus-visible .sw-sec-video-play { background: rgba(0, 0, 0, 0.55); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-page .sw-sec-video-play { transition: none; }
+}

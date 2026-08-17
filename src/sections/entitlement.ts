@@ -15,6 +15,7 @@ import type {
   Person,
   Sponsor,
   TeamGroup,
+  VideoItem,
 } from "../content/types";
 import type { SectionType } from "./schemas";
 
@@ -36,6 +37,8 @@ export interface SectionContext {
   contact: ClubConfig["contact"];
   // collections
   news: NewsPost[];
+  /** Video highlights: published only, display order, first is the main one. */
+  videos: VideoItem[];
   events: ClubEvent[];
   sponsors: Sponsor[];
   committee: Person[];
@@ -91,6 +94,7 @@ export function sectionContextFromClub(cfg: ClubConfig): SectionContext {
     identity: cfg.identity,
     contact: cfg.contact,
     news: cfg.news ?? [],
+    videos: cfg.videos ?? [],
     events: cfg.events ?? [],
     sponsors: cfg.sponsors ?? [],
     committee: cfg.committee ?? [],

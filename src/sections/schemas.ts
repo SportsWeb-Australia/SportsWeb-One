@@ -206,6 +206,23 @@ export const documentsSchema = z.object({
   kinds: z.array(z.enum(["policy", "form", "guide", "welfare"])).optional(),
 });
 
+/**
+ * Video highlights (public.club_videos).
+ *
+ * Same shape as newsSchema on purpose: heading + layout + count. A club posts links, this
+ * displays them, and 'feature' plays the first one large with the rest as a row -- which is the
+ * "main video with 2 or 3 others" arrangement, expressed as a display choice rather than a
+ * "featured" flag that could be set on two rows at once.
+ *
+ * No detail-page option: a highlight plays in place (decided with Carson 2026-08-18), so there
+ * is nothing to link to and nothing to configure.
+ */
+export const videosSchema = z.object({
+  heading: z.string().optional(),
+  layout: z.enum(["feature", "grid", "list"]),
+  count: z.number().int().positive().max(24),
+});
+
 export const socialFeedSchema = z.object({
   heading: z.string().optional(),
   source: z.literal("highlights"), // the only source today; a Meta adapter is a future source
@@ -279,6 +296,7 @@ export const SECTION_SCHEMAS = {
   committee: committeeSchema,
   teams: teamsSchema,
   documents: documentsSchema,
+  videos: videosSchema,
   social_feed: socialFeedSchema,
   team_lineup: teamLineupSchema,
   photo_strip: photoStripSchema,

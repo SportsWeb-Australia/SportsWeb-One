@@ -89,6 +89,25 @@ export interface Sponsor {
   placeholder?: boolean;
 }
 
+/**
+ * One video highlight (public.club_videos).
+ *
+ * A LINK, not an upload: `url` is a YouTube/Vimeo/file address that MediaEmbed turns into a
+ * player. There is deliberately no detail page -- a highlight plays where it sits, so a visitor
+ * never leaves the page to watch 40 seconds of football (decided with Carson 2026-08-18).
+ */
+export interface VideoItem {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  thumbnail?: string;
+  /** Free-text grouping, e.g. "2026 Round 12". */
+  collection?: string;
+  /** ISO yyyy-mm-dd, from published_at. */
+  date?: string;
+}
+
 export interface NewsPost {
   id: string;
   title: string;
@@ -254,6 +273,11 @@ export interface ClubConfig {
    *  draft-preview banner and the admin publish control. Undefined for the
    *  static fallback config, so neither shows there. */
   websiteStatus?: "draft" | "published" | "suspended";
+  /** Which renderer serves this club's public site (clubs.render_mode).
+   *  'legacy' = the fixed ClubConfig route tree (every club today). 'f2' = the club's own
+   *  club_pages ARE its URLs, resolved by path. Absent is treated as 'legacy', so a config
+   *  that predates the column — or the static fallback — never accidentally switches renderer. */
+  renderMode?: "legacy" | "f2";
   /** Raw stored brand colours from the clubs row (primary/secondary required,
    *  tertiary optional). deriveColours consumes these into ink/accent tokens,
    *  so the originals are preserved separately here for the admin colour editor
@@ -367,6 +391,8 @@ export interface ClubConfig {
    */
   sponsorDisplay?: "tiered" | "flat" | "featured";
   news: NewsPost[];
+  /** Video highlights, published only, in display order. First is the main one. */
+  videos: VideoItem[];
   events: ClubEvent[];
   teams: TeamGroup[];
   committee: Person[];

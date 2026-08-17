@@ -3,8 +3,11 @@
 // only. RULE 9 (sec 5): when a collection has no rows, render the section's DEFINED empty
 // state -- never sample rows, never another club's data. Placeholder rows (the demo
 // scaffold that carries `placeholder: true`) are treated as no data and filtered out.
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { parseClubDate } from "../../lib/format";
+import { MediaEmbed } from "../../components/blocks/MediaEmbed";
+import { useToday } from "../F2Seed";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf, SectionType } from "../schemas";
 
@@ -63,10 +66,91 @@ export function NewsSection({ props, ctx }: C<"news">) {
   );
 }
 
+/**
+ * Video highlights. Plays in place -- no detail page, so nothing here is a link.
+ *
+ * 'feature' is the arrangement Carson described: the first video large, the others in a row
+ * beneath. It reuses MediaEmbed, which already turns a YouTube/Vimeo/file URL into a player, so
+ * there is exactly one piece of embed logic in the app.
+ *
+ * Only the FIRST video is embedded eagerly. Two or three more iframes on a homepage is two or
+ * three more third-party players booting on load, so the rest show their poster and mount a
+ * player when clicked -- the section can grow from one video to twenty without the page cost
+ * growing with it.
+ */
+export function VideosSection({ props, ctx }: C<"videos">) {
+  const items = ctx.videos.slice(0, props.count);
+  const [main, ...rest] = props.layout === "feature" ? items : [undefined, ...items];
+  return (
+    <Frame heading={props.heading} cls={`sw-sec--videos sw-sec--videos-${props.layout}`}>
+      {items.length === 0 ? (
+        <Empty>Match highlights will appear here once the club posts its first video.</Empty>
+      ) : (
+        <>
+          {main && (
+            <figure className="sw-sec-video-main">
+              <MediaEmbed url={main.url} title={main.title} />
+              <figcaption>
+                <span className="sw-sec-video-title">{main.title}</span>
+                {main.collection && <span className="sw-sec-video-meta">{main.collection}</span>}
+                {main.description && <span className="sw-sec-video-desc">{main.description}</span>}
+              </figcaption>
+            </figure>
+          )}
+          {rest.length > 0 && (
+            <ul className="sw-sec-video-list">
+              {rest.map((v) => (
+                <li key={v!.id} className="sw-sec-video-item">
+                  <LazyVideo video={v!} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </Frame>
+  );
+}
+
+/**
+ * A poster that becomes a player when clicked.
+ *
+ * Server-rendered as a button, never an iframe: a baked page with several embeds would ship
+ * several third-party players in its HTML. With no thumbnail (YouTube and Vimeo host their own
+ * and we do not fetch them) this is a titled play button, which is honest -- it never pretends
+ * to show a frame it does not have.
+ */
+function LazyVideo({ video }: { video: SectionContext["videos"][number] }) {
+  const [playing, setPlaying] = useState(false);
+  if (playing) {
+    return (
+      <>
+        <MediaEmbed url={video.url} title={video.title} />
+        <span className="sw-sec-video-title">{video.title}</span>
+      </>
+    );
+  }
+  return (
+    <button type="button" className="sw-sec-video-poster" onClick={() => setPlaying(true)}>
+      {video.thumbnail && <img src={video.thumbnail} alt="" loading="lazy" />}
+      <span className="sw-sec-video-play" aria-hidden="true">
+        &#9654;
+      </span>
+      <span className="sw-sec-video-title">{video.title}</span>
+      {video.collection && <span className="sw-sec-video-meta">{video.collection}</span>}
+    </button>
+  );
+}
+
 export function EventsSection({ props, ctx }: C<"events">) {
-  const today = new Date().toISOString().slice(0, 10);
+  // Not `new Date()` during render: this section is pre-rendered at publish time, so "today"
+  // would be frozen at the bake date -- the filter would keep hiding events that have since
+  // passed, and the browser (deciding "upcoming" on a different day) would disagree with the
+  // server markup it is meant to adopt. useToday defers to after mount for exactly that case
+  // and returns null meanwhile, which means "no date filter yet". See sections/F2Seed.tsx.
+  const today = useToday();
   let items = ctx.events.filter((e) => !e.placeholder);
-  if (props.window !== "all") items = items.filter((e) => (e.date ?? "") >= today);
+  if (props.window !== "all" && today) items = items.filter((e) => (e.date ?? "") >= today);
   items = items.slice(0, props.count);
   return (
     <Frame heading={props.heading} cls="sw-sec--events">

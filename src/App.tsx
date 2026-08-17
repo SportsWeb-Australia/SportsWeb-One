@@ -9,6 +9,8 @@ import { registerServiceWorker } from "./lib/pwa";
 import type { ClubConfig, DesignVariant } from "./content/types";
 
 import { PublicSite } from "./PublicSite";
+import { F2Site, slugForPath } from "./F2Site";
+import type { F2Payload } from "./lib/f2Payload";
 import { StartTrial } from "./pages/StartTrial";
 import { Guide } from "./pages/Guide";
 import { AdminApp } from "./admin/AdminApp";
@@ -29,7 +31,10 @@ function PlatformFront() {
   return <PlatformLanding />;
 }
 
-export default function App({ initialClub }: { initialClub?: ClubConfig } = {}) {
+export default function App({
+  initialClub,
+  initialF2Payload,
+}: { initialClub?: ClubConfig; initialF2Payload?: F2Payload } = {}) {
   // Static config renders instantly; live Supabase content swaps in when ready.
   // Seed with the neutral base, not the demo club, so a non-demo club never paints
   // Dookie's name/content for a frame before getClubConfig() resolves.
@@ -218,6 +223,21 @@ export default function App({ initialClub }: { initialClub?: ClubConfig } = {}) 
         </ClubContext.Provider>
       </AuthProvider>
     );
+  }
+
+  // A club explicitly moved onto the F2 renderer serves its own club_pages as real URLs.
+  // Checked last, after every early return above, so the admin, trial, guide, composer,
+  // ?f2 preview and platform front door behave identically for an F2 club and a legacy one --
+  // this switch changes the club's PUBLIC SITE, nothing else.
+  if (club.renderMode === "f2") {
+    // The baked payload is the render input for ONE address. Hand it over only while the
+    // browser is still on that address: after a client-side navigation the seed no longer
+    // describes this page, and F2Site's hooks must go back to fetching.
+    const payload =
+      initialF2Payload && initialF2Payload.slug === slugForPath(location.pathname)
+        ? initialF2Payload
+        : undefined;
+    return <F2Site club={club} variant={variant} setVariant={setVariant} f2Payload={payload} />;
   }
 
   return <PublicSite club={club} variant={variant} setVariant={setVariant} />;
