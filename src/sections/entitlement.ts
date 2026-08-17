@@ -73,6 +73,7 @@ export interface SectionContext {
 const ENTITLEMENT_KEY: Partial<Record<SectionType, string>> = {
   match_data: "match_centre",
   scoreboard: "match_centre",
+  ticker: "match_centre", // real match data, chrome-like placement -- same gate, not a bespoke flag
 };
 
 /** The capability key a section requires, or null if it is never entitlement-gated. */

@@ -4,6 +4,7 @@
 // state -- never sample rows, never another club's data. Placeholder rows (the demo
 // scaffold that carries `placeholder: true`) are treated as no data and filtered out.
 import type { ReactNode } from "react";
+import { parseClubDate } from "../../lib/format";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf, SectionType } from "../schemas";
 
@@ -23,24 +24,40 @@ function Frame({ heading, cls, children }: { heading?: string; cls: string; chil
 
 export function NewsSection({ props, ctx }: C<"news">) {
   const items = ctx.news.filter((n) => !n.placeholder).slice(0, props.count);
+  // RDCA's real "feature" layout: the first story is a big full-bleed card (news-hero), the
+  // rest a 3-col grid (news-grid) -- not one flat list at one size. 'grid'/'list' stay flat.
+  const [featured, ...rest] = props.layout === "feature" ? items : [undefined, ...items];
   return (
     <Frame heading={props.heading} cls={`sw-sec--news sw-sec--news-${props.layout}`}>
       {items.length === 0 ? (
         <Empty>Club news will appear here once the first post is published.</Empty>
       ) : (
-        <ul className="sw-sec-news-list">
-          {items.map((n) => (
-            <li key={n.id} className="sw-sec-news-item">
-              {n.image && <img className="sw-sec-news-img" src={n.image} alt="" />}
-              <span className="sw-sec-news-cat">{n.category}</span>
-              <a className="sw-sec-news-title" href={n.href ?? `/news/${n.slug ?? n.id}`}>
-                {n.title}
-              </a>
-              <time className="sw-sec-news-date">{n.date}</time>
-              {n.excerpt && <p className="sw-sec-news-excerpt">{n.excerpt}</p>}
-            </li>
-          ))}
-        </ul>
+        <>
+          {featured && (
+            <a className="sw-sec-news-hero" href={featured.href ?? `/news/${featured.slug ?? featured.id}`}>
+              {featured.image && <div className="sw-sec-news-hero-img" style={{ backgroundImage: `url(${featured.image})` }} />}
+              <div className="sw-sec-news-hero-overlay" />
+              <div className="sw-sec-news-hero-body">
+                <span className="sw-sec-news-cat">{featured.category}</span>
+                <span className="sw-sec-news-hero-title">{featured.title}</span>
+                <span className="sw-sec-news-hero-meta">{featured.date}</span>
+              </div>
+            </a>
+          )}
+          <ul className="sw-sec-news-list">
+            {rest.map((n) => (
+              <li key={n!.id} className="sw-sec-news-item">
+                {n!.image && <img className="sw-sec-news-img" src={n!.image} alt="" />}
+                <span className="sw-sec-news-cat">{n!.category}</span>
+                <a className="sw-sec-news-title" href={n!.href ?? `/news/${n!.slug ?? n!.id}`}>
+                  {n!.title}
+                </a>
+                <time className="sw-sec-news-date">{n!.date}</time>
+                {n!.excerpt && <p className="sw-sec-news-excerpt">{n!.excerpt}</p>}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </Frame>
   );
@@ -57,18 +74,38 @@ export function EventsSection({ props, ctx }: C<"events">) {
         <Empty>Upcoming events will be listed here as they are scheduled.</Empty>
       ) : (
         <ul className="sw-sec-events-list">
-          {items.map((e) => (
-            <li key={e.id} className="sw-sec-events-item">
-              <time className="sw-sec-events-date">{e.date}</time>
-              <span className="sw-sec-events-title">{e.title}</span>
-              {e.location && <span className="sw-sec-events-loc">{e.location}</span>}
-              {e.ticketHref && (
-                <a className="sw-sec-events-cta" href={e.ticketHref}>
-                  Details
-                </a>
-              )}
-            </li>
-          ))}
+          {items.map((e) => {
+            // parseClubDate, not `new Date(e.date)`: stored dates are bare yyyy-mm-dd, which
+            // parses as UTC midnight and reads back a day early for any viewer west of UTC.
+            const d = parseClubDate(e.date);
+            return (
+              <li key={e.id} className="sw-sec-events-item">
+                <div className="sw-sec-events-img" style={e.image ? { backgroundImage: `url(${e.image})` } : undefined}>
+                  {d ? (
+                    <div className="sw-sec-events-datebadge">
+                      <span className="sw-sec-events-day">{d.getDate()}</span>
+                      <span className="sw-sec-events-mon">{d.toLocaleString("en-AU", { month: "short" }).toUpperCase()}</span>
+                    </div>
+                  ) : e.date ? (
+                    // Not a parseable date ("TBC", "Every Friday"). Show it as given rather
+                    // than dropping the only timing information the card carries.
+                    <div className="sw-sec-events-datebadge">
+                      <span className="sw-sec-events-mon">{e.date}</span>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="sw-sec-events-body">
+                  <span className="sw-sec-events-title">{e.title}</span>
+                  {e.location && <span className="sw-sec-events-loc">{e.location}</span>}
+                  {e.ticketHref && (
+                    <a className="sw-sec-events-cta" href={e.ticketHref}>
+                      Details
+                    </a>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </Frame>
