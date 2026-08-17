@@ -133,7 +133,7 @@ const CLUB_SUB: Record<string, SubItem[]> = {
   __members: [
     ["__members", "Members", "users"],
     ["__people", "People & committee", "staff"],
-    ["__compliance", "WWCC & compliance", "vault"],
+    ["__compliance", "Compliance register", "vault"],
     ["__reports_members", "Member reports", "chart"],
   ],
   __comms: [
@@ -249,7 +249,7 @@ export function AdminConsole({ active, setActive, can, openZoho, signOut, email,
       scr("__members", "Members", "Your membership list.", "users", "var(--c-operate)", can("club.users")),
       scr("__people", "People & committee", "Committee and contacts.", "staff", "var(--c-operate)", can("club.users")),
       scr("__teams_seasons", "Teams & seasons", "Manage teams and grades.", "clubs", "var(--c-operate)", can("club.users")),
-      scr("__compliance", "WWCC & compliance", "Who needs a valid check.", "vault", "var(--c-crit)", can("club.users")),
+      scr("__compliance", "Compliance register", "Who needs a valid check.", "vault", "var(--c-crit)", can("club.users")),
     ] },
     { id: "communicate", title: "Communicate", color: "var(--c-grow)", cards: [
       scr("__comms", "Communications", "Email, SMS and push to members.", "megaphone", "var(--c-grow)", can("club.comms")),

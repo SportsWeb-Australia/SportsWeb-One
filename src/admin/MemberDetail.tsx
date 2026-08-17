@@ -19,6 +19,7 @@ import {
   type ClubTeam,
   type ClubSeason,
 } from "../lib/people";
+import { CHECK_TYPES } from "../lib/complianceTypes";
 
 const ROLE_OPTIONS = [
   "player", "past_player", "parent", "guardian", "coach", "assistant_coach",
@@ -51,16 +52,6 @@ const EDITABLE = [
 ] as const;
 
 const EMPTY_ROLE = { role: "player", sport: "", team_id: "", season_id: "", committee_title: "", start_date: "" };
-
-const CHECK_TYPES: [string, string][] = [
-  ["wwcc", "Working with Children Check"],
-  ["police_check", "Police check"],
-  ["first_aid", "First aid"],
-  ["coach_accreditation", "Coach accreditation"],
-  ["trainer_accreditation", "Trainer accreditation"],
-  ["rsa", "RSA"],
-  ["other", "Other"],
-];
 const EMPTY_COMP = { check_type: "wwcc", reference_no: "", issued_on: "", expires_on: "", status: "valid", notes: "" };
 
 export function MemberDetail({ personId, onBack }: { personId: string; onBack: () => void }) {

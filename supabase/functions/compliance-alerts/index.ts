@@ -1,14 +1,16 @@
 // SportsWeb One - compliance-alerts Edge Function
-// Weekly WWCC / compliance digest for club senior admins. For every club with
-// at least one child-facing adult (coach, committee, volunteer, official...)
-// whose WWCC is missing, expired, or expiring within 60 days, sends one email
-// per senior admin listing who needs attention. Nothing is sent to the person
-// themselves - admin eyes only, matching how the WWCC & compliance report
-// itself is gated (club_senior_admin, not club_admin).
+// Weekly compliance digest for club senior admins. Covers every role-required
+// check (WWCC, coach/trainer accreditation, first aid, official accreditation,
+// safeguarding/member protection - see src/lib/complianceTypes.ts for the
+// matrix), not just WWCC. For every club with at least one missing, expired,
+// or soon-to-expire required check, sends one email per senior admin listing
+// who needs what. Nothing is sent to the person themselves - admin eyes only,
+// matching how the compliance register itself is gated (club_senior_admin,
+// not club_admin).
 //
 // Data comes from public.compliance_alert_targets(), a service_role-only SQL
-// function that mirrors the ComplianceReport UI's own missing/expired/expiring
-// logic server-side (see supabase/compliance-completion.sql).
+// function that mirrors the ComplianceReport UI's own logic server-side (see
+// supabase/compliance-check-types.sql).
 //
 // Delivery goes through dispatch-message (email channel) rather than calling
 // ZeptoMail directly, so club-branded sender config stays in one place.
@@ -21,33 +23,50 @@
 const SUPA_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+type CheckState = "missing" | "expired" | "expiring";
 type AlertTarget = {
   club_id: string;
   club_name: string;
   club_slug: string;
   recipient_email: string;
-  at_risk: { name: string; state: "missing" | "expired" | "expiring"; expires_on: string | null }[];
+  at_risk: { name: string; check_type: string; state: CheckState; expires_on: string | null }[];
 };
 
-const STATE_LABEL: Record<string, string> = {
-  missing: "no WWCC on file",
-  expired: "WWCC expired",
-  expiring: "WWCC expiring soon",
+// Mirrors CHECK_TYPE_LABEL in src/lib/complianceTypes.ts.
+const CHECK_TYPE_LABEL: Record<string, string> = {
+  wwcc: "Working with Children Check",
+  police_check: "Police check",
+  first_aid: "First aid",
+  cpr: "CPR / resuscitation",
+  coach_accreditation: "Coach accreditation",
+  trainer_accreditation: "Sports trainer accreditation",
+  official_accreditation: "Umpire / official accreditation",
+  safeguarding: "Member protection / safeguarding training",
+  anti_doping: "Anti-doping / sport integrity training",
+  rsa: "RSA (Responsible Service of Alcohol)",
+  food_safety: "Food safety handling",
+  other: "Other",
 };
+
+const STATE_PHRASE: Record<CheckState, string> = { missing: "not on file", expired: "expired", expiring: "expiring soon" };
 
 function buildBody(target: AlertTarget): { subject: string; body: string } {
   const lines = target.at_risk
-    .map((p) => `- ${p.name} - ${STATE_LABEL[p.state] ?? p.state}${p.expires_on ? ` (${p.expires_on})` : ""}`)
+    .map((p) => {
+      const label = CHECK_TYPE_LABEL[p.check_type] ?? p.check_type;
+      return `- ${p.name} - ${label}: ${STATE_PHRASE[p.state] ?? p.state}${p.expires_on ? ` (${p.expires_on})` : ""}`;
+    })
     .join("\n");
+  const people = new Set(target.at_risk.map((p) => p.name)).size;
   const n = target.at_risk.length;
   return {
-    subject: `${target.club_name}: ${n} ${n === 1 ? "person needs" : "people need"} a WWCC check`,
+    subject: `${target.club_name}: ${people} ${people === 1 ? "person needs" : "people need"} a compliance check`,
     body:
       `Hi there,\n\n` +
-      `${n} ${n === 1 ? "person" : "people"} in a child-facing role at ${target.club_name} ` +
-      `${n === 1 ? "doesn't" : "don't"} have a current Working with Children Check on file:\n\n` +
+      `${n} compliance record${n === 1 ? "" : "s"} at ${target.club_name} ${n === 1 ? "needs" : "need"} attention - ` +
+      `missing, expired, or expiring within 60 days:\n\n` +
       `${lines}\n\n` +
-      `Record or update checks from Members > WWCC & compliance in your admin panel.\n\n` +
+      `Record or update checks from Members > Compliance register in your admin panel.\n\n` +
       `- The SportsWeb One team`,
   };
 }

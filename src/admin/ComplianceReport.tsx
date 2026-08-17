@@ -2,58 +2,47 @@ import { useEffect, useMemo, useState } from "react";
 import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { listClubMembers, type ClubMember } from "../lib/people";
+import {
+  CHECK_TYPES,
+  CHECK_TYPE_LABEL,
+  REQUIRED_ROLES,
+  COMPLIANCE_ROLES,
+  CHECK_STATE_ORDER,
+  EXPIRING_DAYS,
+  checkStateFor,
+  STATE_LABEL,
+  STATE_TONE,
+  type CheckTypeKey,
+  type CheckState,
+  type ComplianceRecord,
+} from "../lib/complianceTypes";
 
-// Club-wide WWCC / compliance risk. Surfaces adults in child-facing roles who don't
-// hold a valid Working with Children Check (missing / expired / expiring soon), plus
-// coach/trainer accreditation for roles that require it.
+// Club-wide compliance register: every check type a role requires (WWCC, coach
+// accreditation, first aid...), plus anything else a club chooses to record
+// (RSA, food safety...), rolled up into what's Done / Coming up / Expired /
+// At risk. See src/lib/complianceTypes.ts for the requirement matrix.
 
-const CHILD_FACING = ["coach", "assistant_coach", "team_manager", "trainer", "committee", "volunteer", "official", "administrator"];
-const EXPIRING_DAYS = 60;
+const TRACKED_ONLY_TYPES = CHECK_TYPES.map(([k]) => k).filter((k) => !REQUIRED_ROLES[k]);
 
-// Roles that also need an accreditation check_type on top of WWCC.
-const ACCRED_CHECK_TYPE: Record<string, string> = {
-  coach: "coach_accreditation",
-  assistant_coach: "coach_accreditation",
-  trainer: "trainer_accreditation",
+type Item = {
+  personId: string;
+  fullName: string;
+  roles: string[];
+  checkType: CheckTypeKey;
+  state: CheckState;
+  expiresOn: string | null;
+  required: boolean;
 };
-const ACCRED_LABEL: Record<string, string> = {
-  coach_accreditation: "Coach accreditation",
-  trainer_accreditation: "Trainer accreditation",
-};
 
-type Comp = { person_id: string; check_type: string; expires_on: string | null; status: string | null };
-type CheckState = "valid" | "expiring" | "expired" | "missing";
-const STATE_ORDER: CheckState[] = ["missing", "expired", "expiring", "valid"];
-
-function checkStateFor(recs: Comp[], checkType: string): CheckState {
-  const w = recs.filter((r) => r.check_type === checkType && r.status !== "rejected");
-  if (w.length === 0) return "missing";
-  const now = Date.now();
-  const soon = now + EXPIRING_DAYS * 86_400_000;
-  let best: CheckState = "expired";
-  for (const r of w) {
-    const exp = r.expires_on ? new Date(r.expires_on).getTime() : null;
-    let s: CheckState;
-    if (r.status === "expired") s = "expired";
-    else if (exp == null) s = r.status === "valid" ? "valid" : "expiring";
-    else if (exp < now) s = "expired";
-    else if (exp < soon) s = "expiring";
-    else s = "valid";
-    if (s === "valid") return "valid";
-    if (s === "expiring") best = "expiring";
-  }
-  return best;
-}
-
-const STATE_LABEL: Record<CheckState, string> = { valid: "Valid", expiring: "Expiring soon", expired: "Expired", missing: "No WWCC on file" };
-const STATE_TONE: Record<CheckState, string> = { valid: "ok", expiring: "warn", expired: "bad", missing: "bad" };
-const ACCRED_STATE_LABEL: Record<CheckState, string> = { valid: "Valid", expiring: "Expiring soon", expired: "Expired", missing: "Not recorded" };
+type Bucket = "attention" | CheckState;
 
 export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => void }) {
   const { clubId } = useActiveClub();
   const [members, setMembers] = useState<ClubMember[]>([]);
-  const [comp, setComp] = useState<Comp[]>([]);
+  const [comp, setComp] = useState<ComplianceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bucket, setBucket] = useState<Bucket>("attention");
+  const [typeFilter, setTypeFilter] = useState<CheckTypeKey | "all">("all");
 
   useEffect(() => {
     if (!clubId || !supabase) return;
@@ -63,50 +52,91 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
       supabase.from("compliance_records").select("person_id, check_type, expires_on, status").eq("club_id", clubId),
     ]).then(([mem, cRes]) => {
       setMembers(mem);
-      setComp(((cRes.data as Comp[]) ?? []));
+      setComp(((cRes.data as ComplianceRecord[]) ?? []));
       setLoading(false);
     });
   }, [clubId]);
 
-  const rows = useMemo(() => {
-    const byPerson = new Map<string, Comp[]>();
+  const items = useMemo<Item[]>(() => {
+    const byPerson = new Map<string, ComplianceRecord[]>();
     for (const c of comp) {
       const arr = byPerson.get(c.person_id) ?? [];
       arr.push(c);
       byPerson.set(c.person_id, arr);
     }
-    return members
-      .filter((m) => !m.isMinor && m.roles.some((r) => CHILD_FACING.includes(r)))
-      .map((m) => {
-        const recs = byPerson.get(m.personId) ?? [];
-        const wwcc = checkStateFor(recs, "wwcc");
-        const accredType = m.roles.map((r) => ACCRED_CHECK_TYPE[r]).find(Boolean) ?? null;
-        const accred = accredType ? checkStateFor(recs, accredType) : null;
-        return { member: m, wwcc, accredType, accred };
-      })
-      .sort((a, b) => {
-        const worst = (r: (typeof a)) => Math.min(STATE_ORDER.indexOf(r.wwcc), r.accred ? STATE_ORDER.indexOf(r.accred) : 99);
-        return worst(a) - worst(b);
-      });
+    const out: Item[] = [];
+
+    // Required: every person holding a role that needs this check type.
+    for (const m of members) {
+      if (m.isMinor) continue;
+      const recs = byPerson.get(m.personId) ?? [];
+      for (const [checkType, roles] of Object.entries(REQUIRED_ROLES) as [CheckTypeKey, string[]][]) {
+        if (!m.roles.some((r) => roles.includes(r))) continue;
+        out.push({
+          personId: m.personId,
+          fullName: m.fullName,
+          roles: m.roles,
+          checkType,
+          state: checkStateFor(recs, checkType),
+          expiresOn: recs.find((r) => r.check_type === checkType)?.expires_on ?? null,
+          required: true,
+        });
+      }
+    }
+
+    // Tracked-only: not required by any role, but shown (and expiry-flagged) for
+    // whoever actually has one on file. Never "missing" — nobody's assigned it.
+    for (const checkType of TRACKED_ONLY_TYPES) {
+      const holders = new Set(comp.filter((c) => c.check_type === checkType).map((c) => c.person_id));
+      for (const personId of holders) {
+        const m = members.find((x) => x.personId === personId);
+        if (!m) continue;
+        const recs = byPerson.get(personId) ?? [];
+        out.push({
+          personId,
+          fullName: m.fullName,
+          roles: m.roles,
+          checkType,
+          state: checkStateFor(recs, checkType),
+          expiresOn: recs.find((r) => r.check_type === checkType)?.expires_on ?? null,
+          required: false,
+        });
+      }
+    }
+
+    return out.sort((a, b) => {
+      const s = CHECK_STATE_ORDER.indexOf(a.state) - CHECK_STATE_ORDER.indexOf(b.state);
+      return s !== 0 ? s : a.fullName.localeCompare(b.fullName);
+    });
   }, [members, comp]);
 
   const counts = useMemo(() => {
     const c = { valid: 0, expiring: 0, expired: 0, missing: 0 };
-    rows.forEach((r) => { c[r.wwcc]++; });
+    items.forEach((i) => { c[i.state]++; });
     return c;
-  }, [rows]);
-  const accredGaps = useMemo(() => rows.filter((r) => r.accredType && r.accred !== "valid").length, [rows]);
-  const atRiskRows = useMemo(() => rows.filter((r) => r.wwcc !== "valid" || (r.accredType && r.accred !== "valid")), [rows]);
-  const atRisk = atRiskRows.length;
+  }, [items]);
+  const needsAttention = counts.expiring + counts.expired + counts.missing;
+
+  const typesInUse = useMemo(
+    () => CHECK_TYPES.filter(([k]) => items.some((i) => i.checkType === k)),
+    [items],
+  );
+
+  const visible = useMemo(() => {
+    return items
+      .filter((i) => (bucket === "attention" ? i.state !== "valid" : i.state === bucket))
+      .filter((i) => typeFilter === "all" || i.checkType === typeFilter);
+  }, [items, bucket, typeFilter]);
 
   function exportCsv() {
-    const header = ["Name", "Roles", "WWCC status", "Accreditation type", "Accreditation status"];
-    const lines = rows.map((r) => [
-      r.member.fullName,
-      r.member.roles.filter((role) => CHILD_FACING.includes(role)).join("; "),
-      STATE_LABEL[r.wwcc],
-      r.accredType ? ACCRED_LABEL[r.accredType] : "",
-      r.accred ? ACCRED_STATE_LABEL[r.accred] : "",
+    const header = ["Name", "Roles", "Check type", "Required", "Status", "Expires"];
+    const lines = items.map((i) => [
+      i.fullName,
+      i.roles.filter((r) => COMPLIANCE_ROLES.includes(r)).join("; "),
+      CHECK_TYPE_LABEL[i.checkType],
+      i.required ? "Yes" : "No",
+      STATE_LABEL[i.state],
+      i.expiresOn ?? "",
     ]);
     const csv = [header, ...lines]
       .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -122,51 +152,93 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
 
   if (loading) return <div className="sw-admin-loading">Loading compliance…</div>;
 
+  const BUCKETS: { key: Bucket; label: string; n: number; color: string }[] = [
+    { key: "valid", label: "Done", n: counts.valid, color: "#16a06a" },
+    { key: "expiring", label: `Coming up (≤${EXPIRING_DAYS}d)`, n: counts.expiring, color: "#c0801a" },
+    { key: "expired", label: "Expired", n: counts.expired, color: "#dc4a45" },
+    { key: "missing", label: "At risk", n: counts.missing, color: "#dc4a45" },
+  ];
+
   return (
     <div className="sw-admin-panel">
       <div className="sw-admin-formhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <h2>WWCC &amp; compliance</h2>
-        {rows.length > 0 && <button className="sw-btn sw-btn--sm" onClick={exportCsv}>Export CSV</button>}
+        <h2>Compliance register</h2>
+        {items.length > 0 && <button className="sw-btn sw-btn--sm" onClick={exportCsv}>Export CSV</button>}
       </div>
       <p className="sw-admin-note">
-        Everyone in a child-facing role (coach, committee, volunteer, official) who should hold a current Working with
-        Children Check — plus coach/trainer accreditation where the role requires it. Record checks on each
-        member&apos;s profile → Compliance tab.
+        WWCC, coach/trainer accreditation, first aid, and anything else you record against a role — what&apos;s done,
+        what&apos;s coming up for renewal, what&apos;s expired, and who&apos;s missing something their role requires.
+        Record checks on each member&apos;s profile → Compliance tab.
       </p>
 
-      <div className="sw-sales-rungs" style={{ marginBottom: 16 }}>
-        <div className="sw-stat"><div className="sw-stat-n" style={{ color: "#16a06a" }}>{counts.valid}</div><div className="sw-stat-l">Valid</div></div>
-        <div className="sw-stat"><div className="sw-stat-n" style={{ color: "#c0801a" }}>{counts.expiring}</div><div className="sw-stat-l">Expiring ≤{EXPIRING_DAYS}d</div></div>
-        <div className="sw-stat"><div className="sw-stat-n" style={{ color: "#dc4a45" }}>{counts.expired}</div><div className="sw-stat-l">Expired</div></div>
-        <div className="sw-stat"><div className="sw-stat-n" style={{ color: "#dc4a45" }}>{counts.missing}</div><div className="sw-stat-l">No WWCC</div></div>
-        <div className="sw-stat"><div className="sw-stat-n" style={{ color: accredGaps > 0 ? "#c0801a" : "#16a06a" }}>{accredGaps}</div><div className="sw-stat-l">Accreditation gaps</div></div>
+      <div className="sw-sales-rungs" style={{ marginBottom: 12 }}>
+        {BUCKETS.map((b) => (
+          <button
+            key={b.key}
+            className="sw-stat"
+            style={{ border: bucket === b.key ? "2px solid #333" : "1px solid transparent", cursor: "pointer", background: "none" }}
+            onClick={() => setBucket((cur) => (cur === b.key ? "attention" : b.key))}
+          >
+            <div className="sw-stat-n" style={{ color: b.color }}>{b.n}</div>
+            <div className="sw-stat-l">{b.label}</div>
+          </button>
+        ))}
       </div>
 
-      {atRisk === 0 ? (
+      {typesInUse.length > 1 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          <button
+            className="sw-pay"
+            style={{ cursor: "pointer", border: typeFilter === "all" ? "2px solid #333" : "1px solid #e6e8ee", background: "#fff" }}
+            onClick={() => setTypeFilter("all")}
+          >
+            All types
+          </button>
+          {typesInUse.map(([k, label]) => (
+            <button
+              key={k}
+              className="sw-pay"
+              style={{ cursor: "pointer", border: typeFilter === k ? "2px solid #333" : "1px solid #e6e8ee", background: "#fff" }}
+              onClick={() => setTypeFilter(k)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {items.length === 0 ? (
+        <p className="sw-admin-note">
+          No one is in a role that requires a compliance check yet — add roles ({COMPLIANCE_ROLES.join(", ").replace(/_/g, " ")}) on member profiles to start tracking.
+        </p>
+      ) : visible.length === 0 ? (
         <p className="sw-admin-note" style={{ color: "#166534" }}>
-          {rows.length === 0
-            ? "No one is in a child-facing role yet — add roles on member profiles to track WWCC."
-            : "Everyone in a child-facing role has a valid WWCC (and accreditation, where required) on file. 🎉"}
+          {bucket === "attention" ? "Nothing needs attention right now. 🎉" : "Nothing in this view."}
         </p>
       ) : (
         <>
-          <p className="sw-admin-note" style={{ fontWeight: 600, color: "#7a2e2e" }}>
-            {atRisk} {atRisk === 1 ? "person needs" : "people need"} attention:
-          </p>
+          {bucket === "attention" && (
+            <p className="sw-admin-note" style={{ fontWeight: 600, color: "#7a2e2e" }}>
+              {needsAttention} {needsAttention === 1 ? "record needs" : "records need"} attention:
+            </p>
+          )}
           <div className="sw-md-list">
-            {atRiskRows.map(({ member, wwcc, accredType, accred }) => (
-              <button key={member.personId} className="sw-md-compcard" style={{ textAlign: "left", width: "100%", border: "1px solid #e6e8ee", cursor: "pointer", background: "#fff" }} onClick={() => onOpen(member.personId)}>
+            {visible.map((i) => (
+              <button
+                key={`${i.personId}:${i.checkType}`}
+                className="sw-md-compcard"
+                style={{ textAlign: "left", width: "100%", border: "1px solid #e6e8ee", cursor: "pointer", background: "#fff" }}
+                onClick={() => onOpen(i.personId)}
+              >
                 <div className="sw-md-roletop">
-                  <strong>{member.fullName}</strong>
-                  <span style={{ display: "flex", gap: 6 }}>
-                    <span className={`sw-pay sw-pay--${STATE_TONE[wwcc]}`}>{STATE_LABEL[wwcc]}</span>
-                    {accredType && accred !== "valid" && (
-                      <span className={`sw-pay sw-pay--${STATE_TONE[accred!]}`}>{ACCRED_LABEL[accredType]}: {ACCRED_STATE_LABEL[accred!]}</span>
-                    )}
-                  </span>
+                  <strong>{i.fullName}</strong>
+                  <span className={`sw-pay sw-pay--${STATE_TONE[i.state]}`}>{STATE_LABEL[i.state]}</span>
                 </div>
                 <div className="sw-md-rolemeta">
-                  {member.roles.filter((r) => CHILD_FACING.includes(r)).map((r) => r.replace(/_/g, " ")).join(", ") || "child-facing role"}
+                  {CHECK_TYPE_LABEL[i.checkType]}
+                  {i.expiresOn ? ` · expires ${i.expiresOn}` : ""}
+                  {" · "}
+                  {i.roles.filter((r) => COMPLIANCE_ROLES.includes(r)).map((r) => r.replace(/_/g, " ")).join(", ") || "role"}
                 </div>
               </button>
             ))}

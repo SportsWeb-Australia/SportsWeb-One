@@ -60,3 +60,50 @@ The report shows names + check status — governance data, not public content. I
 8. **Permissions** — left as found: the report (and now the CSV export) render behind `can("club.users")`, which only `club_senior_admin` (+ platform roles) has — `club_admin` doesn't see this screen at all today. RLS on `compliance_records`/`compliance_documents` actually permits both `club_senior_admin` and `club_admin`, so if Carson wants `club_admin` in too, it's a one-line permission change, not a schema change.
 
 All SQL is in `supabase/compliance-completion.sql` (applied) and `supabase/compliance-alerts.sql` (template, not yet run) — see `docs/migration-ledger.md` for state.
+
+## Addendum: beyond WWCC (2026-08-18, same day)
+
+Carson asked to extend past WWCC-only into a full compliance register: what's
+done, coming up, expired, and at risk, across trainer certifications, RSA,
+coach accreditation, first aid, "and anything else you can think of."
+
+- **New shared catalog:** `src/lib/complianceTypes.ts` is now the single
+  source of truth for check types and which roles require which — imported by
+  both `MemberDetail.tsx` (capture form) and `ComplianceReport.tsx` (register),
+  so they can't drift apart the way the dashboard tile and report did before.
+  Added types beyond the original set: CPR, umpire/official accreditation,
+  member protection/safeguarding training, anti-doping/integrity training, food
+  safety handling — on top of the existing WWCC, police check, first aid,
+  coach/trainer accreditation, RSA, other.
+- **Required vs tracked:** WWCC applies to every child-facing role (unchanged).
+  Coach accreditation → coach/assistant coach. Trainer accreditation + first
+  aid → trainer. Official accreditation → official. Safeguarding → committee/
+  administrator. Everything else (RSA, food safety, anti-doping, police check,
+  CPR, other) is tracked and expiry-flagged when someone has one on file, but
+  nobody is marked "at risk" for lacking a cert their role was never assigned
+  — there's no role in this schema for "runs the bar" or "handles food" to
+  hang a requirement off. **This matrix is a reasonable default, not a
+  per-sport/state rulebook — there's no per-club override yet.** If a club's
+  real requirements differ, edit `REQUIRED_ROLES` in `complianceTypes.ts` and
+  its SQL mirror below; a genuine per-club configuration UI would be a bigger
+  follow-up.
+- **Report rebuilt** (`ComplianceReport.tsx`) as a flat, filterable register:
+  four clickable stat buckets (Done / Coming up / Expired / At risk — mapped
+  1:1 from the existing valid/expiring/expired/missing state model, just
+  relabelled for this framing) plus a check-type filter row that only shows
+  types actually in use at the club. CSV export now covers the full register
+  (every check, every state, every person), not just problems, since leagues
+  typically ask for the whole thing.
+- **Backend caught up too** (`supabase/compliance-check-types.sql`) — the
+  dashboard KPI (`compliance_risk_count`) and the alert digest
+  (`compliance_alert_targets`) now use the same requirement matrix as the
+  report, person-worst-check aggregation for the KPI, per-issue detail for the
+  digest email. Verified against live `person_roles` data (a committee person
+  correctly required both WWCC and safeguarding).
+- **Copy pass:** renamed "WWCC & compliance" to "Compliance register" in the
+  admin nav (`AdminConsole.tsx`) and updated the Club Guide step body to stop
+  reading as WWCC-only.
+- Didn't build: a genuine per-club requirement matrix (schema + UI to let a
+  club say "we don't need official accreditation" or "committee doesn't need
+  safeguarding here"). Flag if that's wanted — today it's one shared matrix
+  for every club, edited in code.
