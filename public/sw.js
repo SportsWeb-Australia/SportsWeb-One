@@ -1,6 +1,9 @@
 /* SportsWeb One — service worker (PWA shell + push). */
-const CACHE = "sportsweb-one-v1";
-const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/dookie-logo.png"];
+const CACHE = "sportsweb-one-v2";
+// "/" rather than "/index.html": the built entry is emitted as /app.html so that "/"
+// isn't claimed by the filesystem before the rewrite that serves publish-time-baked
+// HTML. "/" is the navigation target either way, so it is the right thing to hold.
+const SHELL = ["/", "/manifest.webmanifest", "/dookie-logo.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -25,10 +28,10 @@ self.addEventListener("fetch", (event) => {
       fetch(request)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put("/index.html", copy));
+          caches.open(CACHE).then((c) => c.put("/", copy));
           return res;
         })
-        .catch(() => caches.match("/index.html"))
+        .catch(() => caches.match("/"))
     );
     return;
   }

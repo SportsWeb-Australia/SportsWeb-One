@@ -37,7 +37,11 @@ export async function triggerInstall(): Promise<boolean> {
   return choice.outcome === "accepted";
 }
 
+// These four run during render (AppPrompts seeds useState from them), so they
+// must not touch browser globals under renderToString — the bake renders the
+// public tree in Node, where `window` is undefined.
 export function isStandalone(): boolean {
+  if (typeof window === "undefined") return false;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     // iOS Safari
@@ -46,6 +50,7 @@ export function isStandalone(): boolean {
 }
 
 export function isIos(): boolean {
+  if (typeof window === "undefined") return false;
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
@@ -55,10 +60,12 @@ const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undef
 const SUBSCRIBE_URL = import.meta.env.VITE_PUSH_SUBSCRIBE_URL as string | undefined;
 
 export function pushSupported(): boolean {
+  if (typeof window === "undefined") return false;
   return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 }
 
 export function notificationPermission(): NotificationPermission | "unsupported" {
+  if (typeof window === "undefined") return "unsupported";
   if (!("Notification" in window)) return "unsupported";
   return Notification.permission;
 }

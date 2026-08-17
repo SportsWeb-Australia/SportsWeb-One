@@ -134,17 +134,10 @@
   object-fit: cover;
   z-index: 0;
 }
-.sw-page .sw-sec--hero[data-layout="media-full"] .sw-sec-hero-body,
-.sw-page .sw-sec--hero[data-layout="media-diagonal"] .sw-sec-hero-body { z-index: 1; }
-.sw-page .sw-sec--hero[data-layout="media-full"]::after,
-.sw-page .sw-sec--hero[data-layout="media-diagonal"]::after {
-  content: ""; position: absolute; inset: 0; z-index: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.62));
-}
-.sw-page .sw-sec--hero[data-layout="media-split"] .sw-sec-hero-media { inset: 0 0 0 auto; width: 52%; }
-.sw-page .sw-sec--hero[data-layout="media-diagonal"] .sw-sec-hero-media {
-  clip-path: polygon(38% 0, 100% 0, 100% 100%, 20% 100%);
-}
+/* The media-full / media-split / media-diagonal rules that lived here were removed with the
+   layout names themselves (see heroSchema): the enum no longer accepts them, so nothing can
+   emit these attributes and the rules could never match. Kept out rather than kept "just in
+   case" -- dead selectors are how a future reader concludes a layout still works. */
 
 /* ============================ ANNOUNCEMENT ============================ */
 .sw-page .sw-sec--announce {

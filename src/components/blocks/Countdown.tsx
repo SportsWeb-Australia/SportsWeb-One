@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 
 /** Ticks every minute; renders days/hours/minutes until `iso`. Hides once past. */
 export function Countdown({ iso }: { iso?: string }) {
-  const [now, setNow] = useState(() => Date.now());
+  // Null until mounted, so nothing time-dependent is ever baked into static HTML —
+  // a countdown frozen at publish time would be wrong the moment anyone read it.
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(t);
   }, []);
 
-  if (!iso) return null;
+  if (!iso || now === null) return null;
   const target = new Date(iso).getTime();
   if (Number.isNaN(target)) return null;
   const diff = target - now;

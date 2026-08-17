@@ -57,10 +57,21 @@ export const heroSchema = z.object({
   // Hero LAYOUT is a section variant (a fixed menu), NOT a theme -- the one structural
   // difference the token thesis cannot express. Values are real designs lifted from
   // Carson's shipped sites (docs/codey-brief-10-the-design-layer.md sec 3b), replacing the
-  // earlier audit-invented names (media-full/media-split/media-diagonal). Absent = 'centred'.
-  // One real row on `develop` used the old 'media-split' value -- migrated to 'feature'
-  // 2026-08-03 (docs/rdca-port-audit-v2.md), not a theoretical concern.
-  layout: z.enum(["centred", "feature", "broadcast", "heritage", "card", "matchday"]).optional(),
+  // earlier audit-invented names (media-full/media-split/media-diagonal).
+  //
+  // ONLY the layouts that actually have a design are listed. 'broadcast', 'heritage', 'card'
+  // and 'matchday' were named here before they were built: they passed validation and then
+  // fell through to the generic renderer with a data-layout attribute no stylesheet matched,
+  // so a real club page shipped a bare unstyled image-over-text block with nothing warning
+  // anyone. A name that renders broken is worse than a name that doesn't exist -- the enum is
+  // the menu, so it must only offer what it can deliver. Add each back in the same change
+  // that ships its markup + CSS.
+  //
+  // Removing a value is not free: a stored layout carrying one now fails validation and the
+  // renderer skips the whole hero. See supabase/f2-hero-layout-migrate.sql, which maps the
+  // retired media-* names to 'feature' -- prod holds no hero rows at all (verified
+  // 2026-08-17), but develop and any future environment do.
+  layout: z.enum(["centred", "feature"]).optional(),
   // 'feature' + showMatchCard true + the club entitled to Match Centre -> the hero renders
   // a live-match card in its right-hand slot (RDCA's .hmc). Not entitled, no data, or a
   // different layout -> the hero renders single-column. No empty box (Rule 9). See

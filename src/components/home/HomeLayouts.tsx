@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useClub } from "../ClubContext";
 import { SmartLink } from "../SmartLink";
 import { formatDate } from "../../lib/format";
@@ -41,7 +41,12 @@ function Broadsheet() {
   const { id, news, fixtures, ladder } = useData();
   const lead = news[0];
   const rest = news.slice(1, 6);
-  const today = new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  // Filled in after mount. A masthead date baked at publish time would go on
+  // claiming to be "today" for as long as the page stays cached.
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+  }, []);
 
   return (
     <>
