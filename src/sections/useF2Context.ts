@@ -2,43 +2,60 @@
 // content, for Collection/Module sections to read) and its theme tokens.
 //
 // Extracted from F2Page so it can be fetched ONCE per view and shared. F2Site renders the
-// chrome around the whole route tree — including the system-rendered news/event article
-// routes — and those need the same ctx and theme the page does. Fetching per component would
-// mean running buildClubConfig (roughly a dozen queries) twice for a single page view.
+// chrome around the whole route tree -- including the system-rendered news/event article
+// routes -- and those need the same ctx and theme the page does.
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
 import { getClubConfigById } from "../lib/loadClub";
 import type { ClubConfig } from "../content/types";
+import { loadThemeForClub, type ThemeTokens } from "../lib/loadTheme";
 import { sectionContextFromClub, type SectionContext } from "./entitlement";
+import { useF2SeedClubWide } from "./F2Seed";
 
 export interface F2ContextState {
   ctx: SectionContext | null;
-  theme: Record<string, string> | undefined;
+  theme: ThemeTokens | undefined;
 }
 
-/** Pass `undefined` to skip fetching (when a caller already has these and passes them down). */
+/**
+ * The club's theme tokens.
+ *
+ * Seeded on a pre-rendered page (the tokens are inline styles on the chrome and the page root,
+ * so fetching them a second time would repaint on hydration).
+ */
+export function useF2Theme(clubId: string | undefined): ThemeTokens | undefined {
+  const seed = useF2SeedClubWide();
+  const [theme, setTheme] = useState<ThemeTokens | undefined>(seed?.theme);
+
+  useEffect(() => {
+    if (seed || !clubId) return;
+    let active = true;
+    loadThemeForClub(clubId).then((t) => active && setTheme(t));
+    return () => {
+      active = false;
+    };
+  }, [clubId, seed]);
+
+  return seed ? seed.theme : theme;
+}
+
+/**
+ * ctx + theme for a caller that has only a club id.
+ *
+ * F2Site does NOT use this: it already holds the resolved ClubConfig, so it builds ctx
+ * synchronously with sectionContextFromClub and skips this fetch entirely -- building the
+ * config is roughly a dozen queries, and doing it twice per page view was pure waste. This
+ * remains for the ?f2= preview and the composer, which are handed a club id and nothing else.
+ *
+ * Pass `undefined` to skip fetching.
+ */
 export function useF2Context(clubId: string | undefined): F2ContextState {
   const [ctx, setCtx] = useState<SectionContext | null>(null);
-  const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
+  const theme = useF2Theme(clubId);
 
   useEffect(() => {
     if (!clubId) return;
     let active = true;
     getClubConfigById(clubId).then((cfg: ClubConfig) => active && setCtx(sectionContextFromClub(cfg)));
-    if (supabase) {
-      supabase
-        .from("clubs")
-        .select("theme_key")
-        .eq("id", clubId)
-        .maybeSingle()
-        .then(async ({ data }) => {
-          const key = (data as { theme_key?: string } | null)?.theme_key;
-          if (key && supabase) {
-            const { data: t } = await supabase.from("club_themes").select("tokens").eq("key", key).maybeSingle();
-            if (active) setTheme(((t as { tokens?: Record<string, string> } | null)?.tokens) ?? undefined);
-          }
-        });
-    }
     return () => {
       active = false;
     };
@@ -57,6 +74,9 @@ export function useF2Context(clubId: string | undefined): F2ContextState {
  * navigating to an article unmounted the page, the cleanup stripped the attribute, and the
  * chrome silently fell back to legacy variant tokens). Standalone ?f2= use has no F2Site, so
  * F2Page owns it there instead -- hence the flag rather than an unconditional effect.
+ *
+ * A baked F2 page ships the attribute in its HTML (api/bake.js), so the served markup paints
+ * with the club's tokens before any JavaScript runs; this effect is then a no-op re-set.
  */
 export function useF2RenderRoot(enabled: boolean) {
   useEffect(() => {

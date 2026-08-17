@@ -5,6 +5,7 @@
 // scaffold that carries `placeholder: true`) are treated as no data and filtered out.
 import type { ReactNode } from "react";
 import { parseClubDate } from "../../lib/format";
+import { useToday } from "../F2Seed";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf, SectionType } from "../schemas";
 
@@ -64,9 +65,14 @@ export function NewsSection({ props, ctx }: C<"news">) {
 }
 
 export function EventsSection({ props, ctx }: C<"events">) {
-  const today = new Date().toISOString().slice(0, 10);
+  // Not `new Date()` during render: this section is pre-rendered at publish time, so "today"
+  // would be frozen at the bake date -- the filter would keep hiding events that have since
+  // passed, and the browser (deciding "upcoming" on a different day) would disagree with the
+  // server markup it is meant to adopt. useToday defers to after mount for exactly that case
+  // and returns null meanwhile, which means "no date filter yet". See sections/F2Seed.tsx.
+  const today = useToday();
   let items = ctx.events.filter((e) => !e.placeholder);
-  if (props.window !== "all") items = items.filter((e) => (e.date ?? "") >= today);
+  if (props.window !== "all" && today) items = items.filter((e) => (e.date ?? "") >= today);
   items = items.slice(0, props.count);
   return (
     <Frame heading={props.heading} cls="sw-sec--events">

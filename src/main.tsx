@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import type { ClubConfig } from "./content/types";
+import type { F2Payload } from "./lib/f2Payload";
 
 import "./styles/tokens.css";
 import "./styles/base.css";
@@ -21,11 +22,11 @@ import "./styles/migrations.css";
  * Anything else — a draft club, a page with no cache row, the admin — has no payload
  * and takes the original createRoot path unchanged.
  */
-function readBakedClub(): ClubConfig | undefined {
-  const el = document.getElementById("sw1-hydration-data");
+function readJsonScript<T>(id: string): T | undefined {
+  const el = document.getElementById(id);
   if (!el?.textContent) return undefined;
   try {
-    return JSON.parse(el.textContent) as ClubConfig;
+    return JSON.parse(el.textContent) as T;
   } catch {
     // A malformed payload must not white-screen the site; fall back to fetching.
     return undefined;
@@ -33,12 +34,16 @@ function readBakedClub(): ClubConfig | undefined {
 }
 
 const rootEl = document.getElementById("root")!;
-const bakedClub = readBakedClub();
+const bakedClub = readJsonScript<ClubConfig>("sw1-hydration-data");
+// An F2 club's baked page also ships the page/nav/theme it was rendered from, because those
+// arrive through effects the server never ran. Without it the first client render would fetch
+// them, produce a different tree from the served markup, and lose the hydration.
+const bakedF2Payload = readJsonScript<F2Payload>("sw1-f2-data");
 
 const tree = (
   <React.StrictMode>
     <BrowserRouter>
-      <App initialClub={bakedClub} />
+      <App initialClub={bakedClub} initialF2Payload={bakedF2Payload} />
     </BrowserRouter>
   </React.StrictMode>
 );

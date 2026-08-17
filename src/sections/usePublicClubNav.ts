@@ -1,52 +1,29 @@
 // F2 -- the public nav data entry point. Mirrors usePublicClubPage.ts's shape: one RPC,
 // public_club_nav(club_id), never direct table access (club_pages has no anon grant).
 // Builds the one-level dropdown tree from nav_parent_id -- flat rows in, nested items out.
+//
+// Phase 2: a pre-rendered page carries its nav in the payload (src/lib/f2Payload.ts), so the
+// chrome renders complete markup server-side instead of an empty menu. The tree builder itself
+// moved to f2Payload so the bake can use it without React; re-exported here because that is
+// where the rest of the app imports NavItem from.
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { buildNavTree, type NavItem } from "../lib/f2Payload";
+import { useF2SeedClubWide } from "./F2Seed";
 
-export interface NavItem {
-  id: string;
-  slug: string;
-  title: string;
-  navLabel: string;
-  isHome: boolean;
-  children: NavItem[];
-}
+export type { NavItem };
 
 export interface PublicNavState {
   items: NavItem[];
   loading: boolean;
 }
 
-interface NavRow {
-  id: string;
-  slug: string;
-  title: string;
-  nav_label: string | null;
-  nav_order: number | null;
-  nav_parent_id: string | null;
-  is_home: boolean;
-}
-
-function buildTree(rows: NavRow[]): NavItem[] {
-  const byId = new Map<string, NavItem>(
-    rows.map((r) => [r.id, { id: r.id, slug: r.slug, title: r.title, navLabel: r.nav_label ?? r.title, isHome: r.is_home, children: [] }]),
-  );
-  const roots: NavItem[] = [];
-  for (const r of rows) {
-    const item = byId.get(r.id)!;
-    const parent = r.nav_parent_id ? byId.get(r.nav_parent_id) : undefined;
-    // A dangling parent reference (parent not itself nav-visible/published) -> surface at
-    // top level rather than silently dropping the page. Never lose a real, live page.
-    (parent ? parent.children : roots).push(item);
-  }
-  return roots;
-}
-
 export function usePublicClubNav(clubId: string | undefined, previewToken?: string | null): PublicNavState {
+  const seed = useF2SeedClubWide();
   const [state, setState] = useState<PublicNavState>({ items: [], loading: true });
 
   useEffect(() => {
+    if (seed) return;
     let active = true;
     if (!supabase || !clubId) {
       setState({ items: [], loading: false });
@@ -57,13 +34,16 @@ export function usePublicClubNav(clubId: string | undefined, previewToken?: stri
       .rpc("public_club_nav", { p_club_id: clubId, p_preview_token: previewToken ?? null })
       .then(({ data, error }) => {
         if (!active) return;
-        const rows = (Array.isArray(data) ? data : []) as NavRow[];
-        setState({ items: error ? [] : buildTree(rows), loading: false });
+        setState({ items: error ? [] : buildNavTree(Array.isArray(data) ? data : []), loading: false });
       });
     return () => {
       active = false;
     };
-  }, [clubId]);
+    // previewToken belongs in here: it is passed to the RPC, and omitting it meant a nav
+    // fetched before a preview token resolved never re-ran, leaving a draft reviewer with the
+    // published menu (or none).
+  }, [clubId, previewToken, seed]);
 
+  if (seed) return { items: seed.nav, loading: false };
   return state;
 }

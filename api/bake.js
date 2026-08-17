@@ -1,5 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
-import { renderRouteToHtml, getClubConfigForClubId } from "./_ssr.mjs";
+import {
+  renderRouteToHtml,
+  renderF2RouteToHtml,
+  getClubConfigForClubId,
+  loadF2Payload,
+  loadF2PageIndex,
+  slugForPath,
+} from "./_ssr.mjs";
 import { SHELL_HTML } from "./_shell.mjs";
 
 /**
@@ -37,14 +44,20 @@ function cacheWriteClient() {
  * round, so there is no window where a published club has no cache at all. The prune
  * is what stops a deleted news article serving from cache forever.
  */
-async function persist(db, clubId, pages, club) {
+async function persist(db, clubId, pages, club, source) {
+  // An empty set is never a legitimate bake, and it MUST NOT reach the prune below: the
+  // `not in ()` filter that follows would be malformed with no routes to keep. The legacy path
+  // could not hit this (it always renders at least the ten static routes), but an F2 club with
+  // no published pages can.
+  if (!pages.length) throw new Error("refusing to bake an empty page set");
+
   const rows = pages.map((p) => ({
     club_id: clubId,
     route: p.route,
     html: p.html,
     seo: p.seo ?? {},
     club_config: club,
-    source: "legacy",
+    source,
     baked_at: new Date().toISOString(),
     club_status_at_bake: club.websiteStatus ?? "published",
   }));
@@ -138,8 +151,14 @@ function headTags(seo) {
  * deployment that baked it), the rendered markup in #root, per-route head tags,
  * and the config the client hydrates from.
  */
-function assemblePage(shell, rendered, club) {
+function assemblePage(shell, rendered, club, f2Payload) {
   let html = shell;
+
+  // An F2 page's colours come from club_themes tokens, which only apply while <html> carries
+  // data-render="f2" (it switches the legacy data-variant blocks off). The client sets it in an
+  // effect; a baked page has to ship it in the markup, or the served HTML paints with legacy
+  // tokens until JavaScript boots -- a visible flash of the wrong brand.
+  if (f2Payload) html = html.replace(/<html([^>]*)>/, '<html$1 data-render="f2">');
 
   const title = rendered.seo.page?.title;
   if (title) html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeAttr(title)}</title>`);
@@ -153,9 +172,17 @@ function assemblePage(shell, rendered, club) {
 
   html = html.replace("</head>", `  ${headTags(rendered.seo)}\n  </head>`);
 
-  const hydration = `<script id="sw1-hydration-data" type="application/json">${escapeJson(
+  let hydration = `<script id="sw1-hydration-data" type="application/json">${escapeJson(
     JSON.stringify(club)
   )}</script>`;
+  // F2's page layout, nav and theme arrive through effects the server never ran, so the browser
+  // needs the same three values to reproduce this markup on its first render. Without them it
+  // would fetch, render something different, and throw the server markup away.
+  if (f2Payload) {
+    hydration += `\n    <script id="sw1-f2-data" type="application/json">${escapeJson(
+      JSON.stringify(f2Payload)
+    )}</script>`;
+  }
   html = html.replace(
     '<div id="root"></div>',
     `<div id="root">${rendered.html}</div>\n    ${hydration}`
@@ -201,15 +228,51 @@ export default async function handler(req, res) {
     return res.status(404).json({ error: String(e.message ?? e), club_id: clubId });
   }
 
-  const routes = routesFor(club);
+  // Which renderer this club's public site uses decides what "its pages" even means: a fixed
+  // route list for a legacy club, the club's own club_pages addresses for an F2 one.
+  const isF2 = club.renderMode === "f2";
   const pages = [];
   const failures = [];
-  for (const route of routes) {
+
+  if (isF2) {
+    let index;
     try {
-      const rendered = renderRouteToHtml(club, club.variant, route, origin);
-      pages.push({ route, html: assemblePage(SHELL_HTML, rendered, club), seo: rendered.seo });
+      index = await loadF2PageIndex(clubId);
     } catch (e) {
-      failures.push({ route, error: String(e.message ?? e) });
+      return res.status(500).json({ error: String(e.message ?? e), club_id: clubId, stage: "page-index" });
+    }
+    // Its own pages, plus the article routes -- which are real URLs on an F2 club too (the
+    // news/events routes F2Site declares), and would otherwise be the only pages on the site
+    // left client-rendered.
+    const routes = [
+      ...index.map((p) => (p.isHome ? "/" : `/${p.slug}`)),
+      ...(club.news ?? []).filter((n) => n.slug).map((n) => `/news/${n.slug}`),
+      ...(club.events ?? []).filter((e) => e.slug).map((e) => `/events/${e.slug}`),
+    ];
+    for (const route of [...new Set(routes)]) {
+      try {
+        const payload = await loadF2Payload(clubId, slugForPath(route));
+        const rendered = renderF2RouteToHtml(club, route, payload, origin);
+        // null = a page route whose row vanished between the index read and now. Skip it rather
+        // than caching a 404 that would outlive the page's return.
+        if (!rendered) continue;
+        pages.push({
+          route,
+          html: assemblePage(SHELL_HTML, rendered, club, payload),
+          seo: rendered.seo,
+        });
+      } catch (e) {
+        failures.push({ route, error: String(e.message ?? e) });
+      }
+    }
+  } else {
+    for (const route of routesFor(club)) {
+      try {
+        const rendered = renderRouteToHtml(club, club.variant, route, origin);
+        pages.push({ route, html: assemblePage(SHELL_HTML, rendered, club), seo: rendered.seo });
+      } catch (e) {
+        failures.push({ route, error: String(e.message ?? e) });
+      }
     }
   }
 
@@ -237,7 +300,7 @@ export default async function handler(req, res) {
 
   let result;
   try {
-    result = await persist(cacheWriteClient(), clubId, pages, club);
+    result = await persist(cacheWriteClient(), clubId, pages, club, isF2 ? "f2" : "legacy");
   } catch (e) {
     // Rendering succeeded but the write didn't. The previous cache is untouched and
     // still serving, so this is a failed refresh rather than an outage.

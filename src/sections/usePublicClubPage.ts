@@ -2,18 +2,17 @@
 // Calls the single public read RPC (public_club_page) and returns the raw layout document
 // for PageRenderer to walk. The RPC returns published_layout for a published club, draft_layout
 // for a valid preview token, else zero rows (never leaks existence). NO direct table access.
-// Wired into the app + proven end-to-end at PR 5.
+//
+// Phase 2: when this render is a publish-time bake or the hydration of one, the layout is
+// already in hand (src/lib/f2Payload.ts) and fetching it again would both waste a round trip
+// and risk rendering something different from the served markup. The seed wins; the fetch is
+// the fallback.
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { mapPageRow, type PublicPage } from "../lib/f2Payload";
+import { useF2Seed } from "./F2Seed";
 
-export interface PublicPage {
-  layout: unknown; // jsonb array of section instances (walked by PageRenderer)
-  seo: Record<string, unknown>;
-  title: string | null;
-  /** club_pages.layout_mode, passed through by public_club_page. Defaults to 'stack' if the
-   *  RPC hasn't been migrated yet (supabase/f2-sidebar-layout.sql, hand-over only). */
-  layoutMode: "stack" | "main-side";
-}
+export type { PublicPage };
 
 export interface PublicPageState {
   page: PublicPage | null;
@@ -27,9 +26,12 @@ export function usePublicClubPage(
   slug: string,
   previewToken?: string | null,
 ): PublicPageState {
+  const seed = useF2Seed(slug);
   const [state, setState] = useState<PublicPageState>({ page: null, loading: true, notFound: false });
 
   useEffect(() => {
+    // Seeded: nothing to fetch, and nothing to wait for.
+    if (seed) return;
     let active = true;
     if (!supabase || !clubId) {
       setState({ page: null, loading: false, notFound: true });
@@ -41,26 +43,16 @@ export function usePublicClubPage(
       .then(({ data, error }) => {
         if (!active) return;
         const row = Array.isArray(data) ? data[0] : data;
-        if (error || !row) {
-          setState({ page: null, loading: false, notFound: true });
-          return;
-        }
-        const mode = (row as any).layout_mode;
-        setState({
-          page: {
-            layout: (row as any).layout ?? [],
-            seo: (row as any).seo ?? {},
-            title: (row as any).title ?? null,
-            layoutMode: mode === "main-side" ? "main-side" : "stack",
-          },
-          loading: false,
-          notFound: false,
-        });
+        const page = error ? null : mapPageRow(row);
+        setState({ page, loading: false, notFound: !page });
       });
     return () => {
       active = false;
     };
-  }, [clubId, slug, previewToken]);
+  }, [clubId, slug, previewToken, seed]);
 
+  // Returned during render, not copied into state: a seeded render must produce its markup on
+  // the FIRST pass (renderToString never gets a second one).
+  if (seed) return { page: seed.page, loading: false, notFound: !seed.page };
   return state;
 }
