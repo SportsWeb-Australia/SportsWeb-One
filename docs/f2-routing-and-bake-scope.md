@@ -57,11 +57,11 @@ Claude-executed per club, SOP-style: harvest the static site → author `club_pa
 5. **Pilot import: Dookie United** — all 23 pages, on the SW1 URL (no domain cutover yet). Side-by-side against the Cloudflare site.
 6. Then the queue of outside clubs, one at a time.
 
-## Open decisions (gate phase 1)
+## Decisions (Carson, 2026-08-17)
 
-1. **Base branch:** review + merge PR #126 first (gets nav/chrome/tests/sidebar; it is an unreviewed WIP snapshot), vs build routing on main's F2 and cherry-pick nav+chrome only. Recommendation: **review #126 first** — routing without its nav/chrome means rebuilding both.
-2. **Hybrid detail routes** (recommended above) vs pure-F2-everything (news articles as pages — rejected: collections are the CMS half of the product).
-3. **Where F2 clubs' legacy-only pages go:** an F2 club has no `/fixtures` unless given a page with a `match_data` section — import authors one per club, fine — confirm that's acceptable rather than auto-providing system pages.
+1. **Base branch: review + merge PR #126 first.** Routing builds on its nav/chrome/tests rather than rebuilding them.
+2. **Hybrid detail routes.** F2 pages own the page tree; `/news/:slug` and `/events/:slug` stay system-rendered from the collection tables.
+3. **Import authors the pages.** No auto-provided system pages: an F2 club's site is exactly its own `club_pages` set — the per-club import creates fixtures/news/contact pages as part of it.
 
 ## Risks
 
