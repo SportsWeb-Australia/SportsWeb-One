@@ -65,6 +65,7 @@ function defaultInstance(type: SectionType): SectionInstance {
     match_data: { mode: "combined" },
     scoreboard: {},
     ticker: {},
+    team_lineups_embed: {},
   };
   return { id, type, props: props[type] as SectionInstance["props"], visible: true };
 }

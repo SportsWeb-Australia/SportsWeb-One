@@ -34,6 +34,9 @@ export interface SocialHighlight {
 export interface SectionContext {
   identity: ClubConfig["identity"];
   contact: ClubConfig["contact"];
+  /** club.clubId (clubs.id) -- module sections that embed a separately-deployed
+   *  product (Team Line-Ups) need it to build that product's URL. */
+  clubId?: string;
   // collections
   news: NewsPost[];
   events: ClubEvent[];
@@ -74,6 +77,10 @@ const ENTITLEMENT_KEY: Partial<Record<SectionType, string>> = {
   match_data: "match_centre",
   scoreboard: "match_centre",
   ticker: "match_centre", // real match data, chrome-like placement -- same gate, not a bespoke flag
+  // Reuses the existing "team_lineups" capability from lib/modules.ts -- the same
+  // flag Clubs & Modules already toggles for the standalone product -- rather
+  // than inventing a second flag for the one product.
+  team_lineups_embed: "team_lineups",
 };
 
 /** The capability key a section requires, or null if it is never entitlement-gated. */
@@ -90,6 +97,7 @@ export function sectionContextFromClub(cfg: ClubConfig): SectionContext {
   return {
     identity: cfg.identity,
     contact: cfg.contact,
+    clubId: cfg.clubId,
     news: cfg.news ?? [],
     events: cfg.events ?? [],
     sponsors: cfg.sponsors ?? [],

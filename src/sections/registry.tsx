@@ -37,7 +37,7 @@ import {
   SponsorsSection,
   TeamsSection,
 } from "./components/collection";
-import { MatchDataSection, ScoreboardSection, TickerSection } from "./components/module";
+import { MatchDataSection, ScoreboardSection, TeamLineupsEmbedSection, TickerSection } from "./components/module";
 
 /** What the renderer passes a section component: validated props + the club data context. */
 export type SectionComponent<T extends SectionType = SectionType> = ComponentType<{
@@ -124,10 +124,13 @@ export const SECTION_REGISTRY: Record<SectionType, SectionDef> = {
   teams: def("teams", "Teams", "collection", TeamsSection),
   documents: def("documents", "Documents", "collection", DocumentsSection),
   social_feed: def("social_feed", "Social highlights", "collection", SocialFeedSection),
-  // module (3) -- entitlement-gated. ticker added 2026-08-03, same match_centre gate.
+  // module (4) -- entitlement-gated. ticker added 2026-08-03, same match_centre gate.
   match_data: def("match_data", "Match centre", "module", MatchDataSection),
   scoreboard: def("scoreboard", "Scoreboard", "module", ScoreboardSection),
   ticker: def("ticker", "Live ticker", "module", TickerSection),
+  // Embeds the standalone Team Line-Ups product; gated on its own "team_lineups"
+  // capability (see ./entitlement), not the match_centre gate above.
+  team_lineups_embed: def("team_lineups_embed", "Team Line-Ups", "module", TeamLineupsEmbedSection),
 };
 
 export const SECTION_TYPES = Object.keys(SECTION_REGISTRY) as SectionType[];

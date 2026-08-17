@@ -73,6 +73,20 @@ export function moduleSuitsSport(mod: ModuleDef, sportType?: string | null): boo
   return mod.sports.includes(sportType);
 }
 
+/**
+ * Public embed URL for the Team Line-Ups graphic -- shared by the legacy
+ * MatchCentre embed and the F2 `team_lineups_embed` section so the URL shape
+ * lives in one place. Swaps the module's own admin URL (`?admin`) for the
+ * chrome-free public one (`?embed=1`), keyed by `sw1club` -- never `club`,
+ * which is that app's own internal id and silently resolves to nothing (see
+ * docs/team-lineups-integration.md).
+ */
+export function teamLineupsEmbedUrl(clubId?: string | null): string | null {
+  const base = getModule("team_lineups")?.appUrl?.split("?")[0];
+  if (!base || !clubId) return null;
+  return `${base}?embed=1&sw1club=${encodeURIComponent(clubId)}`;
+}
+
 export const MODULE_CATALOG: ModuleDef[] = [
   {
     key: "volunteers",
