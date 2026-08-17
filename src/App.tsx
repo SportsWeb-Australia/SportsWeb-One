@@ -9,6 +9,7 @@ import { registerServiceWorker } from "./lib/pwa";
 import type { ClubConfig, DesignVariant } from "./content/types";
 
 import { PublicSite } from "./PublicSite";
+import { F2Site } from "./F2Site";
 import { StartTrial } from "./pages/StartTrial";
 import { Guide } from "./pages/Guide";
 import { AdminApp } from "./admin/AdminApp";
@@ -218,6 +219,14 @@ export default function App({ initialClub }: { initialClub?: ClubConfig } = {}) 
         </ClubContext.Provider>
       </AuthProvider>
     );
+  }
+
+  // A club explicitly moved onto the F2 renderer serves its own club_pages as real URLs.
+  // Checked last, after every early return above, so the admin, trial, guide, composer,
+  // ?f2 preview and platform front door behave identically for an F2 club and a legacy one --
+  // this switch changes the club's PUBLIC SITE, nothing else.
+  if (club.renderMode === "f2") {
+    return <F2Site club={club} variant={variant} setVariant={setVariant} />;
   }
 
   return <PublicSite club={club} variant={variant} setVariant={setVariant} />;

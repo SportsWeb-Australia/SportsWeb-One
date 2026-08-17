@@ -206,6 +206,11 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
     // demo tenant. Undefined until the is_demo migration is applied -> treated as false.
     cfg.isDemo = clubRow.is_demo === true;
 
+    // Which renderer serves this club. Only an explicit 'f2' switches; anything else --
+    // including the column being absent on an un-migrated database -- stays legacy, so no
+    // club's public site can change renderer by accident.
+    cfg.renderMode = clubRow.render_mode === "f2" ? "f2" : "legacy";
+
     // Raw brand colours preserved for the admin colour editor (deriveColours
     // consumes them into derived tokens, so the originals aren't otherwise kept).
     cfg.brandColours = {

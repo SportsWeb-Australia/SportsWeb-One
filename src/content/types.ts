@@ -254,6 +254,11 @@ export interface ClubConfig {
    *  draft-preview banner and the admin publish control. Undefined for the
    *  static fallback config, so neither shows there. */
   websiteStatus?: "draft" | "published" | "suspended";
+  /** Which renderer serves this club's public site (clubs.render_mode).
+   *  'legacy' = the fixed ClubConfig route tree (every club today). 'f2' = the club's own
+   *  club_pages ARE its URLs, resolved by path. Absent is treated as 'legacy', so a config
+   *  that predates the column — or the static fallback — never accidentally switches renderer. */
+  renderMode?: "legacy" | "f2";
   /** Raw stored brand colours from the clubs row (primary/secondary required,
    *  tertiary optional). deriveColours consumes these into ink/accent tokens,
    *  so the originals are preserved separately here for the admin colour editor

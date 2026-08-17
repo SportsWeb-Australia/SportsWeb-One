@@ -5,7 +5,7 @@ import { SmartLink } from "../components/SmartLink";
 import { MediaEmbed } from "../components/blocks/MediaEmbed";
 import { Countdown } from "../components/blocks/Countdown";
 import { NotFound } from "./NotFound";
-import { useSeo } from "../lib/seo";
+import { useSeo, notFoundSeo } from "../lib/seo";
 import { slugify } from "../lib/slug";
 import { formatDate } from "../lib/format";
 
@@ -16,7 +16,9 @@ export function EventDetail() {
   const ev = club.events.find((e) => (e.slug ?? slugify(e.title)) === slug) ?? null;
 
   useSeo(
-    ev ? { title: `${ev.title} | ${club.identity.name}`, description: ev.description ?? "" } : null
+    ev
+      ? { title: `${ev.title} | ${club.identity.name}`, description: ev.description ?? "" }
+      : notFoundSeo(club.identity.name)
   );
 
   if (!ev) return <NotFound />;
