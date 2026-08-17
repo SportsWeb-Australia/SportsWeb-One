@@ -16,7 +16,8 @@
 -- are. This is the correct shape; there is no live data yet to have gotten wrong.
 --
 -- APPLIED to `develop` (project jgziqwowavhuqpbmzxhs) 2026-08-03, authorized by Carson.
--- NOT applied to production. Kept here as the record of what was applied.
+-- APPLIED to PRODUCTION (uzibfawcwoapfbigpzum) 2026-08-17, authorized by Carson, AFTER
+-- publish-bake-notify.sql -- see the order note on step 3 and docs/migration-ledger.md.
 -- Depends on: supabase/f2-page-schema.sql (club_pages, public_club_page, publish_club_page,
 -- revert_club_page).
 -- ============================================================

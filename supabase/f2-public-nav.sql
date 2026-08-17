@@ -15,7 +15,9 @@
 -- Original apply hit "column reference id is ambiguous" (42702) -- RETURNS TABLE(id uuid,...)
 -- makes `id` an OUT-parameter name, and the unqualified `where id = p_club_id` below collided
 -- with it. Fixed by qualifying (`c.id`), which is what's shown here -- caught live during
--- verification, not before. NOT applied to production.
+-- verification, not before.
+-- APPLIED to PRODUCTION (uzibfawcwoapfbigpzum) 2026-08-17, authorized by Carson, with the
+-- preview-token branch added in review of PR #126.
 -- Depends on: supabase/f2-page-schema.sql (club_pages, clubs.website_status).
 -- ============================================================
 
