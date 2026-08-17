@@ -6,6 +6,8 @@ import {
   getMemberDetail,
   updateMemberProfile,
   uploadMemberAvatar,
+  uploadComplianceDocument,
+  getComplianceDocumentUrl,
   addPersonRole,
   updatePersonRole,
   endPersonRole,
@@ -84,12 +86,20 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
   const [roleBusy, setRoleBusy] = useState(false);
   const [showComp, setShowComp] = useState(false);
   const [compForm, setCompForm] = useState({ ...EMPTY_COMP });
+  const [compFile, setCompFile] = useState<File | null>(null);
   const [compBusy, setCompBusy] = useState(false);
+  const [openingDoc, setOpeningDoc] = useState<string | null>(null);
 
   async function saveCompliance() {
     if (!clubId || !personId || !supabase) return;
     setCompBusy(true);
     setMsg(null);
+    let documentId: string | null = null;
+    if (compFile) {
+      const up = await uploadComplianceDocument(clubId, personId, compFile, compForm.check_type);
+      if (up.error) { setCompBusy(false); setMsg(up.error); return; }
+      documentId = up.id ?? null;
+    }
     const { error } = await supabase.from("compliance_records").insert({
       club_id: clubId,
       person_id: personId,
@@ -99,10 +109,12 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
       expires_on: compForm.expires_on || null,
       status: compForm.status,
       notes: compForm.notes.trim() || null,
+      document_id: documentId,
     });
     setCompBusy(false);
     if (error) { setMsg(error.message); return; }
     setCompForm({ ...EMPTY_COMP });
+    setCompFile(null);
     setShowComp(false);
     load();
   }
@@ -112,6 +124,13 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
     const { error } = await supabase.from("compliance_records").delete().eq("id", id);
     if (error) { setMsg(error.message); return; }
     load();
+  }
+  async function openComplianceDoc(documentId: string) {
+    setOpeningDoc(documentId);
+    const url = await getComplianceDocumentUrl(documentId);
+    setOpeningDoc(null);
+    if (!url) { setMsg("Could not open document."); return; }
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   const load = () => {
@@ -475,6 +494,17 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
                       </label>
                     </div>
                     <div style={{ marginTop: 10 }}>
+                      <label className="sw-admin-note" style={{ display: "block", marginBottom: 6 }}>
+                        Evidence (optional — kept private, never on the public website)
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => setCompFile(e.target.files?.[0] ?? null)}
+                          style={{ display: "block", marginTop: 4 }}
+                        />
+                      </label>
+                    </div>
+                    <div style={{ marginTop: 10 }}>
                       <button className="sw-btn" disabled={compBusy} onClick={saveCompliance}>{compBusy ? "Saving…" : "Save record"}</button>
                     </div>
                   </div>
@@ -492,6 +522,16 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
                         <div className="sw-md-rolemeta">
                           {c.reference_no ? `Ref ${c.reference_no} · ` : ""}
                           {c.expires_on ? `Expires ${fmtDate(c.expires_on)}` : "No expiry recorded"}
+                          {c.document_id && (
+                            <button
+                              className="sw-sales-link"
+                              style={{ marginLeft: 8, background: "none", border: 0, cursor: "pointer" }}
+                              disabled={openingDoc === c.document_id}
+                              onClick={() => openComplianceDoc(c.document_id!)}
+                            >
+                              {openingDoc === c.document_id ? "Opening…" : "View document"}
+                            </button>
+                          )}
                           <button className="sw-sales-link is-danger" style={{ marginLeft: 8, background: "none", border: 0, cursor: "pointer" }} onClick={() => deleteCompliance(c.id)}>Remove</button>
                         </div>
                       </div>

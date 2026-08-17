@@ -164,6 +164,7 @@ export interface MemberRelationship {
 export interface MemberCompliance {
   id: string; check_type: string; reference_no: string | null;
   issued_on: string | null; expires_on: string | null; status: string;
+  document_id: string | null;
 }
 export interface MemberRegistration {
   id: string; membership_label: string | null; status: string | null; payment_status: string | null;
@@ -233,6 +234,55 @@ export async function uploadMemberAvatar(
     return { url: `${data.publicUrl}?v=${Date.now()}` };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Upload failed." };
+  }
+}
+
+/**
+ * Upload a compliance document (WWCC card scan, accreditation certificate) to
+ * the private compliance-documents bucket and record it in compliance_documents.
+ * Returns the new document's id, to be attached as compliance_records.document_id.
+ */
+export async function uploadComplianceDocument(
+  clubId: string,
+  personId: string,
+  file: File,
+  kind: string,
+): Promise<{ id?: string; error?: string }> {
+  if (!supabase) return { error: "Not connected." };
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${clubId}/${personId}/${Date.now()}_${safeName}`;
+    const { error: upErr } = await supabase.storage.from("compliance-documents").upload(path, file);
+    if (upErr) return { error: upErr.message };
+    const { data, error } = await supabase
+      .from("compliance_documents")
+      .insert({ club_id: clubId, person_id: personId, kind, title: file.name, storage_path: path })
+      .select("id")
+      .single();
+    if (error) return { error: error.message };
+    return { id: data.id as string };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Upload failed." };
+  }
+}
+
+/** Short-lived signed URL for a compliance document (never a public link — evidence lives in a private bucket). */
+export async function getComplianceDocumentUrl(documentId: string): Promise<string | null> {
+  if (!supabase) return null;
+  try {
+    const { data: doc, error } = await supabase
+      .from("compliance_documents")
+      .select("storage_path")
+      .eq("id", documentId)
+      .single();
+    if (error || !doc?.storage_path) return null;
+    const { data, error: signErr } = await supabase.storage
+      .from("compliance-documents")
+      .createSignedUrl(doc.storage_path, 120);
+    if (signErr) return null;
+    return data.signedUrl;
+  } catch {
+    return null;
   }
 }
 

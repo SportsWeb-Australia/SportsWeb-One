@@ -81,17 +81,16 @@ export async function getSportswebMetrics(clubId: string | null): Promise<Partia
   );
   if (vols != null) out.volunteers = { active: vols, openTasks: 0 };
 
-  // Compliance — checks expiring within 30 days (or already lapsed).
-  const soon = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
-  const risks = await countOf(() =>
-    sb
-      .from("volunteer_compliance_records")
-      .select("id", { count: "exact", head: true })
-      .eq("club_id", clubId)
-      .not("expires_on", "is", null)
-      .lte("expires_on", soon)
-  );
-  if (risks != null) out.compliance = { risks };
+  // Compliance — WWCC risk among child-facing adults: missing, expired, or
+  // expiring within 60 days. Mirrors the WWCC & compliance report's own logic
+  // server-side (compliance_risk_count), not volunteer_compliance_records —
+  // that table belongs to the separate VolunteerOne module, not club members.
+  try {
+    const { data, error } = await sb.rpc("compliance_risk_count", { p_club: clubId });
+    if (!error && typeof data === "number") out.compliance = { risks: data };
+  } catch {
+    /* not authorised (e.g. club_admin without club.users) — leave unset */
+  }
 
   return out;
 }
