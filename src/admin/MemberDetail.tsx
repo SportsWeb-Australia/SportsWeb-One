@@ -17,6 +17,7 @@ import {
   type ClubTeam,
   type ClubSeason,
 } from "../lib/people";
+import { listPersonInjuries, isInjuryCoach, type InjurySummary } from "../lib/injuries";
 
 const ROLE_OPTIONS = [
   "player", "past_player", "parent", "guardian", "coach", "assistant_coach",
@@ -61,7 +62,15 @@ const CHECK_TYPES: [string, string][] = [
 ];
 const EMPTY_COMP = { check_type: "wwcc", reference_no: "", issued_on: "", expires_on: "", status: "valid", notes: "" };
 
-export function MemberDetail({ personId, onBack }: { personId: string; onBack: () => void }) {
+export function MemberDetail({
+  personId,
+  onBack,
+  onOpenInjuries,
+}: {
+  personId: string;
+  onBack: () => void;
+  onOpenInjuries?: () => void;
+}) {
   const { clubId } = useActiveClub();
   const { club } = useClub();
   const logo = club?.identity?.logo ?? null;
@@ -85,6 +94,8 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
   const [showComp, setShowComp] = useState(false);
   const [compForm, setCompForm] = useState({ ...EMPTY_COMP });
   const [compBusy, setCompBusy] = useState(false);
+  const [injuries, setInjuries] = useState<InjurySummary[]>([]);
+  const [isCoach, setIsCoach] = useState(false);
 
   async function saveCompliance() {
     if (!clubId || !personId || !supabase) return;
@@ -128,7 +139,13 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
     if (!clubId) return;
     listClubTeams(clubId).then(setTeams);
     listClubSeasons(clubId).then(setSeasons);
+    isInjuryCoach(clubId).then(setIsCoach);
   }, [clubId]);
+
+  useEffect(() => {
+    if (!clubId || !personId) return;
+    listPersonInjuries(clubId, personId).then(setInjuries);
+  }, [clubId, personId]);
 
   const p = detail?.profile ?? null;
   const sensitive = detail?.can_view_sensitive ?? false;
@@ -150,10 +167,12 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
     if (sensitive) {
       base.push({ key: "compliance", label: "Compliance" });
       base.push({ key: "activity", label: "Activity" });
+    }
+    if (sensitive || isCoach) {
       base.push({ key: "medical", label: "Medical" });
     }
     return base;
-  }, [sensitive]);
+  }, [sensitive, isCoach]);
 
   function startEdit() {
     if (!p) return;
@@ -524,16 +543,42 @@ export function MemberDetail({ personId, onBack }: { personId: string; onBack: (
               )
             )}
 
-            {/* MEDICAL (gated placeholder) */}
-            {tab === "medical" && sensitive && (
-              <div className="sw-md-restricted">
-                <span className="sw-mem-inactive">Restricted</span>
-                <p>
-                  Injury and concussion records will live here. Access is limited to medical / high-performance staff,
-                  senior admins, and the member&apos;s active-season coach — we&apos;ll switch this on with the health
-                  module.
-                </p>
-              </div>
+            {/* MEDICAL — read-only here; full record management (new incidents, stage
+                sign-off, document upload) happens on the Injuries screen. */}
+            {tab === "medical" && (sensitive || isCoach) && (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
+                  <span className="sw-admin-note" style={{ margin: 0 }}>
+                    Injury &amp; concussion records — visible to senior admins and this member&apos;s coach.
+                  </span>
+                  {onOpenInjuries && (
+                    <button className="sw-btn sw-btn--sm" onClick={onOpenInjuries}>Manage in Injuries</button>
+                  )}
+                </div>
+                {injuries.length === 0 ? (
+                  <p className="sw-admin-note">No injury or concussion records on file.</p>
+                ) : (
+                  <div className="sw-md-list">
+                    {injuries.map((inj) => (
+                      <div className="sw-md-compcard" key={inj.id}>
+                        <div className="sw-md-roletop">
+                          <strong>{humanRole(inj.injuryType)}</strong>
+                          <span className={`sw-md-rolestate sw-md-rolestate--${inj.status === "cleared" ? "on" : inj.status === "recovering" ? "warn" : "off"}`}>
+                            {humanRole(inj.status)}
+                          </span>
+                        </div>
+                        <div className="sw-md-rolemeta">
+                          Occurred {fmtDate(inj.occurredOn)}
+                          {inj.status !== "cleared" && inj.nextStageLabel
+                            ? ` · Next: ${inj.nextStageLabel}${inj.nextStageDue ? ` (due ${fmtDate(inj.nextStageDue)})` : ""}`
+                            : ""}
+                          {inj.stagesTotal > 0 ? ` · ${inj.stagesCompleted}/${inj.stagesTotal} stages complete` : ""}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             </div>
           </div>
