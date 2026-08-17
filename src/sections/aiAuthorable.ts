@@ -34,6 +34,7 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
   photo_strip: { photos: "grounded" }, // real photo URLs only, never invented to fill a strip
   // Collection -- display config only; the rows come from tables (rule 9 at the data layer).
   news: {},
+  videos: {},
   events: {},
   sponsors: {},
   committee: {},

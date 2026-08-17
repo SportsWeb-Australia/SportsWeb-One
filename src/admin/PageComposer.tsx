@@ -54,6 +54,9 @@ function defaultInstance(type: SectionType): SectionInstance {
     contact: { showEmail: true },
     clubs_directory: { clubs: [{ name: "New club" }] },
     news: { layout: "grid", count: 3 },
+    // 'feature' by default: a club's first video should be the big one, and the layout then
+    // absorbs the second and third without the club changing anything.
+    videos: { layout: "feature", count: 4 },
     events: { count: 3 },
     sponsors: { display: "strip" },
     committee: {},

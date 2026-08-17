@@ -71,6 +71,7 @@ export const emptyClub: ClubConfig = {
 
   sponsors: [],
   news: [],
+  videos: [],
   events: [],
   teams: [],
   committee: [],

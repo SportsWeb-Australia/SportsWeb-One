@@ -106,3 +106,35 @@ describe("mapPageRow", () => {
     expect(mapPageRow({ layout_mode: "sidebar" })?.layoutMode).toBe("stack");
   });
 });
+
+describe("videos section registration", () => {
+  it("is registered as a Collection, so it is never entitlement-gated", async () => {
+    // Collection/Content sections have no entitlement key: every club can use them. Registering
+    // videos as a Module by mistake would hide it behind a capability nobody has been sold.
+    const { SECTION_REGISTRY } = await import("../registry");
+    const { entitlementKeyFor } = await import("../entitlement");
+    expect(SECTION_REGISTRY.videos.sectionClass).toBe("collection");
+    expect(entitlementKeyFor("videos")).toBeNull();
+  });
+
+  it("has a schema, cardinality, ai-authorable entry and default props", async () => {
+    // The registry test asserts this for every type; this one names videos so a half-finished
+    // addition fails with a useful message.
+    const { SECTION_SCHEMAS } = await import("../schemas");
+    const { CARDINALITY } = await import("../cardinality");
+    const { AI_AUTHORABLE } = await import("../aiAuthorable");
+    expect(SECTION_SCHEMAS.videos).toBeDefined();
+    expect(CARDINALITY.videos).toBe("many");
+    expect(AI_AUTHORABLE.videos).toBeDefined();
+  });
+
+  it("requires a layout and a sane count", async () => {
+    const { SECTION_SCHEMAS } = await import("../schemas");
+    const s = SECTION_SCHEMAS.videos;
+    expect(s.safeParse({ layout: "feature", count: 4 }).success).toBe(true);
+    expect(s.safeParse({ count: 4 }).success).toBe(false); // layout is required
+    expect(s.safeParse({ layout: "carousel", count: 4 }).success).toBe(false); // not a real layout
+    expect(s.safeParse({ layout: "feature", count: 0 }).success).toBe(false);
+    expect(s.safeParse({ layout: "feature", count: 99 }).success).toBe(false);
+  });
+});

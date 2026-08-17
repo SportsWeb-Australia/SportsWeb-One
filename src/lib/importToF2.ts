@@ -235,6 +235,9 @@ export function planF2Import(club: ClubConfig): ImportPlan {
       }),
     );
   }
+  if (has(club.videos)) {
+    home.push(sec("home", "videos", { heading: "Highlights", layout: "feature", count: 4 }));
+  }
   if (has(club.sponsors)) home.push(sec("home", "sponsors", { heading: "Our sponsors", display: "strip" }));
   page("home", name, "Home", home, { isHome: true, description: club.hero.subtitle });
 
@@ -283,6 +286,13 @@ export function planF2Import(club: ClubConfig): ImportPlan {
   }
   if (has(club.documents)) {
     page("documents", "Documents", "Documents", [sec("documents", "documents", { heading: "Club documents" })]);
+  }
+  // A highlights page of its own once there are enough videos that the homepage's four are not
+  // the whole archive. Below that it would duplicate the home section for no benefit.
+  if ((club.videos?.length ?? 0) > 4) {
+    page("highlights", "Highlights", "Highlights", [
+      sec("highlights", "videos", { layout: "grid", count: 24 }),
+    ]);
   }
 
   // ---- register / join -----------------------------------------------------

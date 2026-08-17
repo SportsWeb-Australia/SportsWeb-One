@@ -3,7 +3,7 @@ import { sportsFromType } from "./sports";
 import { slugify } from "./slug";
 import { club as staticClub } from "../content/club.config";
 import { emptyClub } from "../content/emptyClub";
-import type { ClubConfig, DesignVariant, Sponsor, NewsPost, ClubEvent, TeamGroup, Person, BrandColours, Fixture, Result, LadderRow } from "../content/types";
+import type { ClubConfig, DesignVariant, Sponsor, NewsPost, VideoItem, ClubEvent, TeamGroup, Person, BrandColours, Fixture, Result, LadderRow } from "../content/types";
 import { clampVariant } from "../content/allowedVariants";
 
 /** SportsWeb One template_key -> this template's design variant. */
@@ -173,7 +173,7 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
   if (!supabase) return (clubRow.slug ?? "") === staticClub.identity.slug ? staticClub : emptyClub;
   const clubId = clubRow.id;
 
-    const [newsRes, eventsRes, sponsorsRes, teamsRes, peopleRes, matchesRes, ladderRes, templateRes] = await Promise.all([
+    const [newsRes, eventsRes, sponsorsRes, teamsRes, peopleRes, matchesRes, ladderRes, templateRes, videosRes] = await Promise.all([
       supabase.from("news").select("*").eq("club_id", clubId).eq("status", "published").order("published_at", { ascending: false }).limit(12),
       supabase.from("events").select("*").eq("club_id", clubId).eq("status", "published").gte("event_date", new Date().toISOString()).order("event_date", { ascending: true }).limit(12),
       supabase.from("sponsors").select("*").eq("club_id", clubId).eq("status", "published").order("display_order", { ascending: true }),
@@ -184,6 +184,15 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       clubRow.selected_template_id
         ? supabase.from("templates").select("template_key").eq("id", clubRow.selected_template_id).maybeSingle()
         : Promise.resolve({ data: null }),
+      // Video highlights. Published only, in display order -- the first is the main video. An
+      // archived video is simply not returned, which is what makes archiving real.
+      supabase
+        .from("club_videos")
+        .select("*")
+        .eq("club_id", clubId)
+        .eq("status", "published")
+        .order("display_order", { ascending: true })
+        .limit(24),
     ]);
 
     // Is this the built-in demo/template club (Dookie)? The demo keeps its rich
@@ -301,6 +310,21 @@ async function buildClubConfig(clubRow: Record<string, any>, opts?: { previewTok
       };
     });
     if (news.length) cfg.news = news;
+
+    // Video highlights. Assigned unconditionally, unlike the collections above: the base config
+    // (staticClub) carries sample rows for the demo club, but a club with no videos must show
+    // none rather than inheriting the demo's -- and an empty array is the honest answer.
+    cfg.videos = (videosRes.data ?? []).map(
+      (r): VideoItem => ({
+        id: r.id,
+        title: r.title,
+        url: r.video_url,
+        description: r.description ?? undefined,
+        thumbnail: r.thumbnail_url ?? undefined,
+        collection: r.collection ?? undefined,
+        date: r.published_at ? toISODate(r.published_at) : undefined,
+      }),
+    );
 
     // Events
     const events = (eventsRes.data ?? []).map(

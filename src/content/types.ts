@@ -89,6 +89,25 @@ export interface Sponsor {
   placeholder?: boolean;
 }
 
+/**
+ * One video highlight (public.club_videos).
+ *
+ * A LINK, not an upload: `url` is a YouTube/Vimeo/file address that MediaEmbed turns into a
+ * player. There is deliberately no detail page -- a highlight plays where it sits, so a visitor
+ * never leaves the page to watch 40 seconds of football (decided with Carson 2026-08-18).
+ */
+export interface VideoItem {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  thumbnail?: string;
+  /** Free-text grouping, e.g. "2026 Round 12". */
+  collection?: string;
+  /** ISO yyyy-mm-dd, from published_at. */
+  date?: string;
+}
+
 export interface NewsPost {
   id: string;
   title: string;
@@ -372,6 +391,8 @@ export interface ClubConfig {
    */
   sponsorDisplay?: "tiered" | "flat" | "featured";
   news: NewsPost[];
+  /** Video highlights, published only, in display order. First is the main one. */
+  videos: VideoItem[];
   events: ClubEvent[];
   teams: TeamGroup[];
   committee: Person[];
