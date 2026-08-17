@@ -14,6 +14,7 @@ import { MemberDetail } from "./MemberDetail";
 import { TeamsSeasons } from "./TeamsSeasons";
 import { Reports } from "./Reports";
 import { ComplianceReport } from "./ComplianceReport";
+import { AdminInjuries } from "./AdminInjuries";
 import { ClubGuide } from "./ClubGuide";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
@@ -387,7 +388,7 @@ function AdminInner() {
     ) : effectiveActive.startsWith("__member_") && can("club.users") ? (
       (() => {
         const id = effectiveActive.slice("__member_".length);
-        return <MemberDetail personId={id} onBack={() => setActive("__members")} />;
+        return <MemberDetail personId={id} onBack={() => setActive("__members")} onOpenInjuries={() => setActive("__injuries")} />;
       })()
     ) : effectiveActive === "__people" && can("club.users") ? (
       <AdminPeople />
@@ -397,6 +398,8 @@ function AdminInner() {
       <Reports section="members" />
     ) : effectiveActive === "__compliance" && can("club.users") ? (
       <ComplianceReport onOpen={(id) => setActive(`__member_${id}`)} />
+    ) : effectiveActive === "__injuries" && can("club.content") ? (
+      <AdminInjuries onOpenMember={(id) => setActive(`__member_${id}`)} />
     ) : effectiveActive === "__comms" && can("club.comms") ? (
       <Communications />
     ) : effectiveActive === "__comms_reports" && can("club.comms") ? (
@@ -713,6 +716,19 @@ function AdminInner() {
               </button>
               <button data-active={active === "__reports_members"} onClick={() => setActive("__reports_members")}>
                 Member reports
+              </button>
+              </div>
+            </>
+          )}
+          {hasClub && can("club.content") && (
+            <>
+              <button type="button" className="sw-admin-navgroup" data-open={groupOpen("welfare")} onClick={() => toggleGroup("welfare")}>
+                <span>Player welfare</span>
+                <span className="sw-admin-groupcaret">{groupOpen("welfare") ? "▾" : "▸"}</span>
+              </button>
+              <div className="sw-admin-groupitems" data-open={groupOpen("welfare")}>
+              <button data-active={active === "__injuries"} onClick={() => setActive("__injuries")}>
+                Injuries &amp; concussion
               </button>
               </div>
             </>

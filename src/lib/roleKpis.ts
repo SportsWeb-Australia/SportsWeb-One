@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { getInjuryDashboardSummary } from "./injuries";
 
 /**
  * Role dashboards read "critical indicators" from whichever system OWNS each
@@ -21,6 +22,7 @@ export type Metrics = {
   volunteers?: { active: number; openTasks: number }; // sportsweb (next)
   events?: { upcoming: number; ticketsSold: number }; // sportsweb (events / Ticket One)
   compliance?: { risks: number }; // sportsweb (next)
+  injuries?: { active: number; overdueStages: number }; // sportsweb (injury_records / injury_stages)
   registrations?: { pending: number; issues: number; unpaid: number }; // sportsweb (registrations)
   finance?: { netYtd: number; budgetYtd: number; variancePct: number }; // zoho
   tasks?: { open: number; overdue: number }; // either
@@ -92,6 +94,11 @@ export async function getSportswebMetrics(clubId: string | null): Promise<Partia
       .lte("expires_on", soon)
   );
   if (risks != null) out.compliance = { risks };
+
+  // Injuries — active records + overdue return-to-play stages. Scoped server-side
+  // (senior admins: whole club; coaches: their own team) — empty for anyone else.
+  const injurySummary = await getInjuryDashboardSummary(clubId);
+  if (injurySummary) out.injuries = { active: injurySummary.active, overdueStages: injurySummary.overdueStages };
 
   return out;
 }

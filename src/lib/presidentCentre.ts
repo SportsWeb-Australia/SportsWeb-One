@@ -169,8 +169,28 @@ export function buildHealth(m: Metrics, local: CentreLocal): { overall: number |
     state: "mock",
   });
 
-  // 6. Team health — setup.
-  areas.push({ key: "teams", label: "Team health", status: "muted", score: null, reason: "Team numbers, availability and injuries not yet connected.", owner: "Football / Netball Director", state: "setup", go: "teams" });
+  // 6. Team health — injuries live once you're a senior admin or coach; team numbers/availability still setup.
+  if (m.injuries) {
+    const { active, overdueStages } = m.injuries;
+    const score = overdueStages > 0 ? 45 : active > 0 ? 70 : 90;
+    areas.push({
+      key: "teams",
+      label: "Team health",
+      status: statusFromScore(score),
+      score,
+      reason: overdueStages > 0
+        ? `${overdueStages} return-to-play stage${overdueStages === 1 ? "" : "s"} overdue · ${active} active injur${active === 1 ? "y" : "ies"}.`
+        : active > 0
+          ? `${active} active injur${active === 1 ? "y" : "ies"}, all stages on track.`
+          : "No active injuries on file.",
+      owner: "Football / Netball Director",
+      action: overdueStages > 0 ? "Follow up overdue return-to-play stages" : undefined,
+      go: "__injuries",
+      state: "live",
+    });
+  } else {
+    areas.push({ key: "teams", label: "Team health", status: "muted", score: null, reason: "Team numbers, availability and injuries not yet connected.", owner: "Football / Netball Director", state: "setup", go: "teams" });
+  }
 
   // 7. Events & fundraising — upcoming is live; ticketing/break-even setup.
   areas.push({
@@ -208,6 +228,8 @@ export function buildRedFlags(m: Metrics, _local: CentreLocal): RedFlag[] {
     flags.push({ id: "unpaid", title: `${unpaid} unpaid registration${unpaid === 1 ? "" : "s"}`, category: "Finance", severity: "medium", owner: "Treasurer", action: "Chase outstanding payments", go: "members", state: "live" });
   if (pending > 0)
     flags.push({ id: "pending", title: `${pending} registration${pending === 1 ? "" : "s"} awaiting approval`, category: "Membership", severity: "low", owner: "Registrar", action: "Approve or follow up", go: "members", state: "live" });
+  if ((m.injuries?.overdueStages ?? 0) > 0)
+    flags.push({ id: "injury-overdue", title: `${m.injuries!.overdueStages} return-to-play stage${m.injuries!.overdueStages === 1 ? "" : "s"} overdue`, category: "Player welfare", severity: "high", owner: "Football / Netball Director", action: "Chase sign-off on overdue stages", go: "__injuries", state: "live" });
 
   // Samples so the section reads well before finance/sponsor data connects.
   flags.push({ id: "s1", title: "Sponsor invoice overdue 14+ days", category: "Sponsorship", severity: "high", owner: "Treasurer", action: "Contact sponsor", state: "mock" });
@@ -223,6 +245,7 @@ export function buildTodos(m: Metrics, _local: CentreLocal): Todo[] {
 
   if (risks > 0) todos.push({ id: "t-wwcc", title: "Follow up expiring WWCC / accreditation", bucket: "urgent", owner: "Secretary", go: "compliance", state: "live" });
   if (unpaid > 0) todos.push({ id: "t-unpaid", title: "Chase unpaid registrations with treasurer", bucket: "week", owner: "Treasurer", go: "members", state: "live" });
+  if ((m.injuries?.overdueStages ?? 0) > 0) todos.push({ id: "t-injury", title: "Chase overdue return-to-play sign-offs", bucket: "urgent", owner: "Football / Netball Director", go: "__injuries", state: "live" });
 
   todos.push({ id: "t-update", title: "Approve this week's club update", bucket: "week", owner: "President", state: "mock" });
   todos.push({ id: "t-lowteams", title: "Review team numbers for low-registration age groups", bucket: "month", owner: "President", go: "teams", state: "mock" });
