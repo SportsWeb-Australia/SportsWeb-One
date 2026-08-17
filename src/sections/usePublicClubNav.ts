@@ -43,7 +43,7 @@ function buildTree(rows: NavRow[]): NavItem[] {
   return roots;
 }
 
-export function usePublicClubNav(clubId: string | undefined): PublicNavState {
+export function usePublicClubNav(clubId: string | undefined, previewToken?: string | null): PublicNavState {
   const [state, setState] = useState<PublicNavState>({ items: [], loading: true });
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function usePublicClubNav(clubId: string | undefined): PublicNavState {
     }
     setState((s) => ({ ...s, loading: true }));
     supabase
-      .rpc("public_club_nav", { p_club_id: clubId })
+      .rpc("public_club_nav", { p_club_id: clubId, p_preview_token: previewToken ?? null })
       .then(({ data, error }) => {
         if (!active) return;
         const rows = (Array.isArray(data) ? data : []) as NavRow[];

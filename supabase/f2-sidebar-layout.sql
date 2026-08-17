@@ -35,6 +35,17 @@ alter table public.club_pages
 -- 2. public_club_page must return the layout_mode for whichever layout it returns -- draft
 --    branch returns draft_layout_mode, published branch returns published_layout_mode. Same
 --    function, same security/grant model -- only the return shape and select lists change.
+--
+--    The DROP is required, not tidiness: this adds a column to the function's return table,
+--    and Postgres refuses that via `create or replace` ("cannot change return type of
+--    existing function", SQLSTATE 42P13). Without it, applying this file to a database that
+--    already has the 3-column version (production, per f2-page-schema.sql) fails HERE --
+--    after step 1's alter table has already committed -- leaving the columns added and the
+--    RPC, publish and revert steps unapplied. It applied cleanly to develop only because
+--    that branch DB did not have the prod-shaped function.
+--    The grants below are re-issued after the create, so dropping loses nothing.
+drop function if exists public.public_club_page(uuid, text, text);
+
 create or replace function public.public_club_page(p_club_id uuid, p_slug text, p_preview_token text default null)
 returns table (layout jsonb, seo jsonb, title text, layout_mode text)
 language plpgsql
@@ -85,6 +96,17 @@ grant execute on function public.public_club_page(uuid, text, text) to anon, aut
 
 -- 3. publish_club_page: copy draft_layout_mode -> published_layout_mode atomically alongside
 --    draft_layout -> published_layout. Same function, same auth check, one more column copied.
+--
+--    !! THIS BODY IS SHARED GROUND with supabase/publish-bake-notify.sql (the publish-time
+--    pre-render work), which also re-creates this function -- to add the notify_bake() call
+--    that fires a bake on publish. Two files, one function: whichever is applied LAST wins
+--    outright, and each was written from a copy of the body that predated the other. Applied
+--    in the wrong order, one of two things breaks silently and with no error anywhere:
+--    publishing stops copying layout_mode (every two-column page goes live as single-column),
+--    or publishing stops firing the bake (clubs serve a stale pre-render cache forever).
+--    So this body carries BOTH changes. publish-bake-notify.sql has already been applied to
+--    production; applying this file after it is the correct order and is safe. Do NOT re-apply
+--    publish-bake-notify.sql afterwards -- its copy of this body has no layout_mode.
 create or replace function public.publish_club_page(p_page_id uuid)
 returns json
 language plpgsql
@@ -114,6 +136,19 @@ begin
 
   insert into public.club_page_versions (club_id, page_id, layout, label, created_by)
   values (v_club_id, p_page_id, v_draft, 'published', auth.uid());
+
+  -- Fire the publish-time bake (supabase/publish-bake-notify.sql). Existence-checked so this
+  -- file stays applicable to a database where that work has not landed yet -- on develop the
+  -- function is absent and this is a no-op rather than a runtime "function does not exist" on
+  -- every publish. Swallowed for the same reason notify_bake swallows internally: a bake
+  -- failure must never roll back the publish that triggered it.
+  begin
+    if to_regprocedure('public.notify_bake(uuid, text)') is not null then
+      perform public.notify_bake(v_club_id, 'publish_club_page');
+    end if;
+  exception when others then
+    null;
+  end;
 
   return json_build_object('page_id', p_page_id, 'published_at', now());
 end;

@@ -85,7 +85,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
   const [busy, setBusy] = useState<Busy>(false);
   const [toast, setToast] = useState<Toast>(null);
-  const [addOpen, setAddOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState<null | "main" | "side">(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsAuth, setNeedsAuth] = useState(false);
@@ -111,12 +111,33 @@ export function PageComposer({ clubId }: { clubId: string }) {
         setLoading(false);
         return;
       }
-      const { data: base } = await supabase
-        .from("club_pages")
-        .select("id, draft_layout, published_layout, draft_layout_mode")
-        .eq("club_id", clubId)
-        .eq("slug", "home")
-        .maybeSingle();
+      // draft_layout_mode only exists where supabase/f2-sidebar-layout.sql has been applied.
+      // Selecting it against a database without that migration fails the WHOLE select
+      // (Postgres 42703), which previously read as "this club has no home page" and killed
+      // all editing with a misleading message. Ask for it, and on failure fall back to the
+      // columns that have always existed so the composer still opens in stack mode.
+      let baseErr: unknown = null;
+      let base: unknown = null;
+      {
+        const withMode = await supabase
+          .from("club_pages")
+          .select("id, draft_layout, published_layout, draft_layout_mode")
+          .eq("club_id", clubId)
+          .eq("slug", "home")
+          .maybeSingle();
+        if (withMode.error) {
+          const legacy = await supabase
+            .from("club_pages")
+            .select("id, draft_layout, published_layout")
+            .eq("club_id", clubId)
+            .eq("slug", "home")
+            .maybeSingle();
+          base = legacy.data;
+          baseErr = legacy.error;
+        } else {
+          base = withMode.data;
+        }
+      }
       const cfg = await getClubConfigById(clubId);
       let themeTokens: Record<string, string> | undefined;
       const { data: club } = await supabase.from("clubs").select("theme_key").eq("id", clubId).maybeSingle();
@@ -134,6 +155,14 @@ export function PageComposer({ clubId }: { clubId: string }) {
       // it's the platform's structural setting for this page, not a draft/published pair the
       // club toggles between (see the file-header note).
       const draftMode: LayoutMode = row?.draft_layout_mode === "main-side" ? "main-side" : "stack";
+      // Never fail silently: a read error is not the same as "no page yet", and the two used
+      // to be indistinguishable on screen.
+      if (baseErr) {
+        setError(
+          "Couldn't load this page from the database. Your content is safe — nothing has been changed. " +
+            "This usually means the site editor's database migration hasn't been applied to this environment yet."
+        );
+      }
       setPageId(row?.id ?? null);
       setLayout(draft);
       setLayoutMode(draftMode);
@@ -224,7 +253,7 @@ export function PageComposer({ clubId }: { clubId: string }) {
   const add = (type: SectionType, column: "main" | "side" = "main") => {
     const instance = defaultInstance(type);
     setLayout((L) => [...L, layoutMode === "main-side" ? { ...instance, column } : instance]);
-    setAddOpen(false);
+    setAddOpen(null);
     flash(`Added "${SECTION_REGISTRY[type].label}". Remember to save.`);
   };
 
@@ -327,15 +356,19 @@ export function PageComposer({ clubId }: { clubId: string }) {
   // mode, or one column's filtered list in main-side mode) -- used only to grey out ↑/↓ at
   // the boundary, matching the original single-list behaviour exactly.
   const renderItem = (s: SectionInstance, group: SectionInstance[], opts: { showMoveToOther?: "main" | "side" } = {}) => {
-    const def = SECTION_REGISTRY[s.type];
-    const ok = resolveSection(s).ok;
+    // A layout row can name a type this build doesn't register -- a page saved by an older or
+    // newer deploy, or a type since removed. The public renderer skips those; the composer used
+    // to read .label straight off undefined and white-screen the whole editor, so the one row
+    // the club needs to delete was the one row that made the screen unusable.
+    const def = SECTION_REGISTRY[s.type] as { label: string } | undefined;
+    const ok = !!def && resolveSection(s).ok;
     const hidden = s.visible === false;
     const isFirst = group[0]?.id === s.id;
     const isLast = group[group.length - 1]?.id === s.id;
     return (
       <div key={s.id} className={`sw-comp-item${hidden ? " is-hidden" : ""}${ok ? "" : " is-invalid"}`}>
         <div className="sw-comp-item-main">
-          <span className="sw-comp-item-label">{def.label}</span>
+          <span className="sw-comp-item-label">{def?.label ?? s.type}</span>
           {hidden && <span className="sw-comp-tag">Hidden</span>}
           {!ok && <span className="sw-comp-tag sw-comp-tag-warn">Needs attention</span>}
         </div>
@@ -369,12 +402,16 @@ export function PageComposer({ clubId }: { clubId: string }) {
     );
   };
 
+  // Which column's palette is open, not merely whether one is. In main-side mode this is
+  // rendered once per column, and a single shared boolean opened BOTH menus from one click --
+  // two identical section lists on screen, so choosing from the wrong one silently added the
+  // section to the other column.
   const addPalette = (column: "main" | "side") => (
     <>
-      <button className="sw-comp-add" onClick={() => setAddOpen((o) => !o)}>
+      <button className="sw-comp-add" onClick={() => setAddOpen((o) => (o === column ? null : column))}>
         + Add a section
       </button>
-      {addOpen && (
+      {addOpen === column && (
         <div className="sw-comp-palette" role="menu">
           {SECTION_TYPES.map((type) => {
             const allowed = canAddSection(type, usedTypes);

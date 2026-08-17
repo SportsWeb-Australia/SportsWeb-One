@@ -107,6 +107,15 @@ export function PageRenderer({ layout, ctx, theme, layoutMode = "stack" }: PageR
             <div className="sw-page-full" key={i}>
               {renderItems(g.items, ctx)}
             </div>
+          ) : g.main.length === 0 ? (
+            // Side-only run: render it full width instead of as a two-column grid with an
+            // empty main track. CSS collapses an empty SIDE column, but there is no rule for
+            // an empty MAIN one -- and this state is one click away, because "add to sidebar"
+            // appends to the end of the document, so any page whose tail is full-width
+            // sections puts the new item in a group of its own with nothing beside it.
+            <div className="sw-page-full" key={i}>
+              {renderItems(g.side, ctx)}
+            </div>
           ) : (
             <div className="sw-page-cols" key={i}>
               <div className="sw-page-main">{renderItems(g.main, ctx)}</div>

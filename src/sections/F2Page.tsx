@@ -14,7 +14,13 @@ import { F2Chrome } from "./chrome/Chrome";
 export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: string }) {
   const [ctx, setCtx] = useState<SectionContext | null>(null);
   const [theme, setTheme] = useState<Record<string, string> | undefined>(undefined);
-  const { page, loading, notFound } = usePublicClubPage(clubId, slug);
+  // The shareable draft-review link is /?preview=<token>&f2=... . Both the hook and
+  // public_club_page have always supported a token; F2 simply never passed one, so draft
+  // layouts were unreachable through F2 even with a valid link. Read it once, thread it to
+  // the page RPC and to the chrome's nav RPC.
+  const previewToken =
+    typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("preview");
+  const { page, loading, notFound } = usePublicClubPage(clubId, slug, previewToken);
 
   // Declare this an F2 render: legacy data-variant token blocks stop applying.
   useEffect(() => {
@@ -48,7 +54,7 @@ export function F2Page({ clubId, slug = "home" }: { clubId: string; slug?: strin
   if (loading || !ctx) return <div className="sw-admin-loading">Loading&hellip;</div>;
   if (notFound || !page) return <div className="sw-admin-loading">This page is not published yet.</div>;
   return (
-    <F2Chrome clubId={clubId} ctx={ctx} theme={theme}>
+    <F2Chrome clubId={clubId} ctx={ctx} theme={theme} previewToken={previewToken}>
       <PageRenderer layout={page.layout} ctx={ctx} theme={theme} layoutMode={page.layoutMode} />
     </F2Chrome>
   );

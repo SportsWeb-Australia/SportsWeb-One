@@ -95,7 +95,15 @@ function HeroMatchCard({ ctx }: { ctx: SectionContext }): ReactNode {
 
 function FeatureHero({ props, ctx }: C<"hero">) {
   const m = props.media;
-  const hasMatchCard = props.showMatchCard === true && ctx.isEntitled("match_data") && ctx.matchCentre !== null;
+  // Requires actual data, not just an entitlement: HeroMatchCard renders null when there is
+  // no next fixture AND no latest result, so gating on `matchCentre !== null` alone reserved
+  // the 440px column for a card that never appeared — the hero text squeezed left against a
+  // large empty space, which is exactly the empty box Rule 9 forbids.
+  const mc = ctx.matchCentre;
+  const hasMatchCard =
+    props.showMatchCard === true &&
+    ctx.isEntitled("match_data") &&
+    !!(mc && (mc.fixtures[0] || mc.results[0]));
   return (
     <section className="sw-sec sw-sec--hero" data-layout="feature" data-has-match-card={hasMatchCard || undefined}>
       <div className="sw-sec-hero-photo">

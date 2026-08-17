@@ -6,15 +6,35 @@
 // F2 has no path-based routing per page yet (today's mechanism is ?f2=<slug> in App.tsx) --
 // nav hrefs use that same convention. Real routing is a separate, later concern; this chrome
 // does not invent one.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { SectionContext } from "../entitlement";
 import type { NavItem } from "../usePublicClubNav";
 import { usePublicClubNav } from "../usePublicClubNav";
 import { themeToStyle, type ThemeTokens } from "../PageRenderer";
 
+/**
+ * Build an F2 nav href, preserving the query params the current view was opened with.
+ *
+ * A bare `?f2=<slug>` replaces the ENTIRE query string, which silently dropped
+ * `?preview=<token>` — so the first nav click on a shared draft-review link kicked the
+ * reviewer out of preview and onto "not published yet". `?variant=` demo overrides were
+ * lost the same way. Only the `f2` param is ours to overwrite; everything else carries.
+ *
+ * `?f2=` is still today's routing mechanism, and real path routing is coming — keeping this
+ * the single place that knows the convention is what makes that a one-function change.
+ */
 function navHref(item: NavItem): string {
-  return item.isHome ? "?f2" : `?f2=${item.slug}`;
+  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+  if (item.isHome) params.set("f2", "");
+  else params.set("f2", item.slug);
+  // URLSearchParams renders an empty value as "f2=", which App.tsx reads as home ("" -> home).
+  return `?${params.toString()}`;
+}
+
+/** The same param-preserving rule for the brand/home link. */
+function homeHref(): string {
+  return navHref({ id: "", slug: "", title: "", navLabel: "", isHome: true, children: [] });
 }
 
 function NavLink({ item }: { item: NavItem }) {
@@ -61,14 +81,20 @@ export interface ChromeProps {
    *  sibling, so it needs its own copy of the same inline style to inherit the club's colours
    *  (see themeToStyle's export note in ../PageRenderer.tsx). */
   theme?: ThemeTokens;
+  /** Draft-review token, threaded from F2Page so the nav shows the draft page set. */
+  previewToken?: string | null;
   children: ReactNode;
 }
 
 /** Wraps a rendered F2 page with topbar + nav + footer. Every fact shown comes from the
  *  club's own real data (ctx.identity/ctx.contact, the nav RPC) -- never fabricated. */
-export function F2Chrome({ clubId, ctx, theme, children }: ChromeProps) {
-  const { items } = usePublicClubNav(clubId);
+export function F2Chrome({ clubId, ctx, theme, previewToken, children }: ChromeProps) {
+  const { items } = usePublicClubNav(clubId, previewToken);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Resolved after mount, never during render: F2 pages are pre-rendered at publish time, so
+  // a year computed while rendering would be baked in and still read 2026 next January.
+  const [year, setYear] = useState<number | undefined>(undefined);
+  useEffect(() => setYear(new Date().getFullYear()), []);
   const { identity, contact } = ctx;
 
   const hasTopbarContent = Boolean(contact.email || contact.phone || contact.facebook || contact.instagram);
@@ -107,7 +133,7 @@ export function F2Chrome({ clubId, ctx, theme, children }: ChromeProps) {
 
       <nav className="sw-chrome-nav">
         <div className="sw-chrome-nav-inner">
-          <a className="sw-chrome-nav-brand" href="?f2">
+          <a className="sw-chrome-nav-brand" href={homeHref()}>
             {identity.logo && <img className="sw-chrome-nav-logo" src={identity.logo} alt="" />}
             {identity.secondaryLogo && (
               <img className="sw-chrome-nav-logo sw-chrome-nav-logo--secondary" src={identity.secondaryLogo} alt="" />
@@ -161,7 +187,7 @@ export function F2Chrome({ clubId, ctx, theme, children }: ChromeProps) {
           </div>
         </div>
         <div className="sw-chrome-footer-bottom">
-          &copy; {new Date().getFullYear()} {identity.name}
+          &copy; {year ?? ""} {identity.name}
         </div>
       </footer>
     </div>

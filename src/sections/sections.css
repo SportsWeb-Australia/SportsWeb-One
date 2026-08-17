@@ -466,13 +466,17 @@ a.sw-sec-club-card:hover { transform: translateY(-2px); box-shadow: var(--shadow
   margin-inline: auto;
   padding: clamp(2.5rem, 6vw, 5rem) var(--space-3) var(--space-4);
   display: grid;
-  grid-template-columns: 1fr 440px;
+  /* Single column by default. The 440px match-card track is reserved only when the hero
+     actually has a card to put in it (data-has-match-card) -- unconditionally reserving it
+     left every card-less feature hero with its text pinned to the left of dead space. */
+  grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: stretch;
   position: relative;
   z-index: 1;
   width: 100%;
 }
+.sw-page .sw-sec--hero[data-has-match-card] .sw-sec-hero-grid { grid-template-columns: 1fr 440px; }
 .sw-page .sw-sec-hero-left { display: flex; flex-direction: column; min-width: 0; }
 .sw-page .sw-sec-hero-crest {
   width: clamp(64px, 9vw, 108px);

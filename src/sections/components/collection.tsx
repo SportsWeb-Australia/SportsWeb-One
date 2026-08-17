@@ -4,6 +4,7 @@
 // state -- never sample rows, never another club's data. Placeholder rows (the demo
 // scaffold that carries `placeholder: true`) are treated as no data and filtered out.
 import type { ReactNode } from "react";
+import { parseClubDate } from "../../lib/format";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf, SectionType } from "../schemas";
 
@@ -74,18 +75,24 @@ export function EventsSection({ props, ctx }: C<"events">) {
       ) : (
         <ul className="sw-sec-events-list">
           {items.map((e) => {
-            const d = new Date(e.date);
-            const day = Number.isNaN(d.getTime()) ? null : d.getDate();
-            const mon = Number.isNaN(d.getTime()) ? null : d.toLocaleString("en-AU", { month: "short" }).toUpperCase();
+            // parseClubDate, not `new Date(e.date)`: stored dates are bare yyyy-mm-dd, which
+            // parses as UTC midnight and reads back a day early for any viewer west of UTC.
+            const d = parseClubDate(e.date);
             return (
               <li key={e.id} className="sw-sec-events-item">
                 <div className="sw-sec-events-img" style={e.image ? { backgroundImage: `url(${e.image})` } : undefined}>
-                  {day && (
+                  {d ? (
                     <div className="sw-sec-events-datebadge">
-                      <span className="sw-sec-events-day">{day}</span>
-                      <span className="sw-sec-events-mon">{mon}</span>
+                      <span className="sw-sec-events-day">{d.getDate()}</span>
+                      <span className="sw-sec-events-mon">{d.toLocaleString("en-AU", { month: "short" }).toUpperCase()}</span>
                     </div>
-                  )}
+                  ) : e.date ? (
+                    // Not a parseable date ("TBC", "Every Friday"). Show it as given rather
+                    // than dropping the only timing information the card carries.
+                    <div className="sw-sec-events-datebadge">
+                      <span className="sw-sec-events-mon">{e.date}</span>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="sw-sec-events-body">
                   <span className="sw-sec-events-title">{e.title}</span>
