@@ -103,7 +103,40 @@ coach accreditation, first aid, "and anything else you can think of."
 - **Copy pass:** renamed "WWCC & compliance" to "Compliance register" in the
   admin nav (`AdminConsole.tsx`) and updated the Club Guide step body to stop
   reading as WWCC-only.
-- Didn't build: a genuine per-club requirement matrix (schema + UI to let a
-  club say "we don't need official accreditation" or "committee doesn't need
-  safeguarding here"). Flag if that's wanted — today it's one shared matrix
-  for every club, edited in code.
+- Didn't build (at the time): a genuine per-club requirement matrix — see next
+  addendum, Carson asked for this immediately after and it's now built.
+
+## Addendum 2: per-club requirement matrix (2026-08-18, later same day)
+
+The "one shared matrix for every club, edited in code" limitation above got
+closed the same day.
+
+- **New table `club_compliance_requirements`** (`club_id, role, check_type,
+  required`, unique per triple) — a club's overrides to the platform default.
+  No rows = pure platform default, unchanged behaviour. RLS matches
+  `compliance_records` (`club_senior_admin`/`club_admin`/platform admin).
+- **Merge rule** (same on both sides, deliberately simple — override wins,
+  no partial/inherited state): effective = platform default MINUS anything
+  explicitly turned off for this club PLUS anything explicitly turned on.
+  Implemented as `computeEffectiveRequirements()` in `complianceTypes.ts` and
+  mirrored in SQL in `supabase/compliance-club-requirements.sql`
+  (`compliance_risk_count` takes `p_club` directly; `compliance_alert_targets`
+  scans every club in one pass so its version uses a `LATERAL` join per
+  person/role instead of a single club filter — same merge logic, different
+  shape because of what each function iterates over).
+- **New screen `ComplianceSettings.tsx`** (`__compliance_settings`, reached
+  via a "Settings" button on the register, same `club.users` gate) — a
+  role × check-type grid, one checkbox per cell, autosaves on toggle (same
+  optimistic-update pattern as `AdminModules.tsx`'s module toggles). Cells
+  with a club-specific override are marked "custom" so it's clear what's a
+  platform default vs. a deliberate local choice. A "Reset to defaults"
+  button clears all of a club's overrides in one go.
+- **Scope, deliberately**: this only lets a club change WHICH check types a
+  role needs — the roles themselves (`COMPLIANCE_ROLES` in
+  `complianceTypes.ts`: coach, assistant coach, team manager, trainer,
+  committee, volunteer, official, administrator) are fixed. A club can't add
+  a new role to the register (e.g. "bar volunteer") through this — that would
+  mean touching the roles model itself, out of scope here.
+- Verified live: inserted a test override turning off `safeguarding` for
+  `committee` and turning on `rsa` for `volunteer` on the demo club, confirmed
+  the `requirements` CTE picked both up correctly, then deleted the test rows.

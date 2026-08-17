@@ -2,27 +2,28 @@ import { useEffect, useMemo, useState } from "react";
 import { useActiveClub } from "./ActiveClub";
 import { supabase } from "../lib/supabase";
 import { listClubMembers, type ClubMember } from "../lib/people";
+import { listComplianceRequirementOverrides } from "../lib/complianceRequirements";
 import {
   CHECK_TYPES,
   CHECK_TYPE_LABEL,
-  REQUIRED_ROLES,
   COMPLIANCE_ROLES,
   CHECK_STATE_ORDER,
   EXPIRING_DAYS,
   checkStateFor,
+  computeEffectiveRequirements,
   STATE_LABEL,
   STATE_TONE,
   type CheckTypeKey,
   type CheckState,
   type ComplianceRecord,
+  type ComplianceRequirementOverride,
 } from "../lib/complianceTypes";
 
 // Club-wide compliance register: every check type a role requires (WWCC, coach
 // accreditation, first aid...), plus anything else a club chooses to record
 // (RSA, food safety...), rolled up into what's Done / Coming up / Expired /
-// At risk. See src/lib/complianceTypes.ts for the requirement matrix.
-
-const TRACKED_ONLY_TYPES = CHECK_TYPES.map(([k]) => k).filter((k) => !REQUIRED_ROLES[k]);
+// At risk. Which checks each role requires can be customised per club — see
+// ComplianceSettings.tsx and src/lib/complianceTypes.ts.
 
 type Item = {
   personId: string;
@@ -36,10 +37,11 @@ type Item = {
 
 type Bucket = "attention" | CheckState;
 
-export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => void }) {
+export function ComplianceReport({ onOpen, onOpenSettings }: { onOpen: (personId: string) => void; onOpenSettings: () => void }) {
   const { clubId } = useActiveClub();
   const [members, setMembers] = useState<ClubMember[]>([]);
   const [comp, setComp] = useState<ComplianceRecord[]>([]);
+  const [overrides, setOverrides] = useState<ComplianceRequirementOverride[]>([]);
   const [loading, setLoading] = useState(true);
   const [bucket, setBucket] = useState<Bucket>("attention");
   const [typeFilter, setTypeFilter] = useState<CheckTypeKey | "all">("all");
@@ -50,12 +52,20 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
     Promise.all([
       listClubMembers(clubId),
       supabase.from("compliance_records").select("person_id, check_type, expires_on, status").eq("club_id", clubId),
-    ]).then(([mem, cRes]) => {
+      listComplianceRequirementOverrides(clubId),
+    ]).then(([mem, cRes, ovr]) => {
       setMembers(mem);
       setComp(((cRes.data as ComplianceRecord[]) ?? []));
+      setOverrides(ovr);
       setLoading(false);
     });
   }, [clubId]);
+
+  const effectiveRequired = useMemo(() => computeEffectiveRequirements(overrides), [overrides]);
+  const trackedOnlyTypes = useMemo(
+    () => CHECK_TYPES.map(([k]) => k).filter((k) => !effectiveRequired[k]),
+    [effectiveRequired],
+  );
 
   const items = useMemo<Item[]>(() => {
     const byPerson = new Map<string, ComplianceRecord[]>();
@@ -66,11 +76,11 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
     }
     const out: Item[] = [];
 
-    // Required: every person holding a role that needs this check type.
+    // Required: every person holding a role that needs this check type (this club's effective rules).
     for (const m of members) {
       if (m.isMinor) continue;
       const recs = byPerson.get(m.personId) ?? [];
-      for (const [checkType, roles] of Object.entries(REQUIRED_ROLES) as [CheckTypeKey, string[]][]) {
+      for (const [checkType, roles] of Object.entries(effectiveRequired) as [CheckTypeKey, string[]][]) {
         if (!m.roles.some((r) => roles.includes(r))) continue;
         out.push({
           personId: m.personId,
@@ -86,7 +96,7 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
 
     // Tracked-only: not required by any role, but shown (and expiry-flagged) for
     // whoever actually has one on file. Never "missing" — nobody's assigned it.
-    for (const checkType of TRACKED_ONLY_TYPES) {
+    for (const checkType of trackedOnlyTypes) {
       const holders = new Set(comp.filter((c) => c.check_type === checkType).map((c) => c.person_id));
       for (const personId of holders) {
         const m = members.find((x) => x.personId === personId);
@@ -108,7 +118,7 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
       const s = CHECK_STATE_ORDER.indexOf(a.state) - CHECK_STATE_ORDER.indexOf(b.state);
       return s !== 0 ? s : a.fullName.localeCompare(b.fullName);
     });
-  }, [members, comp]);
+  }, [members, comp, effectiveRequired, trackedOnlyTypes]);
 
   const counts = useMemo(() => {
     const c = { valid: 0, expiring: 0, expired: 0, missing: 0 };
@@ -163,7 +173,10 @@ export function ComplianceReport({ onOpen }: { onOpen: (personId: string) => voi
     <div className="sw-admin-panel">
       <div className="sw-admin-formhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <h2>Compliance register</h2>
-        {items.length > 0 && <button className="sw-btn sw-btn--sm" onClick={exportCsv}>Export CSV</button>}
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="sw-btn sw-btn--sm sw-btn--ghost" onClick={onOpenSettings}>Settings</button>
+          {items.length > 0 && <button className="sw-btn sw-btn--sm" onClick={exportCsv}>Export CSV</button>}
+        </div>
       </div>
       <p className="sw-admin-note">
         WWCC, coach/trainer accreditation, first aid, and anything else you record against a role — what&apos;s done,

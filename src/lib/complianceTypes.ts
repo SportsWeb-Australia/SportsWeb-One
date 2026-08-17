@@ -3,16 +3,18 @@
  * types clubs can record (MemberDetail's Compliance tab) and for what each
  * role is expected to hold (ComplianceReport's risk register).
  *
- * The role → required-checks matrix is a reasonable default across community
- * sport, not a per-sport/state rulebook — clubs vary (a lacrosse club doesn't
- * need umpire accreditation the way AFL does, some states fold police checks
- * into WWCC, etc). There's no per-club override today; tune the matrix below
- * if a club's real requirements differ. "Optional" types are still tracked
- * (recorded, expiry-flagged) but nobody is marked "at risk" for lacking one,
- * since no role here is defined to require it.
+ * PLATFORM_REQUIRED_ROLES is the reasonable default across community sport,
+ * not a per-sport/state rulebook — clubs vary (a lacrosse club doesn't need
+ * umpire accreditation the way AFL does, some states fold police checks into
+ * WWCC, etc). Individual clubs can override it — see club_compliance_requirements
+ * (supabase/compliance-club-requirements.sql) and computeEffectiveRequirements
+ * below, which merges the platform default with a club's own overrides.
+ * "Optional" types (not in PLATFORM_REQUIRED_ROLES, and not overridden on for
+ * a role) are still tracked (recorded, expiry-flagged) but nobody is marked
+ * "at risk" for lacking one, since no role requires it.
  *
- * The equivalent requirement matrix lives server-side too, in
- * supabase/compliance-completion.sql (compliance_risk_count /
+ * The equivalent merge logic lives server-side too, in
+ * supabase/compliance-club-requirements.sql (compliance_risk_count /
  * compliance_alert_targets) — keep the two in sync if you change either.
  */
 
@@ -47,8 +49,17 @@ export const CHECK_TYPES: [CheckTypeKey, string][] = [
 
 export const CHECK_TYPE_LABEL: Record<CheckTypeKey, string> = Object.fromEntries(CHECK_TYPES) as Record<CheckTypeKey, string>;
 
-/** Roles that must hold each check type for the club to be "covered". Drives the missing/at-risk count. */
-export const REQUIRED_ROLES: Partial<Record<CheckTypeKey, string[]>> = {
+/** Every role compliance tracking applies to — fixed, not affected by per-club overrides (a club can change WHICH checks a role needs, not add new roles to the register). */
+export const COMPLIANCE_ROLES = [
+  "coach", "assistant_coach", "team_manager", "trainer", "committee", "volunteer", "official", "administrator",
+];
+export const ROLE_LABEL: Record<string, string> = {
+  coach: "Coach", assistant_coach: "Assistant coach", team_manager: "Team manager", trainer: "Trainer",
+  committee: "Committee", volunteer: "Volunteer", official: "Official", administrator: "Administrator",
+};
+
+/** Platform-default roles that must hold each check type. Clubs can override per role/check-type — see computeEffectiveRequirements. */
+export const PLATFORM_REQUIRED_ROLES: Partial<Record<CheckTypeKey, string[]>> = {
   wwcc: ["coach", "assistant_coach", "team_manager", "trainer", "committee", "volunteer", "official", "administrator"],
   coach_accreditation: ["coach", "assistant_coach"],
   trainer_accreditation: ["trainer"],
@@ -57,8 +68,47 @@ export const REQUIRED_ROLES: Partial<Record<CheckTypeKey, string[]>> = {
   safeguarding: ["committee", "administrator"],
 };
 
-/** Every role that has at least one required check — the population ComplianceReport tracks. */
-export const COMPLIANCE_ROLES = Array.from(new Set(Object.values(REQUIRED_ROLES).flat()));
+export interface ComplianceRequirementOverride {
+  role: string;
+  check_type: CheckTypeKey;
+  required: boolean;
+}
+
+/**
+ * Merge the platform default with a club's overrides: default MINUS any
+ * (role, check_type) explicitly turned off, PLUS any explicitly turned on.
+ * Mirrors the `requirements`/`req` CTEs in compliance-club-requirements.sql.
+ */
+export function computeEffectiveRequirements(
+  overrides: ComplianceRequirementOverride[],
+): Partial<Record<CheckTypeKey, string[]>> {
+  const byType = new Map<CheckTypeKey, Set<string>>();
+  for (const [checkType, roles] of Object.entries(PLATFORM_REQUIRED_ROLES) as [CheckTypeKey, string[]][]) {
+    byType.set(checkType, new Set(roles));
+  }
+  for (const o of overrides) {
+    const set = byType.get(o.check_type) ?? new Set<string>();
+    if (o.required) set.add(o.role);
+    else set.delete(o.role);
+    byType.set(o.check_type, set);
+  }
+  const out: Partial<Record<CheckTypeKey, string[]>> = {};
+  for (const [checkType, set] of byType) {
+    if (set.size > 0) out[checkType] = Array.from(set);
+  }
+  return out;
+}
+
+/** Whether a club's effective rules require this role to hold this check type. */
+export function isRequired(
+  overrides: ComplianceRequirementOverride[],
+  role: string,
+  checkType: CheckTypeKey,
+): boolean {
+  const o = overrides.find((x) => x.role === role && x.check_type === checkType);
+  if (o) return o.required;
+  return (PLATFORM_REQUIRED_ROLES[checkType] ?? []).includes(role);
+}
 
 export type CheckState = "valid" | "expiring" | "expired" | "missing";
 export const CHECK_STATE_ORDER: CheckState[] = ["missing", "expired", "expiring", "valid"];

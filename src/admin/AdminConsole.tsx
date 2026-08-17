@@ -145,7 +145,7 @@ const CLUB_APP_OF: Record<string, string> = {
   __dashboard: "__dashboard", __setup: "__dashboard", __needs: "__dashboard", __guide: "__dashboard",
   __site: "__site", __website: "__site", __feedback: "__site", __site_history: "__site",
   news: "__site", events: "__site", sponsors: "__site",
-  __members: "__members", __people: "__members", __reports_members: "__members", __compliance: "__members",
+  __members: "__members", __people: "__members", __reports_members: "__members", __compliance: "__members", __compliance_settings: "__members",
   __teams_seasons: "__teams_seasons",
   __comms: "__comms", __comms_reports: "__comms",
   __modules: "__modules",
