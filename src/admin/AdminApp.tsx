@@ -14,6 +14,7 @@ import { MemberDetail } from "./MemberDetail";
 import { TeamsSeasons } from "./TeamsSeasons";
 import { Reports } from "./Reports";
 import { ComplianceReport } from "./ComplianceReport";
+import { ComplianceSettings } from "./ComplianceSettings";
 import { ClubGuide } from "./ClubGuide";
 import { MfaGate } from "./MfaGate";
 import { AdminWebsite } from "./AdminWebsite";
@@ -396,7 +397,9 @@ function AdminInner() {
     ) : effectiveActive === "__reports_members" && can("club.users") ? (
       <Reports section="members" />
     ) : effectiveActive === "__compliance" && can("club.users") ? (
-      <ComplianceReport onOpen={(id) => setActive(`__member_${id}`)} />
+      <ComplianceReport onOpen={(id) => setActive(`__member_${id}`)} onOpenSettings={() => setActive("__compliance_settings")} />
+    ) : effectiveActive === "__compliance_settings" && can("club.users") ? (
+      <ComplianceSettings onBack={() => setActive("__compliance")} />
     ) : effectiveActive === "__comms" && can("club.comms") ? (
       <Communications />
     ) : effectiveActive === "__comms_reports" && can("club.comms") ? (

@@ -28,8 +28,8 @@ const STEPS: Step[] = [
   },
   {
     n: 3,
-    title: "Record WWCC & checks",
-    body: "On each member's profile, the Compliance tab records Working with Children Checks, police checks and accreditations with their expiry. Then Members → WWCC & compliance shows anyone coaching or on the committee without a valid check — your child-safety risk at a glance.",
+    title: "Record compliance checks",
+    body: "On each member's profile, the Compliance tab records Working with Children Checks, first aid, coach/trainer accreditation and anything else your club tracks, with their expiry. Then Members → Compliance register shows what's done, coming up, expired or missing across everyone in a role that requires it.",
     cta: "Check compliance",
     go: "__compliance",
     tone: "crit",

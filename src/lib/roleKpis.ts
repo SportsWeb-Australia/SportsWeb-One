@@ -81,17 +81,17 @@ export async function getSportswebMetrics(clubId: string | null): Promise<Partia
   );
   if (vols != null) out.volunteers = { active: vols, openTasks: 0 };
 
-  // Compliance — checks expiring within 30 days (or already lapsed).
-  const soon = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
-  const risks = await countOf(() =>
-    sb
-      .from("volunteer_compliance_records")
-      .select("id", { count: "exact", head: true })
-      .eq("club_id", clubId)
-      .not("expires_on", "is", null)
-      .lte("expires_on", soon)
-  );
-  if (risks != null) out.compliance = { risks };
+  // Compliance — people missing, or expired/expiring within 60 days on, any
+  // check their role requires (WWCC, coach/trainer accreditation, first aid,
+  // official accreditation, safeguarding). Mirrors the compliance register's
+  // own logic server-side (compliance_risk_count), not volunteer_compliance_
+  // records — that table belongs to the separate VolunteerOne module.
+  try {
+    const { data, error } = await sb.rpc("compliance_risk_count", { p_club: clubId });
+    if (!error && typeof data === "number") out.compliance = { risks: data };
+  } catch {
+    /* not authorised (e.g. club_admin without club.users) — leave unset */
+  }
 
   return out;
 }
@@ -172,7 +172,7 @@ export function buildKpis(persona: Persona, local: LocalCounts, m: Metrics): { h
         variance(),
         { label: "Pending registrations", value: reg?.pending ?? null, source: "sportsweb", tone: reg && reg.pending > 0 ? "warn" : "good" },
         { label: "Active volunteers", value: m.volunteers?.active ?? null, source: "sportsweb", tone: "info" },
-        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "Expiring WWCC / accreditation" },
+        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "WWCC, accreditation & other checks" },
         { label: "Open committee tasks", value: m.tasks?.open ?? null, source: "either", tone: m.tasks && m.tasks.open > 0 ? "warn" : "good" },
         upcomingEvents(),
         { label: "Active sponsors", value: local.sponsors, source: "sportsweb", tone: "plain", go: "sponsors" },
@@ -199,7 +199,7 @@ export function buildKpis(persona: Persona, local: LocalCounts, m: Metrics): { h
       cards: [
         { label: "Pending registrations", value: reg?.pending ?? null, source: "sportsweb", tone: reg && reg.pending > 0 ? "warn" : "good" },
         { label: "Open governance tasks", value: m.tasks?.open ?? null, source: "either", tone: m.tasks && m.tasks.open > 0 ? "warn" : "good" },
-        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good" },
+        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "WWCC, accreditation & other checks" },
         upcomingEvents(),
       ],
     };
@@ -212,7 +212,7 @@ export function buildKpis(persona: Persona, local: LocalCounts, m: Metrics): { h
         { label: "Teams", value: local.teams, source: "sportsweb", tone: "info" },
         upcomingEvents(),
         { label: "Players on file", value: m.members?.active ?? null, source: "sportsweb", tone: "info", hint: "Across the club" },
-        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "WWCC / accreditation" },
+        { label: "Compliance risks", value: m.compliance?.risks ?? null, source: "sportsweb", tone: m.compliance && m.compliance.risks > 0 ? "bad" : "good", hint: "WWCC, accreditation & other checks" },
       ],
     };
   }

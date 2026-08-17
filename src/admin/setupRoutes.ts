@@ -10,4 +10,5 @@ export const SETUP_ROUTES: Record<string, string> = {
   website: "__site",
   teams: "__teams_seasons",
   invite: "__members",
+  compliance: "__compliance",
 };
