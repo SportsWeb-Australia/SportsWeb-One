@@ -5,7 +5,11 @@
 -- a prose mention in docs/codey-brief-10-the-design-layer.md:183 -- "The variant fence + drift
 -- guard already cover the new enum" -- written as if the reader already knows this exists.
 -- Whoever built this applied it directly to the DB and never captured the SQL to a file.
--- Idempotent, a no-op on prod, nothing changed here -- record reality first per
+-- Idempotent. NOTE: the "no-op on prod" claim below was WRONG -- introspection on
+-- 2026-08-17 found none of these four functions existed on production, so this file was
+-- APPLIED to PRODUCTION that day (authorized by Carson). PageComposer calls
+-- save_club_page_draft for every Save and Publish, so without it the composer could not
+-- save at all. Record reality first per
 -- docs/engineering-conventions.md sec 5 ("two sources of truth drift"; this was a THIRD case
 -- -- a source of truth that existed in NO file at all, not even a stale one).
 --
