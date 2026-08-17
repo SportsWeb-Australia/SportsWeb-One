@@ -165,3 +165,12 @@ $function$;
 
 revoke all on function public.compliance_alert_targets() from public;
 grant execute on function public.compliance_alert_targets() to service_role;
+
+-- ----------------------------------------------------------------------------
+-- Launch checklist copy — was WWCC-specific, now the register covers more.
+-- ----------------------------------------------------------------------------
+
+update public.launch_step_catalog
+set title = 'Record compliance checks',
+    help_md = 'On each committee/coach profile, the Compliance tab records Working with Children Checks, accreditations and other checks with their expiry.'
+where step_key = 'club.compliance';
