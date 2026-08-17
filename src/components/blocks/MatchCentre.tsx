@@ -6,6 +6,7 @@ import { EditableText } from "../edit/Editable";
 import { getMatchData } from "../../lib/matchData";
 import { LiveScoresEmbed } from "./LiveScoresEmbed";
 import { FixturesLadderEmbed } from "./FixturesLadderEmbed";
+import { TeamLineupsEmbed } from "./TeamLineupsEmbed";
 import type { MatchCentreData } from "../../content/types";
 
 type Tab = "fixtures" | "results" | "ladder";
@@ -38,6 +39,7 @@ export function MatchCentre({ bare }: Props) {
     <>
       <FixturesLadderEmbed club={club} />
       <LiveScoresEmbed club={club} />
+      <TeamLineupsEmbed club={club} />
 
       {data.liveLinks && data.liveLinks.length > 0 && (
         <div className="sw-mc-live">

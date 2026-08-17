@@ -44,6 +44,7 @@ export const AI_AUTHORABLE: Record<SectionType, Record<string, AiAuthorable>> = 
   match_data: {},
   scoreboard: {},
   ticker: {},
+  team_lineups_embed: {},
 };
 
 /** The class of a field, defaulting to "free". */

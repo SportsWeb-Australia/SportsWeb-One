@@ -261,6 +261,12 @@ export const tickerSchema = z.object({
   count: z.number().int().positive().max(20).optional(),
 });
 
+/** The standalone Team Line-Ups product's public graphic, embedded via iframe.
+ *  No display config -- the source app owns everything the graphic shows.
+ *  Not to be confused with `team_lineup` (singular): that's authored named-XI
+ *  content, this is a live embed of a separately-deployed module. */
+export const teamLineupsEmbedSchema = z.object({});
+
 // ---- the type union + per-type schema map -----------------------------------
 export const SECTION_SCHEMAS = {
   // content
@@ -286,6 +292,7 @@ export const SECTION_SCHEMAS = {
   match_data: matchDataSchema,
   scoreboard: scoreboardSchema,
   ticker: tickerSchema,
+  team_lineups_embed: teamLineupsEmbedSchema,
 } as const;
 
 export type SectionType = keyof typeof SECTION_SCHEMAS;

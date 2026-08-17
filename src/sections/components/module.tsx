@@ -8,6 +8,7 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 import type { Fixture, LadderRow, Result } from "../../content/types";
+import { teamLineupsEmbedUrl } from "../../lib/modules";
 import type { SectionContext } from "../entitlement";
 import type { PropsOf } from "../schemas";
 
@@ -240,5 +241,28 @@ export function TickerSection({ props, ctx }: { props: PropsOf<"ticker">; ctx: S
         )}
       </div>
     </div>
+  );
+}
+
+/** Embeds the standalone Team Line-Ups product's public graphic (a separately
+ *  deployed app, not SW1 data) via iframe. No props: the source app owns
+ *  everything the graphic shows. Sends no resize postMessage (a fixed field
+ *  graphic, not a variable-height table), so a fixed aspect ratio stands in for
+ *  the resize-listener pattern match_data/scoreboard don't need. Not to be
+ *  confused with `team_lineup` (singular) -- that's authored named-XI content. */
+export function TeamLineupsEmbedSection({ ctx }: { props: PropsOf<"team_lineups_embed">; ctx: SectionContext }) {
+  if (!ctx.isEntitled("team_lineups_embed")) return null; // not entitled -> nothing
+  const src = teamLineupsEmbedUrl(ctx.clubId);
+  if (!src) return null;
+
+  return (
+    <section className="sw-sec sw-sec--team-lineups-embed">
+      <iframe
+        src={src}
+        title="Team Line-Ups"
+        loading="lazy"
+        style={{ width: "100%", aspectRatio: "3 / 4", border: 0, borderRadius: 18, background: "transparent" }}
+      />
+    </section>
   );
 }
