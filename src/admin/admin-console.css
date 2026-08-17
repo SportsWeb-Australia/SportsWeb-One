@@ -19,6 +19,38 @@
   --shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.08);
   --shadow-h:0 4px 12px rgba(16,24,40,.10);
   --r:12px; --rail:60px; --sub:230px;
+
+  /* ------------------------------------------------------------------------
+     Public-site tokens, neutralised.
+
+     The admin shares its document with the club's public site, and App puts the
+     club's chosen design variant on <html data-variant="...">. Those variant
+     blocks (src/styles/tokens.css) define the PUBLIC palette on :root -- and
+     several templates are dark: club-modern/broadcast sets --surface:#14181b
+     together with --text:#f4f6f7, which is coherent on the club's own site.
+
+     Legacy admin screens are styled from src/styles/blocks.css and borrow those
+     same token NAMES (.sw-dash-panel uses var(--surface), .sw-bar-label uses
+     var(--text-soft), and so on). This shell sets its own `color:var(--ink)`,
+     which is dark. Result on a club with a dark template: a near-black card with
+     near-black text on it -- measured at 1.14:1, where 4.5:1 is the minimum --
+     and role pills rendering --text light-on-light at 1.02:1. Both were
+     invisible on Eastside United SC.
+
+     The 2026-08-04 relayout fixed the CANVAS by introducing --bg/--card/--ink,
+     but it did not remap the public names the legacy screens actually read, so
+     those screens stayed exposed. Mapping them here fixes every such screen at
+     once, and keeps the console immune to whatever template any club picks.
+
+     An embedded F2 preview is unaffected: PageRenderer writes theme tokens as
+     INLINE styles on .sw-page, and an inline custom property beats this rule. */
+  --surface:var(--card); --surface-2:var(--line2);
+  --bg-alt:var(--bg); --bg-invert:var(--n-bg);
+  --text:var(--ink); --text-soft:var(--muted); --text-faint:var(--faint);
+  --border:var(--line); --border-soft:var(--line2);
+  --accent:var(--brand); --accent-on-bg:var(--brand);
+  --radius:10px; --radius-lg:var(--r);
+
   position:fixed; inset:0; z-index:1; display:flex; flex-direction:column;
   background:var(--bg); color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
